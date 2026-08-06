@@ -9,7 +9,13 @@
       "Bash(node -e ' *)",
       "Bash(npm audit *)",
       "Bash(npm list *)",
-      "Bash(curl -s http://localhost:5173)"
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(git config *)",
+      "Bash(git commit *)",
+      "Bash(git remote *)",
+      "Bash(git branch *)",
+      "Bash(git push *)",
+      "Bash(git add *)"
     ]
   }
 }

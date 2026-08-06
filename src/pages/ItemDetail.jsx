@@ -18,15 +18,32 @@ const SCROLL_ORDER = [
   'Blacksmith Handbook', 'Scroll of War', 'Magic Stone',
 ]
 
-function PriceInput({ materialId, rawInputs, onPriceChange }) {
+function PriceInput({ materialId, value, onPriceChange }) {
   return (
     <input
       type="text"
       placeholder="e.g. 50kk"
-      value={rawInputs[materialId] ?? ''}
+      value={value ?? ''}
       onChange={e => onPriceChange(materialId, e.target.value)}
       className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 w-28 text-right text-sm focus:outline-none focus:border-yellow-400 shrink-0 transition-colors"
     />
+  )
+}
+
+function MatRow({ mat, quantity, rawValue, price, onPriceChange, formatYang }) {
+  const lineTotal = (parseFloat(price) || 0) * quantity
+  return (
+    <div className="flex items-center gap-3 min-w-0">
+      <div className="w-8 h-8 shrink-0 flex items-center justify-center">
+        {mat.image_url
+          ? <img src={mat.image_url} alt={mat.name} className="w-full h-full object-contain" />
+          : <span className="text-lg">🧪</span>}
+      </div>
+      <span className="flex-1 text-sm text-gray-200 truncate">{mat.name}</span>
+      <span className="text-gray-500 text-xs shrink-0">×{quantity}</span>
+      <PriceInput materialId={mat.id} value={rawValue} onPriceChange={onPriceChange} />
+      <span className="text-yellow-400 text-sm w-24 text-right font-mono shrink-0">{formatYang(lineTotal)}</span>
+    </div>
   )
 }
 
@@ -106,23 +123,6 @@ export default function ItemDetail() {
 
   const allSteps = [...new Set([...Object.keys(grouped).map(Number), ...Object.keys(yangCosts).map(Number)])].sort((a, b) => a - b)
   const total = allSteps.reduce((s, step) => (step === 0 && !includeCraft) ? s : s + stepTotal(step), 0)
-
-  function MatRow({ mat, quantity }) {
-    const lineTotal = (parseFloat(prices[mat.id]) || 0) * quantity
-    return (
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="w-8 h-8 shrink-0 flex items-center justify-center">
-          {mat.image_url
-            ? <img src={mat.image_url} alt={mat.name} className="w-full h-full object-contain" />
-            : <span className="text-lg">🧪</span>}
-        </div>
-        <span className="flex-1 text-sm text-gray-200 truncate">{mat.name}</span>
-        <span className="text-gray-500 text-xs shrink-0">×{quantity}</span>
-        <PriceInput materialId={mat.id} rawInputs={rawInputs} onPriceChange={handlePriceChange} />
-        <span className="text-yellow-400 text-sm w-24 text-right font-mono shrink-0">{formatYang(lineTotal)}</span>
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen text-white">
@@ -212,13 +212,13 @@ export default function ItemDetail() {
                         )}
 
                         {(grouped[step] ?? []).map(row => (
-                          <MatRow key={row.material.id} mat={row.material} quantity={row.quantity} />
+                          <MatRow key={row.material.id} mat={row.material} quantity={row.quantity} rawValue={rawInputs[row.material.id]} price={prices[row.material.id]} onPriceChange={handlePriceChange} formatYang={formatYang} />
                         ))}
 
                         {hasExtras && (
                           <div className="border-t border-gray-700/60 pt-3 flex flex-col gap-3">
-                            {scrollMat && <MatRow mat={scrollMat} quantity={1} />}
-                            {stepSealMats.map(s => <MatRow key={s.id} mat={s} quantity={1} />)}
+                            {scrollMat && <MatRow mat={scrollMat} quantity={1} rawValue={rawInputs[scrollMat.id]} price={prices[scrollMat.id]} onPriceChange={handlePriceChange} formatYang={formatYang} />}
+                            {stepSealMats.map(s => <MatRow key={s.id} mat={s} quantity={1} rawValue={rawInputs[s.id]} price={prices[s.id]} onPriceChange={handlePriceChange} formatYang={formatYang} />)}
                           </div>
                         )}
                       </div>
