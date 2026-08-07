@@ -176,7 +176,20 @@ export function buildDefaultScrollMap(scrollMaterials) {
   }
 }
 
-// Auto price for an item used as an ingredient: materials + nested items + yang + default scroll per step, pity=1, no seals.
+function loadItemChoices(itemId) {
+  try {
+    const raw = localStorage.getItem(`item_choices_${itemId}`)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+// Price for an item used as an ingredient: materials + nested items + yang, using
+// whatever scroll/seal/pity/include-craft choices the user already saved on that
+// item's own page (item_choices_<id> in localStorage). Falls back to the default
+// scroll auto-selection, pity=1, no seals, craft included — only if the item was
+// never opened/configured, matching what its page would show on first visit.
 // ctx.materialPriceFn: (materialId) => number — supplied by the caller, own- or global-mode aware.
 export function computeItemPrice(itemId, ctx, visited = new Set()) {
   if (visited.has(itemId)) return 0
@@ -192,8 +205,13 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
     ...Object.keys(yangSteps).map(Number),
   ])
 
+  const choices = loadItemChoices(itemId)
+  const includeCraft = choices?.includeCraft ?? true
+
   let total = 0
   for (const step of steps) {
+    if (step === 0 && !includeCraft) continue
+
     let stepCost = 0
     for (const row of matSteps[step] ?? []) {
       stepCost += ctx.materialPriceFn(row.material_id) * row.quantity
@@ -202,10 +220,18 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
       stepCost += computeItemPrice(row.component_item_id, ctx, nextVisited) * row.quantity
     }
     stepCost += yangSteps[step] ?? 0
+
     if (step !== 0) {
-      const scrollId = ctx.defaultScrollByStep[step]
+      const scrollId = choices ? (choices.selectedScroll?.[step] ?? '') : ctx.defaultScrollByStep[step]
       if (scrollId) stepCost += ctx.materialPriceFn(scrollId)
+
+      const sealIds = choices?.selectedSeals?.[step] ?? []
+      for (const sealId of sealIds) stepCost += ctx.materialPriceFn(sealId)
+
+      const pity = choices ? Math.max(1, parseInt(choices.pity?.[step]) || 1) : 1
+      stepCost *= pity
     }
+
     total += stepCost
   }
   return total
