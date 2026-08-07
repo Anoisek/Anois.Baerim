@@ -238,12 +238,12 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
 
       const sealIds = choices?.selectedSeals?.[step] ?? []
       for (const sealId of sealIds) stepCost += ctx.materialPriceFn(sealId)
-
-      let pity = choices ? Math.max(1, parseInt(choices.pity?.[step]) || 1) : 1
-      const maxPity = ctx.itemMaxPity?.[itemId]?.[step]
-      if (maxPity) pity = Math.min(pity, maxPity)
-      stepCost *= pity
     }
+
+    let pity = choices ? Math.max(1, parseInt(choices.pity?.[step]) || 1) : 1
+    const maxPity = ctx.itemMaxPity?.[itemId]?.[step]
+    if (maxPity) pity = Math.min(pity, maxPity)
+    stepCost *= pity
 
     total += stepCost
   }

@@ -343,19 +343,17 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
             <span className="text-gray-400 text-sm shrink-0">yang</span>
           </div>
 
-          {activeStep !== 0 && (
-            <div className="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
-              <span className="text-yellow-400 text-sm font-semibold shrink-0">Max pity</span>
-              <input
-                type="number"
-                min="1"
-                placeholder="no limit"
-                value={stepMaxPity[activeStep] ?? ''}
-                onChange={e => setStepMaxPity(prev => ({ ...prev, [activeStep]: e.target.value }))}
-                className="bg-transparent flex-1 text-white text-sm focus:outline-none text-right"
-              />
-            </div>
-          )}
+          <div className="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+            <span className="text-yellow-400 text-sm font-semibold shrink-0">Max pity</span>
+            <input
+              type="number"
+              min="1"
+              placeholder="no limit"
+              value={stepMaxPity[activeStep] ?? ''}
+              onChange={e => setStepMaxPity(prev => ({ ...prev, [activeStep]: e.target.value }))}
+              className="bg-transparent flex-1 text-white text-sm focus:outline-none text-right"
+            />
+          </div>
 
           {/* Materials / Items switch */}
           <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-lg p-1">

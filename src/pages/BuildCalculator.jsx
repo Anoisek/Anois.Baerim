@@ -108,7 +108,7 @@ export default function BuildCalculator() {
     for (const id of selectedIds) {
       const choices = loadItemChoices(id) ?? { selectedScroll: {}, selectedSeals: {}, pity: {}, includeCraft: true }
       const nextPity = {}
-      for (let s = 1; s <= 9; s++) nextPity[s] = 1
+      for (let s = 0; s <= 9; s++) nextPity[s] = 1
       choices.pity = nextPity
       localStorage.setItem(`item_choices_${id}`, JSON.stringify(choices))
     }
@@ -120,7 +120,7 @@ export default function BuildCalculator() {
       const choices = loadItemChoices(id) ?? { selectedScroll: {}, selectedSeals: {}, pity: {}, includeCraft: true }
       const maxMap = allItemMaxPity[id] ?? {}
       const nextPity = { ...choices.pity }
-      for (let s = 1; s <= 9; s++) {
+      for (let s = 0; s <= 9; s++) {
         if (maxMap[s]) nextPity[s] = maxMap[s]
       }
       choices.pity = nextPity

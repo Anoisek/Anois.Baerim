@@ -172,7 +172,7 @@ export default function ItemDetail() {
   function resetAllPity() {
     setPity(prev => {
       const next = { ...prev }
-      for (let s = 1; s <= 9; s++) next[s] = 1
+      for (let s = 0; s <= 9; s++) next[s] = 1
       return next
     })
   }
@@ -283,47 +283,45 @@ export default function ItemDetail() {
                         <h2 className="text-xs font-bold text-yellow-400 uppercase tracking-widest">
                           {STEP_LABELS[step]}
                         </h2>
-                        {step !== 0 && (
-                          <div className="flex items-center gap-2 flex-wrap">
-                            {scrolls.length > 0 && (
-                              <select
-                                value={scrollId}
-                                onChange={e => setSelectedScroll(prev => ({ ...prev, [step]: e.target.value }))}
-                                className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-yellow-400"
-                              >
-                                <option value="">No scroll</option>
-                                {scrolls.map(s => {
-                                  const isMagic = s.name.toLowerCase().includes('magic stone')
-                                  return <option key={s.id} value={s.id}>{isMagic ? `⭐ ${s.name}` : s.name}</option>
-                                })}
-                              </select>
-                            )}
-                            {seals.length > 0 && (
-                              <SealPicker
-                                seals={seals}
-                                selected={selectedSeals[step] ?? []}
-                                onChange={val => setSelectedSeals(prev => ({ ...prev, [step]: val }))}
-                              />
-                            )}
-                            <label className="flex items-center gap-1.5 text-xs text-gray-400">
-                              Pity{maxPityByStep[step] ? ` (max ${maxPityByStep[step]})` : ''}:
-                              <input
-                                type="number"
-                                min="1"
-                                max={maxPityByStep[step] || undefined}
-                                value={pity[step] ?? 1}
-                                onChange={e => {
-                                  const raw = e.target.value
-                                  const max = maxPityByStep[step]
-                                  const clamped = max && Number(raw) > max ? String(max) : raw
-                                  setPity(prev => ({ ...prev, [step]: clamped }))
-                                }}
-                                className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-14 text-center text-xs text-white focus:outline-none focus:border-yellow-400"
-                              />
-                              {getPity(step) > 1 && <span className="text-yellow-400 font-bold">×{getPity(step)}</span>}
-                            </label>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {step !== 0 && scrolls.length > 0 && (
+                            <select
+                              value={scrollId}
+                              onChange={e => setSelectedScroll(prev => ({ ...prev, [step]: e.target.value }))}
+                              className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-yellow-400"
+                            >
+                              <option value="">No scroll</option>
+                              {scrolls.map(s => {
+                                const isMagic = s.name.toLowerCase().includes('magic stone')
+                                return <option key={s.id} value={s.id}>{isMagic ? `⭐ ${s.name}` : s.name}</option>
+                              })}
+                            </select>
+                          )}
+                          {step !== 0 && seals.length > 0 && (
+                            <SealPicker
+                              seals={seals}
+                              selected={selectedSeals[step] ?? []}
+                              onChange={val => setSelectedSeals(prev => ({ ...prev, [step]: val }))}
+                            />
+                          )}
+                          <label className="flex items-center gap-1.5 text-xs text-gray-400">
+                            Pity{maxPityByStep[step] ? ` (max ${maxPityByStep[step]})` : ''}:
+                            <input
+                              type="number"
+                              min="1"
+                              max={maxPityByStep[step] || undefined}
+                              value={pity[step] ?? 1}
+                              onChange={e => {
+                                const raw = e.target.value
+                                const max = maxPityByStep[step]
+                                const clamped = max && Number(raw) > max ? String(max) : raw
+                                setPity(prev => ({ ...prev, [step]: clamped }))
+                              }}
+                              className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-14 text-center text-xs text-white focus:outline-none focus:border-yellow-400"
+                            />
+                            {getPity(step) > 1 && <span className="text-yellow-400 font-bold">×{getPity(step)}</span>}
+                          </label>
+                        </div>
                       </div>
 
                       {/* Step body */}
@@ -354,7 +352,7 @@ export default function ItemDetail() {
                       {/* Subtotal */}
                       <div className="flex justify-between items-center px-5 py-3 bg-gray-800/40 border-t border-gray-700">
                         <span className="text-xs text-gray-500 uppercase tracking-wider">
-                          Subtotal{step !== 0 && getPity(step) > 1 ? ` ×${getPity(step)}` : ''}
+                          Subtotal{getPity(step) > 1 ? ` ×${getPity(step)}` : ''}
                         </span>
                         <span className="text-sm font-bold text-yellow-400 font-mono">{formatYang(stepTotal(step))}</span>
                       </div>
