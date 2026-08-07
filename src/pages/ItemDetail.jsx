@@ -63,7 +63,6 @@ export default function ItemDetail() {
   const [selectedSeals, setSelectedSeals] = useState({})
   const [pity, setPity] = useState({})
   const [includeCraft, setIncludeCraft] = useState(true)
-  const [noScrollAll, setNoScrollAll] = useState(false)
   const [globalPrices, setGlobalPrices] = useState({})
   const [chapterName, setChapterName] = useState(null)
   const [categoryName, setCategoryName] = useState(null)
@@ -131,7 +130,6 @@ export default function ItemDetail() {
         setSelectedSeals(savedChoices.selectedSeals ?? {})
         setPity(savedChoices.pity ?? {})
         setIncludeCraft(savedChoices.includeCraft ?? true)
-        setNoScrollAll(savedChoices.noScrollAll ?? false)
       } else {
         const war = sorted.find(s => s.name.toLowerCase().includes('scroll of war'))
         const magic = sorted.find(s => s.name.toLowerCase().includes('magic stone'))
@@ -160,18 +158,23 @@ export default function ItemDetail() {
 
   useEffect(() => {
     if (loading) return
-    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll, selectedSeals, pity, includeCraft, noScrollAll }))
-  }, [itemId, loading, selectedScroll, selectedSeals, pity, includeCraft, noScrollAll])
+    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll, selectedSeals, pity, includeCraft }))
+  }, [itemId, loading, selectedScroll, selectedSeals, pity, includeCraft])
 
-  function handleNoScrollToggle(checked) {
-    setNoScrollAll(checked)
-    if (checked) {
-      setSelectedScroll(prev => {
-        const next = { ...prev }
-        for (let s = 1; s <= 9; s++) next[s] = ''
-        return next
-      })
-    }
+  function clearAllScrolls() {
+    setSelectedScroll(prev => {
+      const next = { ...prev }
+      for (let s = 1; s <= 9; s++) next[s] = ''
+      return next
+    })
+  }
+
+  function resetAllPity() {
+    setPity(prev => {
+      const next = { ...prev }
+      for (let s = 1; s <= 9; s++) next[s] = 1
+      return next
+    })
   }
 
   const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts })
@@ -239,16 +242,25 @@ export default function ItemDetail() {
               )}
             </div>
 
-            {scrolls.length > 0 && (
-              <label className="flex items-center gap-2 text-sm text-gray-400 mb-6 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={noScrollAll}
-                  onChange={e => handleNoScrollToggle(e.target.checked)}
-                  className="accent-yellow-400 w-4 h-4"
-                />
-                No scrolls (set all upgrade steps to no scroll)
-              </label>
+            {(scrolls.length > 0 || allSteps.some(s => s !== 0)) && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {scrolls.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearAllScrolls}
+                    className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    🚫 No scrolls on all steps
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={resetAllPity}
+                  className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  🔄 Reset pity to 1 on all steps
+                </button>
+              </div>
             )}
 
             {allSteps.length === 0 ? (
