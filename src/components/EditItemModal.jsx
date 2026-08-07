@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { itemImages } from '../utils/itemImages'
+import { parseYang } from '../utils/formatYang'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 
@@ -109,8 +110,8 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
     await supabase.from('item_step_yang').delete().eq('item_id', item.id)
     const yangRows = []
     for (const [step, val] of Object.entries(stepYang)) {
-      const cost = parseInt(val, 10)
-      if (!isNaN(cost) && cost > 0) yangRows.push({ item_id: item.id, step: Number(step), yang_cost: cost })
+      const cost = parseYang(val)
+      if (cost !== '' && cost > 0) yangRows.push({ item_id: item.id, step: Number(step), yang_cost: cost })
     }
     if (yangRows.length > 0) await supabase.from('item_step_yang').insert(yangRows)
 
@@ -206,9 +207,8 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
           <div className="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
             <span className="text-yellow-400 text-sm font-semibold shrink-0">Yang cost</span>
             <input
-              type="number"
-              min="0"
-              placeholder="leave empty if none"
+              type="text"
+              placeholder="e.g. 50kk"
               value={stepYang[activeStep] ?? ''}
               onChange={e => setStepYang(prev => ({ ...prev, [activeStep]: e.target.value }))}
               className="bg-transparent flex-1 text-white text-sm focus:outline-none text-right"

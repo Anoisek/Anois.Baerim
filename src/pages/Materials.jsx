@@ -7,7 +7,7 @@ import EditMaterialModal from '../components/EditMaterialModal'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import Spinner from '../components/Spinner'
 import { supabase } from '../supabaseClient'
-import { usePriceBook, computePrice, buildRecipeMap } from '../utils/priceBook'
+import { usePriceBook, computePrice, buildRecipeMap, buildYangCostMap } from '../utils/priceBook'
 
 export default function Materials() {
   const { isAdmin } = useAuth()
@@ -67,6 +67,8 @@ export default function Materials() {
       alert('Could not read this file — make sure it is a prices file exported from this site.')
     }
   }
+
+  const yangCosts = buildYangCostMap(materials)
 
   return (
     <div className="min-h-screen text-white">
@@ -143,7 +145,7 @@ export default function Materials() {
                   <MaterialPriceCell
                     material={mat}
                     rawValue={rawInputs[mat.id]}
-                    computedValue={mat.is_craftable ? computePrice(mat.id, rawInputs, recipes) : undefined}
+                    computedValue={mat.is_craftable ? computePrice(mat.id, rawInputs, recipes, yangCosts) : undefined}
                     onPriceChange={setPrice}
                   />
                   {isAdmin && (

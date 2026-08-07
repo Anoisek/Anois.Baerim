@@ -34,12 +34,14 @@ export function usePriceBook() {
 }
 
 // recipes: { [materialId]: [{ component_id, quantity }] }
-export function computePrice(materialId, rawInputs, recipes, visited = new Set()) {
+// yangCosts: { [materialId]: number } — craft yang fee, added on top of component cost
+export function computePrice(materialId, rawInputs, recipes, yangCosts = {}, visited = new Set()) {
   if (visited.has(materialId)) return 0
   const recipe = recipes[materialId]
   if (recipe && recipe.length > 0) {
     const nextVisited = new Set(visited).add(materialId)
-    return recipe.reduce((sum, row) => sum + computePrice(row.component_id, rawInputs, recipes, nextVisited) * row.quantity, 0)
+    const componentsCost = recipe.reduce((sum, row) => sum + computePrice(row.component_id, rawInputs, recipes, yangCosts, nextVisited) * row.quantity, 0)
+    return componentsCost + (yangCosts[materialId] || 0)
   }
   return parseYang(rawInputs[materialId] ?? '') || 0
 }
@@ -49,6 +51,14 @@ export function buildRecipeMap(rows) {
   for (const row of rows ?? []) {
     if (!map[row.material_id]) map[row.material_id] = []
     map[row.material_id].push(row)
+  }
+  return map
+}
+
+export function buildYangCostMap(materials) {
+  const map = {}
+  for (const m of materials ?? []) {
+    if (m.craft_yang_cost) map[m.id] = Number(m.craft_yang_cost)
   }
   return map
 }

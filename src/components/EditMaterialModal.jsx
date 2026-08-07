@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { parseYang } from '../utils/formatYang'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 
@@ -15,6 +16,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
   const [imageUrl, setImageUrl] = useState(material.image_url ?? '')
   const [tag, setTag] = useState(material.is_upgrade_scroll ? 'scroll' : material.is_seal ? 'seal' : material.is_item ? 'item' : '')
   const [isCraftable, setIsCraftable] = useState(material.is_craftable ?? false)
+  const [craftYangCost, setCraftYangCost] = useState(material.craft_yang_cost ? String(material.craft_yang_cost) : '')
   const [allMaterials, setAllMaterials] = useState([])
   const [components, setComponents] = useState({}) // { materialId: qty }
   const [search, setSearch] = useState('')
@@ -63,6 +65,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
         is_seal: tag === 'seal',
         is_item: tag === 'item',
         is_craftable: isCraftable,
+        craft_yang_cost: isCraftable ? (parseYang(craftYangCost) || null) : null,
       })
       .eq('id', material.id)
       .select()
@@ -202,6 +205,19 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
         {isCraftable && (
           <div className="flex flex-col gap-2">
             <label className="text-sm text-gray-400">Crafted from</label>
+
+            <div className="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+              <span className="text-yellow-400 text-sm font-semibold shrink-0">Craft yang cost</span>
+              <input
+                type="text"
+                placeholder="e.g. 50kk"
+                value={craftYangCost}
+                onChange={e => setCraftYangCost(e.target.value)}
+                className="bg-transparent flex-1 text-white text-sm focus:outline-none text-right"
+              />
+              <span className="text-gray-400 text-sm shrink-0">yang</span>
+            </div>
+
             <input
               type="text"
               placeholder="Search material..."

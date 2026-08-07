@@ -5,13 +5,14 @@ import Navbar from '../components/Navbar'
 import Spinner from '../components/Spinner'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import { formatYang } from '../utils/formatYang'
-import { usePriceBook, computePrice, buildRecipeMap } from '../utils/priceBook'
+import { usePriceBook, computePrice, buildRecipeMap, buildYangCostMap } from '../utils/priceBook'
 
 export default function MaterialDetail() {
   const { materialId } = useParams()
   const [material, setMaterial] = useState(null)
   const [components, setComponents] = useState([])
   const [recipes, setRecipes] = useState({})
+  const [craftYangCosts, setCraftYangCosts] = useState({})
   const [loading, setLoading] = useState(true)
   const { rawInputs, setPrice } = usePriceBook()
 
@@ -20,19 +21,22 @@ export default function MaterialDetail() {
       supabase.from('materials').select('*').eq('id', materialId).single(),
       supabase.from('material_materials').select('quantity, component:materials!material_materials_component_id_fkey(id, name, image_url, is_craftable)').eq('material_id', materialId),
       supabase.from('material_materials').select('material_id, component_id, quantity'),
-    ]).then(([matRes, compRes, recipeRes]) => {
+      supabase.from('materials').select('id, craft_yang_cost'),
+    ]).then(([matRes, compRes, recipeRes, allMatsRes]) => {
       setMaterial(matRes.data)
       setComponents(compRes.data ?? [])
       setRecipes(buildRecipeMap(recipeRes.data))
+      setCraftYangCosts(buildYangCostMap(allMatsRes.data))
       setLoading(false)
     })
   }, [materialId])
 
   function priceOf(id) {
-    return computePrice(id, rawInputs, recipes)
+    return computePrice(id, rawInputs, recipes, craftYangCosts)
   }
 
-  const total = components.reduce((s, row) => s + priceOf(row.component.id) * row.quantity, 0)
+  const craftYangFee = material?.craft_yang_cost ?? 0
+  const total = components.reduce((s, row) => s + priceOf(row.component.id) * row.quantity, craftYangFee)
 
   return (
     <div className="min-h-screen text-white">
@@ -50,7 +54,7 @@ export default function MaterialDetail() {
               <h1 className="text-2xl font-bold text-yellow-400">{material?.name}</h1>
             </div>
 
-            {components.length === 0 ? (
+            {components.length === 0 && !craftYangFee ? (
               <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
                 <span className="text-5xl">📭</span>
                 <p className="text-sm">No recipe defined for this material.</p>
@@ -62,6 +66,15 @@ export default function MaterialDetail() {
                     <h2 className="text-xs font-bold text-yellow-400 uppercase tracking-widest">Craft</h2>
                   </div>
                   <div className="px-5 py-4 flex flex-col gap-3">
+                    {craftYangFee > 0 && (
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 shrink-0 flex items-center justify-center">
+                          <span className="text-lg">💰</span>
+                        </div>
+                        <span className="flex-1 text-sm text-gray-400">Yang fee</span>
+                        <span className="text-yellow-400 text-sm font-mono">{formatYang(craftYangFee)}</span>
+                      </div>
+                    )}
                     {components.map(row => {
                       const unitPrice = priceOf(row.component.id)
                       const lineTotal = unitPrice * row.quantity

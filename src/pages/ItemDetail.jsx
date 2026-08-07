@@ -8,7 +8,7 @@ import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
 import ItemImage from '../components/ItemImage'
 import MaterialPriceCell from '../components/MaterialPriceCell'
-import { usePriceBook, computePrice, buildRecipeMap } from '../utils/priceBook'
+import { usePriceBook, computePrice, buildRecipeMap, buildYangCostMap } from '../utils/priceBook'
 
 const STEP_LABELS = {
   0: 'Craft',
@@ -47,6 +47,7 @@ export default function ItemDetail() {
   const [scrolls, setScrolls] = useState([])
   const [seals, setSeals] = useState([])
   const [recipes, setRecipes] = useState({})
+  const [craftYangCosts, setCraftYangCosts] = useState({})
   const [selectedScroll, setSelectedScroll] = useState({})
   const [selectedSeals, setSelectedSeals] = useState({})
   const [pity, setPity] = useState({})
@@ -62,7 +63,8 @@ export default function ItemDetail() {
       supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_upgrade_scroll', true).order('name'),
       supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_seal', true).order('name'),
       supabase.from('material_materials').select('material_id, component_id, quantity'),
-    ]).then(([itemRes, matsRes, yangRes, scrollsRes, sealsRes, recipeRes]) => {
+      supabase.from('materials').select('id, craft_yang_cost'),
+    ]).then(([itemRes, matsRes, yangRes, scrollsRes, sealsRes, recipeRes, allMatsRes]) => {
       setItem(itemRes.data)
 
       const g = {}
@@ -84,6 +86,7 @@ export default function ItemDetail() {
       setScrolls(sorted)
       setSeals(sealsRes.data ?? [])
       setRecipes(buildRecipeMap(recipeRes.data))
+      setCraftYangCosts(buildYangCostMap(allMatsRes.data))
 
       const war = sorted.find(s => s.name.toLowerCase().includes('scroll of war'))
       const magic = sorted.find(s => s.name.toLowerCase().includes('magic stone'))
@@ -99,7 +102,7 @@ export default function ItemDetail() {
   }, [itemId])
 
   function priceOf(materialId) {
-    return computePrice(materialId, rawInputs, recipes)
+    return computePrice(materialId, rawInputs, recipes, craftYangCosts)
   }
 
   function getPity(step) { return Math.max(1, parseInt(pity[step]) || 1) }
