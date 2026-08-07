@@ -13,6 +13,7 @@ export default function MaterialDetail() {
   const [components, setComponents] = useState([])
   const [recipes, setRecipes] = useState({})
   const [craftYangCosts, setCraftYangCosts] = useState({})
+  const [pity, setPity] = useState(1)
   const [loading, setLoading] = useState(true)
   const { rawInputs, setPrice } = usePriceBook()
 
@@ -36,7 +37,9 @@ export default function MaterialDetail() {
   }
 
   const craftYangFee = material?.craft_yang_cost ?? 0
-  const total = components.reduce((s, row) => s + priceOf(row.component.id) * row.quantity, craftYangFee)
+  const effectivePity = Math.max(1, parseInt(pity) || 1)
+  const subtotal = components.reduce((s, row) => s + priceOf(row.component.id) * row.quantity, craftYangFee)
+  const total = subtotal * effectivePity
 
   return (
     <div className="min-h-screen text-white">
@@ -62,8 +65,19 @@ export default function MaterialDetail() {
             ) : (
               <div className="flex flex-col gap-3">
                 <div className="bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden">
-                  <div className="px-5 py-3 bg-gray-800/60 border-b border-gray-700">
+                  <div className="flex items-center justify-between px-5 py-3 bg-gray-800/60 border-b border-gray-700 flex-wrap gap-2">
                     <h2 className="text-xs font-bold text-yellow-400 uppercase tracking-widest">Craft</h2>
+                    <label className="flex items-center gap-1.5 text-xs text-gray-400">
+                      Pity:
+                      <input
+                        type="number"
+                        min="1"
+                        value={pity}
+                        onChange={e => setPity(e.target.value)}
+                        className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-14 text-center text-xs text-white focus:outline-none focus:border-yellow-400"
+                      />
+                      {effectivePity > 1 && <span className="text-yellow-400 font-bold">×{effectivePity}</span>}
+                    </label>
                   </div>
                   <div className="px-5 py-4 flex flex-col gap-3">
                     {craftYangFee > 0 && (
@@ -92,6 +106,13 @@ export default function MaterialDetail() {
                         </div>
                       )
                     })}
+                  </div>
+
+                  <div className="flex justify-between items-center px-5 py-3 bg-gray-800/40 border-t border-gray-700">
+                    <span className="text-xs text-gray-500 uppercase tracking-wider">
+                      Subtotal{effectivePity > 1 ? ` ×${effectivePity}` : ''}
+                    </span>
+                    <span className="text-sm font-bold text-yellow-400 font-mono">{formatYang(total)}</span>
                   </div>
                 </div>
 
