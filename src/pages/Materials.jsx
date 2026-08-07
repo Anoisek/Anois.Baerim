@@ -9,6 +9,26 @@ import Spinner from '../components/Spinner'
 import { supabase } from '../supabaseClient'
 import { usePriceBook, computePrice, buildRecipeMap, buildYangCostMap } from '../utils/priceBook'
 
+const FILTERS = [
+  { key: 'all', label: 'All' },
+  { key: 'none', label: 'No tag' },
+  { key: 'scroll', label: 'Scroll' },
+  { key: 'seal', label: 'Seal' },
+  { key: 'item', label: 'Item' },
+  { key: 'craftable', label: 'Craftable' },
+]
+
+function matchesFilter(mat, filter) {
+  switch (filter) {
+    case 'none': return !mat.is_upgrade_scroll && !mat.is_seal && !mat.is_item
+    case 'scroll': return mat.is_upgrade_scroll
+    case 'seal': return mat.is_seal
+    case 'item': return mat.is_item
+    case 'craftable': return mat.is_craftable
+    default: return true
+  }
+}
+
 export default function Materials() {
   const { isAdmin } = useAuth()
   const [materials, setMaterials] = useState([])
@@ -16,6 +36,7 @@ export default function Materials() {
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [filter, setFilter] = useState('all')
   const { rawInputs, setPrice, importPrices } = usePriceBook()
   const fileInputRef = useRef(null)
 
@@ -104,14 +125,44 @@ export default function Materials() {
           </div>
         </div>
 
-        {loading ? <Spinner /> : materials.length === 0 ? (
-          <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
-            <span className="text-5xl">🧪</span>
-            <p className="text-sm">No materials yet.</p>
+        {materials.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-6">
+            {FILTERS.map(f => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  filter === f.key ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
           </div>
-        ) : (
+        )}
+
+        {(() => {
+          const visible = materials.filter(mat => matchesFilter(mat, filter))
+          if (loading) return <Spinner />
+          if (materials.length === 0) {
+            return (
+              <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
+                <span className="text-5xl">🧪</span>
+                <p className="text-sm">No materials yet.</p>
+              </div>
+            )
+          }
+          if (visible.length === 0) {
+            return (
+              <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
+                <span className="text-5xl">🔍</span>
+                <p className="text-sm">No materials match this filter.</p>
+              </div>
+            )
+          }
+          return (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {materials.map(mat => {
+            {visible.map(mat => {
               const Wrapper = mat.is_craftable ? Link : 'div'
               const wrapperProps = mat.is_craftable ? { to: `/materials/${mat.id}` } : {}
               return (
@@ -161,7 +212,8 @@ export default function Materials() {
               )
             })}
           </div>
-        )}
+          )
+        })()}
       </div>
 
         </div>
