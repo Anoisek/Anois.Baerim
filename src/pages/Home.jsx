@@ -16,8 +16,7 @@ function extractStoragePath(url) {
   return idx !== -1 ? url.slice(idx + marker.length) : null
 }
 
-function EditMaterialsTileModal({ currentUrl, onClose, onSaved }) {
-  const [uploading, setUploading] = useState(false)
+function EditTileImageModal({ title, settingKey, currentUrl, onClose, onSaved }) {
   const [saving, setSaving] = useState(false)
   const [imageUrl, setImageUrl] = useState(currentUrl ?? '')
 
@@ -35,20 +34,20 @@ function EditMaterialsTileModal({ currentUrl, onClose, onSaved }) {
 
   async function handleSave() {
     setSaving(true)
-    await supabase.from('settings').upsert({ key: 'materials_image_url', value: imageUrl || null })
+    await supabase.from('settings').upsert({ key: settingKey, value: imageUrl || null })
     onSaved(imageUrl || null)
     onClose()
     setSaving(false)
   }
 
   return (
-    <Modal title="Edit Materials tile" onClose={onClose}>
+    <Modal title={title} onClose={onClose}>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <label className="text-sm text-gray-400">Image</label>
           {imageUrl ? (
             <div className="flex items-center gap-3">
-              <img src={imageUrl} alt="Materials" className="w-16 h-16 object-contain rounded-lg border border-gray-600" />
+              <img src={imageUrl} alt={title} className="w-16 h-16 object-contain rounded-lg border border-gray-600" />
               <button type="button" onClick={handleRemove} className="text-sm text-red-400 hover:text-red-300">
                 Remove image
               </button>
@@ -79,18 +78,22 @@ export default function Home() {
   const { isAdmin } = useAuth()
   const [categories, setCategories] = useState([])
   const [materialsImage, setMaterialsImage] = useState(null)
+  const [systemsImage, setSystemsImage] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [editing, setEditing] = useState(null)
   const [editingMaterials, setEditingMaterials] = useState(false)
+  const [editingSystems, setEditingSystems] = useState(false)
 
   useEffect(() => {
     Promise.all([
       supabase.from('categories').select('*').order('created_at'),
       supabase.from('settings').select('value').eq('key', 'materials_image_url').maybeSingle(),
-    ]).then(([catRes, settingRes]) => {
+      supabase.from('settings').select('value').eq('key', 'systems_image_url').maybeSingle(),
+    ]).then(([catRes, materialsRes, systemsRes]) => {
       setCategories(catRes.data ?? [])
-      setMaterialsImage(settingRes.data?.value ?? null)
+      setMaterialsImage(materialsRes.data?.value ?? null)
+      setSystemsImage(systemsRes.data?.value ?? null)
       setLoading(false)
     })
   }, [])
@@ -114,6 +117,14 @@ export default function Home() {
                 emoji="⚗️"
                 label="Materials"
                 onEdit={isAdmin ? () => setEditingMaterials(true) : undefined}
+              />
+
+              <Tile
+                to="/systems"
+                image={systemsImage}
+                emoji="⚙️"
+                label="Systems"
+                onEdit={isAdmin ? () => setEditingSystems(true) : undefined}
               />
 
               {categories.map(cat => (
@@ -151,10 +162,22 @@ export default function Home() {
       )}
 
       {editingMaterials && (
-        <EditMaterialsTileModal
+        <EditTileImageModal
+          title="Edit Materials tile"
+          settingKey="materials_image_url"
           currentUrl={materialsImage}
           onClose={() => setEditingMaterials(false)}
           onSaved={setMaterialsImage}
+        />
+      )}
+
+      {editingSystems && (
+        <EditTileImageModal
+          title="Edit Systems tile"
+          settingKey="systems_image_url"
+          currentUrl={systemsImage}
+          onClose={() => setEditingSystems(false)}
+          onSaved={setSystemsImage}
         />
       )}
     </div>
