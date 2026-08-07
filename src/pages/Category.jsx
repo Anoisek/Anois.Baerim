@@ -34,7 +34,7 @@ export default function Category() {
   }, [categoryId])
 
   async function persistSubOrder(id, newOrder) {
-    setSubcategories(prev => prev.map(s => s.id === id ? { ...s, sort_order: newOrder } : s))
+    setSubcategories(prev => prev.map(s => s.id === id ? { ...s, sort_order: newOrder } : s).sort((a, b) => a.sort_order - b.sort_order))
     await supabase.from('subcategories').update({ sort_order: newOrder }).eq('id', id)
   }
 
