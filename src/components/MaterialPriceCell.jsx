@@ -1,7 +1,7 @@
 import { formatYang } from '../utils/formatYang'
 
-export default function MaterialPriceCell({ material, rawValue, computedValue, onPriceChange }) {
-  if (material.is_craftable) {
+export default function MaterialPriceCell({ material, rawValue, computedValue, onPriceChange, computed }) {
+  if (computed ?? material.is_craftable) {
     return (
       <span
         title="Computed from recipe"

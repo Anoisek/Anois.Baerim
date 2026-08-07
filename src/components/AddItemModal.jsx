@@ -21,7 +21,10 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
   const [name, setName] = useState('')
   const [imageUrls, setImageUrls] = useState([])
   const [allMaterials, setAllMaterials] = useState([])
+  const [allItems, setAllItems] = useState([])
+  const [pickerMode, setPickerMode] = useState('materials') // 'materials' | 'items'
   const [stepMaterials, setStepMaterials] = useState({})  // { step: { materialId: qty } }
+  const [stepItems, setStepItems] = useState({})          // { step: { itemId: qty } }
   const [stepYang, setStepYang] = useState({})            // { step: yang_cost string }
   const [activeStep, setActiveStep] = useState(0)
   const [search, setSearch] = useState('')
@@ -30,6 +33,9 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
   useEffect(() => {
     supabase.from('materials').select('*').order('name').then(({ data }) => {
       setAllMaterials(data ?? [])
+    })
+    supabase.from('items').select('id, name, image_url').order('name').then(({ data }) => {
+      setAllItems(data ?? [])
     })
   }, [])
 
@@ -52,10 +58,30 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
     }))
   }
 
+  function toggleItem(step, itemId) {
+    setStepItems(prev => {
+      const stepData = prev[step] ?? {}
+      if (stepData[itemId] !== undefined) {
+        const next = { ...stepData }
+        delete next[itemId]
+        return { ...prev, [step]: next }
+      }
+      return { ...prev, [step]: { ...stepData, [itemId]: 1 } }
+    })
+  }
+
+  function setItemQty(step, itemId, val) {
+    setStepItems(prev => ({
+      ...prev,
+      [step]: { ...(prev[step] ?? {}), [itemId]: val },
+    }))
+  }
+
   function countForStep(step) {
     const mats = Object.keys(stepMaterials[step] ?? {}).length
+    const its = Object.keys(stepItems[step] ?? {}).length
     const yang = stepYang[step] ? 1 : 0
-    return mats + yang
+    return mats + its + yang
   }
 
   async function handleSubmit(e) {
@@ -89,6 +115,20 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
       if (err) { alert('Error saving materials: ' + err.message); setSaving(false); return }
     }
 
+    // Insert item ingredients
+    const itemRows = []
+    for (const [step, its] of Object.entries(stepItems)) {
+      for (const [component_item_id, quantity] of Object.entries(its)) {
+        if (Number(quantity) > 0) {
+          itemRows.push({ item_id: item.id, component_item_id, quantity: Number(quantity), step: Number(step) })
+        }
+      }
+    }
+    if (itemRows.length > 0) {
+      const { error: err } = await supabase.from('item_items').insert(itemRows)
+      if (err) { alert('Error saving item ingredients: ' + err.message); setSaving(false); return }
+    }
+
     // Insert yang costs
     const yangRows = []
     for (const [step, val] of Object.entries(stepYang)) {
@@ -107,10 +147,10 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
     setSaving(false)
   }
 
-  const filtered = allMaterials.filter(m =>
-    m.name.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredMaterials = allMaterials.filter(m => m.name.toLowerCase().includes(search.toLowerCase()))
+  const filteredItems = allItems.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
   const currentStepMats = stepMaterials[activeStep] ?? {}
+  const currentStepItems = stepItems[activeStep] ?? {}
 
   return (
     <Modal title="Add item" onClose={onClose}>
@@ -148,7 +188,7 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm text-gray-400">Materials by step</label>
+          <label className="text-sm text-gray-400">Ingredients by step</label>
 
           {/* Step tabs */}
           <div className="flex flex-wrap gap-1">
@@ -186,44 +226,98 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
             <span className="text-gray-400 text-sm shrink-0">yang</span>
           </div>
 
-          {/* Material search */}
+          {/* Materials / Items switch */}
+          <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-lg p-1">
+            <button
+              type="button"
+              onClick={() => { setPickerMode('materials'); setSearch('') }}
+              className={`flex-1 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                pickerMode === 'materials' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              🧪 Materials
+            </button>
+            <button
+              type="button"
+              onClick={() => { setPickerMode('items'); setSearch('') }}
+              className={`flex-1 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                pickerMode === 'items' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              ⚔️ Items
+            </button>
+          </div>
+
+          {/* Search */}
           <input
             type="text"
-            placeholder="Search material..."
+            placeholder={pickerMode === 'materials' ? 'Search material...' : 'Search item...'}
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
           />
 
-          <div className="max-h-48 overflow-y-auto flex flex-col gap-1 bg-gray-800 rounded-lg p-2">
-            {filtered.length === 0 && (
-              <p className="text-gray-500 text-sm p-2">No materials found.</p>
-            )}
-            {filtered.map(mat => (
-              <div key={mat.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-700">
-                <input
-                  type="checkbox"
-                  checked={currentStepMats[mat.id] !== undefined}
-                  onChange={() => toggleMaterial(activeStep, mat.id)}
-                  className="accent-yellow-400"
-                />
-                {mat.image_url
-                  ? <img src={mat.image_url} alt={mat.name} className="w-7 h-7 object-contain" />
-                  : <span className="w-7 text-center text-lg">🧪</span>}
-                <span className="text-sm text-white flex-1">{mat.name}</span>
-                {currentStepMats[mat.id] !== undefined && (
+          {pickerMode === 'materials' ? (
+            <div className="max-h-48 overflow-y-auto flex flex-col gap-1 bg-gray-800 rounded-lg p-2">
+              {filteredMaterials.length === 0 && (
+                <p className="text-gray-500 text-sm p-2">No materials found.</p>
+              )}
+              {filteredMaterials.map(mat => (
+                <div key={mat.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-700">
                   <input
-                    type="number"
-                    min="1"
-                    value={currentStepMats[mat.id]}
-                    onChange={e => setQty(activeStep, mat.id, e.target.value)}
-                    onClick={e => e.stopPropagation()}
-                    className="bg-gray-700 border border-gray-500 rounded px-2 py-1 w-16 text-right text-sm focus:outline-none focus:border-yellow-400"
+                    type="checkbox"
+                    checked={currentStepMats[mat.id] !== undefined}
+                    onChange={() => toggleMaterial(activeStep, mat.id)}
+                    className="accent-yellow-400"
                   />
-                )}
-              </div>
-            ))}
-          </div>
+                  {mat.image_url
+                    ? <img src={mat.image_url} alt={mat.name} className="w-7 h-7 object-contain" />
+                    : <span className="w-7 text-center text-lg">🧪</span>}
+                  <span className="text-sm text-white flex-1">{mat.name}</span>
+                  {currentStepMats[mat.id] !== undefined && (
+                    <input
+                      type="number"
+                      min="1"
+                      value={currentStepMats[mat.id]}
+                      onChange={e => setQty(activeStep, mat.id, e.target.value)}
+                      onClick={e => e.stopPropagation()}
+                      className="bg-gray-700 border border-gray-500 rounded px-2 py-1 w-16 text-right text-sm focus:outline-none focus:border-yellow-400"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="max-h-48 overflow-y-auto flex flex-col gap-1 bg-gray-800 rounded-lg p-2">
+              {filteredItems.length === 0 && (
+                <p className="text-gray-500 text-sm p-2">No items found.</p>
+              )}
+              {filteredItems.map(it => (
+                <div key={it.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={currentStepItems[it.id] !== undefined}
+                    onChange={() => toggleItem(activeStep, it.id)}
+                    className="accent-yellow-400"
+                  />
+                  {it.image_url
+                    ? <img src={it.image_url} alt={it.name} className="w-7 h-7 object-contain" />
+                    : <span className="w-7 text-center text-lg">⚔️</span>}
+                  <span className="text-sm text-white flex-1">{it.name}</span>
+                  {currentStepItems[it.id] !== undefined && (
+                    <input
+                      type="number"
+                      min="1"
+                      value={currentStepItems[it.id]}
+                      onChange={e => setItemQty(activeStep, it.id, e.target.value)}
+                      onClick={e => e.stopPropagation()}
+                      className="bg-gray-700 border border-gray-500 rounded px-2 py-1 w-16 text-right text-sm focus:outline-none focus:border-yellow-400"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <button

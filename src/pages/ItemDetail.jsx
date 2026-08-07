@@ -8,7 +8,10 @@ import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
 import ItemImage from '../components/ItemImage'
 import MaterialPriceCell from '../components/MaterialPriceCell'
-import { usePriceBook, computePrice, buildRecipeMap, buildYangCostMap } from '../utils/priceBook'
+import {
+  usePriceBook, computePrice, buildRecipeMap, buildYangCostMap,
+  computeItemPrice, buildItemStepMap, buildItemYangMap, buildDefaultScrollMap,
+} from '../utils/priceBook'
 
 const STEP_LABELS = {
   0: 'Craft',
@@ -22,18 +25,18 @@ const SCROLL_ORDER = [
   'Blacksmith Handbook', 'Scroll of War', 'Magic Stone',
 ]
 
-function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChange }) {
+function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChange, kind }) {
   const lineTotal = unitPrice * quantity
   return (
     <div className="flex items-center gap-3 min-w-0">
       <div className="w-8 h-8 shrink-0 flex items-center justify-center">
         {mat.image_url
           ? <img src={mat.image_url} alt={mat.name} className="w-full h-full object-contain" />
-          : <span className="text-lg">🧪</span>}
+          : <span className="text-lg">{kind === 'item' ? '⚔️' : '🧪'}</span>}
       </div>
       <span className="flex-1 text-sm text-gray-200 truncate">{mat.name}</span>
       <span className="text-gray-500 text-xs shrink-0">×{quantity}</span>
-      <MaterialPriceCell material={mat} rawValue={rawValue} computedValue={unitPrice} onPriceChange={onPriceChange} />
+      <MaterialPriceCell material={mat} rawValue={rawValue} computedValue={unitPrice} onPriceChange={onPriceChange} computed={kind === 'item' ? true : undefined} />
       <span className="text-yellow-400 text-sm w-24 text-right font-mono shrink-0">{formatYang(lineTotal)}</span>
     </div>
   )
@@ -48,6 +51,10 @@ export default function ItemDetail() {
   const [seals, setSeals] = useState([])
   const [recipes, setRecipes] = useState({})
   const [craftYangCosts, setCraftYangCosts] = useState({})
+  const [allItemMaterials, setAllItemMaterials] = useState({})
+  const [allItemItems, setAllItemItems] = useState({})
+  const [allItemYang, setAllItemYang] = useState({})
+  const [defaultScrollByStep, setDefaultScrollByStep] = useState({})
   const [selectedScroll, setSelectedScroll] = useState({})
   const [selectedSeals, setSelectedSeals] = useState({})
   const [pity, setPity] = useState({})
@@ -59,18 +66,26 @@ export default function ItemDetail() {
     Promise.all([
       supabase.from('items').select('*').eq('id', itemId).single(),
       supabase.from('item_materials').select('quantity, step, material:materials(id, name, image_url, is_craftable)').eq('item_id', itemId).order('step'),
+      supabase.from('item_items').select('quantity, step, component:items!item_items_component_item_id_fkey(id, name, image_url)').eq('item_id', itemId).order('step'),
       supabase.from('item_step_yang').select('step, yang_cost').eq('item_id', itemId),
       supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_upgrade_scroll', true).order('name'),
       supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_seal', true).order('name'),
       supabase.from('material_materials').select('material_id, component_id, quantity'),
       supabase.from('materials').select('id, craft_yang_cost'),
-    ]).then(([itemRes, matsRes, yangRes, scrollsRes, sealsRes, recipeRes, allMatsRes]) => {
+      supabase.from('item_materials').select('item_id, material_id, quantity, step'),
+      supabase.from('item_items').select('item_id, component_item_id, quantity, step'),
+      supabase.from('item_step_yang').select('item_id, step, yang_cost'),
+    ]).then(([itemRes, matsRes, itemIngRes, yangRes, scrollsRes, sealsRes, recipeRes, allMatsRes, allItemMatsRes, allItemItemsRes, allItemYangRes]) => {
       setItem(itemRes.data)
 
       const g = {}
       for (const row of matsRes.data ?? []) {
         if (!g[row.step]) g[row.step] = []
-        g[row.step].push(row)
+        g[row.step].push({ material: row.material, quantity: row.quantity, kind: 'material' })
+      }
+      for (const row of itemIngRes.data ?? []) {
+        if (!g[row.step]) g[row.step] = []
+        g[row.step].push({ material: row.component, quantity: row.quantity, kind: 'item' })
       }
       setGrouped(g)
 
@@ -87,26 +102,61 @@ export default function ItemDetail() {
       setSeals(sealsRes.data ?? [])
       setRecipes(buildRecipeMap(recipeRes.data))
       setCraftYangCosts(buildYangCostMap(allMatsRes.data))
+      setAllItemMaterials(buildItemStepMap(allItemMatsRes.data))
+      setAllItemItems(buildItemStepMap(allItemItemsRes.data))
+      setAllItemYang(buildItemYangMap(allItemYangRes.data))
+      setDefaultScrollByStep(buildDefaultScrollMap(sorted))
 
-      const war = sorted.find(s => s.name.toLowerCase().includes('scroll of war'))
-      const magic = sorted.find(s => s.name.toLowerCase().includes('magic stone'))
-      if (war || magic) {
-        setSelectedScroll({
-          1: war?.id ?? '', 2: war?.id ?? '', 3: war?.id ?? '', 4: war?.id ?? '',
-          5: magic?.id ?? '', 6: magic?.id ?? '', 7: magic?.id ?? '', 8: magic?.id ?? '', 9: magic?.id ?? '',
-        })
+      const saved = localStorage.getItem(`item_choices_${itemId}`)
+      const savedChoices = saved ? JSON.parse(saved) : null
+
+      if (savedChoices) {
+        setSelectedScroll(savedChoices.selectedScroll ?? {})
+        setSelectedSeals(savedChoices.selectedSeals ?? {})
+        setPity(savedChoices.pity ?? {})
+        setIncludeCraft(savedChoices.includeCraft ?? true)
+      } else {
+        const war = sorted.find(s => s.name.toLowerCase().includes('scroll of war'))
+        const magic = sorted.find(s => s.name.toLowerCase().includes('magic stone'))
+        if (war || magic) {
+          setSelectedScroll({
+            1: war?.id ?? '', 2: war?.id ?? '', 3: war?.id ?? '', 4: war?.id ?? '',
+            5: magic?.id ?? '', 6: magic?.id ?? '', 7: magic?.id ?? '', 8: magic?.id ?? '', 9: magic?.id ?? '',
+          })
+        }
       }
 
       setLoading(false)
     })
   }, [itemId])
 
+  useEffect(() => {
+    if (loading) return
+    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll, selectedSeals, pity, includeCraft }))
+  }, [itemId, loading, selectedScroll, selectedSeals, pity, includeCraft])
+
   function priceOf(materialId) {
     return computePrice(materialId, rawInputs, recipes, craftYangCosts)
   }
 
+  function itemIngredientCtx() {
+    return {
+      rawInputs,
+      materialRecipes: recipes,
+      materialYangCosts: craftYangCosts,
+      itemMaterials: allItemMaterials,
+      itemItems: allItemItems,
+      itemYang: allItemYang,
+      defaultScrollByStep,
+    }
+  }
+
+  function rowPrice(row) {
+    return row.kind === 'item' ? computeItemPrice(row.material.id, itemIngredientCtx()) : priceOf(row.material.id)
+  }
+
   function getPity(step) { return Math.max(1, parseInt(pity[step]) || 1) }
-  function matCost(rows) { return rows.reduce((s, r) => s + priceOf(r.material.id) * r.quantity, 0) }
+  function matCost(rows) { return rows.reduce((s, r) => s + rowPrice(r) * r.quantity, 0) }
   function scrollCost(step) { const id = selectedScroll[step]; return id ? priceOf(id) : 0 }
   function sealsCost(step) { return (selectedSeals[step] ?? []).reduce((s, id) => s + priceOf(id), 0) }
   function stepTotal(step) { return (matCost(grouped[step] ?? []) + (yangCosts[step] ?? 0) + scrollCost(step) + sealsCost(step)) * getPity(step) }
@@ -202,7 +252,7 @@ export default function ItemDetail() {
                         )}
 
                         {(grouped[step] ?? []).map(row => (
-                          <MatRow key={row.material.id} mat={row.material} quantity={row.quantity} unitPrice={priceOf(row.material.id)} rawValue={rawInputs[row.material.id]} onPriceChange={setPrice} />
+                          <MatRow key={`${row.kind}-${row.material.id}`} mat={row.material} quantity={row.quantity} unitPrice={rowPrice(row)} rawValue={rawInputs[row.material.id]} onPriceChange={setPrice} kind={row.kind} />
                         ))}
 
                         {hasExtras && (
