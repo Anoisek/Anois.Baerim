@@ -47,6 +47,12 @@ export default function Category() {
     persistSubOrder(b.id, a.sort_order)
   }
 
+  async function toggleMaintenance(sub) {
+    const next = !sub.maintenance
+    setSubcategories(prev => prev.map(s => s.id === sub.id ? { ...s, maintenance: next } : s))
+    await supabase.from('subcategories').update({ maintenance: next }).eq('id', sub.id)
+  }
+
   return (
     <div className="min-h-screen text-white">
       <Navbar />
@@ -99,6 +105,9 @@ export default function Category() {
                   disableUp: index === 0,
                   disableDown: index === subcategories.length - 1,
                 } : undefined}
+                maintenance={sub.maintenance}
+                blocked={sub.maintenance && !isAdmin}
+                onToggleMaintenance={isAdmin && editMode ? () => toggleMaintenance(sub) : undefined}
               />
             ))}
             {hasUncategorized && (

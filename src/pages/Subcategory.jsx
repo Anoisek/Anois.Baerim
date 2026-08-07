@@ -59,6 +59,12 @@ export default function Subcategory() {
     persistItemOrder(b.id, a.sort_order)
   }
 
+  async function toggleMaintenance(item) {
+    const next = !item.maintenance
+    setItems(prev => prev.map(i => i.id === item.id ? { ...i, maintenance: next } : i))
+    await supabase.from('items').update({ maintenance: next }).eq('id', item.id)
+  }
+
   return (
     <div className="min-h-screen text-white">
       <Navbar />
@@ -101,11 +107,17 @@ export default function Subcategory() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {items.map((item, index) => (
-              <Link
+            {items.map((item, index) => {
+              const blocked = item.maintenance && !isAdmin
+              const Wrapper = blocked ? 'div' : Link
+              const wrapperProps = blocked ? {} : { to: `/chapter/${categoryId}/item/${item.id}` }
+              return (
+              <Wrapper
                 key={item.id}
-                to={`/chapter/${categoryId}/item/${item.id}`}
-                className="group relative bg-gray-900 border border-gray-700 rounded-2xl p-5 flex flex-col items-center gap-4 transition-all duration-200 hover:border-yellow-400/50 hover:bg-gray-800 hover:shadow-lg hover:shadow-black/40 hover:-translate-y-0.5"
+                {...wrapperProps}
+                className={`group relative bg-gray-900 border border-gray-700 rounded-2xl p-5 flex flex-col items-center gap-4 transition-all duration-200 ${
+                  blocked ? 'opacity-50 cursor-not-allowed' : 'hover:border-yellow-400/50 hover:bg-gray-800 hover:shadow-lg hover:shadow-black/40 hover:-translate-y-0.5'
+                }`}
               >
                 <div className="w-16 h-16 flex items-center justify-center">
                   {itemImages(item).length > 0
@@ -115,6 +127,13 @@ export default function Subcategory() {
                 <span className="text-sm font-semibold text-gray-100 text-center leading-tight group-hover:text-yellow-400 transition-colors">
                   {item.name}
                 </span>
+                {item.maintenance && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-gray-950/70 rounded-2xl pointer-events-none">
+                    <span className="text-xs font-bold text-yellow-400 bg-gray-900 border border-yellow-400/40 px-2 py-1 rounded-full">
+                      🚧 In Progress
+                    </span>
+                  </span>
+                )}
                 {isAdmin && editMode && (
                   <ReorderButtons
                     onUp={() => moveItem(index, -1)}
@@ -126,23 +145,35 @@ export default function Subcategory() {
                 {!editMode && usedInItemIds.has(item.id) && (
                   <button
                     onClick={e => { e.preventDefault(); e.stopPropagation(); navigate(`/items/${item.id}/usage`) }}
-                    className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-800/90 border border-gray-600 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/50 transition-colors text-xs"
+                    className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-800/90 border border-gray-600 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/50 transition-colors text-xs z-10"
                     title="See where this is used"
                   >
                     🔗
                   </button>
                 )}
+                {isAdmin && editMode && (
+                  <button
+                    onClick={e => { e.preventDefault(); e.stopPropagation(); toggleMaintenance(item) }}
+                    className={`absolute bottom-2 right-2 text-xs px-1.5 py-1 rounded-full border transition-colors z-10 ${
+                      item.maintenance ? 'bg-yellow-400 text-gray-950 border-yellow-400' : 'bg-gray-800/90 border-gray-600 text-gray-300 hover:text-yellow-400'
+                    }`}
+                    title={item.maintenance ? 'End maintenance' : 'Mark as in progress'}
+                  >
+                    🚧
+                  </button>
+                )}
                 {isAdmin && (
                   <button
                     onClick={e => { e.preventDefault(); e.stopPropagation(); setEditing(item) }}
-                    className="absolute top-2 right-2 text-gray-600 hover:text-yellow-400 opacity-0 group-hover:opacity-100 transition-all text-base"
+                    className="absolute top-2 right-2 text-gray-600 hover:text-yellow-400 opacity-0 group-hover:opacity-100 transition-all text-base z-10"
                     title="Edit"
                   >
                     ✏️
                   </button>
                 )}
-              </Link>
-            ))}
+              </Wrapper>
+              )
+            })}
           </div>
         )}
       </div>

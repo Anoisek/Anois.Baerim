@@ -81,6 +81,8 @@ export default function Home() {
   const [systemsImage, setSystemsImage] = useState(null)
   const [materialsOrder, setMaterialsOrder] = useState(0)
   const [systemsOrder, setSystemsOrder] = useState(1)
+  const [materialsMaintenance, setMaterialsMaintenance] = useState(false)
+  const [systemsMaintenance, setSystemsMaintenance] = useState(false)
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [editing, setEditing] = useState(null)
@@ -95,21 +97,39 @@ export default function Home() {
       supabase.from('settings').select('value').eq('key', 'systems_image_url').maybeSingle(),
       supabase.from('settings').select('value').eq('key', 'materials_sort_order').maybeSingle(),
       supabase.from('settings').select('value').eq('key', 'systems_sort_order').maybeSingle(),
-    ]).then(([catRes, materialsRes, systemsRes, materialsOrderRes, systemsOrderRes]) => {
+      supabase.from('settings').select('value').eq('key', 'materials_maintenance').maybeSingle(),
+      supabase.from('settings').select('value').eq('key', 'systems_maintenance').maybeSingle(),
+    ]).then(([catRes, materialsRes, systemsRes, materialsOrderRes, systemsOrderRes, materialsMaintRes, systemsMaintRes]) => {
       setCategories(catRes.data ?? [])
       setMaterialsImage(materialsRes.data?.value ?? null)
       setSystemsImage(systemsRes.data?.value ?? null)
       setMaterialsOrder(Number(materialsOrderRes.data?.value ?? 0))
       setSystemsOrder(Number(systemsOrderRes.data?.value ?? 1))
+      setMaterialsMaintenance(materialsMaintRes.data?.value === 'true')
+      setSystemsMaintenance(systemsMaintRes.data?.value === 'true')
       setLoading(false)
     })
   }, [])
 
   const tiles = [
-    { kind: 'materials', key: 'materials', sort_order: materialsOrder, to: '/materials', image: materialsImage, emoji: '⚗️', label: 'Materials', onEdit: () => setEditingMaterials(true) },
-    { kind: 'systems', key: 'systems', sort_order: systemsOrder, to: '/systems', image: systemsImage, emoji: '⚙️', label: 'Systems', onEdit: () => setEditingSystems(true) },
-    ...categories.map(cat => ({ kind: 'category', key: cat.id, sort_order: cat.sort_order, to: `/chapter/${cat.id}`, image: cat.image_url, emoji: '📦', label: cat.name, onEdit: () => setEditing(cat), raw: cat })),
+    { kind: 'materials', key: 'materials', sort_order: materialsOrder, maintenance: materialsMaintenance, to: '/materials', image: materialsImage, emoji: '⚗️', label: 'Materials', onEdit: () => setEditingMaterials(true) },
+    { kind: 'systems', key: 'systems', sort_order: systemsOrder, maintenance: systemsMaintenance, to: '/systems', image: systemsImage, emoji: '⚙️', label: 'Systems', onEdit: () => setEditingSystems(true) },
+    ...categories.map(cat => ({ kind: 'category', key: cat.id, sort_order: cat.sort_order, maintenance: cat.maintenance ?? false, to: `/chapter/${cat.id}`, image: cat.image_url, emoji: '📦', label: cat.name, onEdit: () => setEditing(cat), raw: cat })),
   ].sort((a, b) => a.sort_order - b.sort_order)
+
+  async function toggleMaintenance(tile) {
+    const next = !tile.maintenance
+    if (tile.kind === 'materials') {
+      setMaterialsMaintenance(next)
+      await supabase.from('settings').upsert({ key: 'materials_maintenance', value: String(next) })
+    } else if (tile.kind === 'systems') {
+      setSystemsMaintenance(next)
+      await supabase.from('settings').upsert({ key: 'systems_maintenance', value: String(next) })
+    } else {
+      setCategories(prev => prev.map(c => c.id === tile.key ? { ...c, maintenance: next } : c))
+      await supabase.from('categories').update({ maintenance: next }).eq('id', tile.key)
+    }
+  }
 
   async function persistOrder(tile, newOrder) {
     if (tile.kind === 'materials') {
@@ -170,6 +190,9 @@ export default function Home() {
                     disableUp: index === 0,
                     disableDown: index === tiles.length - 1,
                   } : undefined}
+                  maintenance={tile.maintenance}
+                  blocked={tile.maintenance && !isAdmin}
+                  onToggleMaintenance={isAdmin && editMode ? () => toggleMaintenance(tile) : undefined}
                 />
               ))}
 
