@@ -177,6 +177,16 @@ export default function ItemDetail() {
     })
   }
 
+  function setAllPityToMax() {
+    setPity(prev => {
+      const next = { ...prev }
+      for (let s = 0; s <= 9; s++) {
+        if (maxPityByStep[s]) next[s] = maxPityByStep[s]
+      }
+      return next
+    })
+  }
+
   const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts })
 
   function priceOf(materialId) {
@@ -259,6 +269,13 @@ export default function ItemDetail() {
                   className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
                 >
                   🔄 Reset pity to 1 on all steps
+                </button>
+                <button
+                  type="button"
+                  onClick={setAllPityToMax}
+                  className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  ⬆ Max pity on all steps
                 </button>
               </div>
             )}
