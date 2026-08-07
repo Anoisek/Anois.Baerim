@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar'
 import Spinner from '../components/Spinner'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import { formatYang } from '../utils/formatYang'
-import { usePriceBook, computePrice, buildRecipeMap, buildYangCostMap } from '../utils/priceBook'
+import { usePriceBook, buildRecipeMap, buildYangCostMap, fetchGlobalPrices, makeMaterialPriceFn } from '../utils/priceBook'
 
 export default function MaterialDetail() {
   const { materialId } = useParams()
@@ -13,9 +13,10 @@ export default function MaterialDetail() {
   const [components, setComponents] = useState([])
   const [recipes, setRecipes] = useState({})
   const [craftYangCosts, setCraftYangCosts] = useState({})
+  const [globalPrices, setGlobalPrices] = useState({})
   const [pity, setPity] = useState(1)
   const [loading, setLoading] = useState(true)
-  const { rawInputs, setPrice } = usePriceBook()
+  const { rawInputs, setPrice, mode } = usePriceBook()
 
   useEffect(() => {
     Promise.all([
@@ -23,17 +24,21 @@ export default function MaterialDetail() {
       supabase.from('material_materials').select('quantity, component:materials!material_materials_component_id_fkey(id, name, image_url, is_craftable)').eq('material_id', materialId),
       supabase.from('material_materials').select('material_id, component_id, quantity'),
       supabase.from('materials').select('id, craft_yang_cost'),
-    ]).then(([matRes, compRes, recipeRes, allMatsRes]) => {
+      fetchGlobalPrices(),
+    ]).then(([matRes, compRes, recipeRes, allMatsRes, globalPricesMap]) => {
       setMaterial(matRes.data)
       setComponents(compRes.data ?? [])
       setRecipes(buildRecipeMap(recipeRes.data))
       setCraftYangCosts(buildYangCostMap(allMatsRes.data))
+      setGlobalPrices(globalPricesMap)
       setLoading(false)
     })
   }, [materialId])
 
+  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts })
+
   function priceOf(id) {
-    return computePrice(id, rawInputs, recipes, craftYangCosts)
+    return priceFn(id)
   }
 
   const craftYangFee = material?.craft_yang_cost ?? 0
@@ -55,6 +60,11 @@ export default function MaterialDetail() {
                   : <span className="text-5xl">🧪</span>}
               </div>
               <h1 className="text-2xl font-bold text-yellow-400">{material?.name}</h1>
+              {mode === 'global' && (
+                <span className="ml-auto text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-full shrink-0">
+                  Global Prices
+                </span>
+              )}
             </div>
 
             {components.length === 0 && !craftYangFee ? (
@@ -101,7 +111,7 @@ export default function MaterialDetail() {
                           </div>
                           <span className="flex-1 text-sm text-gray-200 truncate">{row.component.name}</span>
                           <span className="text-gray-500 text-xs shrink-0">×{row.quantity}</span>
-                          <MaterialPriceCell material={row.component} rawValue={rawInputs[row.component.id]} computedValue={unitPrice} onPriceChange={setPrice} />
+                          <MaterialPriceCell material={row.component} rawValue={rawInputs[row.component.id]} computedValue={unitPrice} onPriceChange={setPrice} computed={mode === 'global' ? true : undefined} />
                           <span className="text-yellow-400 text-sm w-24 text-right font-mono shrink-0">{formatYang(lineTotal)}</span>
                         </div>
                       )

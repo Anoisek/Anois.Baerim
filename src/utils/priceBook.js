@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { parseYang } from './formatYang'
+import { supabase } from '../supabaseClient'
 
 const KEY = 'material_prices'
+const MODE_KEY = 'price_mode'
 
 function load() {
   try {
@@ -11,8 +13,13 @@ function load() {
   }
 }
 
+function loadMode() {
+  return localStorage.getItem(MODE_KEY) === 'global' ? 'global' : 'own'
+}
+
 export function usePriceBook() {
   const [rawInputs, setRawInputs] = useState(load)
+  const [mode, setModeState] = useState(loadMode)
 
   function setPrice(materialId, raw) {
     setRawInputs(prev => {
@@ -30,7 +37,12 @@ export function usePriceBook() {
     })
   }
 
-  return { rawInputs, setPrice, importPrices }
+  function setMode(next) {
+    setModeState(next)
+    localStorage.setItem(MODE_KEY, next)
+  }
+
+  return { rawInputs, setPrice, importPrices, mode, setMode }
 }
 
 // recipes: { [materialId]: [{ component_id, quantity }] }
@@ -44,6 +56,50 @@ export function computePrice(materialId, rawInputs, recipes, yangCosts = {}, vis
     return componentsCost + (yangCosts[materialId] || 0)
   }
   return parseYang(rawInputs[materialId] ?? '') || 0
+}
+
+// Global-prices mode: a directly submitted community price wins; the recipe is
+// only used as a fallback when no one has submitted a price for that material yet.
+export function computeGlobalPrice(materialId, globalPrices, recipes, yangCosts = {}, visited = new Set()) {
+  if (visited.has(materialId)) return 0
+  const direct = Number(globalPrices[materialId] ?? 0)
+  if (direct > 0) return direct
+  const recipe = recipes[materialId]
+  if (recipe && recipe.length > 0) {
+    const nextVisited = new Set(visited).add(materialId)
+    const componentsCost = recipe.reduce((sum, row) => sum + computeGlobalPrice(row.component_id, globalPrices, recipes, yangCosts, nextVisited) * row.quantity, 0)
+    return componentsCost + (yangCosts[materialId] || 0)
+  }
+  return 0
+}
+
+export function makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts }) {
+  return mode === 'global'
+    ? id => computeGlobalPrice(id, globalPrices, recipes, yangCosts)
+    : id => computePrice(id, rawInputs, recipes, yangCosts)
+}
+
+export async function fetchGlobalPrices() {
+  const { data } = await supabase.from('global_prices').select('material_id, price')
+  const map = {}
+  for (const row of data ?? []) map[row.material_id] = Number(row.price)
+  return map
+}
+
+// Submits every locally-entered price to the global price pool. Each submission is
+// independently accepted/rejected server-side (see submit_material_price SQL function).
+export async function submitPricesToGlobal(rawInputs) {
+  let accepted = 0
+  let rejected = 0
+  for (const [materialId, raw] of Object.entries(rawInputs)) {
+    const price = parseYang(raw)
+    if (price === '' || !(price > 0)) continue
+    const { data, error } = await supabase.rpc('submit_material_price', { p_material_id: materialId, p_price: price })
+    if (error) continue
+    if (data) accepted++
+    else rejected++
+  }
+  return { accepted, rejected }
 }
 
 export function buildRecipeMap(rows) {
@@ -95,6 +151,7 @@ export function buildDefaultScrollMap(scrollMaterials) {
 }
 
 // Auto price for an item used as an ingredient: materials + nested items + yang + default scroll per step, pity=1, no seals.
+// ctx.materialPriceFn: (materialId) => number — supplied by the caller, own- or global-mode aware.
 export function computeItemPrice(itemId, ctx, visited = new Set()) {
   if (visited.has(itemId)) return 0
   const nextVisited = new Set(visited).add(itemId)
@@ -113,7 +170,7 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
   for (const step of steps) {
     let stepCost = 0
     for (const row of matSteps[step] ?? []) {
-      stepCost += computePrice(row.material_id, ctx.rawInputs, ctx.materialRecipes, ctx.materialYangCosts) * row.quantity
+      stepCost += ctx.materialPriceFn(row.material_id) * row.quantity
     }
     for (const row of itemSteps[step] ?? []) {
       stepCost += computeItemPrice(row.component_item_id, ctx, nextVisited) * row.quantity
@@ -121,7 +178,7 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
     stepCost += yangSteps[step] ?? 0
     if (step !== 0) {
       const scrollId = ctx.defaultScrollByStep[step]
-      if (scrollId) stepCost += computePrice(scrollId, ctx.rawInputs, ctx.materialRecipes, ctx.materialYangCosts)
+      if (scrollId) stepCost += ctx.materialPriceFn(scrollId)
     }
     total += stepCost
   }

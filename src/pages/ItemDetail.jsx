@@ -9,8 +9,9 @@ import { itemImages } from '../utils/itemImages'
 import ItemImage from '../components/ItemImage'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import {
-  usePriceBook, computePrice, buildRecipeMap, buildYangCostMap,
+  usePriceBook, buildRecipeMap, buildYangCostMap,
   computeItemPrice, buildItemStepMap, buildItemYangMap, buildDefaultScrollMap,
+  fetchGlobalPrices, makeMaterialPriceFn,
 } from '../utils/priceBook'
 
 const STEP_LABELS = {
@@ -25,7 +26,7 @@ const SCROLL_ORDER = [
   'Blacksmith Handbook', 'Scroll of War', 'Magic Stone',
 ]
 
-function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChange, kind }) {
+function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChange, kind, globalMode }) {
   const lineTotal = unitPrice * quantity
   return (
     <div className="flex items-center gap-3 min-w-0">
@@ -36,7 +37,7 @@ function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChange, kind }) {
       </div>
       <span className="flex-1 text-sm text-gray-200 truncate">{mat.name}</span>
       <span className="text-gray-500 text-xs shrink-0">×{quantity}</span>
-      <MaterialPriceCell material={mat} rawValue={rawValue} computedValue={unitPrice} onPriceChange={onPriceChange} computed={kind === 'item' ? true : undefined} />
+      <MaterialPriceCell material={mat} rawValue={rawValue} computedValue={unitPrice} onPriceChange={onPriceChange} computed={kind === 'item' || globalMode ? true : undefined} />
       <span className="text-yellow-400 text-sm w-24 text-right font-mono shrink-0">{formatYang(lineTotal)}</span>
     </div>
   )
@@ -59,8 +60,10 @@ export default function ItemDetail() {
   const [selectedSeals, setSelectedSeals] = useState({})
   const [pity, setPity] = useState({})
   const [includeCraft, setIncludeCraft] = useState(true)
+  const [noScrollAll, setNoScrollAll] = useState(false)
+  const [globalPrices, setGlobalPrices] = useState({})
   const [loading, setLoading] = useState(true)
-  const { rawInputs, setPrice } = usePriceBook()
+  const { rawInputs, setPrice, mode } = usePriceBook()
 
   useEffect(() => {
     Promise.all([
@@ -75,7 +78,8 @@ export default function ItemDetail() {
       supabase.from('item_materials').select('item_id, material_id, quantity, step'),
       supabase.from('item_items').select('item_id, component_item_id, quantity, step'),
       supabase.from('item_step_yang').select('item_id, step, yang_cost'),
-    ]).then(([itemRes, matsRes, itemIngRes, yangRes, scrollsRes, sealsRes, recipeRes, allMatsRes, allItemMatsRes, allItemItemsRes, allItemYangRes]) => {
+      fetchGlobalPrices(),
+    ]).then(([itemRes, matsRes, itemIngRes, yangRes, scrollsRes, sealsRes, recipeRes, allMatsRes, allItemMatsRes, allItemItemsRes, allItemYangRes, globalPricesMap]) => {
       setItem(itemRes.data)
 
       const g = {}
@@ -106,6 +110,7 @@ export default function ItemDetail() {
       setAllItemItems(buildItemStepMap(allItemItemsRes.data))
       setAllItemYang(buildItemYangMap(allItemYangRes.data))
       setDefaultScrollByStep(buildDefaultScrollMap(sorted))
+      setGlobalPrices(globalPricesMap)
 
       const saved = localStorage.getItem(`item_choices_${itemId}`)
       const savedChoices = saved ? JSON.parse(saved) : null
@@ -115,6 +120,7 @@ export default function ItemDetail() {
         setSelectedSeals(savedChoices.selectedSeals ?? {})
         setPity(savedChoices.pity ?? {})
         setIncludeCraft(savedChoices.includeCraft ?? true)
+        setNoScrollAll(savedChoices.noScrollAll ?? false)
       } else {
         const war = sorted.find(s => s.name.toLowerCase().includes('scroll of war'))
         const magic = sorted.find(s => s.name.toLowerCase().includes('magic stone'))
@@ -132,18 +138,29 @@ export default function ItemDetail() {
 
   useEffect(() => {
     if (loading) return
-    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll, selectedSeals, pity, includeCraft }))
-  }, [itemId, loading, selectedScroll, selectedSeals, pity, includeCraft])
+    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll, selectedSeals, pity, includeCraft, noScrollAll }))
+  }, [itemId, loading, selectedScroll, selectedSeals, pity, includeCraft, noScrollAll])
+
+  function handleNoScrollToggle(checked) {
+    setNoScrollAll(checked)
+    if (checked) {
+      setSelectedScroll(prev => {
+        const next = { ...prev }
+        for (let s = 1; s <= 9; s++) next[s] = ''
+        return next
+      })
+    }
+  }
+
+  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts })
 
   function priceOf(materialId) {
-    return computePrice(materialId, rawInputs, recipes, craftYangCosts)
+    return priceFn(materialId)
   }
 
   function itemIngredientCtx() {
     return {
-      rawInputs,
-      materialRecipes: recipes,
-      materialYangCosts: craftYangCosts,
+      materialPriceFn: priceFn,
       itemMaterials: allItemMaterials,
       itemItems: allItemItems,
       itemYang: allItemYang,
@@ -179,7 +196,24 @@ export default function ItemDetail() {
                   : <span className="text-5xl">⚔️</span>}
               </div>
               <h1 className="text-2xl font-bold text-yellow-400">{item?.name}</h1>
+              {mode === 'global' && (
+                <span className="ml-auto text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-full shrink-0">
+                  Global Prices
+                </span>
+              )}
             </div>
+
+            {scrolls.length > 0 && (
+              <label className="flex items-center gap-2 text-sm text-gray-400 mb-6 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={noScrollAll}
+                  onChange={e => handleNoScrollToggle(e.target.checked)}
+                  className="accent-yellow-400 w-4 h-4"
+                />
+                No scrolls (set all upgrade steps to no scroll)
+              </label>
+            )}
 
             {allSteps.length === 0 ? (
               <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
@@ -252,13 +286,13 @@ export default function ItemDetail() {
                         )}
 
                         {(grouped[step] ?? []).map(row => (
-                          <MatRow key={`${row.kind}-${row.material.id}`} mat={row.material} quantity={row.quantity} unitPrice={rowPrice(row)} rawValue={rawInputs[row.material.id]} onPriceChange={setPrice} kind={row.kind} />
+                          <MatRow key={`${row.kind}-${row.material.id}`} mat={row.material} quantity={row.quantity} unitPrice={rowPrice(row)} rawValue={rawInputs[row.material.id]} onPriceChange={setPrice} kind={row.kind} globalMode={mode === 'global'} />
                         ))}
 
                         {hasExtras && (
                           <div className="border-t border-gray-700/60 pt-3 flex flex-col gap-3">
-                            {scrollMat && <MatRow mat={scrollMat} quantity={1} unitPrice={priceOf(scrollMat.id)} rawValue={rawInputs[scrollMat.id]} onPriceChange={setPrice} />}
-                            {stepSealMats.map(s => <MatRow key={s.id} mat={s} quantity={1} unitPrice={priceOf(s.id)} rawValue={rawInputs[s.id]} onPriceChange={setPrice} />)}
+                            {scrollMat && <MatRow mat={scrollMat} quantity={1} unitPrice={priceOf(scrollMat.id)} rawValue={rawInputs[scrollMat.id]} onPriceChange={setPrice} globalMode={mode === 'global'} />}
+                            {stepSealMats.map(s => <MatRow key={s.id} mat={s} quantity={1} unitPrice={priceOf(s.id)} rawValue={rawInputs[s.id]} onPriceChange={setPrice} globalMode={mode === 'global'} />)}
                           </div>
                         )}
                       </div>

@@ -7,7 +7,10 @@ import EditMaterialModal from '../components/EditMaterialModal'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import Spinner from '../components/Spinner'
 import { supabase } from '../supabaseClient'
-import { usePriceBook, computePrice, buildRecipeMap, buildYangCostMap } from '../utils/priceBook'
+import {
+  usePriceBook, buildRecipeMap, buildYangCostMap,
+  fetchGlobalPrices, submitPricesToGlobal, makeMaterialPriceFn,
+} from '../utils/priceBook'
 
 const FILTERS = [
   { key: 'all', label: 'All' },
@@ -38,19 +41,31 @@ export default function Materials() {
   const [editing, setEditing] = useState(null)
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
-  const { rawInputs, setPrice, importPrices } = usePriceBook()
+  const [globalPrices, setGlobalPrices] = useState({})
+  const [submitting, setSubmitting] = useState(false)
+  const { rawInputs, setPrice, importPrices, mode, setMode } = usePriceBook()
   const fileInputRef = useRef(null)
 
   useEffect(() => {
     Promise.all([
       supabase.from('materials').select('*').order('name'),
       supabase.from('material_materials').select('material_id, component_id, quantity'),
-    ]).then(([matsRes, recipeRes]) => {
+      fetchGlobalPrices(),
+    ]).then(([matsRes, recipeRes, globalPricesMap]) => {
       setMaterials(matsRes.data ?? [])
       setRecipes(buildRecipeMap(recipeRes.data))
+      setGlobalPrices(globalPricesMap)
       setLoading(false)
     })
   }, [])
+
+  async function handleSubmitToGlobal() {
+    setSubmitting(true)
+    const { accepted, rejected } = await submitPricesToGlobal(rawInputs)
+    setGlobalPrices(await fetchGlobalPrices())
+    setSubmitting(false)
+    alert(`Submitted: ${accepted} accepted${rejected > 0 ? `, ${rejected} rejected (too far from the current global price)` : ''}.`)
+  }
 
   function handleAdded(mat) {
     setMaterials(prev => [...prev, mat].sort((a, b) => a.name.localeCompare(b.name)))
@@ -91,6 +106,7 @@ export default function Materials() {
   }
 
   const yangCosts = buildYangCostMap(materials)
+  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts })
 
   return (
     <div className="min-h-screen text-white">
@@ -99,7 +115,29 @@ export default function Materials() {
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <h1 className="text-2xl font-bold text-gray-100">Materials</h1>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-xl p-1">
+              <button
+                onClick={() => setMode('own')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${mode === 'own' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
+              >
+                My Own Prices
+              </button>
+              <button
+                onClick={() => setMode('global')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${mode === 'global' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
+              >
+                Global Prices
+              </button>
+            </div>
+            <button
+              onClick={handleSubmitToGlobal}
+              disabled={submitting}
+              className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 font-semibold px-3 py-2 rounded-xl text-sm transition-colors disabled:opacity-50"
+              title="Submit your locally entered prices to the shared global prices"
+            >
+              {submitting ? 'Submitting...' : '📤 Submit to Global Prices'}
+            </button>
             <button
               onClick={handleExport}
               className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 font-semibold px-3 py-2 rounded-xl text-sm transition-colors"
@@ -206,8 +244,9 @@ export default function Materials() {
                   <MaterialPriceCell
                     material={mat}
                     rawValue={rawInputs[mat.id]}
-                    computedValue={mat.is_craftable ? computePrice(mat.id, rawInputs, recipes, yangCosts) : undefined}
+                    computedValue={mode === 'global' || mat.is_craftable ? priceFn(mat.id) : undefined}
                     onPriceChange={setPrice}
+                    computed={mode === 'global' ? true : undefined}
                   />
                   {isAdmin && (
                     <button
