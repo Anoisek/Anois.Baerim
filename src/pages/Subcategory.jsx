@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -20,6 +20,8 @@ export default function Subcategory() {
   const [showModal, setShowModal] = useState(false)
   const [editing, setEditing] = useState(null)
   const [editMode, setEditMode] = useState(false)
+  const [usedInItemIds, setUsedInItemIds] = useState(new Set())
+  const navigate = useNavigate()
 
   useEffect(() => {
     let itemsQuery = supabase.from('items').select('*').eq('category_id', categoryId).order('sort_order')
@@ -30,9 +32,11 @@ export default function Subcategory() {
         ? Promise.resolve({ data: null })
         : supabase.from('subcategories').select('*').eq('id', subcategoryId).single(),
       itemsQuery,
-    ]).then(([subRes, itemsRes]) => {
+      supabase.from('item_items').select('component_item_id'),
+    ]).then(([subRes, itemsRes, itemItemsRes]) => {
       setSubcategory(subRes.data)
       setItems(itemsRes.data ?? [])
+      setUsedInItemIds(new Set((itemItemsRes.data ?? []).map(r => r.component_item_id)))
       setLoading(false)
     })
   }, [categoryId, subcategoryId, isUncategorized])
@@ -112,6 +116,15 @@ export default function Subcategory() {
                     disableUp={index === 0}
                     disableDown={index === items.length - 1}
                   />
+                )}
+                {!editMode && usedInItemIds.has(item.id) && (
+                  <button
+                    onClick={e => { e.preventDefault(); e.stopPropagation(); navigate(`/items/${item.id}/usage`) }}
+                    className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-800/90 border border-gray-600 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/50 transition-colors text-xs"
+                    title="See where this is used"
+                  >
+                    🔗
+                  </button>
                 )}
                 {isAdmin && (
                   <button

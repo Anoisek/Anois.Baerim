@@ -19,7 +19,8 @@
       "Bash(npx vite *)",
       "Read(//c//**)",
       "Read(//c/Users/Bartek/**)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(git fetch *)"
     ]
   }
 }

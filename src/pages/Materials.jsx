@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import AddMaterialModal from '../components/AddMaterialModal'
@@ -43,18 +43,24 @@ export default function Materials() {
   const [search, setSearch] = useState('')
   const [globalPrices, setGlobalPrices] = useState({})
   const [submitting, setSubmitting] = useState(false)
+  const [usedInItemIds, setUsedInItemIds] = useState(new Set())
+  const [usedAsComponentIds, setUsedAsComponentIds] = useState(new Set())
   const { rawInputs, setPrice, importPrices, mode, setMode } = usePriceBook()
   const fileInputRef = useRef(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     Promise.all([
       supabase.from('materials').select('*').order('name'),
       supabase.from('material_materials').select('material_id, component_id, quantity'),
       fetchGlobalPrices(),
-    ]).then(([matsRes, recipeRes, globalPricesMap]) => {
+      supabase.from('item_materials').select('material_id'),
+    ]).then(([matsRes, recipeRes, globalPricesMap, itemMatsRes]) => {
       setMaterials(matsRes.data ?? [])
       setRecipes(buildRecipeMap(recipeRes.data))
       setGlobalPrices(globalPricesMap)
+      setUsedInItemIds(new Set((itemMatsRes.data ?? []).map(r => r.material_id)))
+      setUsedAsComponentIds(new Set((recipeRes.data ?? []).map(r => r.component_id)))
       setLoading(false)
     })
   }, [])
@@ -252,6 +258,15 @@ export default function Materials() {
                     onPriceChange={setPrice}
                     computed={mode === 'global' ? true : undefined}
                   />
+                  {(usedInItemIds.has(mat.id) || usedAsComponentIds.has(mat.id)) && (
+                    <button
+                      onClick={e => { e.preventDefault(); e.stopPropagation(); navigate(`/materials/${mat.id}/usage`) }}
+                      className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-800/90 border border-gray-600 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/50 transition-colors text-xs"
+                      title="See where this is used"
+                    >
+                      🔗
+                    </button>
+                  )}
                   {isAdmin && (
                     <button
                       onClick={e => { e.preventDefault(); e.stopPropagation(); setEditing(mat) }}
