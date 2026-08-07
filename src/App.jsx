@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Materials from './pages/Materials'
+import MaterialDetail from './pages/MaterialDetail'
 import Systems from './pages/Systems'
 import Category from './pages/Category'
 import Subcategory from './pages/Subcategory'
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/materials" element={<Materials />} />
+          <Route path="/materials/:materialId" element={<MaterialDetail />} />
           <Route path="/systems" element={<Systems />} />
           <Route path="/chapter/:categoryId" element={<Category />} />
           <Route path="/chapter/:categoryId/sub/:subcategoryId" element={<Subcategory />} />

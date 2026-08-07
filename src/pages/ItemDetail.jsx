@@ -4,9 +4,11 @@ import { supabase } from '../supabaseClient'
 import Navbar from '../components/Navbar'
 import SealPicker from '../components/SealPicker'
 import Spinner from '../components/Spinner'
-import { formatYang, parseYang } from '../utils/formatYang'
+import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
 import ItemImage from '../components/ItemImage'
+import MaterialPriceCell from '../components/MaterialPriceCell'
+import { usePriceBook, computePrice, buildRecipeMap } from '../utils/priceBook'
 
 const STEP_LABELS = {
   0: 'Craft',
@@ -20,20 +22,8 @@ const SCROLL_ORDER = [
   'Blacksmith Handbook', 'Scroll of War', 'Magic Stone',
 ]
 
-function PriceInput({ materialId, value, onPriceChange }) {
-  return (
-    <input
-      type="text"
-      placeholder="e.g. 50kk"
-      value={value ?? ''}
-      onChange={e => onPriceChange(materialId, e.target.value)}
-      className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 w-28 text-right text-sm focus:outline-none focus:border-yellow-400 shrink-0 transition-colors"
-    />
-  )
-}
-
-function MatRow({ mat, quantity, rawValue, price, onPriceChange, formatYang }) {
-  const lineTotal = (parseFloat(price) || 0) * quantity
+function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChange }) {
+  const lineTotal = unitPrice * quantity
   return (
     <div className="flex items-center gap-3 min-w-0">
       <div className="w-8 h-8 shrink-0 flex items-center justify-center">
@@ -43,7 +33,7 @@ function MatRow({ mat, quantity, rawValue, price, onPriceChange, formatYang }) {
       </div>
       <span className="flex-1 text-sm text-gray-200 truncate">{mat.name}</span>
       <span className="text-gray-500 text-xs shrink-0">×{quantity}</span>
-      <PriceInput materialId={mat.id} value={rawValue} onPriceChange={onPriceChange} />
+      <MaterialPriceCell material={mat} rawValue={rawValue} computedValue={unitPrice} onPriceChange={onPriceChange} />
       <span className="text-yellow-400 text-sm w-24 text-right font-mono shrink-0">{formatYang(lineTotal)}</span>
     </div>
   )
@@ -56,22 +46,23 @@ export default function ItemDetail() {
   const [yangCosts, setYangCosts] = useState({})
   const [scrolls, setScrolls] = useState([])
   const [seals, setSeals] = useState([])
+  const [recipes, setRecipes] = useState({})
   const [selectedScroll, setSelectedScroll] = useState({})
   const [selectedSeals, setSelectedSeals] = useState({})
-  const [prices, setPrices] = useState({})
-  const [rawInputs, setRawInputs] = useState({})
   const [pity, setPity] = useState({})
   const [includeCraft, setIncludeCraft] = useState(true)
   const [loading, setLoading] = useState(true)
+  const { rawInputs, setPrice } = usePriceBook()
 
   useEffect(() => {
     Promise.all([
       supabase.from('items').select('*').eq('id', itemId).single(),
-      supabase.from('item_materials').select('quantity, step, material:materials(id, name, image_url)').eq('item_id', itemId).order('step'),
+      supabase.from('item_materials').select('quantity, step, material:materials(id, name, image_url, is_craftable)').eq('item_id', itemId).order('step'),
       supabase.from('item_step_yang').select('step, yang_cost').eq('item_id', itemId),
-      supabase.from('materials').select('id, name, image_url').eq('is_upgrade_scroll', true).order('name'),
-      supabase.from('materials').select('id, name, image_url').eq('is_seal', true).order('name'),
-    ]).then(([itemRes, matsRes, yangRes, scrollsRes, sealsRes]) => {
+      supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_upgrade_scroll', true).order('name'),
+      supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_seal', true).order('name'),
+      supabase.from('material_materials').select('material_id, component_id, quantity'),
+    ]).then(([itemRes, matsRes, yangRes, scrollsRes, sealsRes, recipeRes]) => {
       setItem(itemRes.data)
 
       const g = {}
@@ -92,6 +83,7 @@ export default function ItemDetail() {
       })
       setScrolls(sorted)
       setSeals(sealsRes.data ?? [])
+      setRecipes(buildRecipeMap(recipeRes.data))
 
       const war = sorted.find(s => s.name.toLowerCase().includes('scroll of war'))
       const magic = sorted.find(s => s.name.toLowerCase().includes('magic stone'))
@@ -102,25 +94,18 @@ export default function ItemDetail() {
         })
       }
 
-      const saved = localStorage.getItem(`prices_${itemId}`)
-      if (saved) setPrices(JSON.parse(saved))
-
       setLoading(false)
     })
   }, [itemId])
 
-  function handlePriceChange(materialId, raw) {
-    setRawInputs(prev => ({ ...prev, [materialId]: raw }))
-    const parsed = parseYang(raw)
-    const updated = { ...prices, [materialId]: parsed === '' ? '' : parsed }
-    setPrices(updated)
-    localStorage.setItem(`prices_${itemId}`, JSON.stringify(updated))
+  function priceOf(materialId) {
+    return computePrice(materialId, rawInputs, recipes)
   }
 
   function getPity(step) { return Math.max(1, parseInt(pity[step]) || 1) }
-  function matCost(rows) { return rows.reduce((s, r) => s + (parseFloat(prices[r.material.id]) || 0) * r.quantity, 0) }
-  function scrollCost(step) { const id = selectedScroll[step]; return id ? (parseFloat(prices[id]) || 0) : 0 }
-  function sealsCost(step) { return (selectedSeals[step] ?? []).reduce((s, id) => s + (parseFloat(prices[id]) || 0), 0) }
+  function matCost(rows) { return rows.reduce((s, r) => s + priceOf(r.material.id) * r.quantity, 0) }
+  function scrollCost(step) { const id = selectedScroll[step]; return id ? priceOf(id) : 0 }
+  function sealsCost(step) { return (selectedSeals[step] ?? []).reduce((s, id) => s + priceOf(id), 0) }
   function stepTotal(step) { return (matCost(grouped[step] ?? []) + (yangCosts[step] ?? 0) + scrollCost(step) + sealsCost(step)) * getPity(step) }
 
   const allSteps = [...new Set([...Object.keys(grouped).map(Number), ...Object.keys(yangCosts).map(Number)])].sort((a, b) => a - b)
@@ -214,13 +199,13 @@ export default function ItemDetail() {
                         )}
 
                         {(grouped[step] ?? []).map(row => (
-                          <MatRow key={row.material.id} mat={row.material} quantity={row.quantity} rawValue={rawInputs[row.material.id]} price={prices[row.material.id]} onPriceChange={handlePriceChange} formatYang={formatYang} />
+                          <MatRow key={row.material.id} mat={row.material} quantity={row.quantity} unitPrice={priceOf(row.material.id)} rawValue={rawInputs[row.material.id]} onPriceChange={setPrice} />
                         ))}
 
                         {hasExtras && (
                           <div className="border-t border-gray-700/60 pt-3 flex flex-col gap-3">
-                            {scrollMat && <MatRow mat={scrollMat} quantity={1} rawValue={rawInputs[scrollMat.id]} price={prices[scrollMat.id]} onPriceChange={handlePriceChange} formatYang={formatYang} />}
-                            {stepSealMats.map(s => <MatRow key={s.id} mat={s} quantity={1} rawValue={rawInputs[s.id]} price={prices[s.id]} onPriceChange={handlePriceChange} formatYang={formatYang} />)}
+                            {scrollMat && <MatRow mat={scrollMat} quantity={1} unitPrice={priceOf(scrollMat.id)} rawValue={rawInputs[scrollMat.id]} onPriceChange={setPrice} />}
+                            {stepSealMats.map(s => <MatRow key={s.id} mat={s} quantity={1} unitPrice={priceOf(s.id)} rawValue={rawInputs[s.id]} onPriceChange={setPrice} />)}
                           </div>
                         )}
                       </div>
