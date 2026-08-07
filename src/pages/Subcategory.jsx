@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar'
 import AddItemModal from '../components/AddItemModal'
 import EditItemModal from '../components/EditItemModal'
 import ItemImage from '../components/ItemImage'
+import ReorderButtons from '../components/ReorderButtons'
 import Spinner from '../components/Spinner'
 import { itemImages } from '../utils/itemImages'
 
@@ -18,9 +19,10 @@ export default function Subcategory() {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [editMode, setEditMode] = useState(false)
 
   useEffect(() => {
-    let itemsQuery = supabase.from('items').select('*').eq('category_id', categoryId).order('name')
+    let itemsQuery = supabase.from('items').select('*').eq('category_id', categoryId).order('sort_order')
     itemsQuery = isUncategorized ? itemsQuery.is('subcategory_id', null) : itemsQuery.eq('subcategory_id', subcategoryId)
 
     Promise.all([
@@ -34,6 +36,20 @@ export default function Subcategory() {
       setLoading(false)
     })
   }, [categoryId, subcategoryId, isUncategorized])
+
+  async function persistItemOrder(id, newOrder) {
+    setItems(prev => prev.map(i => i.id === id ? { ...i, sort_order: newOrder } : i))
+    await supabase.from('items').update({ sort_order: newOrder }).eq('id', id)
+  }
+
+  function moveItem(index, delta) {
+    const targetIndex = index + delta
+    if (targetIndex < 0 || targetIndex >= items.length) return
+    const a = items[index]
+    const b = items[targetIndex]
+    persistItemOrder(a.id, b.sort_order)
+    persistItemOrder(b.id, a.sort_order)
+  }
 
   return (
     <div className="min-h-screen text-white">
@@ -51,12 +67,20 @@ export default function Subcategory() {
             <h1 className="text-2xl font-bold text-gray-100">{isUncategorized ? 'Uncategorized' : (subcategory?.name ?? 'Category')}</h1>
           </div>
           {isAdmin && (
-            <button
-              onClick={() => setShowModal(true)}
-              className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors"
-            >
-              + Add item
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setEditMode(v => !v)}
+                className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${editMode ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200'}`}
+              >
+                {editMode ? 'Done' : 'Edit panel'}
+              </button>
+              <button
+                onClick={() => setShowModal(true)}
+                className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors"
+              >
+                + Add item
+              </button>
+            </div>
           )}
         </div>
 
@@ -67,7 +91,7 @@ export default function Subcategory() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {items.map(item => (
+            {items.map((item, index) => (
               <Link
                 key={item.id}
                 to={`/chapter/${categoryId}/item/${item.id}`}
@@ -81,6 +105,14 @@ export default function Subcategory() {
                 <span className="text-sm font-semibold text-gray-100 text-center leading-tight group-hover:text-yellow-400 transition-colors">
                   {item.name}
                 </span>
+                {isAdmin && editMode && (
+                  <ReorderButtons
+                    onUp={() => moveItem(index, -1)}
+                    onDown={() => moveItem(index, 1)}
+                    disableUp={index === 0}
+                    disableDown={index === items.length - 1}
+                  />
+                )}
                 {isAdmin && (
                   <button
                     onClick={e => { e.preventDefault(); e.stopPropagation(); setEditing(item) }}
@@ -101,8 +133,9 @@ export default function Subcategory() {
         <AddItemModal
           categoryId={categoryId}
           subcategoryId={isUncategorized ? null : subcategoryId}
+          nextSortOrder={Math.max(0, ...items.map(i => i.sort_order)) + 10}
           onClose={() => setShowModal(false)}
-          onAdded={item => setItems(prev => [...prev, item].sort((a, b) => a.name.localeCompare(b.name)))}
+          onAdded={item => setItems(prev => [...prev, item].sort((a, b) => a.sort_order - b.sort_order))}
         />
       )}
       {editing && (
@@ -114,7 +147,7 @@ export default function Subcategory() {
             const next = item.subcategory_id === editing.subcategory_id
               ? prev.map(i => i.id === item.id ? item : i)
               : prev.filter(i => i.id !== item.id)
-            return next.sort((a, b) => a.name.localeCompare(b.name))
+            return next.sort((a, b) => a.sort_order - b.sort_order)
           })}
           onDeleted={id => setItems(prev => prev.filter(i => i.id !== id))}
         />

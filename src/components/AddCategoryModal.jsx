@@ -3,7 +3,7 @@ import { supabase } from '../supabaseClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 
-export default function AddCategoryModal({ onClose, onAdded }) {
+export default function AddCategoryModal({ nextSortOrder, onClose, onAdded }) {
   const [name, setName] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [saving, setSaving] = useState(false)
@@ -14,7 +14,7 @@ export default function AddCategoryModal({ onClose, onAdded }) {
     setSaving(true)
     const { data, error } = await supabase
       .from('categories')
-      .insert({ name: name.trim(), image_url: imageUrl || null })
+      .insert({ name: name.trim(), image_url: imageUrl || null, sort_order: nextSortOrder ?? 0 })
       .select()
       .single()
     if (error) {

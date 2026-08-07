@@ -79,24 +79,59 @@ export default function Home() {
   const [categories, setCategories] = useState([])
   const [materialsImage, setMaterialsImage] = useState(null)
   const [systemsImage, setSystemsImage] = useState(null)
+  const [materialsOrder, setMaterialsOrder] = useState(0)
+  const [systemsOrder, setSystemsOrder] = useState(1)
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [editing, setEditing] = useState(null)
   const [editingMaterials, setEditingMaterials] = useState(false)
   const [editingSystems, setEditingSystems] = useState(false)
+  const [editMode, setEditMode] = useState(false)
 
   useEffect(() => {
     Promise.all([
-      supabase.from('categories').select('*').order('created_at'),
+      supabase.from('categories').select('*').order('sort_order'),
       supabase.from('settings').select('value').eq('key', 'materials_image_url').maybeSingle(),
       supabase.from('settings').select('value').eq('key', 'systems_image_url').maybeSingle(),
-    ]).then(([catRes, materialsRes, systemsRes]) => {
+      supabase.from('settings').select('value').eq('key', 'materials_sort_order').maybeSingle(),
+      supabase.from('settings').select('value').eq('key', 'systems_sort_order').maybeSingle(),
+    ]).then(([catRes, materialsRes, systemsRes, materialsOrderRes, systemsOrderRes]) => {
       setCategories(catRes.data ?? [])
       setMaterialsImage(materialsRes.data?.value ?? null)
       setSystemsImage(systemsRes.data?.value ?? null)
+      setMaterialsOrder(Number(materialsOrderRes.data?.value ?? 0))
+      setSystemsOrder(Number(systemsOrderRes.data?.value ?? 1))
       setLoading(false)
     })
   }, [])
+
+  const tiles = [
+    { kind: 'materials', key: 'materials', sort_order: materialsOrder, to: '/materials', image: materialsImage, emoji: '⚗️', label: 'Materials', onEdit: () => setEditingMaterials(true) },
+    { kind: 'systems', key: 'systems', sort_order: systemsOrder, to: '/systems', image: systemsImage, emoji: '⚙️', label: 'Systems', onEdit: () => setEditingSystems(true) },
+    ...categories.map(cat => ({ kind: 'category', key: cat.id, sort_order: cat.sort_order, to: `/chapter/${cat.id}`, image: cat.image_url, emoji: '📦', label: cat.name, onEdit: () => setEditing(cat), raw: cat })),
+  ].sort((a, b) => a.sort_order - b.sort_order)
+
+  async function persistOrder(tile, newOrder) {
+    if (tile.kind === 'materials') {
+      setMaterialsOrder(newOrder)
+      await supabase.from('settings').upsert({ key: 'materials_sort_order', value: String(newOrder) })
+    } else if (tile.kind === 'systems') {
+      setSystemsOrder(newOrder)
+      await supabase.from('settings').upsert({ key: 'systems_sort_order', value: String(newOrder) })
+    } else {
+      setCategories(prev => prev.map(c => c.id === tile.key ? { ...c, sort_order: newOrder } : c))
+      await supabase.from('categories').update({ sort_order: newOrder }).eq('id', tile.key)
+    }
+  }
+
+  function moveTile(index, delta) {
+    const targetIndex = index + delta
+    if (targetIndex < 0 || targetIndex >= tiles.length) return
+    const a = tiles[index]
+    const b = tiles[targetIndex]
+    persistOrder(a, b.sort_order)
+    persistOrder(b, a.sort_order)
+  }
 
   return (
     <div className="min-h-screen text-white">
@@ -107,34 +142,34 @@ export default function Home() {
         </div>
 
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
-          <h1 className="text-2xl font-bold text-gray-100 mb-6">Chapters</h1>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-gray-100">Chapters</h1>
+            {isAdmin && (
+              <button
+                onClick={() => setEditMode(v => !v)}
+                className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${editMode ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200'}`}
+              >
+                {editMode ? 'Done' : 'Edit panel'}
+              </button>
+            )}
+          </div>
 
           {loading ? <Spinner /> : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              <Tile
-                to="/materials"
-                image={materialsImage}
-                emoji="⚗️"
-                label="Materials"
-                onEdit={isAdmin ? () => setEditingMaterials(true) : undefined}
-              />
-
-              <Tile
-                to="/systems"
-                image={systemsImage}
-                emoji="⚙️"
-                label="Systems"
-                onEdit={isAdmin ? () => setEditingSystems(true) : undefined}
-              />
-
-              {categories.map(cat => (
+              {tiles.map((tile, index) => (
                 <Tile
-                  key={cat.id}
-                  to={`/chapter/${cat.id}`}
-                  image={cat.image_url}
-                  emoji="📦"
-                  label={cat.name}
-                  onEdit={isAdmin ? () => setEditing(cat) : undefined}
+                  key={tile.key}
+                  to={tile.to}
+                  image={tile.image}
+                  emoji={tile.emoji}
+                  label={tile.label}
+                  onEdit={isAdmin ? tile.onEdit : undefined}
+                  reorder={isAdmin && editMode ? {
+                    onUp: () => moveTile(index, -1),
+                    onDown: () => moveTile(index, 1),
+                    disableUp: index === 0,
+                    disableDown: index === tiles.length - 1,
+                  } : undefined}
                 />
               ))}
 
@@ -148,6 +183,7 @@ export default function Home() {
 
       {showAdd && (
         <AddCategoryModal
+          nextSortOrder={Math.max(0, ...tiles.map(t => t.sort_order)) + 10}
           onClose={() => setShowAdd(false)}
           onAdded={cat => setCategories(prev => [...prev, cat])}
         />

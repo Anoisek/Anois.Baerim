@@ -17,7 +17,7 @@ const STEPS = [
   { step: 9, label: '+8 → +9' },
 ]
 
-export default function AddItemModal({ categoryId, subcategoryId, onClose, onAdded }) {
+export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder, onClose, onAdded }) {
   const [name, setName] = useState('')
   const [imageUrls, setImageUrls] = useState([])
   const [allMaterials, setAllMaterials] = useState([])
@@ -65,7 +65,7 @@ export default function AddItemModal({ categoryId, subcategoryId, onClose, onAdd
 
     const { data: item, error } = await supabase
       .from('items')
-      .insert({ name: name.trim(), category_id: categoryId, subcategory_id: subcategoryId || null, image_urls: imageUrls, image_url: imageUrls[0] ?? null })
+      .insert({ name: name.trim(), category_id: categoryId, subcategory_id: subcategoryId || null, image_urls: imageUrls, image_url: imageUrls[0] ?? null, sort_order: nextSortOrder ?? 0 })
       .select()
       .single()
 

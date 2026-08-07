@@ -17,11 +17,12 @@ export default function Category() {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [editMode, setEditMode] = useState(false)
 
   useEffect(() => {
     Promise.all([
       supabase.from('categories').select('*').eq('id', categoryId).single(),
-      supabase.from('subcategories').select('*').eq('category_id', categoryId).order('created_at'),
+      supabase.from('subcategories').select('*').eq('category_id', categoryId).order('sort_order'),
       supabase.from('items').select('id').eq('category_id', categoryId).is('subcategory_id', null),
     ]).then(([catRes, subRes, uncatRes]) => {
       setCategory(catRes.data)
@@ -30,6 +31,20 @@ export default function Category() {
       setLoading(false)
     })
   }, [categoryId])
+
+  async function persistSubOrder(id, newOrder) {
+    setSubcategories(prev => prev.map(s => s.id === id ? { ...s, sort_order: newOrder } : s))
+    await supabase.from('subcategories').update({ sort_order: newOrder }).eq('id', id)
+  }
+
+  function moveSubcategory(index, delta) {
+    const targetIndex = index + delta
+    if (targetIndex < 0 || targetIndex >= subcategories.length) return
+    const a = subcategories[index]
+    const b = subcategories[targetIndex]
+    persistSubOrder(a.id, b.sort_order)
+    persistSubOrder(b.id, a.sort_order)
+  }
 
   return (
     <div className="min-h-screen text-white">
@@ -44,12 +59,20 @@ export default function Category() {
             <h1 className="text-2xl font-bold text-gray-100">{category?.name ?? 'Chapter'}</h1>
           </div>
           {isAdmin && (
-            <button
-              onClick={() => setShowModal(true)}
-              className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors"
-            >
-              + Add category
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setEditMode(v => !v)}
+                className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${editMode ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200'}`}
+              >
+                {editMode ? 'Done' : 'Edit panel'}
+              </button>
+              <button
+                onClick={() => setShowModal(true)}
+                className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors"
+              >
+                + Add category
+              </button>
+            </div>
           )}
         </div>
 
@@ -60,7 +83,7 @@ export default function Category() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {subcategories.map(sub => (
+            {subcategories.map((sub, index) => (
               <Tile
                 key={sub.id}
                 to={`/chapter/${categoryId}/sub/${sub.id}`}
@@ -68,6 +91,12 @@ export default function Category() {
                 emoji="📦"
                 label={sub.name}
                 onEdit={isAdmin ? () => setEditing(sub) : undefined}
+                reorder={isAdmin && editMode ? {
+                  onUp: () => moveSubcategory(index, -1),
+                  onDown: () => moveSubcategory(index, 1),
+                  disableUp: index === 0,
+                  disableDown: index === subcategories.length - 1,
+                } : undefined}
               />
             ))}
             {hasUncategorized && (
@@ -85,6 +114,7 @@ export default function Category() {
       {showModal && (
         <AddSubcategoryModal
           categoryId={categoryId}
+          nextSortOrder={Math.max(0, ...subcategories.map(s => s.sort_order)) + 10}
           onClose={() => setShowModal(false)}
           onAdded={sub => setSubcategories(prev => [...prev, sub])}
         />

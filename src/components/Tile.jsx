@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
+import ReorderButtons from './ReorderButtons'
 
-export default function Tile({ to, image, emoji, label, dashed, onClick, onEdit }) {
+export default function Tile({ to, image, emoji, label, dashed, onClick, onEdit, reorder }) {
   const cls = `group relative bg-gray-900/80 border ${dashed ? 'border-dashed border-gray-600' : 'border-gray-700'} rounded-2xl p-6 flex flex-col items-center gap-4 transition-all duration-200 hover:border-yellow-400/50 hover:bg-gray-800/80 hover:shadow-lg hover:shadow-black/40 hover:-translate-y-0.5`
 
   const inner = (
@@ -22,6 +23,7 @@ export default function Tile({ to, image, emoji, label, dashed, onClick, onEdit 
           ✏️
         </button>
       )}
+      {reorder && <ReorderButtons {...reorder} />}
     </>
   )
 
