@@ -37,6 +37,7 @@ export default function Materials() {
   const [showAdd, setShowAdd] = useState(false)
   const [editing, setEditing] = useState(null)
   const [filter, setFilter] = useState('all')
+  const [search, setSearch] = useState('')
   const { rawInputs, setPrice, importPrices } = usePriceBook()
   const fileInputRef = useRef(null)
 
@@ -126,23 +127,32 @@ export default function Materials() {
         </div>
 
         {materials.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-6">
-            {FILTERS.map(f => (
-              <button
-                key={f.key}
-                onClick={() => setFilter(f.key)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  filter === f.key ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
+          <div className="flex flex-col gap-3 mb-6">
+            <input
+              type="text"
+              placeholder="Search material..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
+            />
+            <div className="flex flex-wrap gap-1">
+              {FILTERS.map(f => (
+                <button
+                  key={f.key}
+                  onClick={() => setFilter(f.key)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    filter === f.key ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
         {(() => {
-          const visible = materials.filter(mat => matchesFilter(mat, filter))
+          const visible = materials.filter(mat => matchesFilter(mat, filter) && mat.name.toLowerCase().includes(search.toLowerCase()))
           if (loading) return <Spinner />
           if (materials.length === 0) {
             return (
@@ -156,7 +166,7 @@ export default function Materials() {
             return (
               <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
                 <span className="text-5xl">🔍</span>
-                <p className="text-sm">No materials match this filter.</p>
+                <p className="text-sm">No materials match your search.</p>
               </div>
             )
           }
