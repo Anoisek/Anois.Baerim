@@ -28,7 +28,7 @@ create policy "admin write" on global_price_submissions for all
 -- Accepts or rejects a submitted price for a material, then recomputes the
 -- global price as the median of the last 20 accepted submissions.
 -- Tolerance vs the current global price: up to 100% relative deviation,
--- capped at 50kk (50,000,000) absolute — whichever is smaller — with a
+-- capped at 500kk (500,000,000) absolute — whichever is smaller — with a
 -- 1000 yang floor so tiny prices aren't overly strict. First submission for
 -- a material is always accepted (nothing to compare against yet).
 create or replace function submit_material_price(p_material_id uuid, p_price numeric)
@@ -41,7 +41,7 @@ declare
   current_price numeric;
   allowed_deviation numeric;
   relative_cap constant numeric := 1.0;
-  absolute_cap constant numeric := 50000000;
+  absolute_cap constant numeric := 500000000;
   floor_abs constant numeric := 1000;
   median_price numeric;
   cnt integer;
