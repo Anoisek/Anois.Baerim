@@ -33,6 +33,8 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
   const [stepMaxPity, setStepMaxPity] = useState({})       // { step: max_pity string }
   const [activeStep, setActiveStep] = useState(0)
   const [search, setSearch] = useState('')
+  const [copySearch, setCopySearch] = useState('')
+  const [copying, setCopying] = useState(false)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -109,6 +111,41 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
 
   function countForStep(step) {
     return Object.keys(stepMaterials[step] ?? {}).length + Object.keys(stepItems[step] ?? {}).length + (stepYang[step] ? 1 : 0) + (stepMaxPity[step] ? 1 : 0)
+  }
+
+  async function copyRecipeFrom(sourceItemId) {
+    setCopying(true)
+    const [matRes, itemRes, yangRes] = await Promise.all([
+      supabase.from('item_materials').select('material_id, quantity, step').eq('item_id', sourceItemId),
+      supabase.from('item_items').select('component_item_id, quantity, step').eq('item_id', sourceItemId),
+      supabase.from('item_step_yang').select('step, yang_cost, max_pity').eq('item_id', sourceItemId),
+    ])
+
+    const sm = {}
+    for (const row of matRes.data ?? []) {
+      if (!sm[row.step]) sm[row.step] = {}
+      sm[row.step][row.material_id] = row.quantity
+    }
+    setStepMaterials(sm)
+
+    const si = {}
+    for (const row of itemRes.data ?? []) {
+      if (!si[row.step]) si[row.step] = {}
+      si[row.step][row.component_item_id] = row.quantity
+    }
+    setStepItems(si)
+
+    const sy = {}
+    const smp = {}
+    for (const row of yangRes.data ?? []) {
+      if (row.yang_cost) sy[row.step] = String(row.yang_cost)
+      if (row.max_pity) smp[row.step] = String(row.max_pity)
+    }
+    setStepYang(sy)
+    setStepMaxPity(smp)
+
+    setCopySearch('')
+    setCopying(false)
   }
 
   async function removeImageAt(i) {
@@ -239,6 +276,40 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
             </select>
           </div>
         )}
+
+        <div className="flex flex-col gap-2">
+          <label className="text-sm text-gray-400">Copy recipe from existing item (optional)</label>
+          <input
+            type="text"
+            placeholder="Search item to copy from..."
+            value={copySearch}
+            onChange={e => setCopySearch(e.target.value)}
+            disabled={copying}
+            className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400 disabled:opacity-50"
+          />
+          {copySearch.trim().length > 0 && (
+            <div className="max-h-40 overflow-y-auto flex flex-col gap-1 bg-gray-800 rounded-lg p-2">
+              {allItems.filter(i => i.name.toLowerCase().includes(copySearch.toLowerCase())).length === 0 && (
+                <p className="text-gray-500 text-sm p-2">No items found.</p>
+              )}
+              {allItems.filter(i => i.name.toLowerCase().includes(copySearch.toLowerCase())).map(it => (
+                <button
+                  key={it.id}
+                  type="button"
+                  disabled={copying}
+                  onClick={() => copyRecipeFrom(it.id)}
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-700 text-left disabled:opacity-50"
+                >
+                  {it.image_url
+                    ? <img src={it.image_url} alt={it.name} className="w-7 h-7 object-contain" />
+                    : <span className="w-7 text-center text-lg">⚔️</span>}
+                  <span className="text-sm text-white flex-1">{it.name}</span>
+                  <span className="text-xs text-yellow-400 shrink-0">Copy</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         <div className="flex flex-col gap-2">
           <label className="text-sm text-gray-400">Ingredients by step</label>
