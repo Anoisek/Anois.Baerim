@@ -166,6 +166,17 @@ export function buildItemYangMap(rows) {
   return map
 }
 
+// rows: [{ item_id, step, max_pity }] -> { itemId: { step: max_pity } }
+export function buildItemMaxPityMap(rows) {
+  const map = {}
+  for (const row of rows ?? []) {
+    if (!row.max_pity) continue
+    if (!map[row.item_id]) map[row.item_id] = {}
+    map[row.item_id][row.step] = row.max_pity
+  }
+  return map
+}
+
 // Mirrors ItemDetail's default scroll auto-selection (Scroll of War for +0..+4, Magic Stone for +4..+9)
 export function buildDefaultScrollMap(scrollMaterials) {
   const war = (scrollMaterials ?? []).find(s => s.name.toLowerCase().includes('scroll of war'))
@@ -228,7 +239,9 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
       const sealIds = choices?.selectedSeals?.[step] ?? []
       for (const sealId of sealIds) stepCost += ctx.materialPriceFn(sealId)
 
-      const pity = choices ? Math.max(1, parseInt(choices.pity?.[step]) || 1) : 1
+      let pity = choices ? Math.max(1, parseInt(choices.pity?.[step]) || 1) : 1
+      const maxPity = ctx.itemMaxPity?.[itemId]?.[step]
+      if (maxPity) pity = Math.min(pity, maxPity)
       stepCost *= pity
     }
 

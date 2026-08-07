@@ -30,6 +30,7 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
   const [stepMaterials, setStepMaterials] = useState({})  // { step: { materialId: qty } }
   const [stepItems, setStepItems] = useState({})          // { step: { itemId: qty } }
   const [stepYang, setStepYang] = useState({})            // { step: string }
+  const [stepMaxPity, setStepMaxPity] = useState({})       // { step: max_pity string }
   const [activeStep, setActiveStep] = useState(0)
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
@@ -42,7 +43,7 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
       supabase.from('items').select('id, name, image_url').neq('id', item.id).order('name'),
       supabase.from('item_materials').select('material_id, quantity, step').eq('item_id', item.id),
       supabase.from('item_items').select('component_item_id, quantity, step').eq('item_id', item.id),
-      supabase.from('item_step_yang').select('step, yang_cost').eq('item_id', item.id),
+      supabase.from('item_step_yang').select('step, yang_cost, max_pity').eq('item_id', item.id),
       categoryId ? supabase.from('subcategories').select('*').eq('category_id', categoryId).order('created_at') : Promise.resolve({ data: [] }),
     ]).then(([matsRes, itemsRes, imRes, iiRes, yangRes, subRes]) => {
       setAllMaterials(matsRes.data ?? [])
@@ -64,8 +65,13 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
       setStepItems(si)
 
       const sy = {}
-      for (const row of yangRes.data ?? []) sy[row.step] = String(row.yang_cost)
+      const smp = {}
+      for (const row of yangRes.data ?? []) {
+        if (row.yang_cost) sy[row.step] = String(row.yang_cost)
+        if (row.max_pity) smp[row.step] = String(row.max_pity)
+      }
       setStepYang(sy)
+      setStepMaxPity(smp)
     })
   }, [item.id, categoryId])
 
@@ -102,7 +108,7 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
   }
 
   function countForStep(step) {
-    return Object.keys(stepMaterials[step] ?? {}).length + Object.keys(stepItems[step] ?? {}).length + (stepYang[step] ? 1 : 0)
+    return Object.keys(stepMaterials[step] ?? {}).length + Object.keys(stepItems[step] ?? {}).length + (stepYang[step] ? 1 : 0) + (stepMaxPity[step] ? 1 : 0)
   }
 
   async function removeImageAt(i) {
@@ -145,12 +151,21 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
     }
     if (itemRows.length > 0) await supabase.from('item_items').insert(itemRows)
 
-    // Replace all yang costs
+    // Replace all yang costs / max pity
     await supabase.from('item_step_yang').delete().eq('item_id', item.id)
     const yangRows = []
-    for (const [step, val] of Object.entries(stepYang)) {
-      const cost = parseYang(val)
-      if (cost !== '' && cost > 0) yangRows.push({ item_id: item.id, step: Number(step), yang_cost: cost })
+    const yangSteps = new Set([...Object.keys(stepYang), ...Object.keys(stepMaxPity)])
+    for (const step of yangSteps) {
+      const cost = parseYang(stepYang[step])
+      const maxPity = parseInt(stepMaxPity[step], 10)
+      if ((cost !== '' && cost > 0) || (!isNaN(maxPity) && maxPity > 0)) {
+        yangRows.push({
+          item_id: item.id,
+          step: Number(step),
+          yang_cost: cost !== '' && cost > 0 ? cost : 0,
+          max_pity: !isNaN(maxPity) && maxPity > 0 ? maxPity : null,
+        })
+      }
     }
     if (yangRows.length > 0) await supabase.from('item_step_yang').insert(yangRows)
 
@@ -256,6 +271,20 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
             />
             <span className="text-gray-400 text-sm shrink-0">yang</span>
           </div>
+
+          {activeStep !== 0 && (
+            <div className="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+              <span className="text-yellow-400 text-sm font-semibold shrink-0">Max pity</span>
+              <input
+                type="number"
+                min="1"
+                placeholder="no limit"
+                value={stepMaxPity[activeStep] ?? ''}
+                onChange={e => setStepMaxPity(prev => ({ ...prev, [activeStep]: e.target.value }))}
+                className="bg-transparent flex-1 text-white text-sm focus:outline-none text-right"
+              />
+            </div>
+          )}
 
           {/* Materials / Items switch */}
           <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-lg p-1">

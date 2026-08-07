@@ -11,7 +11,7 @@ import ItemImage from '../components/ItemImage'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
-  computeItemPrice, buildItemStepMap, buildItemYangMap, buildDefaultScrollMap,
+  computeItemPrice, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
   fetchGlobalPrices, makeMaterialPriceFn,
 } from '../utils/priceBook'
 
@@ -49,6 +49,7 @@ export default function ItemDetail() {
   const [item, setItem] = useState(null)
   const [grouped, setGrouped] = useState({})
   const [yangCosts, setYangCosts] = useState({})
+  const [maxPityByStep, setMaxPityByStep] = useState({})
   const [scrolls, setScrolls] = useState([])
   const [seals, setSeals] = useState([])
   const [recipes, setRecipes] = useState({})
@@ -56,6 +57,7 @@ export default function ItemDetail() {
   const [allItemMaterials, setAllItemMaterials] = useState({})
   const [allItemItems, setAllItemItems] = useState({})
   const [allItemYang, setAllItemYang] = useState({})
+  const [allItemMaxPity, setAllItemMaxPity] = useState({})
   const [defaultScrollByStep, setDefaultScrollByStep] = useState({})
   const [selectedScroll, setSelectedScroll] = useState({})
   const [selectedSeals, setSelectedSeals] = useState({})
@@ -73,14 +75,14 @@ export default function ItemDetail() {
       supabase.from('items').select('*').eq('id', itemId).single(),
       supabase.from('item_materials').select('quantity, step, material:materials(id, name, image_url, is_craftable)').eq('item_id', itemId).order('step'),
       supabase.from('item_items').select('quantity, step, component:items!item_items_component_item_id_fkey(id, name, image_url)').eq('item_id', itemId).order('step'),
-      supabase.from('item_step_yang').select('step, yang_cost').eq('item_id', itemId),
+      supabase.from('item_step_yang').select('step, yang_cost, max_pity').eq('item_id', itemId),
       supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_upgrade_scroll', true).order('name'),
       supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_seal', true).order('name'),
       supabase.from('material_materials').select('material_id, component_id, quantity'),
       supabase.from('materials').select('id, craft_yang_cost'),
       supabase.from('item_materials').select('item_id, material_id, quantity, step'),
       supabase.from('item_items').select('item_id, component_item_id, quantity, step'),
-      supabase.from('item_step_yang').select('item_id, step, yang_cost'),
+      supabase.from('item_step_yang').select('item_id, step, yang_cost, max_pity'),
       fetchGlobalPrices(),
     ]).then(([itemRes, matsRes, itemIngRes, yangRes, scrollsRes, sealsRes, recipeRes, allMatsRes, allItemMatsRes, allItemItemsRes, allItemYangRes, globalPricesMap]) => {
       setItem(itemRes.data)
@@ -97,8 +99,13 @@ export default function ItemDetail() {
       setGrouped(g)
 
       const yc = {}
-      for (const row of yangRes.data ?? []) yc[row.step] = row.yang_cost
+      const mp = {}
+      for (const row of yangRes.data ?? []) {
+        yc[row.step] = row.yang_cost
+        if (row.max_pity) mp[row.step] = row.max_pity
+      }
       setYangCosts(yc)
+      setMaxPityByStep(mp)
 
       const sorted = (scrollsRes.data ?? []).sort((a, b) => {
         const ai = SCROLL_ORDER.findIndex(n => a.name.toLowerCase().includes(n.toLowerCase()))
@@ -112,6 +119,7 @@ export default function ItemDetail() {
       setAllItemMaterials(buildItemStepMap(allItemMatsRes.data))
       setAllItemItems(buildItemStepMap(allItemItemsRes.data))
       setAllItemYang(buildItemYangMap(allItemYangRes.data))
+      setAllItemMaxPity(buildItemMaxPityMap(allItemYangRes.data))
       setDefaultScrollByStep(buildDefaultScrollMap(sorted))
       setGlobalPrices(globalPricesMap)
 
@@ -178,6 +186,7 @@ export default function ItemDetail() {
       itemMaterials: allItemMaterials,
       itemItems: allItemItems,
       itemYang: allItemYang,
+      itemMaxPity: allItemMaxPity,
       defaultScrollByStep,
     }
   }
@@ -186,7 +195,11 @@ export default function ItemDetail() {
     return row.kind === 'item' ? computeItemPrice(row.material.id, itemIngredientCtx()) : priceOf(row.material.id)
   }
 
-  function getPity(step) { return Math.max(1, parseInt(pity[step]) || 1) }
+  function getPity(step) {
+    const val = Math.max(1, parseInt(pity[step]) || 1)
+    const max = maxPityByStep[step]
+    return max ? Math.min(val, max) : val
+  }
   function matCost(rows) { return rows.reduce((s, r) => s + rowPrice(r) * r.quantity, 0) }
   function scrollCost(step) { const id = selectedScroll[step]; return id ? priceOf(id) : 0 }
   function sealsCost(step) { return (selectedSeals[step] ?? []).reduce((s, id) => s + priceOf(id), 0) }
@@ -281,12 +294,18 @@ export default function ItemDetail() {
                               />
                             )}
                             <label className="flex items-center gap-1.5 text-xs text-gray-400">
-                              Pity:
+                              Pity{maxPityByStep[step] ? ` (max ${maxPityByStep[step]})` : ''}:
                               <input
                                 type="number"
                                 min="1"
+                                max={maxPityByStep[step] || undefined}
                                 value={pity[step] ?? 1}
-                                onChange={e => setPity(prev => ({ ...prev, [step]: e.target.value }))}
+                                onChange={e => {
+                                  const raw = e.target.value
+                                  const max = maxPityByStep[step]
+                                  const clamped = max && Number(raw) > max ? String(max) : raw
+                                  setPity(prev => ({ ...prev, [step]: clamped }))
+                                }}
                                 className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-14 text-center text-xs text-white focus:outline-none focus:border-yellow-400"
                               />
                               {getPity(step) > 1 && <span className="text-yellow-400 font-bold">×{getPity(step)}</span>}
@@ -298,7 +317,7 @@ export default function ItemDetail() {
                       {/* Step body */}
                       <div className="px-5 py-4 flex flex-col gap-3">
                         {/* Yang fee */}
-                        {yangCosts[step] !== undefined && (
+                        {yangCosts[step] > 0 && (
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 shrink-0 flex items-center justify-center">
                               <span className="text-lg">💰</span>

@@ -26,6 +26,7 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
   const [stepMaterials, setStepMaterials] = useState({})  // { step: { materialId: qty } }
   const [stepItems, setStepItems] = useState({})          // { step: { itemId: qty } }
   const [stepYang, setStepYang] = useState({})            // { step: yang_cost string }
+  const [stepMaxPity, setStepMaxPity] = useState({})       // { step: max_pity string }
   const [activeStep, setActiveStep] = useState(0)
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
@@ -81,7 +82,8 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
     const mats = Object.keys(stepMaterials[step] ?? {}).length
     const its = Object.keys(stepItems[step] ?? {}).length
     const yang = stepYang[step] ? 1 : 0
-    return mats + its + yang
+    const maxPity = stepMaxPity[step] ? 1 : 0
+    return mats + its + yang + maxPity
   }
 
   async function handleSubmit(e) {
@@ -129,12 +131,19 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
       if (err) { alert('Error saving item ingredients: ' + err.message); setSaving(false); return }
     }
 
-    // Insert yang costs
+    // Insert yang costs / max pity
     const yangRows = []
-    for (const [step, val] of Object.entries(stepYang)) {
-      const cost = parseYang(val)
-      if (cost !== '' && cost > 0) {
-        yangRows.push({ item_id: item.id, step: Number(step), yang_cost: cost })
+    const steps = new Set([...Object.keys(stepYang), ...Object.keys(stepMaxPity)])
+    for (const step of steps) {
+      const cost = parseYang(stepYang[step])
+      const maxPity = parseInt(stepMaxPity[step], 10)
+      if ((cost !== '' && cost > 0) || (!isNaN(maxPity) && maxPity > 0)) {
+        yangRows.push({
+          item_id: item.id,
+          step: Number(step),
+          yang_cost: cost !== '' && cost > 0 ? cost : 0,
+          max_pity: !isNaN(maxPity) && maxPity > 0 ? maxPity : null,
+        })
       }
     }
     if (yangRows.length > 0) {
@@ -225,6 +234,21 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
             />
             <span className="text-gray-400 text-sm shrink-0">yang</span>
           </div>
+
+          {/* Max pity for current step (upgrade steps only) */}
+          {activeStep !== 0 && (
+            <div className="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+              <span className="text-yellow-400 text-sm font-semibold shrink-0">Max pity</span>
+              <input
+                type="number"
+                min="1"
+                placeholder="no limit"
+                value={stepMaxPity[activeStep] ?? ''}
+                onChange={e => setStepMaxPity(prev => ({ ...prev, [activeStep]: e.target.value }))}
+                className="bg-transparent flex-1 text-white text-sm focus:outline-none text-right"
+              />
+            </div>
+          )}
 
           {/* Materials / Items switch */}
           <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-lg p-1">
