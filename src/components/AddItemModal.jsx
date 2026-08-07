@@ -169,11 +169,14 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
     }
 
     // Insert yang costs / max pity
+    // Steps that actually have materials/items default to max pity 1 unless overridden or cleared.
     const yangRows = []
-    const steps = new Set([...Object.keys(stepYang), ...Object.keys(stepMaxPity)])
+    const contentSteps = new Set([...Object.keys(stepMaterials), ...Object.keys(stepItems)].map(Number))
+    const steps = new Set([...contentSteps, ...Object.keys(stepYang).map(Number), ...Object.keys(stepMaxPity).map(Number)])
     for (const step of steps) {
       const cost = parseYang(stepYang[step])
-      const maxPity = parseInt(stepMaxPity[step], 10)
+      const rawMaxPity = stepMaxPity[step]
+      const maxPity = rawMaxPity !== undefined ? parseInt(rawMaxPity, 10) : (contentSteps.has(step) ? 1 : NaN)
       if ((cost !== '' && cost > 0) || (!isNaN(maxPity) && maxPity > 0)) {
         yangRows.push({
           item_id: item.id,
@@ -313,7 +316,7 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
               type="number"
               min="1"
               placeholder="no limit"
-              value={stepMaxPity[activeStep] ?? ''}
+              value={stepMaxPity[activeStep] ?? 1}
               onChange={e => setStepMaxPity(prev => ({ ...prev, [activeStep]: e.target.value }))}
               className="bg-transparent flex-1 text-white text-sm focus:outline-none text-right"
             />
