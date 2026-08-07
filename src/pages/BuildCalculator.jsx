@@ -39,6 +39,7 @@ export default function BuildCalculator() {
   const [allItems, setAllItems] = useState([])
   const [selectedIds, setSelectedIds] = useState(loadList)
   const [search, setSearch] = useState('')
+  const [searchFocused, setSearchFocused] = useState(false)
   const [recipes, setRecipes] = useState({})
   const [craftYangCosts, setCraftYangCosts] = useState({})
   const [allItemMaterials, setAllItemMaterials] = useState({})
@@ -128,8 +129,8 @@ export default function BuildCalculator() {
     setRefreshTick(t => t + 1)
   }
 
-  const filtered = search.trim().length >= 2
-    ? allItems.filter(i => !selectedIds.includes(i.id) && i.name.toLowerCase().includes(search.toLowerCase())).slice(0, 8)
+  const filtered = searchFocused || search.trim().length > 0
+    ? allItems.filter(i => !selectedIds.includes(i.id) && i.name.toLowerCase().includes(search.toLowerCase()))
     : []
 
   return (
@@ -153,14 +154,17 @@ export default function BuildCalculator() {
             placeholder="Search item to add..."
             value={search}
             onChange={e => setSearch(e.target.value)}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
             className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
           />
           {filtered.length > 0 && (
-            <div className="flex flex-col gap-1 bg-gray-800 border border-gray-700 rounded-lg p-2">
+            <div className="flex flex-col gap-1 bg-gray-800 border border-gray-700 rounded-lg p-2 max-h-48 overflow-y-auto">
               {filtered.map(it => (
                 <button
                   key={it.id}
                   type="button"
+                  onMouseDown={e => e.preventDefault()}
                   onClick={() => addItem(it.id)}
                   className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-700 text-left"
                 >
