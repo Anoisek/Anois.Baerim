@@ -61,10 +61,14 @@ export default function Materials() {
 
   async function handleSubmitToGlobal() {
     setSubmitting(true)
-    const { accepted, rejected } = await submitPricesToGlobal(rawInputs)
+    const { accepted, rejected, skipped } = await submitPricesToGlobal(rawInputs)
     setGlobalPrices(await fetchGlobalPrices())
     setSubmitting(false)
-    alert(`Submitted: ${accepted} accepted${rejected > 0 ? `, ${rejected} rejected (too far from the current global price)` : ''}.`)
+    alert(
+      `Submitted: ${accepted} accepted` +
+      `${rejected > 0 ? `, ${rejected} rejected (too far from the current global price)` : ''}` +
+      `${skipped > 0 ? `, ${skipped} skipped (already submitted from this browser in the last 6h)` : ''}.`
+    )
   }
 
   function handleAdded(mat) {

@@ -86,20 +86,46 @@ export async function fetchGlobalPrices() {
   return map
 }
 
+const COOLDOWN_KEY = 'global_submit_cooldowns'
+const COOLDOWN_MS = 6 * 60 * 60 * 1000 // 6h — one global-price submission per material per browser
+
+function loadCooldowns() {
+  try {
+    return JSON.parse(localStorage.getItem(COOLDOWN_KEY)) ?? {}
+  } catch {
+    return {}
+  }
+}
+
 // Submits every locally-entered price to the global price pool. Each submission is
 // independently accepted/rejected server-side (see submit_material_price SQL function).
+// A material already submitted from this browser within the last 6h is skipped —
+// this only throttles this browser's own submissions, "My Own Prices" is unaffected.
 export async function submitPricesToGlobal(rawInputs) {
   let accepted = 0
   let rejected = 0
+  let skipped = 0
+  const cooldowns = loadCooldowns()
+
   for (const [materialId, raw] of Object.entries(rawInputs)) {
     const price = parseYang(raw)
     if (price === '' || !(price > 0)) continue
+
+    const last = cooldowns[materialId]
+    if (last && Date.now() - last < COOLDOWN_MS) {
+      skipped++
+      continue
+    }
+
     const { data, error } = await supabase.rpc('submit_material_price', { p_material_id: materialId, p_price: price })
     if (error) continue
+    cooldowns[materialId] = Date.now()
     if (data) accepted++
     else rejected++
   }
-  return { accepted, rejected }
+
+  localStorage.setItem(COOLDOWN_KEY, JSON.stringify(cooldowns))
+  return { accepted, rejected, skipped }
 }
 
 export function buildRecipeMap(rows) {
