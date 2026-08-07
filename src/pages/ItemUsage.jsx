@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import Navbar from '../components/Navbar'
+import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import { itemImages } from '../utils/itemImages'
 
@@ -24,6 +25,7 @@ export default function ItemUsage() {
   const { itemId } = useParams()
   const [item, setItem] = useState(null)
   const [usedInItems, setUsedInItems] = useState([])
+  const [chapterName, setChapterName] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -34,6 +36,10 @@ export default function ItemUsage() {
       setItem(itemRes.data)
       setUsedInItems(dedupeById((rows.data ?? []).map(r => r.item).filter(Boolean)))
       setLoading(false)
+      if (itemRes.data?.category_id) {
+        supabase.from('categories').select('name').eq('id', itemRes.data.category_id).single()
+          .then(({ data }) => setChapterName(data?.name ?? null))
+      }
     })
   }, [itemId])
 
@@ -44,9 +50,12 @@ export default function ItemUsage() {
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
         {loading ? <Spinner /> : (
           <>
-            <Link to={item ? `/chapter/${item.category_id}/item/${item.id}` : '/'} className="text-sm text-gray-500 hover:text-yellow-400 transition-colors mb-4 inline-block">
-              ← Back to item
-            </Link>
+            <Breadcrumbs items={[
+              { label: 'Home', to: '/' },
+              { label: chapterName ?? 'Chapter', to: item ? `/chapter/${item.category_id}` : undefined },
+              { label: item?.name ?? 'Item', to: item ? `/chapter/${item.category_id}/item/${item.id}` : undefined },
+              { label: 'Usage' },
+            ]} />
 
             <div className="flex items-center gap-5 mb-8 p-5 bg-gray-900 border border-gray-700 rounded-2xl">
               <div className="w-20 h-20 shrink-0 flex items-center justify-center">

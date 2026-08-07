@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import Breadcrumbs from '../components/Breadcrumbs'
 import AddMaterialModal from '../components/AddMaterialModal'
 import EditMaterialModal from '../components/EditMaterialModal'
 import MaterialPriceCell from '../components/MaterialPriceCell'
@@ -123,6 +124,7 @@ export default function Materials() {
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
+        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Materials' }]} />
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <h1 className="text-2xl font-bold text-gray-100">Materials</h1>
           <div className="flex items-center gap-2 flex-wrap">

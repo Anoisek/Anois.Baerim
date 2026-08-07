@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import Navbar from '../components/Navbar'
+import Breadcrumbs from '../components/Breadcrumbs'
 import SealPicker from '../components/SealPicker'
 import Spinner from '../components/Spinner'
 import { formatYang } from '../utils/formatYang'
@@ -62,6 +63,8 @@ export default function ItemDetail() {
   const [includeCraft, setIncludeCraft] = useState(true)
   const [noScrollAll, setNoScrollAll] = useState(false)
   const [globalPrices, setGlobalPrices] = useState({})
+  const [chapterName, setChapterName] = useState(null)
+  const [categoryName, setCategoryName] = useState(null)
   const [loading, setLoading] = useState(true)
   const { rawInputs, setPrice, mode } = usePriceBook()
 
@@ -137,6 +140,17 @@ export default function ItemDetail() {
   }, [itemId])
 
   useEffect(() => {
+    if (!item) return
+    Promise.all([
+      supabase.from('categories').select('name').eq('id', item.category_id).single(),
+      item.subcategory_id ? supabase.from('subcategories').select('name').eq('id', item.subcategory_id).single() : Promise.resolve({ data: null }),
+    ]).then(([catRes, subRes]) => {
+      setChapterName(catRes.data?.name ?? null)
+      setCategoryName(subRes.data?.name ?? null)
+    })
+  }, [item])
+
+  useEffect(() => {
     if (loading) return
     localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll, selectedSeals, pity, includeCraft, noScrollAll }))
   }, [itemId, loading, selectedScroll, selectedSeals, pity, includeCraft, noScrollAll])
@@ -188,6 +202,15 @@ export default function ItemDetail() {
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
         {loading ? <Spinner /> : (
           <>
+            <Breadcrumbs items={[
+              { label: 'Home', to: '/' },
+              { label: chapterName ?? 'Chapter', to: `/chapter/${item.category_id}` },
+              ...(item.subcategory_id
+                ? [{ label: categoryName ?? 'Category', to: `/chapter/${item.category_id}/sub/${item.subcategory_id}` }]
+                : []),
+              { label: item?.name ?? 'Item' },
+            ]} />
+
             {/* Item header */}
             <div className="flex items-center gap-5 mb-8 p-5 bg-gray-900 border border-gray-700 rounded-2xl">
               <div className="w-20 h-20 shrink-0 flex items-center justify-center">

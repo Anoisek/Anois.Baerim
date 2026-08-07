@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import Navbar from '../components/Navbar'
+import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 
 function dedupeById(rows) {
@@ -48,9 +49,12 @@ export default function MaterialUsage() {
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
         {loading ? <Spinner /> : (
           <>
-            <Link to={material?.id ? `/materials/${material.id}` : '/materials'} className="text-sm text-gray-500 hover:text-yellow-400 transition-colors mb-4 inline-block">
-              ← Back to material
-            </Link>
+            <Breadcrumbs items={[
+              { label: 'Home', to: '/' },
+              { label: 'Materials', to: '/materials' },
+              { label: material?.name ?? 'Material', to: material?.id ? `/materials/${material.id}` : undefined },
+              { label: 'Usage' },
+            ]} />
 
             <div className="flex items-center gap-5 mb-8 p-5 bg-gray-900 border border-gray-700 rounded-2xl">
               <div className="w-20 h-20 shrink-0 flex items-center justify-center">

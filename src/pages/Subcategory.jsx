@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import Breadcrumbs from '../components/Breadcrumbs'
 import AddItemModal from '../components/AddItemModal'
 import EditItemModal from '../components/EditItemModal'
 import ItemImage from '../components/ItemImage'
@@ -14,6 +15,7 @@ export default function Subcategory() {
   const { categoryId, subcategoryId } = useParams()
   const { isAdmin } = useAuth()
   const isUncategorized = subcategoryId === 'none'
+  const [category, setCategory] = useState(null)
   const [subcategory, setSubcategory] = useState(null)
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -28,12 +30,14 @@ export default function Subcategory() {
     itemsQuery = isUncategorized ? itemsQuery.is('subcategory_id', null) : itemsQuery.eq('subcategory_id', subcategoryId)
 
     Promise.all([
+      supabase.from('categories').select('id, name').eq('id', categoryId).single(),
       isUncategorized
         ? Promise.resolve({ data: null })
         : supabase.from('subcategories').select('*').eq('id', subcategoryId).single(),
       itemsQuery,
       supabase.from('item_items').select('component_item_id'),
-    ]).then(([subRes, itemsRes, itemItemsRes]) => {
+    ]).then(([catRes, subRes, itemsRes, itemItemsRes]) => {
+      setCategory(catRes.data)
       setSubcategory(subRes.data)
       setItems(itemsRes.data ?? [])
       setUsedInItemIds(new Set((itemItemsRes.data ?? []).map(r => r.component_item_id)))
@@ -60,9 +64,11 @@ export default function Subcategory() {
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
-        <Link to={`/chapter/${categoryId}`} className="text-sm text-gray-500 hover:text-yellow-400 transition-colors mb-4 inline-block">
-          ← Back to chapter
-        </Link>
+        <Breadcrumbs items={[
+          { label: 'Home', to: '/' },
+          { label: category?.name ?? 'Chapter', to: `/chapter/${categoryId}` },
+          { label: isUncategorized ? 'Uncategorized' : (subcategory?.name ?? 'Category') },
+        ]} />
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             {subcategory?.image_url && (

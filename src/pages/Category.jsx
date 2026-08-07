@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import Breadcrumbs from '../components/Breadcrumbs'
 import Tile from '../components/Tile'
 import AddSubcategoryModal from '../components/AddSubcategoryModal'
 import EditSubcategoryModal from '../components/EditSubcategoryModal'
@@ -51,6 +52,7 @@ export default function Category() {
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
+        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: category?.name ?? 'Chapter' }]} />
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             {category?.image_url && (

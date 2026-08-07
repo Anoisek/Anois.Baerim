@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../supabaseClient'
+import GlobalSearch from './GlobalSearch'
 
 export default function Navbar() {
   const { isAdmin } = useAuth()
@@ -21,6 +22,7 @@ export default function Navbar() {
         Unofficial fan-made tool, not affiliated with Baerim's team
       </span>
       <div className="flex items-center gap-4">
+        <GlobalSearch />
         {isAdmin ? (
           <>
             <span className="text-xs bg-yellow-400 text-gray-950 font-bold px-2.5 py-1 rounded-full">ADMIN</span>

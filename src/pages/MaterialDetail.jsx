@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import Navbar from '../components/Navbar'
+import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import { formatYang } from '../utils/formatYang'
@@ -17,6 +18,7 @@ export default function MaterialDetail() {
   const [pity, setPity] = useState(1)
   const [loading, setLoading] = useState(true)
   const { rawInputs, setPrice, mode } = usePriceBook()
+  const navigate = useNavigate()
 
   useEffect(() => {
     Promise.all([
@@ -43,7 +45,7 @@ export default function MaterialDetail() {
 
   const craftYangFee = material?.craft_yang_cost ?? 0
   const effectivePity = Math.max(1, parseInt(pity) || 1)
-  const subtotal = components.reduce((s, row) => s + priceOf(row.component.id) * row.quantity, craftYangFee)
+  const subtotal = material ? priceOf(material.id) : 0
   const total = subtotal * effectivePity
 
   return (
@@ -53,21 +55,42 @@ export default function MaterialDetail() {
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
         {loading ? <Spinner /> : (
           <>
-            <div className="flex items-center gap-5 mb-8 p-5 bg-gray-900 border border-gray-700 rounded-2xl">
+            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Materials', to: '/materials' }, { label: material?.name ?? 'Material' }]} />
+            <div className="flex items-center gap-5 mb-8 p-5 bg-gray-900 border border-gray-700 rounded-2xl flex-wrap">
               <div className="w-20 h-20 shrink-0 flex items-center justify-center">
                 {material?.image_url
                   ? <img src={material.image_url} alt={material.name} className="w-full h-full object-contain drop-shadow-lg" />
                   : <span className="text-5xl">🧪</span>}
               </div>
-              <h1 className="text-2xl font-bold text-yellow-400">{material?.name}</h1>
-              {mode === 'global' && (
-                <span className="ml-auto text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-full shrink-0">
-                  Global Prices
-                </span>
-              )}
+              <div className="flex flex-col gap-2">
+                <h1 className="text-2xl font-bold text-yellow-400">{material?.name}</h1>
+                {material && (
+                  <MaterialPriceCell
+                    material={material}
+                    rawValue={rawInputs[material.id]}
+                    computedValue={subtotal}
+                    onPriceChange={setPrice}
+                    computed={mode === 'global' || material.is_craftable ? true : undefined}
+                  />
+                )}
+              </div>
+              <div className="ml-auto flex items-center gap-2 shrink-0">
+                {mode === 'global' && (
+                  <span className="text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-full">
+                    Global Prices
+                  </span>
+                )}
+                <button
+                  onClick={() => navigate(`/materials/${materialId}/usage`)}
+                  className="text-xs bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 px-2.5 py-1.5 rounded-full transition-colors"
+                  title="See where this material is used"
+                >
+                  🔗 Used in...
+                </button>
+              </div>
             </div>
 
-            {components.length === 0 && !craftYangFee ? (
+            {!material?.is_craftable ? null : components.length === 0 && !craftYangFee ? (
               <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
                 <span className="text-5xl">📭</span>
                 <p className="text-sm">No recipe defined for this material.</p>
