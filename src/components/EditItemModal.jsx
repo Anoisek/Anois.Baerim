@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { itemImages } from '../utils/itemImages'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 
@@ -17,9 +18,11 @@ function extractStoragePath(url) {
   return idx !== -1 ? url.slice(idx + marker.length) : null
 }
 
-export default function EditItemModal({ item, onClose, onUpdated, onDeleted }) {
+export default function EditItemModal({ item, categoryId, onClose, onUpdated, onDeleted }) {
   const [name, setName] = useState(item.name)
-  const [imageUrl, setImageUrl] = useState(item.image_url ?? '')
+  const [imageUrls, setImageUrls] = useState(itemImages(item))
+  const [subcategoryId, setSubcategoryId] = useState(item.subcategory_id ?? '')
+  const [subcategories, setSubcategories] = useState([])
   const [allMaterials, setAllMaterials] = useState([])
   const [stepMaterials, setStepMaterials] = useState({})  // { step: { materialId: qty } }
   const [stepYang, setStepYang] = useState({})            // { step: string }
@@ -34,8 +37,10 @@ export default function EditItemModal({ item, onClose, onUpdated, onDeleted }) {
       supabase.from('materials').select('*').order('name'),
       supabase.from('item_materials').select('material_id, quantity, step').eq('item_id', item.id),
       supabase.from('item_step_yang').select('step, yang_cost').eq('item_id', item.id),
-    ]).then(([matsRes, imRes, yangRes]) => {
+      categoryId ? supabase.from('subcategories').select('*').eq('category_id', categoryId).order('created_at') : Promise.resolve({ data: [] }),
+    ]).then(([matsRes, imRes, yangRes, subRes]) => {
       setAllMaterials(matsRes.data ?? [])
+      setSubcategories(subRes.data ?? [])
 
       const sm = {}
       for (const row of imRes.data ?? []) {
@@ -48,7 +53,7 @@ export default function EditItemModal({ item, onClose, onUpdated, onDeleted }) {
       for (const row of yangRes.data ?? []) sy[row.step] = String(row.yang_cost)
       setStepYang(sy)
     })
-  }, [item.id])
+  }, [item.id, categoryId])
 
   function toggleMaterial(step, materialId) {
     setStepMaterials(prev => {
@@ -70,16 +75,10 @@ export default function EditItemModal({ item, onClose, onUpdated, onDeleted }) {
     return Object.keys(stepMaterials[step] ?? {}).length + (stepYang[step] ? 1 : 0)
   }
 
-  async function handleRemoveImage() {
-    const path = extractStoragePath(imageUrl)
+  async function removeImageAt(i) {
+    const path = extractStoragePath(imageUrls[i])
     if (path) await supabase.storage.from('images').remove([path])
-    setImageUrl('')
-  }
-
-  async function handleNewImage(url) {
-    const path = extractStoragePath(imageUrl)
-    if (path) await supabase.storage.from('images').remove([path])
-    setImageUrl(url)
+    setImageUrls(prev => prev.filter((_, idx) => idx !== i))
   }
 
   async function handleSave(e) {
@@ -89,7 +88,7 @@ export default function EditItemModal({ item, onClose, onUpdated, onDeleted }) {
 
     const { data, error } = await supabase
       .from('items')
-      .update({ name: name.trim(), image_url: imageUrl || null })
+      .update({ name: name.trim(), image_urls: imageUrls, image_url: imageUrls[0] ?? null, subcategory_id: subcategoryId || null })
       .eq('id', item.id)
       .select()
       .single()
@@ -122,8 +121,8 @@ export default function EditItemModal({ item, onClose, onUpdated, onDeleted }) {
 
   async function handleDelete() {
     setDeleting(true)
-    const path = extractStoragePath(item.image_url)
-    if (path) await supabase.storage.from('images').remove([path])
+    const paths = imageUrls.map(extractStoragePath).filter(Boolean)
+    if (paths.length > 0) await supabase.storage.from('images').remove(paths)
     const { error } = await supabase.from('items').delete().eq('id', item.id)
     if (error) { alert('Error: ' + error.message); setDeleting(false); return }
     onDeleted(item.id)
@@ -148,22 +147,41 @@ export default function EditItemModal({ item, onClose, onUpdated, onDeleted }) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm text-gray-400">Image</label>
-          {imageUrl ? (
-            <div className="flex items-center gap-3">
-              <img src={imageUrl} alt={name} className="w-16 h-16 object-contain rounded-lg border border-gray-600" />
-              <button type="button" onClick={handleRemoveImage} className="text-sm text-red-400 hover:text-red-300">Remove image</button>
+          <label className="text-sm text-gray-400">Images (add several to cycle through them)</label>
+          {imageUrls.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {imageUrls.map((url, i) => (
+                <div key={url} className="relative">
+                  <img src={url} alt="" className="w-16 h-16 object-contain rounded-lg border border-gray-600" />
+                  <button
+                    type="button"
+                    onClick={() => removeImageAt(i)}
+                    className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full w-5 h-5 text-xs leading-none flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
             </div>
-          ) : (
-            <ImageUpload onUploaded={handleNewImage} />
           )}
-          {imageUrl && (
-            <div className="mt-1">
-              <p className="text-xs text-gray-500 mb-1">Replace with new image:</p>
-              <ImageUpload onUploaded={handleNewImage} />
-            </div>
-          )}
+          <ImageUpload onUploaded={url => setImageUrls(prev => [...prev, url])} />
         </div>
+
+        {subcategories.length > 0 && (
+          <div className="flex flex-col gap-1">
+            <label className="text-sm text-gray-400">Category</label>
+            <select
+              value={subcategoryId}
+              onChange={e => setSubcategoryId(e.target.value)}
+              className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
+            >
+              <option value="">Uncategorized</option>
+              {subcategories.map(sub => (
+                <option key={sub.id} value={sub.id}>{sub.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="flex flex-col gap-2">
           <label className="text-sm text-gray-400">Materials by step</label>

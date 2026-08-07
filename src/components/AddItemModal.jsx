@@ -16,9 +16,9 @@ const STEPS = [
   { step: 9, label: '+8 → +9' },
 ]
 
-export default function AddItemModal({ categoryId, onClose, onAdded }) {
+export default function AddItemModal({ categoryId, subcategoryId, onClose, onAdded }) {
   const [name, setName] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
+  const [imageUrls, setImageUrls] = useState([])
   const [allMaterials, setAllMaterials] = useState([])
   const [stepMaterials, setStepMaterials] = useState({})  // { step: { materialId: qty } }
   const [stepYang, setStepYang] = useState({})            // { step: yang_cost string }
@@ -64,7 +64,7 @@ export default function AddItemModal({ categoryId, onClose, onAdded }) {
 
     const { data: item, error } = await supabase
       .from('items')
-      .insert({ name: name.trim(), category_id: categoryId, image_url: imageUrl || null })
+      .insert({ name: name.trim(), category_id: categoryId, subcategory_id: subcategoryId || null, image_urls: imageUrls, image_url: imageUrls[0] ?? null })
       .select()
       .single()
 
@@ -125,9 +125,25 @@ export default function AddItemModal({ categoryId, onClose, onAdded }) {
           />
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-400">Image (optional)</label>
-          <ImageUpload onUploaded={setImageUrl} />
+        <div className="flex flex-col gap-2">
+          <label className="text-sm text-gray-400">Images (optional — add several to cycle through them)</label>
+          {imageUrls.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {imageUrls.map((url, i) => (
+                <div key={url} className="relative">
+                  <img src={url} alt="" className="w-16 h-16 object-contain rounded-lg border border-gray-600" />
+                  <button
+                    type="button"
+                    onClick={() => setImageUrls(prev => prev.filter((_, idx) => idx !== i))}
+                    className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full w-5 h-5 text-xs leading-none flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <ImageUpload onUploaded={url => setImageUrls(prev => [...prev, url])} />
         </div>
 
         <div className="flex flex-col gap-2">

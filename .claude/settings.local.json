@@ -15,7 +15,11 @@
       "Bash(git remote *)",
       "Bash(git branch *)",
       "Bash(git push *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(npx vite *)",
+      "Read(//c//**)",
+      "Read(//c/Users/Bartek/**)",
+      "Bash(curl *)"
     ]
   }
 }

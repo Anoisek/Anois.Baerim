@@ -1,26 +1,32 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
-import AddItemModal from '../components/AddItemModal'
+import Tile from '../components/Tile'
+import AddSubcategoryModal from '../components/AddSubcategoryModal'
+import EditSubcategoryModal from '../components/EditSubcategoryModal'
 import Spinner from '../components/Spinner'
 
 export default function Category() {
   const { categoryId } = useParams()
   const { isAdmin } = useAuth()
   const [category, setCategory] = useState(null)
-  const [items, setItems] = useState([])
+  const [subcategories, setSubcategories] = useState([])
+  const [hasUncategorized, setHasUncategorized] = useState(false)
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [editing, setEditing] = useState(null)
 
   useEffect(() => {
     Promise.all([
       supabase.from('categories').select('*').eq('id', categoryId).single(),
-      supabase.from('items').select('*').eq('category_id', categoryId).order('name'),
-    ]).then(([catRes, itemsRes]) => {
+      supabase.from('subcategories').select('*').eq('category_id', categoryId).order('created_at'),
+      supabase.from('items').select('id').eq('category_id', categoryId).is('subcategory_id', null),
+    ]).then(([catRes, subRes, uncatRes]) => {
       setCategory(catRes.data)
-      setItems(itemsRes.data ?? [])
+      setSubcategories(subRes.data ?? [])
+      setHasUncategorized((uncatRes.data ?? []).length > 0)
       setLoading(false)
     })
   }, [categoryId])
@@ -42,44 +48,53 @@ export default function Category() {
               onClick={() => setShowModal(true)}
               className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors"
             >
-              + Add item
+              + Add category
             </button>
           )}
         </div>
 
-        {loading ? <Spinner /> : items.length === 0 ? (
+        {loading ? <Spinner /> : subcategories.length === 0 && !hasUncategorized ? (
           <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
             <span className="text-5xl">📭</span>
-            <p className="text-sm">No items in this chapter yet.</p>
+            <p className="text-sm">No categories in this chapter yet.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {items.map(item => (
-              <Link
-                key={item.id}
-                to={`/chapter/${categoryId}/item/${item.id}`}
-                className="group bg-gray-900 border border-gray-700 rounded-2xl p-5 flex flex-col items-center gap-4 transition-all duration-200 hover:border-yellow-400/50 hover:bg-gray-800 hover:shadow-lg hover:shadow-black/40 hover:-translate-y-0.5"
-              >
-                <div className="w-16 h-16 flex items-center justify-center">
-                  {item.image_url
-                    ? <img src={item.image_url} alt={item.name} className="w-full h-full object-contain drop-shadow" />
-                    : <span className="text-4xl">⚔️</span>}
-                </div>
-                <span className="text-sm font-semibold text-gray-100 text-center leading-tight group-hover:text-yellow-400 transition-colors">
-                  {item.name}
-                </span>
-              </Link>
+            {subcategories.map(sub => (
+              <Tile
+                key={sub.id}
+                to={`/chapter/${categoryId}/sub/${sub.id}`}
+                image={sub.image_url}
+                emoji="📦"
+                label={sub.name}
+                onEdit={isAdmin ? () => setEditing(sub) : undefined}
+              />
             ))}
+            {hasUncategorized && (
+              <Tile
+                to={`/chapter/${categoryId}/sub/none`}
+                emoji="🗂️"
+                label="Uncategorized"
+              />
+            )}
           </div>
         )}
       </div>
 
         </div>
       {showModal && (
-        <AddItemModal
+        <AddSubcategoryModal
           categoryId={categoryId}
           onClose={() => setShowModal(false)}
-          onAdded={item => setItems(prev => [...prev, item].sort((a, b) => a.name.localeCompare(b.name)))}
+          onAdded={sub => setSubcategories(prev => [...prev, sub])}
+        />
+      )}
+      {editing && (
+        <EditSubcategoryModal
+          subcategory={editing}
+          onClose={() => setEditing(null)}
+          onUpdated={sub => setSubcategories(prev => prev.map(s => s.id === sub.id ? sub : s))}
+          onDeleted={id => setSubcategories(prev => prev.filter(s => s.id !== id))}
         />
       )}
     </div>

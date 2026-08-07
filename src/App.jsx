@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import Materials from './pages/Materials'
 import Category from './pages/Category'
+import Subcategory from './pages/Subcategory'
 import ItemDetail from './pages/ItemDetail'
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/materials" element={<Materials />} />
           <Route path="/chapter/:categoryId" element={<Category />} />
+          <Route path="/chapter/:categoryId/sub/:subcategoryId" element={<Subcategory />} />
           <Route path="/chapter/:categoryId/item/:itemId" element={<ItemDetail />} />
         </Routes>
       </AuthProvider>

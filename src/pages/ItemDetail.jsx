@@ -5,6 +5,8 @@ import Navbar from '../components/Navbar'
 import SealPicker from '../components/SealPicker'
 import Spinner from '../components/Spinner'
 import { formatYang, parseYang } from '../utils/formatYang'
+import { itemImages } from '../utils/itemImages'
+import ItemImage from '../components/ItemImage'
 
 const STEP_LABELS = {
   0: 'Craft',
@@ -134,8 +136,8 @@ export default function ItemDetail() {
             {/* Item header */}
             <div className="flex items-center gap-5 mb-8 p-5 bg-gray-900 border border-gray-700 rounded-2xl">
               <div className="w-20 h-20 shrink-0 flex items-center justify-center">
-                {item?.image_url
-                  ? <img src={item.image_url} alt={item.name} className="w-full h-full object-contain drop-shadow-lg" />
+                {itemImages(item).length > 0
+                  ? <ItemImage images={itemImages(item)} alt={item.name} className="w-full h-full object-contain drop-shadow-lg" />
                   : <span className="text-5xl">⚔️</span>}
               </div>
               <h1 className="text-2xl font-bold text-yellow-400">{item?.name}</h1>
