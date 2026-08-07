@@ -12,7 +12,7 @@ import {
   fetchGlobalPrices, makeMaterialPriceFn,
 } from '../utils/priceBook'
 
-const LIST_KEY = 'shopping_list'
+const LIST_KEY = 'build_calculator_list'
 
 function loadList() {
   try {
@@ -35,7 +35,7 @@ function loadItemChoices(itemId) {
   }
 }
 
-export default function ShoppingList() {
+export default function BuildCalculator() {
   const [allItems, setAllItems] = useState([])
   const [selectedIds, setSelectedIds] = useState(loadList)
   const [search, setSearch] = useState('')
@@ -137,9 +137,9 @@ export default function ShoppingList() {
       <Navbar />
       <div className="max-w-2xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
-        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Shopping List' }]} />
+        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Build Calculator' }]} />
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-          <h1 className="text-2xl font-bold text-gray-100">Shopping List</h1>
+          <h1 className="text-2xl font-bold text-gray-100">Build Calculator</h1>
           {mode === 'global' && (
             <span className="text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-full">
               Global Prices
@@ -196,8 +196,8 @@ export default function ShoppingList() {
 
         {loading ? <Spinner /> : selectedItems.length === 0 ? (
           <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
-            <span className="text-5xl">🛒</span>
-            <p className="text-sm">No items in the list yet — search above to add some.</p>
+            <span className="text-5xl">🛡️</span>
+            <p className="text-sm">No items in your build yet — search above to add some.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
