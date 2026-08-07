@@ -79,15 +79,19 @@ export default function Home() {
   const [categories, setCategories] = useState([])
   const [materialsImage, setMaterialsImage] = useState(null)
   const [systemsImage, setSystemsImage] = useState(null)
+  const [shoppingListImage, setShoppingListImage] = useState(null)
   const [materialsOrder, setMaterialsOrder] = useState(0)
   const [systemsOrder, setSystemsOrder] = useState(1)
+  const [shoppingListOrder, setShoppingListOrder] = useState(2)
   const [materialsMaintenance, setMaterialsMaintenance] = useState(false)
   const [systemsMaintenance, setSystemsMaintenance] = useState(false)
+  const [shoppingListMaintenance, setShoppingListMaintenance] = useState(false)
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [editing, setEditing] = useState(null)
   const [editingMaterials, setEditingMaterials] = useState(false)
   const [editingSystems, setEditingSystems] = useState(false)
+  const [editingShoppingList, setEditingShoppingList] = useState(false)
   const [editMode, setEditMode] = useState(false)
 
   useEffect(() => {
@@ -99,7 +103,10 @@ export default function Home() {
       supabase.from('settings').select('value').eq('key', 'systems_sort_order').maybeSingle(),
       supabase.from('settings').select('value').eq('key', 'materials_maintenance').maybeSingle(),
       supabase.from('settings').select('value').eq('key', 'systems_maintenance').maybeSingle(),
-    ]).then(([catRes, materialsRes, systemsRes, materialsOrderRes, systemsOrderRes, materialsMaintRes, systemsMaintRes]) => {
+      supabase.from('settings').select('value').eq('key', 'shoppinglist_image_url').maybeSingle(),
+      supabase.from('settings').select('value').eq('key', 'shoppinglist_sort_order').maybeSingle(),
+      supabase.from('settings').select('value').eq('key', 'shoppinglist_maintenance').maybeSingle(),
+    ]).then(([catRes, materialsRes, systemsRes, materialsOrderRes, systemsOrderRes, materialsMaintRes, systemsMaintRes, shoppingListRes, shoppingListOrderRes, shoppingListMaintRes]) => {
       setCategories(catRes.data ?? [])
       setMaterialsImage(materialsRes.data?.value ?? null)
       setSystemsImage(systemsRes.data?.value ?? null)
@@ -107,6 +114,9 @@ export default function Home() {
       setSystemsOrder(Number(systemsOrderRes.data?.value ?? 1))
       setMaterialsMaintenance(materialsMaintRes.data?.value === 'true')
       setSystemsMaintenance(systemsMaintRes.data?.value === 'true')
+      setShoppingListImage(shoppingListRes.data?.value ?? null)
+      setShoppingListOrder(Number(shoppingListOrderRes.data?.value ?? 2))
+      setShoppingListMaintenance(shoppingListMaintRes.data?.value === 'true')
       setLoading(false)
     })
   }, [])
@@ -114,6 +124,7 @@ export default function Home() {
   const tiles = [
     { kind: 'materials', key: 'materials', sort_order: materialsOrder, maintenance: materialsMaintenance, to: '/materials', image: materialsImage, emoji: '⚗️', label: 'Materials', onEdit: () => setEditingMaterials(true) },
     { kind: 'systems', key: 'systems', sort_order: systemsOrder, maintenance: systemsMaintenance, to: '/systems', image: systemsImage, emoji: '⚙️', label: 'Systems', onEdit: () => setEditingSystems(true) },
+    { kind: 'shoppinglist', key: 'shoppinglist', sort_order: shoppingListOrder, maintenance: shoppingListMaintenance, to: '/shoppinglist', image: shoppingListImage, emoji: '🛒', label: 'Shopping List', onEdit: () => setEditingShoppingList(true) },
     ...categories.map(cat => ({ kind: 'category', key: cat.id, sort_order: cat.sort_order, maintenance: cat.maintenance ?? false, to: `/chapter/${cat.id}`, image: cat.image_url, emoji: '📦', label: cat.name, onEdit: () => setEditing(cat), raw: cat })),
   ].sort((a, b) => a.sort_order - b.sort_order)
 
@@ -125,6 +136,9 @@ export default function Home() {
     } else if (tile.kind === 'systems') {
       setSystemsMaintenance(next)
       await supabase.from('settings').upsert({ key: 'systems_maintenance', value: String(next) })
+    } else if (tile.kind === 'shoppinglist') {
+      setShoppingListMaintenance(next)
+      await supabase.from('settings').upsert({ key: 'shoppinglist_maintenance', value: String(next) })
     } else {
       setCategories(prev => prev.map(c => c.id === tile.key ? { ...c, maintenance: next } : c))
       await supabase.from('categories').update({ maintenance: next }).eq('id', tile.key)
@@ -138,6 +152,9 @@ export default function Home() {
     } else if (tile.kind === 'systems') {
       setSystemsOrder(newOrder)
       await supabase.from('settings').upsert({ key: 'systems_sort_order', value: String(newOrder) })
+    } else if (tile.kind === 'shoppinglist') {
+      setShoppingListOrder(newOrder)
+      await supabase.from('settings').upsert({ key: 'shoppinglist_sort_order', value: String(newOrder) })
     } else {
       setCategories(prev => prev.map(c => c.id === tile.key ? { ...c, sort_order: newOrder } : c))
       await supabase.from('categories').update({ sort_order: newOrder }).eq('id', tile.key)
@@ -237,6 +254,16 @@ export default function Home() {
           currentUrl={systemsImage}
           onClose={() => setEditingSystems(false)}
           onSaved={setSystemsImage}
+        />
+      )}
+
+      {editingShoppingList && (
+        <EditTileImageModal
+          title="Edit Shopping List tile"
+          settingKey="shoppinglist_image_url"
+          currentUrl={shoppingListImage}
+          onClose={() => setEditingShoppingList(false)}
+          onSaved={setShoppingListImage}
         />
       )}
     </div>
