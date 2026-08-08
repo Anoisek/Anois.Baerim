@@ -16,3 +16,44 @@ body {
   color: #e5e5e5;
   -webkit-font-smoothing: antialiased;
 }
+
+/* Night mode: swap panel backgrounds to near-black and mute bright accent colors. */
+html.night-mode body {
+  background-image: none;
+  background-color: #000;
+}
+
+html.night-mode [class*="bg-gray-900"] { background-color: #050505 !important; }
+html.night-mode [class*="bg-gray-950"] { background-color: #000 !important; }
+html.night-mode [class*="bg-gray-800"] { background-color: #0d0d0d !important; }
+html.night-mode .bg-gray-700 { background-color: #171717 !important; }
+html.night-mode .bg-gray-600 { background-color: #1f1f1f !important; }
+
+html.night-mode .bg-yellow-400 { background-color: #7a5c12 !important; }
+html.night-mode .bg-yellow-300 { background-color: #8f6d16 !important; }
+html.night-mode .text-yellow-400 { color: #c9a227 !important; }
+html.night-mode [class*="border-yellow-400"] { border-color: #7a5c12 !important; }
+
+html.night-mode [class*="bg-blue-900"] { background-color: rgba(10, 20, 45, 0.75) !important; }
+html.night-mode [class*="border-blue-700"] { border-color: rgba(35, 55, 95, 0.6) !important; }
+html.night-mode .text-blue-300 { color: #5b7fb0 !important; }
+
+html.night-mode [class*="bg-green-900"] { background-color: rgba(8, 30, 15, 0.75) !important; }
+html.night-mode [class*="border-green-700"] { border-color: rgba(30, 80, 45, 0.6) !important; }
+html.night-mode [class*="border-green-400"] { border-color: rgba(40, 110, 60, 0.6) !important; }
+html.night-mode .text-green-300 { color: #4f9a63 !important; }
+html.night-mode .text-green-400 { color: #4f9a63 !important; }
+html.night-mode .bg-green-500 { background-color: #1f6b34 !important; }
+
+html.night-mode [class*="bg-red-900"] { background-color: rgba(35, 10, 12, 0.75) !important; }
+html.night-mode [class*="bg-red-950"] { background-color: rgba(25, 7, 8, 0.6) !important; }
+html.night-mode [class*="border-red-700"] { border-color: rgba(90, 30, 32, 0.6) !important; }
+html.night-mode [class*="border-red-800"] { border-color: rgba(80, 25, 27, 0.6) !important; }
+html.night-mode .text-red-300 { color: #a15458 !important; }
+html.night-mode .text-red-400 { color: #a15458 !important; }
+html.night-mode .bg-red-500 { background-color: #7a2224 !important; }
+html.night-mode .bg-red-600 { background-color: #6b1e20 !important; }
+
+html.night-mode [class*="bg-purple-900"] { background-color: rgba(30, 10, 45, 0.75) !important; }
+html.night-mode [class*="border-purple-700"] { border-color: rgba(70, 35, 100, 0.6) !important; }
+html.night-mode .text-purple-300 { color: #7a5b9e !important; }

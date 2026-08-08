@@ -1,28 +1,25 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 
 const NightModeContext = createContext(null)
-const DIM_KEY = 'night_mode_dim'
+const NIGHT_KEY = 'night_mode'
 
 export function NightModeProvider({ children }) {
-  const [dim, setDimState] = useState(() => Number(localStorage.getItem(DIM_KEY) ?? 0))
+  const [night, setNightState] = useState(() => localStorage.getItem(NIGHT_KEY) === 'true')
 
-  function setDim(value) {
-    setDimState(value)
-    localStorage.setItem(DIM_KEY, String(value))
+  function toggleNight() {
+    setNightState(prev => {
+      const next = !prev
+      localStorage.setItem(NIGHT_KEY, String(next))
+      return next
+    })
   }
 
   useEffect(() => {
-    if (dim <= 0) {
-      document.documentElement.style.filter = ''
-      return
-    }
-    const brightness = 1 - (dim / 100) * 0.7
-    const contrast = 1 + (dim / 100) * 0.15
-    document.documentElement.style.filter = `brightness(${brightness}) contrast(${contrast})`
-  }, [dim])
+    document.documentElement.classList.toggle('night-mode', night)
+  }, [night])
 
   return (
-    <NightModeContext.Provider value={{ dim, setDim }}>
+    <NightModeContext.Provider value={{ night, toggleNight }}>
       {children}
     </NightModeContext.Provider>
   )

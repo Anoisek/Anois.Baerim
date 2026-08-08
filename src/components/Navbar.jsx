@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../supabaseClient'
 import GlobalSearch from './GlobalSearch'
 import LanguageSwitcher from './LanguageSwitcher'
-import NightModeSlider from './NightModeSlider'
+import NightModeToggle from './NightModeToggle'
 
 export default function Navbar() {
   const { isAdmin } = useAuth()
@@ -24,7 +24,7 @@ export default function Navbar() {
           <span className="text-yellow-400 font-bold text-lg tracking-tight">Baerim Calculator</span>
         </Link>
         <LanguageSwitcher />
-        <NightModeSlider />
+        <NightModeToggle />
       </div>
       <span className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[11px] text-gray-600 pointer-events-none select-none">
         {t('navbar.tagline')}
