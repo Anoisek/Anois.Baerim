@@ -8,6 +8,7 @@ import Spinner from '../components/Spinner'
 import AddMarkerModal from '../components/AddMarkerModal'
 import EditMarkerModal from '../components/EditMarkerModal'
 import MarkerPanel from '../components/MarkerPanel'
+import HallOfFameModal from '../components/HallOfFameModal'
 
 const COLLECTED_KEY = 'map_collected_markers'
 
@@ -35,6 +36,7 @@ export default function Maps() {
   const [openMarker, setOpenMarker] = useState(null)
   const [collected, setCollected] = useState(loadCollected)
   const [showCollected, setShowCollected] = useState(true)
+  const [showHelpers, setShowHelpers] = useState(false)
 
   useEffect(() => {
     supabase.from('maps').select('*').order('sort_order').then(({ data }) => {
@@ -103,7 +105,15 @@ export default function Maps() {
             { label: 'Systems', to: '/systems' },
             { label: 'Mococko Interactive Map' },
           ]} />
-          <h1 className="text-2xl font-bold text-gray-100 mb-6">Mococko Interactive Map</h1>
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+            <h1 className="text-2xl font-bold text-gray-100">Mococko Interactive Map</h1>
+            <button
+              onClick={() => setShowHelpers(true)}
+              className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+            >
+              🏆 Hall of Fame
+            </button>
+          </div>
 
           {mapsLoading ? <Spinner /> : maps.length === 0 ? (
             <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
@@ -231,6 +241,10 @@ export default function Maps() {
 
       {openMarker && (
         <MarkerPanel marker={openMarker} onClose={() => setOpenMarker(null)} />
+      )}
+
+      {showHelpers && (
+        <HallOfFameModal onClose={() => setShowHelpers(false)} />
       )}
     </div>
   )
