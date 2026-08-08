@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { NightModeProvider } from './context/NightModeContext'
 import NicknamePrompt from './components/NicknamePrompt'
-import DimOverlay from './components/DimOverlay'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Materials from './pages/Materials'
@@ -22,7 +21,6 @@ export default function App() {
       <AuthProvider>
         <NightModeProvider>
           <NicknamePrompt />
-          <DimOverlay />
           <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
