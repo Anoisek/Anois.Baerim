@@ -31,7 +31,7 @@ export default function MarkerPanel({ marker, onClose }) {
       .from('map_marker_notes')
       .select('*')
       .eq('marker_id', marker.id)
-      .order('created_at', { ascending: false })
+      .order('created_at', { ascending: true })
       .then(({ data }) => {
         setNotes(data ?? [])
         setLoading(false)
@@ -51,7 +51,7 @@ export default function MarkerPanel({ marker, onClose }) {
     if (error) {
       alert('Error: ' + error.message)
     } else {
-      setNotes(prev => [data, ...prev])
+      setNotes(prev => [...prev, data])
       setComment('')
       setImageUrl('')
     }

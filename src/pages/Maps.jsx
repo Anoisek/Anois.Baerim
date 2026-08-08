@@ -225,6 +225,7 @@ export default function Maps() {
           mapId={selectedMap.id}
           x={addingAt.x}
           y={addingAt.y}
+          nextNumber={markers.length + 1}
           onClose={() => setAddingAt(null)}
           onAdded={marker => setMarkers(prev => [...prev, marker])}
         />

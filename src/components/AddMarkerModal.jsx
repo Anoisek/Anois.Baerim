@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import Modal from './Modal'
+import ImageUpload from './ImageUpload'
 
 const MARKER_ICON = '/mokoko.png'
 
-export default function AddMarkerModal({ mapId, x, y, onClose, onAdded }) {
-  const [title, setTitle] = useState('')
+export default function AddMarkerModal({ mapId, x, y, nextNumber, onClose, onAdded }) {
+  const [imageUrl, setImageUrl] = useState('')
   const [saving, setSaving] = useState(false)
 
   async function handleSubmit(e) {
@@ -13,15 +14,20 @@ export default function AddMarkerModal({ mapId, x, y, onClose, onAdded }) {
     setSaving(true)
     const { data, error } = await supabase
       .from('map_markers')
-      .insert({ map_id: mapId, x, y, icon: MARKER_ICON, title: title.trim() || null })
+      .insert({ map_id: mapId, x, y, icon: MARKER_ICON, title: `Mokoko #${nextNumber}` })
       .select()
       .single()
     if (error) {
       alert('Error: ' + error.message)
-    } else {
-      onAdded(data)
-      onClose()
+      setSaving(false)
+      return
     }
+    if (imageUrl) {
+      const { error: noteError } = await supabase.from('map_marker_notes').insert({ marker_id: data.id, image_url: imageUrl })
+      if (noteError) alert('Marker added, but photo failed to attach: ' + noteError.message)
+    }
+    onAdded(data)
+    onClose()
     setSaving(false)
   }
 
@@ -30,15 +36,11 @@ export default function AddMarkerModal({ mapId, x, y, onClose, onAdded }) {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col items-center gap-2">
           <img src={MARKER_ICON} alt="" className="w-12 h-12 object-contain" />
+          <p className="text-sm font-semibold text-gray-200">Mokoko #{nextNumber}</p>
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-400">Title (optional)</label>
-          <input
-            type="text"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
-          />
+          <label className="text-sm text-gray-400">Photo (optional)</label>
+          <ImageUpload bucket="map-notes" onUploaded={setImageUrl} />
         </div>
         <button
           type="submit"
