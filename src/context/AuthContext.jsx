@@ -2,11 +2,19 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 
 const AuthContext = createContext(null)
+const NICKNAME_KEY = 'metin_nickname'
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(undefined)
   const [isAdmin, setIsAdmin] = useState(false)
   const [canAddMarkers, setCanAddMarkers] = useState(false)
+  const [nickname, setNicknameState] = useState(() => localStorage.getItem(NICKNAME_KEY) || '')
+
+  function setNickname(value) {
+    const trimmed = value.trim()
+    localStorage.setItem(NICKNAME_KEY, trimmed)
+    setNicknameState(trimmed)
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -33,7 +41,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, isAdmin, canAddMarkers }}>
+    <AuthContext.Provider value={{ session, isAdmin, canAddMarkers, nickname, setNickname }}>
       {session !== undefined && children}
     </AuthContext.Provider>
   )

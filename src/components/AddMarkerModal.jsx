@@ -1,11 +1,22 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useAuth } from '../context/AuthContext'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 
 const MARKER_ICON = '/mokoko.png'
 
+async function ensureInHallOfFame(nickname) {
+  if (!nickname) return
+  const { data: helpers } = await supabase.from('map_helpers').select('name, sort_order')
+  const already = (helpers ?? []).some(h => h.name.trim().toLowerCase() === nickname.trim().toLowerCase())
+  if (already) return
+  const nextOrder = Math.max(0, ...(helpers ?? []).map(h => h.sort_order)) + 10
+  await supabase.from('map_helpers').insert({ name: nickname.trim(), sort_order: nextOrder })
+}
+
 export default function AddMarkerModal({ mapId, x, y, nextNumber, onClose, onAdded }) {
+  const { nickname } = useAuth()
   const [imageUrl, setImageUrl] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -26,6 +37,7 @@ export default function AddMarkerModal({ mapId, x, y, nextNumber, onClose, onAdd
       const { error: noteError } = await supabase.from('map_marker_notes').insert({ marker_id: data.id, image_url: imageUrl })
       if (noteError) alert('Marker added, but photo failed to attach: ' + noteError.message)
     }
+    await ensureInHallOfFame(nickname)
     onAdded(data)
     onClose()
     setSaving(false)

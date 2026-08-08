@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import NicknamePrompt from './components/NicknamePrompt'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Materials from './pages/Materials'
@@ -17,6 +18,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <NicknamePrompt />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
