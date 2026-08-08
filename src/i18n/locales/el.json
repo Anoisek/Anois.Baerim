@@ -72,7 +72,7 @@
   },
   "systems": {
     "title": "Συστήματα",
-    "interactiveMap": "Διαδραστικός χάρτης Mococko"
+    "interactiveMap": "Διαδραστικός χάρτης Mokoko"
   },
   "materials": {
     "title": "Υλικά",
@@ -171,7 +171,7 @@
     "grandTotal": "Γενικό σύνολο"
   },
   "maps": {
-    "title": "Διαδραστικός χάρτης Mococko",
+    "title": "Διαδραστικός χάρτης Mokoko",
     "hallOfFame": "🏆 Hall of Fame",
     "noMapsYet": "Δεν υπάρχουν ακόμη χάρτες.",
     "hideCollected": "🙈 Απόκρυψη συλλεγμένων",

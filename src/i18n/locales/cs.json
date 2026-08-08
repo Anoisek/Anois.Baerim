@@ -72,7 +72,7 @@
   },
   "systems": {
     "title": "Systémy",
-    "interactiveMap": "Interaktivní mapa Mococko"
+    "interactiveMap": "Interaktivní mapa Mokoko"
   },
   "materials": {
     "title": "Materiály",
@@ -171,7 +171,7 @@
     "grandTotal": "Celkový součet"
   },
   "maps": {
-    "title": "Interaktivní mapa Mococko",
+    "title": "Interaktivní mapa Mokoko",
     "hallOfFame": "🏆 Hall of Fame",
     "noMapsYet": "Zatím žádné mapy.",
     "hideCollected": "🙈 Skrýt sebrané",

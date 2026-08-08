@@ -72,7 +72,7 @@
   },
   "systems": {
     "title": "Systeme",
-    "interactiveMap": "Interaktive Mococko-Karte"
+    "interactiveMap": "Interaktive Mokoko-Karte"
   },
   "materials": {
     "title": "Materialien",
@@ -171,7 +171,7 @@
     "grandTotal": "Gesamtsumme"
   },
   "maps": {
-    "title": "Interaktive Mococko-Karte",
+    "title": "Interaktive Mokoko-Karte",
     "hallOfFame": "🏆 Hall of Fame",
     "noMapsYet": "Noch keine Karten.",
     "hideCollected": "🙈 Gesammelte ausblenden",

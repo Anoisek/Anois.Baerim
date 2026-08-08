@@ -72,7 +72,7 @@
   },
   "systems": {
     "title": "Sisteme",
-    "interactiveMap": "Harta interactivă Mococko"
+    "interactiveMap": "Harta interactivă Mokoko"
   },
   "materials": {
     "title": "Materiale",
@@ -171,7 +171,7 @@
     "grandTotal": "Total general"
   },
   "maps": {
-    "title": "Harta interactivă Mococko",
+    "title": "Harta interactivă Mokoko",
     "hallOfFame": "🏆 Hall of Fame",
     "noMapsYet": "Încă nu există hărți.",
     "hideCollected": "🙈 Ascunde colectate",

@@ -1,4 +1,4 @@
-// One-time script to upload the 14 Mococko map images and seed the `maps` table.
+// One-time script to upload the 14 Mokoko map images and seed the `maps` table.
 //
 // Usage (from repo root): node scripts/seed-maps.mjs
 //
