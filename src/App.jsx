@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { NightModeProvider } from './context/NightModeContext'
 import NicknamePrompt from './components/NicknamePrompt'
+import DimOverlay from './components/DimOverlay'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Materials from './pages/Materials'
@@ -18,8 +20,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <NicknamePrompt />
-        <Routes>
+        <NightModeProvider>
+          <NicknamePrompt />
+          <DimOverlay />
+          <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/materials" element={<Materials />} />
@@ -33,7 +37,8 @@ export default function App() {
           <Route path="/chapter/:categoryId/sub/:subcategoryId" element={<Subcategory />} />
           <Route path="/chapter/:categoryId/item/:itemId" element={<ItemDetail />} />
           <Route path="/items/:itemId/usage" element={<ItemUsage />} />
-        </Routes>
+          </Routes>
+        </NightModeProvider>
       </AuthProvider>
     </BrowserRouter>
   )
