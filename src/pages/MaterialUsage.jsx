@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -21,6 +22,7 @@ function UsageRow({ to, image, name, emoji }) {
 }
 
 export default function MaterialUsage() {
+  const { t } = useTranslation()
   const { materialId } = useParams()
   const [material, setMaterial] = useState(null)
   const [usedInItems, setUsedInItems] = useState([])
@@ -50,10 +52,10 @@ export default function MaterialUsage() {
         {loading ? <Spinner /> : (
           <>
             <Breadcrumbs items={[
-              { label: 'Home', to: '/' },
-              { label: 'Materials', to: '/materials' },
-              { label: material?.name ?? 'Material', to: material?.id ? `/materials/${material.id}` : undefined },
-              { label: 'Usage' },
+              { label: t('common.home'), to: '/' },
+              { label: t('materials.title'), to: '/materials' },
+              { label: material?.name ?? t('common.material'), to: material?.id ? `/materials/${material.id}` : undefined },
+              { label: t('materialUsage.usage') },
             ]} />
 
             <div className="flex items-center gap-5 mb-8 p-5 bg-gray-900 border border-gray-700 rounded-2xl">
@@ -64,20 +66,20 @@ export default function MaterialUsage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-yellow-400">{material?.name}</h1>
-                <p className="text-sm text-gray-500">Used in</p>
+                <p className="text-sm text-gray-500">{t('materialUsage.usedIn')}</p>
               </div>
             </div>
 
             {isEmpty ? (
               <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
                 <span className="text-5xl">📭</span>
-                <p className="text-sm">Not used anywhere yet.</p>
+                <p className="text-sm">{t('materialUsage.notUsedAnywhere')}</p>
               </div>
             ) : (
               <div className="flex flex-col gap-6">
                 {usedInItems.length > 0 && (
                   <div className="flex flex-col gap-2">
-                    <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Items</h2>
+                    <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('materialUsage.items')}</h2>
                     <div className="flex flex-col gap-2">
                       {usedInItems.map(item => (
                         <UsageRow key={item.id} to={`/chapter/${item.category_id}/item/${item.id}`} image={item.image_url} name={item.name} emoji="⚔️" />
@@ -87,7 +89,7 @@ export default function MaterialUsage() {
                 )}
                 {usedInMaterials.length > 0 && (
                   <div className="flex flex-col gap-2">
-                    <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Materials</h2>
+                    <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('materialUsage.materials')}</h2>
                     <div className="flex flex-col gap-2">
                       {usedInMaterials.map(mat => (
                         <UsageRow key={mat.id} to={`/materials/${mat.id}`} image={mat.image_url} name={mat.name} emoji="🧪" />

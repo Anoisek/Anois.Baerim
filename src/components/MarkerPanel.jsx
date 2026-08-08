@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import ImageUpload from './ImageUpload'
@@ -22,6 +23,7 @@ function formatRemaining(ms) {
 
 export default function MarkerPanel({ marker, onClose }) {
   const { isAdmin } = useAuth()
+  const { t } = useTranslation()
   const [notes, setNotes] = useState([])
   const [loading, setLoading] = useState(true)
   const [comment, setComment] = useState('')
@@ -32,17 +34,17 @@ export default function MarkerPanel({ marker, onClose }) {
   const [cooldownUntil, setCooldownUntil] = useState(getCooldownUntil)
 
   useEffect(() => {
-    const t = setTimeout(() => setOpen(true), 10)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => setOpen(true), 10)
+    return () => clearTimeout(timer)
   }, [])
 
   useEffect(() => {
     if (cooldownUntil <= Date.now()) return
-    const t = setInterval(() => {
+    const interval = setInterval(() => {
       const until = getCooldownUntil()
       if (until <= Date.now()) setCooldownUntil(0)
     }, 30000)
-    return () => clearInterval(t)
+    return () => clearInterval(interval)
   }, [cooldownUntil])
 
   useEffect(() => {
@@ -66,7 +68,7 @@ export default function MarkerPanel({ marker, onClose }) {
     if (containsBannedWord(rawTrimmed)) {
       setCooldownUntil(startCooldown())
       setComment('')
-      alert('Your comment contained a banned word. Commenting has been blocked for 24h.')
+      alert(t('markerPanel.bannedWordAlert'))
       return
     }
     const trimmed = censorText(rawTrimmed)
@@ -112,7 +114,7 @@ export default function MarkerPanel({ marker, onClose }) {
         {cooldownUntil > Date.now() ? (
           <div className="border-b border-gray-700 pb-4">
             <p className="text-sm text-red-400 bg-red-950/40 border border-red-800/50 rounded-lg px-3 py-2 text-center">
-              You've been blocked for using a banned word. You can comment again in {formatRemaining(cooldownUntil - Date.now())}.
+              {t('markerPanel.cooldownMessage', { time: formatRemaining(cooldownUntil - Date.now()) })}
             </p>
           </div>
         ) : (
@@ -120,7 +122,7 @@ export default function MarkerPanel({ marker, onClose }) {
             <textarea
               value={comment}
               onChange={e => setComment(e.target.value)}
-              placeholder="Add a comment..."
+              placeholder={t('markerPanel.commentPlaceholder')}
               rows={3}
               maxLength={1000}
               className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400 resize-none"
@@ -128,7 +130,7 @@ export default function MarkerPanel({ marker, onClose }) {
             <ImageUpload bucket="map-notes" onUploaded={setImageUrl} />
             {imageUrl && (
               <button type="button" onClick={() => setImageUrl('')} className="text-xs text-red-400 hover:text-red-300 self-start">
-                Remove photo
+                {t('markerPanel.removePhoto')}
               </button>
             )}
             <button
@@ -136,13 +138,13 @@ export default function MarkerPanel({ marker, onClose }) {
               disabled={submitting || (!comment.trim() && !imageUrl)}
               className="bg-yellow-400 hover:bg-yellow-300 disabled:opacity-50 text-gray-950 font-bold rounded-lg py-2 text-sm transition-colors"
             >
-              {submitting ? 'Posting...' : 'Post'}
+              {submitting ? t('markerPanel.posting') : t('markerPanel.post')}
             </button>
           </form>
         )}
 
         {loading ? <Spinner /> : notes.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center py-6">No comments yet. Be the first!</p>
+          <p className="text-sm text-gray-500 text-center py-6">{t('markerPanel.noCommentsYet')}</p>
         ) : (
           <div className="flex flex-col gap-3">
             {notes.map(note => (
@@ -161,7 +163,7 @@ export default function MarkerPanel({ marker, onClose }) {
                   <button
                     onClick={() => handleDeleteNote(note)}
                     className="absolute top-2 right-2 text-gray-600 hover:text-red-400 text-sm"
-                    title="Delete"
+                    title={t('markerPanel.deleteTooltip')}
                   >
                     🗑
                   </button>

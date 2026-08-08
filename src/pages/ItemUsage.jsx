@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -22,6 +23,7 @@ function UsageRow({ to, image, name }) {
 }
 
 export default function ItemUsage() {
+  const { t } = useTranslation()
   const { itemId } = useParams()
   const [item, setItem] = useState(null)
   const [usedInItems, setUsedInItems] = useState([])
@@ -51,10 +53,10 @@ export default function ItemUsage() {
         {loading ? <Spinner /> : (
           <>
             <Breadcrumbs items={[
-              { label: 'Home', to: '/' },
-              { label: chapterName ?? 'Chapter', to: item ? `/chapter/${item.category_id}` : undefined },
-              { label: item?.name ?? 'Item', to: item ? `/chapter/${item.category_id}/item/${item.id}` : undefined },
-              { label: 'Usage' },
+              { label: t('common.home'), to: '/' },
+              { label: chapterName ?? t('common.chapter'), to: item ? `/chapter/${item.category_id}` : undefined },
+              { label: item?.name ?? t('common.item'), to: item ? `/chapter/${item.category_id}/item/${item.id}` : undefined },
+              { label: t('itemUsage.usage') },
             ]} />
 
             <div className="flex items-center gap-5 mb-8 p-5 bg-gray-900 border border-gray-700 rounded-2xl">
@@ -65,18 +67,18 @@ export default function ItemUsage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-yellow-400">{item?.name}</h1>
-                <p className="text-sm text-gray-500">Used in</p>
+                <p className="text-sm text-gray-500">{t('itemUsage.usedIn')}</p>
               </div>
             </div>
 
             {usedInItems.length === 0 ? (
               <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
                 <span className="text-5xl">📭</span>
-                <p className="text-sm">Not used as an ingredient anywhere yet.</p>
+                <p className="text-sm">{t('itemUsage.notUsedAnywhere')}</p>
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Items</h2>
+                <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('itemUsage.items')}</h2>
                 <div className="flex flex-col gap-2">
                   {usedInItems.map(it => (
                     <UsageRow key={it.id} to={`/chapter/${it.category_id}/item/${it.id}`} image={it.image_url} name={it.name} />

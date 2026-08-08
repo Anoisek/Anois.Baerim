@@ -1,0 +1,219 @@
+{
+  "common": {
+    "editPanel": "Edit panel",
+    "done": "Done",
+    "edit": "Edit",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "remove": "Remove",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "add": "Add",
+    "used": "Used",
+    "inProgress": "In Progress",
+    "endMaintenance": "End maintenance",
+    "markInProgress": "Mark as in progress",
+    "seeUsage": "See where this is used",
+    "home": "Home",
+    "chapter": "Chapter",
+    "category": "Category",
+    "material": "Material",
+    "item": "Item"
+  },
+  "navbar": {
+    "tagline": "Unofficial fan-made tool, not affiliated with Baerim's team",
+    "admin": "ADMIN",
+    "logOut": "Log out",
+    "adminLogin": "Admin login"
+  },
+  "globalSearch": {
+    "searchTooltip": "Search",
+    "placeholder": "Search chapters, categories, materials, items...",
+    "typeAtLeast2": "Type at least 2 characters...",
+    "searching": "Searching...",
+    "noResults": "No results.",
+    "chapters": "Chapters",
+    "categories": "Categories",
+    "materials": "Materials",
+    "items": "Items"
+  },
+  "tile": {
+    "newChapter": "New chapter"
+  },
+  "sealPicker": {
+    "noSeal": "No seal",
+    "seal": "Seal",
+    "seals": "{{count}} seals",
+    "noSealsDefined": "No seals defined."
+  },
+  "materialPriceCell": {
+    "computedTooltip": "Computed from recipe",
+    "pricePlaceholder": "e.g. 50kk"
+  },
+  "login": {
+    "title": "Admin access",
+    "loginLabel": "Login",
+    "passwordLabel": "Password",
+    "loggingIn": "Logging in...",
+    "logIn": "Log in",
+    "invalidCredentials": "Invalid login or password."
+  },
+  "home": {
+    "chapters": "Chapters",
+    "materials": "Materials",
+    "systems": "Systems",
+    "buildCalculator": "Build Calculator",
+    "editMaterialsTile": "Edit Materials tile",
+    "editSystemsTile": "Edit Systems tile",
+    "editBuildCalculatorTile": "Edit Build Calculator tile",
+    "image": "Image",
+    "removeImage": "Remove image",
+    "replaceImage": "Replace with new image:"
+  },
+  "systems": {
+    "title": "Systems",
+    "interactiveMap": "Mococko Interactive Map"
+  },
+  "materials": {
+    "title": "Materials",
+    "myOwnPrices": "My Own Prices",
+    "globalPrices": "Global Prices",
+    "submitToGlobal": "📤 Submit to Global Prices",
+    "submitToGlobalTooltip": "Submit your locally entered prices to the shared global prices",
+    "submitting": "Submitting...",
+    "exportPrices": "⬇ Export prices",
+    "exportTooltip": "Download your entered prices as a file",
+    "importPrices": "⬆ Import prices",
+    "importTooltip": "Restore prices from a previously exported file",
+    "addMaterial": "+ Add material",
+    "searchPlaceholder": "Search material...",
+    "filterAll": "All",
+    "filterNoTag": "No tag",
+    "filterScroll": "Scroll",
+    "filterSeal": "Seal",
+    "filterItem": "Item",
+    "filterCraftable": "Craftable",
+    "tagScroll": "Scroll",
+    "tagSeal": "Seal",
+    "tagItem": "Item",
+    "tagCraftable": "Craftable",
+    "noMaterialsYet": "No materials yet.",
+    "noMatch": "No materials match your search.",
+    "importError": "Could not read this file — make sure it is a prices file exported from this site.",
+    "submitResult": "Submitted: {{accepted}} accepted{{rejectedText}}{{skippedText}}.",
+    "submitRejected": ", {{count}} rejected (too far from the current global price)",
+    "submitSkipped": ", {{count}} skipped (already submitted from this browser in the last 6h)"
+  },
+  "materialDetail": {
+    "usedInTooltip": "See where this material is used",
+    "usedIn": "Used in...",
+    "craft": "Craft",
+    "pity": "Pity:",
+    "yangFee": "Yang fee",
+    "subtotal": "Subtotal",
+    "totalCost": "Total cost",
+    "noRecipe": "No recipe defined for this material."
+  },
+  "materialUsage": {
+    "usedIn": "Used in",
+    "notUsedAnywhere": "Not used anywhere yet.",
+    "items": "Items",
+    "materials": "Materials",
+    "usage": "Usage"
+  },
+  "category": {
+    "addCategory": "+ Add category",
+    "noCategoriesYet": "No categories in this chapter yet.",
+    "uncategorized": "Uncategorized"
+  },
+  "subcategory": {
+    "addItem": "+ Add item",
+    "noItemsYet": "No items in this category yet.",
+    "editTooltip": "Edit"
+  },
+  "itemDetail": {
+    "step0": "Craft",
+    "step1": "+0 → +1",
+    "step2": "+1 → +2",
+    "step3": "+2 → +3",
+    "step4": "+3 → +4",
+    "step5": "+4 → +5",
+    "step6": "+5 → +6",
+    "step7": "+6 → +7",
+    "step8": "+7 → +8",
+    "step9": "+8 → +9",
+    "noScrollsAllSteps": "🚫 No scrolls on all steps",
+    "resetPityAllSteps": "🔄 Reset pity to 1 on all steps",
+    "maxPityAllSteps": "⬆ Max pity on all steps",
+    "noMaterialsDefined": "No materials defined for this item.",
+    "noScroll": "No scroll",
+    "pity": "Pity",
+    "pityMax": "Pity (max {{max}})",
+    "yangFee": "Yang fee",
+    "subtotal": "Subtotal",
+    "includeCraftCost": "Include craft cost",
+    "totalCost": "Total cost"
+  },
+  "itemUsage": {
+    "usedIn": "Used in",
+    "notUsedAnywhere": "Not used as an ingredient anywhere yet.",
+    "items": "Items",
+    "usage": "Usage"
+  },
+  "buildCalculator": {
+    "title": "Build Calculator",
+    "searchPlaceholder": "Search item to add...",
+    "addItem": "+ Add",
+    "resetPityAll": "🔄 Reset pity to 1 (all items)",
+    "setPityMaxAll": "⬆ Set pity to max (all items)",
+    "noItemsYet": "No items in your build yet — search above to add some.",
+    "removeTooltip": "Remove",
+    "grandTotal": "Grand total"
+  },
+  "maps": {
+    "title": "Mococko Interactive Map",
+    "hallOfFame": "🏆 Hall of Fame",
+    "noMapsYet": "No maps yet.",
+    "hideCollected": "🙈 Hide collected",
+    "showCollected": "👁 Show collected",
+    "collected": "collected",
+    "editPanel": "Edit panel",
+    "done": "Done",
+    "clickToAddMarker": "Click anywhere on the map to add a marker.",
+    "editMapTooltip": "Edit map",
+    "addMap": "+ Add map"
+  },
+  "hallOfFame": {
+    "title": "🏆 Hall of Fame",
+    "noHelpersYet": "No helpers added yet.",
+    "namePlaceholder": "Name...",
+    "removeTooltip": "Remove"
+  },
+  "nicknamePrompt": {
+    "title": "Enter your Metin2 nickname",
+    "subtitle": "We need it to credit you in the Hall of Fame for mokoko you add.",
+    "placeholder": "Your nickname...",
+    "confirm": "Confirm"
+  },
+  "markerPanel": {
+    "commentPlaceholder": "Add a comment...",
+    "removePhoto": "Remove photo",
+    "post": "Post",
+    "posting": "Posting...",
+    "noCommentsYet": "No comments yet. Be the first!",
+    "deleteTooltip": "Delete",
+    "cooldownMessage": "You've been blocked for using a banned word. You can comment again in {{time}}.",
+    "bannedWordAlert": "Your comment contained a banned word. Commenting has been blocked for 24h."
+  },
+  "addMarkerModal": {
+    "title": "New marker",
+    "photoOptional": "Photo (optional)",
+    "addMarker": "Add marker",
+    "saving": "Saving..."
+  },
+  "imageUpload": {
+    "uploadError": "Upload error: {{message}}",
+    "uploading": "Uploading...",
+    "chooseFile": "📁 Choose photo"
+  }
+}

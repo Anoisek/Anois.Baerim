@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 
 export default function NicknamePrompt() {
   const { session, canAddMarkers, nickname, setNickname } = useAuth()
+  const { t } = useTranslation()
   const [value, setValue] = useState('')
 
   if (!session || !canAddMarkers || nickname) return null
@@ -16,8 +18,8 @@ export default function NicknamePrompt() {
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
       <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-sm p-6">
-        <h2 className="text-lg font-bold text-white mb-1">Enter your Metin2 nickname</h2>
-        <p className="text-sm text-gray-400 mb-4">We need it to credit you in the Hall of Fame for mokoko you add.</p>
+        <h2 className="text-lg font-bold text-white mb-1">{t('nicknamePrompt.title')}</h2>
+        <p className="text-sm text-gray-400 mb-4">{t('nicknamePrompt.subtitle')}</p>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input
             type="text"
@@ -26,7 +28,7 @@ export default function NicknamePrompt() {
             autoFocus
             required
             maxLength={40}
-            placeholder="Your nickname..."
+            placeholder={t('nicknamePrompt.placeholder')}
             className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
           />
           <button
@@ -34,7 +36,7 @@ export default function NicknamePrompt() {
             disabled={!value.trim()}
             className="bg-yellow-400 hover:bg-yellow-300 disabled:opacity-50 text-gray-950 font-bold rounded-lg py-2 text-sm transition-colors"
           >
-            Confirm
+            {t('nicknamePrompt.confirm')}
           </button>
         </form>
       </div>

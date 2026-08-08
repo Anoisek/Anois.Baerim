@@ -1,0 +1,219 @@
+{
+  "common": {
+    "editPanel": "Πίνακας επεξεργασίας",
+    "done": "Τέλος",
+    "edit": "Επεξεργασία",
+    "save": "Αποθήκευση αλλαγών",
+    "saving": "Αποθήκευση...",
+    "remove": "Αφαίρεση",
+    "delete": "Διαγραφή",
+    "cancel": "Ακύρωση",
+    "add": "Προσθήκη",
+    "used": "Χρησιμοποιείται",
+    "inProgress": "Σε εξέλιξη",
+    "endMaintenance": "Τερματισμός συντήρησης",
+    "markInProgress": "Σήμανση ως σε εξέλιξη",
+    "seeUsage": "Δείτε πού χρησιμοποιείται αυτό",
+    "home": "Αρχική",
+    "chapter": "Κεφάλαιο",
+    "category": "Κατηγορία",
+    "material": "Υλικό",
+    "item": "Αντικείμενο"
+  },
+  "navbar": {
+    "tagline": "Ανεπίσημο εργαλείο από θαυμαστές, χωρίς σχέση με την ομάδα του Baerim",
+    "admin": "ΔΙΑΧΕΙΡΙΣΤΗΣ",
+    "logOut": "Αποσύνδεση",
+    "adminLogin": "Σύνδεση διαχειριστή"
+  },
+  "globalSearch": {
+    "searchTooltip": "Αναζήτηση",
+    "placeholder": "Αναζήτηση κεφαλαίων, κατηγοριών, υλικών, αντικειμένων...",
+    "typeAtLeast2": "Πληκτρολογήστε τουλάχιστον 2 χαρακτήρες...",
+    "searching": "Αναζήτηση...",
+    "noResults": "Κανένα αποτέλεσμα.",
+    "chapters": "Κεφάλαια",
+    "categories": "Κατηγορίες",
+    "materials": "Υλικά",
+    "items": "Αντικείμενα"
+  },
+  "tile": {
+    "newChapter": "Νέο κεφάλαιο"
+  },
+  "sealPicker": {
+    "noSeal": "Χωρίς σφραγίδα",
+    "seal": "Σφραγίδα",
+    "seals": "{{count}} σφραγίδες",
+    "noSealsDefined": "Δεν έχουν οριστεί σφραγίδες."
+  },
+  "materialPriceCell": {
+    "computedTooltip": "Υπολογίζεται από τη συνταγή",
+    "pricePlaceholder": "π.χ. 50kk"
+  },
+  "login": {
+    "title": "Πρόσβαση διαχειριστή",
+    "loginLabel": "Όνομα χρήστη",
+    "passwordLabel": "Κωδικός πρόσβασης",
+    "loggingIn": "Σύνδεση...",
+    "logIn": "Σύνδεση",
+    "invalidCredentials": "Μη έγκυρο όνομα χρήστη ή κωδικός."
+  },
+  "home": {
+    "chapters": "Κεφάλαια",
+    "materials": "Υλικά",
+    "systems": "Συστήματα",
+    "buildCalculator": "Υπολογιστής build",
+    "editMaterialsTile": "Επεξεργασία πλακιδίου Υλικά",
+    "editSystemsTile": "Επεξεργασία πλακιδίου Συστήματα",
+    "editBuildCalculatorTile": "Επεξεργασία πλακιδίου Υπολογιστής build",
+    "image": "Εικόνα",
+    "removeImage": "Αφαίρεση εικόνας",
+    "replaceImage": "Αντικατάσταση με νέα εικόνα:"
+  },
+  "systems": {
+    "title": "Συστήματα",
+    "interactiveMap": "Διαδραστικός χάρτης Mococko"
+  },
+  "materials": {
+    "title": "Υλικά",
+    "myOwnPrices": "Οι δικές μου τιμές",
+    "globalPrices": "Παγκόσμιες τιμές",
+    "submitToGlobal": "📤 Υποβολή στις παγκόσμιες τιμές",
+    "submitToGlobalTooltip": "Υπέβαλε τις τιμές που έχεις καταχωρίσει τοπικά στις κοινές παγκόσμιες τιμές",
+    "submitting": "Υποβολή...",
+    "exportPrices": "⬇ Εξαγωγή τιμών",
+    "exportTooltip": "Κατέβασε τις τιμές που έχεις καταχωρίσει ως αρχείο",
+    "importPrices": "⬆ Εισαγωγή τιμών",
+    "importTooltip": "Επαναφορά τιμών από προηγουμένως εξαγόμενο αρχείο",
+    "addMaterial": "+ Προσθήκη υλικού",
+    "searchPlaceholder": "Αναζήτηση υλικού...",
+    "filterAll": "Όλα",
+    "filterNoTag": "Χωρίς ετικέτα",
+    "filterScroll": "Ειλητάριο",
+    "filterSeal": "Σφραγίδα",
+    "filterItem": "Αντικείμενο",
+    "filterCraftable": "Κατασκευάσιμο",
+    "tagScroll": "Ειλητάριο",
+    "tagSeal": "Σφραγίδα",
+    "tagItem": "Αντικείμενο",
+    "tagCraftable": "Κατασκευάσιμο",
+    "noMaterialsYet": "Δεν υπάρχουν ακόμη υλικά.",
+    "noMatch": "Κανένα υλικό δεν ταιριάζει με την αναζήτησή σου.",
+    "importError": "Δεν ήταν δυνατή η ανάγνωση αυτού του αρχείου — βεβαιώσου ότι είναι αρχείο τιμών που εξήχθη από αυτόν τον ιστότοπο.",
+    "submitResult": "Υποβλήθηκαν: {{accepted}} αποδεκτά{{rejectedText}}{{skippedText}}.",
+    "submitRejected": ", {{count}} απορρίφθηκαν (πολύ μακριά από την τρέχουσα παγκόσμια τιμή)",
+    "submitSkipped": ", {{count}} παραλείφθηκαν (έχουν ήδη υποβληθεί από αυτόν τον browser τις τελευταίες 6 ώρες)"
+  },
+  "materialDetail": {
+    "usedInTooltip": "Δες πού χρησιμοποιείται αυτό το υλικό",
+    "usedIn": "Χρησιμοποιείται σε...",
+    "craft": "Κατασκευή",
+    "pity": "Pity:",
+    "yangFee": "Χρέωση yang",
+    "subtotal": "Μερικό σύνολο",
+    "totalCost": "Συνολικό κόστος",
+    "noRecipe": "Δεν έχει οριστεί συνταγή για αυτό το υλικό."
+  },
+  "materialUsage": {
+    "usedIn": "Χρησιμοποιείται σε",
+    "notUsedAnywhere": "Δεν χρησιμοποιείται πουθενά ακόμη.",
+    "items": "Αντικείμενα",
+    "materials": "Υλικά",
+    "usage": "Χρήση"
+  },
+  "category": {
+    "addCategory": "+ Προσθήκη κατηγορίας",
+    "noCategoriesYet": "Δεν υπάρχουν ακόμη κατηγορίες σε αυτό το κεφάλαιο.",
+    "uncategorized": "Χωρίς κατηγορία"
+  },
+  "subcategory": {
+    "addItem": "+ Προσθήκη αντικειμένου",
+    "noItemsYet": "Δεν υπάρχουν ακόμη αντικείμενα σε αυτή την κατηγορία.",
+    "editTooltip": "Επεξεργασία"
+  },
+  "itemDetail": {
+    "step0": "Κατασκευή",
+    "step1": "+0 → +1",
+    "step2": "+1 → +2",
+    "step3": "+2 → +3",
+    "step4": "+3 → +4",
+    "step5": "+4 → +5",
+    "step6": "+5 → +6",
+    "step7": "+6 → +7",
+    "step8": "+7 → +8",
+    "step9": "+8 → +9",
+    "noScrollsAllSteps": "🚫 Χωρίς ειλητάρια σε όλα τα στάδια",
+    "resetPityAllSteps": "🔄 Επαναφορά pity σε 1 σε όλα τα στάδια",
+    "maxPityAllSteps": "⬆ Μέγιστο pity σε όλα τα στάδια",
+    "noMaterialsDefined": "Δεν έχουν οριστεί υλικά για αυτό το αντικείμενο.",
+    "noScroll": "Χωρίς ειλητάριο",
+    "pity": "Pity",
+    "pityMax": "Pity (μέγ. {{max}})",
+    "yangFee": "Χρέωση yang",
+    "subtotal": "Μερικό σύνολο",
+    "includeCraftCost": "Συμπερίληψη κόστους κατασκευής",
+    "totalCost": "Συνολικό κόστος"
+  },
+  "itemUsage": {
+    "usedIn": "Χρησιμοποιείται σε",
+    "notUsedAnywhere": "Δεν χρησιμοποιείται πουθενά ως συστατικό ακόμη.",
+    "items": "Αντικείμενα",
+    "usage": "Χρήση"
+  },
+  "buildCalculator": {
+    "title": "Υπολογιστής build",
+    "searchPlaceholder": "Αναζήτηση αντικειμένου για προσθήκη...",
+    "addItem": "+ Προσθήκη",
+    "resetPityAll": "🔄 Επαναφορά pity σε 1 (όλα τα αντικείμενα)",
+    "setPityMaxAll": "⬆ Ορισμός μέγιστου pity (όλα τα αντικείμενα)",
+    "noItemsYet": "Δεν υπάρχουν ακόμη αντικείμενα στο build σου — αναζήτησε παραπάνω για να προσθέσεις.",
+    "removeTooltip": "Αφαίρεση",
+    "grandTotal": "Γενικό σύνολο"
+  },
+  "maps": {
+    "title": "Διαδραστικός χάρτης Mococko",
+    "hallOfFame": "🏆 Hall of Fame",
+    "noMapsYet": "Δεν υπάρχουν ακόμη χάρτες.",
+    "hideCollected": "🙈 Απόκρυψη συλλεγμένων",
+    "showCollected": "👁 Εμφάνιση συλλεγμένων",
+    "collected": "συλλέχθηκαν",
+    "editPanel": "Πίνακας επεξεργασίας",
+    "done": "Τέλος",
+    "clickToAddMarker": "Κάνε κλικ οπουδήποτε στον χάρτη για να προσθέσεις δείκτη.",
+    "editMapTooltip": "Επεξεργασία χάρτη",
+    "addMap": "+ Προσθήκη χάρτη"
+  },
+  "hallOfFame": {
+    "title": "🏆 Hall of Fame",
+    "noHelpersYet": "Δεν έχουν προστεθεί ακόμη βοηθοί.",
+    "namePlaceholder": "Όνομα...",
+    "removeTooltip": "Αφαίρεση"
+  },
+  "nicknamePrompt": {
+    "title": "Εισάγετε το ψευδώνυμό σας στο Metin2",
+    "subtitle": "Το χρειαζόμαστε για να σε αναγνωρίσουμε στο Hall of Fame για τα mokoko που προσθέτεις.",
+    "placeholder": "Το ψευδώνυμό σου...",
+    "confirm": "Επιβεβαίωση"
+  },
+  "markerPanel": {
+    "commentPlaceholder": "Προσθήκη σχολίου...",
+    "removePhoto": "Αφαίρεση φωτογραφίας",
+    "post": "Δημοσίευση",
+    "posting": "Δημοσίευση...",
+    "noCommentsYet": "Δεν υπάρχουν ακόμη σχόλια. Γίνε ο πρώτος!",
+    "deleteTooltip": "Διαγραφή",
+    "cooldownMessage": "Έχεις αποκλειστεί επειδή χρησιμοποίησες απαγορευμένη λέξη. Μπορείς να σχολιάσεις ξανά σε {{time}}.",
+    "bannedWordAlert": "Το σχόλιό σου περιείχε απαγορευμένη λέξη. Η δυνατότητα σχολιασμού αποκλείστηκε για 24 ώρες."
+  },
+  "addMarkerModal": {
+    "title": "Νέος δείκτης",
+    "photoOptional": "Φωτογραφία (προαιρετικό)",
+    "addMarker": "Προσθήκη δείκτη",
+    "saving": "Αποθήκευση..."
+  },
+  "imageUpload": {
+    "uploadError": "Σφάλμα μεταφόρτωσης: {{message}}",
+    "uploading": "Μεταφόρτωση...",
+    "chooseFile": "📁 Επιλογή φωτογραφίας"
+  }
+}

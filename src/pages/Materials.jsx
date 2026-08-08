@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -14,12 +15,12 @@ import {
 } from '../utils/priceBook'
 
 const FILTERS = [
-  { key: 'all', label: 'All' },
-  { key: 'none', label: 'No tag' },
-  { key: 'scroll', label: 'Scroll' },
-  { key: 'seal', label: 'Seal' },
-  { key: 'item', label: 'Item' },
-  { key: 'craftable', label: 'Craftable' },
+  { key: 'all', labelKey: 'materials.filterAll' },
+  { key: 'none', labelKey: 'materials.filterNoTag' },
+  { key: 'scroll', labelKey: 'materials.filterScroll' },
+  { key: 'seal', labelKey: 'materials.filterSeal' },
+  { key: 'item', labelKey: 'materials.filterItem' },
+  { key: 'craftable', labelKey: 'materials.filterCraftable' },
 ]
 
 function matchesFilter(mat, filter) {
@@ -35,6 +36,7 @@ function matchesFilter(mat, filter) {
 
 export default function Materials() {
   const { isAdmin } = useAuth()
+  const { t } = useTranslation()
   const [materials, setMaterials] = useState([])
   const [recipes, setRecipes] = useState({})
   const [loading, setLoading] = useState(true)
@@ -71,11 +73,11 @@ export default function Materials() {
     const { accepted, rejected, skipped } = await submitPricesToGlobal(rawInputs)
     setGlobalPrices(await fetchGlobalPrices())
     setSubmitting(false)
-    alert(
-      `Submitted: ${accepted} accepted` +
-      `${rejected > 0 ? `, ${rejected} rejected (too far from the current global price)` : ''}` +
-      `${skipped > 0 ? `, ${skipped} skipped (already submitted from this browser in the last 6h)` : ''}.`
-    )
+    alert(t('materials.submitResult', {
+      accepted,
+      rejectedText: rejected > 0 ? t('materials.submitRejected', { count: rejected }) : '',
+      skippedText: skipped > 0 ? t('materials.submitSkipped', { count: skipped }) : '',
+    }))
   }
 
   function handleAdded(mat) {
@@ -112,7 +114,7 @@ export default function Materials() {
       if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) throw new Error('Invalid file')
       importPrices(parsed)
     } catch {
-      alert('Could not read this file — make sure it is a prices file exported from this site.')
+      alert(t('materials.importError'))
     }
   }
 
@@ -124,45 +126,45 @@ export default function Materials() {
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
-        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Materials' }]} />
+        <Breadcrumbs items={[{ label: t('common.home'), to: '/' }, { label: t('materials.title') }]} />
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-          <h1 className="text-2xl font-bold text-gray-100">Materials</h1>
+          <h1 className="text-2xl font-bold text-gray-100">{t('materials.title')}</h1>
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-xl p-1">
               <button
                 onClick={() => setMode('own')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${mode === 'own' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
               >
-                My Own Prices
+                {t('materials.myOwnPrices')}
               </button>
               <button
                 onClick={() => setMode('global')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${mode === 'global' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
               >
-                Global Prices
+                {t('materials.globalPrices')}
               </button>
             </div>
             <button
               onClick={handleSubmitToGlobal}
               disabled={submitting}
               className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 font-semibold px-3 py-2 rounded-xl text-sm transition-colors disabled:opacity-50"
-              title="Submit your locally entered prices to the shared global prices"
+              title={t('materials.submitToGlobalTooltip')}
             >
-              {submitting ? 'Submitting...' : '📤 Submit to Global Prices'}
+              {submitting ? t('materials.submitting') : t('materials.submitToGlobal')}
             </button>
             <button
               onClick={handleExport}
               className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 font-semibold px-3 py-2 rounded-xl text-sm transition-colors"
-              title="Download your entered prices as a file"
+              title={t('materials.exportTooltip')}
             >
-              ⬇ Export prices
+              {t('materials.exportPrices')}
             </button>
             <button
               onClick={handleImportClick}
               className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 font-semibold px-3 py-2 rounded-xl text-sm transition-colors"
-              title="Restore prices from a previously exported file"
+              title={t('materials.importTooltip')}
             >
-              ⬆ Import prices
+              {t('materials.importPrices')}
             </button>
             <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={handleImportFile} />
             {isAdmin && (
@@ -170,7 +172,7 @@ export default function Materials() {
                 onClick={() => setShowAdd(true)}
                 className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors"
               >
-                + Add material
+                {t('materials.addMaterial')}
               </button>
             )}
           </div>
@@ -180,7 +182,7 @@ export default function Materials() {
           <div className="flex flex-col gap-3 mb-6">
             <input
               type="text"
-              placeholder="Search material..."
+              placeholder={t('materials.searchPlaceholder')}
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
@@ -194,7 +196,7 @@ export default function Materials() {
                     filter === f.key ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                   }`}
                 >
-                  {f.label}
+                  {t(f.labelKey)}
                 </button>
               ))}
             </div>
@@ -208,7 +210,7 @@ export default function Materials() {
             return (
               <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
                 <span className="text-5xl">🧪</span>
-                <p className="text-sm">No materials yet.</p>
+                <p className="text-sm">{t('materials.noMaterialsYet')}</p>
               </div>
             )
           }
@@ -216,7 +218,7 @@ export default function Materials() {
             return (
               <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
                 <span className="text-5xl">🔍</span>
-                <p className="text-sm">No materials match your search.</p>
+                <p className="text-sm">{t('materials.noMatch')}</p>
               </div>
             )
           }
@@ -241,16 +243,16 @@ export default function Materials() {
                   </span>
                   <div className="flex gap-1 flex-wrap justify-center items-start min-h-[24px] mb-3">
                     {mat.is_upgrade_scroll && (
-                      <span className="text-xs bg-purple-900/60 text-purple-300 border border-purple-700/50 px-2 py-0.5 rounded-full">Scroll</span>
+                      <span className="text-xs bg-purple-900/60 text-purple-300 border border-purple-700/50 px-2 py-0.5 rounded-full">{t('materials.tagScroll')}</span>
                     )}
                     {mat.is_seal && (
-                      <span className="text-xs bg-red-900/60 text-red-300 border border-red-700/50 px-2 py-0.5 rounded-full">Seal</span>
+                      <span className="text-xs bg-red-900/60 text-red-300 border border-red-700/50 px-2 py-0.5 rounded-full">{t('materials.tagSeal')}</span>
                     )}
                     {mat.is_item && (
-                      <span className="text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-0.5 rounded-full">Item</span>
+                      <span className="text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-0.5 rounded-full">{t('materials.tagItem')}</span>
                     )}
                     {mat.is_craftable && (
-                      <span className="text-xs bg-green-900/60 text-green-300 border border-green-700/50 px-2 py-0.5 rounded-full">Craftable</span>
+                      <span className="text-xs bg-green-900/60 text-green-300 border border-green-700/50 px-2 py-0.5 rounded-full">{t('materials.tagCraftable')}</span>
                     )}
                   </div>
                   <MaterialPriceCell
@@ -264,7 +266,7 @@ export default function Materials() {
                     <button
                       onClick={e => { e.preventDefault(); e.stopPropagation(); navigate(`/materials/${mat.id}/usage`) }}
                       className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-800/90 border border-gray-600 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/50 transition-colors text-xs"
-                      title="See where this is used"
+                      title={t('common.seeUsage')}
                     >
                       🔗
                     </button>
@@ -273,7 +275,7 @@ export default function Materials() {
                     <button
                       onClick={e => { e.preventDefault(); e.stopPropagation(); setEditing(mat) }}
                       className="absolute top-2 right-2 text-gray-600 hover:text-yellow-400 opacity-0 group-hover:opacity-100 transition-all text-base"
-                      title="Edit"
+                      title={t('common.edit')}
                     >
                       ✏️
                     </button>

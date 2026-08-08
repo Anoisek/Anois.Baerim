@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -26,6 +27,7 @@ export default function Maps() {
   const { mapId } = useParams()
   const navigate = useNavigate()
   const { isAdmin, canAddMarkers } = useAuth()
+  const { t } = useTranslation()
 
   const [maps, setMaps] = useState([])
   const [mapsLoading, setMapsLoading] = useState(true)
@@ -106,24 +108,24 @@ export default function Maps() {
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
           <Breadcrumbs items={[
-            { label: 'Home', to: '/' },
-            { label: 'Systems', to: '/systems' },
-            { label: 'Mococko Interactive Map' },
+            { label: t('common.home'), to: '/' },
+            { label: t('systems.title'), to: '/systems' },
+            { label: t('maps.title') },
           ]} />
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-            <h1 className="text-2xl font-bold text-gray-100">Mococko Interactive Map</h1>
+            <h1 className="text-2xl font-bold text-gray-100">{t('maps.title')}</h1>
             <button
               onClick={() => setShowHelpers(true)}
               className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
             >
-              🏆 Hall of Fame
+              {t('maps.hallOfFame')}
             </button>
           </div>
 
           {mapsLoading ? <Spinner /> : maps.length === 0 ? (
             <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
               <span className="text-5xl">🗺️</span>
-              <p className="text-sm">No maps yet.</p>
+              <p className="text-sm">{t('maps.noMapsYet')}</p>
             </div>
           ) : (
             <div className="flex gap-4 flex-col md:flex-row">
@@ -146,7 +148,7 @@ export default function Maps() {
                       {isAdmin && (
                         <button
                           onClick={e => { e.stopPropagation(); setEditingMap(m) }}
-                          title="Edit map"
+                          title={t('maps.editMapTooltip')}
                           className={`absolute top-1.5 right-1.5 text-xs opacity-60 hover:opacity-100 ${active ? 'text-gray-800' : 'text-gray-300'}`}
                         >
                           ✏️
@@ -160,7 +162,7 @@ export default function Maps() {
                     onClick={() => setAddingMap(true)}
                     className="shrink-0 md:shrink text-left px-3 py-2 rounded-lg text-sm border border-dashed border-gray-600 text-gray-400 hover:text-white hover:border-gray-400 transition-colors"
                   >
-                    + Add map
+                    {t('maps.addMap')}
                   </button>
                 )}
               </aside>
@@ -170,20 +172,20 @@ export default function Maps() {
                   <h2 className="text-lg font-bold text-gray-100">{selectedMap?.name}</h2>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-400">
-                      <strong className="text-gray-200">{markers.filter(m => collected[m.id]).length}</strong>/{markers.length} collected
+                      <strong className="text-gray-200">{markers.filter(m => collected[m.id]).length}</strong>/{markers.length} {t('maps.collected')}
                     </span>
                     <button
                       onClick={() => setShowCollected(v => !v)}
                       className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
                     >
-                      {showCollected ? '🙈 Hide collected' : '👁 Show collected'}
+                      {showCollected ? t('maps.hideCollected') : t('maps.showCollected')}
                     </button>
                     {canAddMarkers && (
                       <button
                         onClick={() => setEditMode(v => !v)}
                         className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${editMode ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200'}`}
                       >
-                        {editMode ? 'Done' : 'Edit panel'}
+                        {editMode ? t('maps.done') : t('maps.editPanel')}
                       </button>
                     )}
                   </div>
@@ -224,7 +226,7 @@ export default function Maps() {
                       })}
                     </div>
                     {canAddMarkers && editMode && (
-                      <p className="text-xs text-gray-500 mt-3">Click anywhere on the map to add a marker.</p>
+                      <p className="text-xs text-gray-500 mt-3">{t('maps.clickToAddMarker')}</p>
                     )}
                   </>
                 )}

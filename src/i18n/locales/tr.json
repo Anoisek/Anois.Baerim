@@ -1,0 +1,219 @@
+{
+  "common": {
+    "editPanel": "Düzenleme paneli",
+    "done": "Bitti",
+    "edit": "Düzenle",
+    "save": "Değişiklikleri kaydet",
+    "saving": "Kaydediliyor...",
+    "remove": "Kaldır",
+    "delete": "Sil",
+    "cancel": "İptal",
+    "add": "Ekle",
+    "used": "Kullanıldı",
+    "inProgress": "Devam ediyor",
+    "endMaintenance": "Bakımı sonlandır",
+    "markInProgress": "Devam ediyor olarak işaretle",
+    "seeUsage": "Bunun nerede kullanıldığını gör",
+    "home": "Ana Sayfa",
+    "chapter": "Bölüm",
+    "category": "Kategori",
+    "material": "Malzeme",
+    "item": "Eşya"
+  },
+  "navbar": {
+    "tagline": "Resmi olmayan hayran yapımı araç, Baerim ekibiyle bağlantılı değildir",
+    "admin": "YÖNETİCİ",
+    "logOut": "Çıkış yap",
+    "adminLogin": "Yönetici girişi"
+  },
+  "globalSearch": {
+    "searchTooltip": "Ara",
+    "placeholder": "Bölüm, kategori, malzeme, eşya ara...",
+    "typeAtLeast2": "En az 2 karakter yazın...",
+    "searching": "Aranıyor...",
+    "noResults": "Sonuç yok.",
+    "chapters": "Bölümler",
+    "categories": "Kategoriler",
+    "materials": "Malzemeler",
+    "items": "Eşyalar"
+  },
+  "tile": {
+    "newChapter": "Yeni bölüm"
+  },
+  "sealPicker": {
+    "noSeal": "Mühür yok",
+    "seal": "Mühür",
+    "seals": "{{count}} mühür",
+    "noSealsDefined": "Tanımlı mühür yok."
+  },
+  "materialPriceCell": {
+    "computedTooltip": "Tarife göre hesaplandı",
+    "pricePlaceholder": "örn. 50kk"
+  },
+  "login": {
+    "title": "Yönetici erişimi",
+    "loginLabel": "Kullanıcı adı",
+    "passwordLabel": "Şifre",
+    "loggingIn": "Giriş yapılıyor...",
+    "logIn": "Giriş yap",
+    "invalidCredentials": "Geçersiz kullanıcı adı veya şifre."
+  },
+  "home": {
+    "chapters": "Bölümler",
+    "materials": "Malzemeler",
+    "systems": "Sistemler",
+    "buildCalculator": "Build Hesaplayıcı",
+    "editMaterialsTile": "Malzemeler kutusunu düzenle",
+    "editSystemsTile": "Sistemler kutusunu düzenle",
+    "editBuildCalculatorTile": "Build Hesaplayıcı kutusunu düzenle",
+    "image": "Görsel",
+    "removeImage": "Görseli kaldır",
+    "replaceImage": "Yeni görselle değiştir:"
+  },
+  "systems": {
+    "title": "Sistemler",
+    "interactiveMap": "Mococko İnteraktif Haritası"
+  },
+  "materials": {
+    "title": "Malzemeler",
+    "myOwnPrices": "Kendi Fiyatlarım",
+    "globalPrices": "Küresel Fiyatlar",
+    "submitToGlobal": "📤 Küresel Fiyatlara Gönder",
+    "submitToGlobalTooltip": "Yerel olarak girdiğin fiyatları paylaşılan küresel fiyatlara gönder",
+    "submitting": "Gönderiliyor...",
+    "exportPrices": "⬇ Fiyatları dışa aktar",
+    "exportTooltip": "Girdiğin fiyatları dosya olarak indir",
+    "importPrices": "⬆ Fiyatları içe aktar",
+    "importTooltip": "Daha önce dışa aktarılmış bir dosyadan fiyatları geri yükle",
+    "addMaterial": "+ Malzeme ekle",
+    "searchPlaceholder": "Malzeme ara...",
+    "filterAll": "Tümü",
+    "filterNoTag": "Etiketsiz",
+    "filterScroll": "Tomar",
+    "filterSeal": "Mühür",
+    "filterItem": "Eşya",
+    "filterCraftable": "Üretilebilir",
+    "tagScroll": "Tomar",
+    "tagSeal": "Mühür",
+    "tagItem": "Eşya",
+    "tagCraftable": "Üretilebilir",
+    "noMaterialsYet": "Henüz malzeme yok.",
+    "noMatch": "Aramanla eşleşen malzeme yok.",
+    "importError": "Bu dosya okunamadı — bu siteden dışa aktarılmış bir fiyat dosyası olduğundan emin ol.",
+    "submitResult": "Gönderildi: {{accepted}} kabul edildi{{rejectedText}}{{skippedText}}.",
+    "submitRejected": ", {{count}} reddedildi (mevcut küresel fiyattan çok uzak)",
+    "submitSkipped": ", {{count}} atlandı (bu tarayıcıdan son 6 saat içinde zaten gönderildi)"
+  },
+  "materialDetail": {
+    "usedInTooltip": "Bu malzemenin nerede kullanıldığını gör",
+    "usedIn": "Şurada kullanıldı...",
+    "craft": "Üret",
+    "pity": "Pity:",
+    "yangFee": "Yang ücreti",
+    "subtotal": "Ara toplam",
+    "totalCost": "Toplam maliyet",
+    "noRecipe": "Bu malzeme için tarif tanımlanmamış."
+  },
+  "materialUsage": {
+    "usedIn": "Şurada kullanıldı",
+    "notUsedAnywhere": "Henüz hiçbir yerde kullanılmıyor.",
+    "items": "Eşyalar",
+    "materials": "Malzemeler",
+    "usage": "Kullanım"
+  },
+  "category": {
+    "addCategory": "+ Kategori ekle",
+    "noCategoriesYet": "Bu bölümde henüz kategori yok.",
+    "uncategorized": "Kategorisiz"
+  },
+  "subcategory": {
+    "addItem": "+ Eşya ekle",
+    "noItemsYet": "Bu kategoride henüz eşya yok.",
+    "editTooltip": "Düzenle"
+  },
+  "itemDetail": {
+    "step0": "Üret",
+    "step1": "+0 → +1",
+    "step2": "+1 → +2",
+    "step3": "+2 → +3",
+    "step4": "+3 → +4",
+    "step5": "+4 → +5",
+    "step6": "+5 → +6",
+    "step7": "+6 → +7",
+    "step8": "+7 → +8",
+    "step9": "+8 → +9",
+    "noScrollsAllSteps": "🚫 Tüm aşamalarda tomar yok",
+    "resetPityAllSteps": "🔄 Tüm aşamalarda pity'yi 1'e sıfırla",
+    "maxPityAllSteps": "⬆ Tüm aşamalarda maks. pity",
+    "noMaterialsDefined": "Bu eşya için malzeme tanımlanmamış.",
+    "noScroll": "Tomar yok",
+    "pity": "Pity",
+    "pityMax": "Pity (maks. {{max}})",
+    "yangFee": "Yang ücreti",
+    "subtotal": "Ara toplam",
+    "includeCraftCost": "Üretim maliyetini dahil et",
+    "totalCost": "Toplam maliyet"
+  },
+  "itemUsage": {
+    "usedIn": "Şurada kullanıldı",
+    "notUsedAnywhere": "Henüz hiçbir yerde malzeme olarak kullanılmıyor.",
+    "items": "Eşyalar",
+    "usage": "Kullanım"
+  },
+  "buildCalculator": {
+    "title": "Build Hesaplayıcı",
+    "searchPlaceholder": "Eklemek için eşya ara...",
+    "addItem": "+ Ekle",
+    "resetPityAll": "🔄 Pity'yi 1'e sıfırla (tüm eşyalar)",
+    "setPityMaxAll": "⬆ Pity'yi maks. yap (tüm eşyalar)",
+    "noItemsYet": "Build'inde henüz eşya yok — eklemek için yukarıdan ara.",
+    "removeTooltip": "Kaldır",
+    "grandTotal": "Genel toplam"
+  },
+  "maps": {
+    "title": "Mococko İnteraktif Haritası",
+    "hallOfFame": "🏆 Hall of Fame",
+    "noMapsYet": "Henüz harita yok.",
+    "hideCollected": "🙈 Toplananları gizle",
+    "showCollected": "👁 Toplananları göster",
+    "collected": "toplandı",
+    "editPanel": "Düzenleme paneli",
+    "done": "Bitti",
+    "clickToAddMarker": "İşaretçi eklemek için haritada herhangi bir yere tıkla.",
+    "editMapTooltip": "Haritayı düzenle",
+    "addMap": "+ Harita ekle"
+  },
+  "hallOfFame": {
+    "title": "🏆 Hall of Fame",
+    "noHelpersYet": "Henüz yardımcı eklenmedi.",
+    "namePlaceholder": "İsim...",
+    "removeTooltip": "Kaldır"
+  },
+  "nicknamePrompt": {
+    "title": "Metin2 takma adını gir",
+    "subtitle": "Eklediğin mokokolar için seni Hall of Fame'de onurlandırmak için buna ihtiyacımız var.",
+    "placeholder": "Takma adın...",
+    "confirm": "Onayla"
+  },
+  "markerPanel": {
+    "commentPlaceholder": "Yorum ekle...",
+    "removePhoto": "Fotoğrafı kaldır",
+    "post": "Gönder",
+    "posting": "Gönderiliyor...",
+    "noCommentsYet": "Henüz yorum yok. İlk sen ol!",
+    "deleteTooltip": "Sil",
+    "cooldownMessage": "Yasaklı bir kelime kullandığın için engellendin. {{time}} sonra tekrar yorum yapabilirsin.",
+    "bannedWordAlert": "Yorumun yasaklı bir kelime içeriyordu. Yorum yapma özelliğin 24 saatliğine engellendi."
+  },
+  "addMarkerModal": {
+    "title": "Yeni işaretçi",
+    "photoOptional": "Fotoğraf (isteğe bağlı)",
+    "addMarker": "İşaretçi ekle",
+    "saving": "Kaydediliyor..."
+  },
+  "imageUpload": {
+    "uploadError": "Yükleme hatası: {{message}}",
+    "uploading": "Yükleniyor...",
+    "chooseFile": "📁 Fotoğraf seç"
+  }
+}

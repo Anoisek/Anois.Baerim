@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 
 const LOGIN_DOMAIN = '@baerim.local'
 
 export default function Login() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -17,7 +19,7 @@ export default function Login() {
     setLoading(true)
     const email = login.includes('@') ? login.trim() : login.trim() + LOGIN_DOMAIN
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) setError('Invalid login or password.')
+    if (error) setError(t('login.invalidCredentials'))
     else navigate('/')
     setLoading(false)
   }
@@ -28,7 +30,7 @@ export default function Login() {
         <div className="text-center mb-8">
           <span className="text-4xl">⚔️</span>
           <h1 className="text-2xl font-bold text-yellow-400 mt-3">Baerim Calculator</h1>
-          <p className="text-gray-500 text-sm mt-1">Admin access</p>
+          <p className="text-gray-500 text-sm mt-1">{t('login.title')}</p>
         </div>
         <form
           onSubmit={handleSubmit}
@@ -40,7 +42,7 @@ export default function Login() {
             </div>
           )}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Login</label>
+            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('login.loginLabel')}</label>
             <input
               type="text"
               value={login}
@@ -51,7 +53,7 @@ export default function Login() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Password</label>
+            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('login.passwordLabel')}</label>
             <input
               type="password"
               value={password}
@@ -65,7 +67,7 @@ export default function Login() {
             disabled={loading}
             className="mt-2 bg-yellow-400 hover:bg-yellow-300 disabled:opacity-50 text-gray-950 font-bold rounded-xl py-2.5 text-sm transition-colors"
           >
-            {loading ? 'Logging in...' : 'Log in'}
+            {loading ? t('login.loggingIn') : t('login.logIn')}
           </button>
         </form>
       </div>

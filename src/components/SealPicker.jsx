@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function SealPicker({ seals, selected, onChange }) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -21,10 +23,10 @@ export default function SealPicker({ seals, selected, onChange }) {
   }
 
   const label = selected.length === 0
-    ? 'No seal'
+    ? t('sealPicker.noSeal')
     : selected.length === 1
-      ? seals.find(s => s.id === selected[0])?.name ?? 'Seal'
-      : `${selected.length} seals`
+      ? seals.find(s => s.id === selected[0])?.name ?? t('sealPicker.seal')
+      : t('sealPicker.seals', { count: selected.length })
 
   return (
     <div className="relative" ref={ref}>
@@ -40,7 +42,7 @@ export default function SealPicker({ seals, selected, onChange }) {
       {open && (
         <div className="absolute top-full left-0 mt-1 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl min-w-40 max-h-52 overflow-y-auto">
           {seals.length === 0 && (
-            <p className="text-gray-500 text-xs px-3 py-2">No seals defined.</p>
+            <p className="text-gray-500 text-xs px-3 py-2">{t('sealPicker.noSealsDefined')}</p>
           )}
           <label className="flex items-center gap-2 px-3 py-2 hover:bg-gray-700 cursor-pointer">
             <input
@@ -49,7 +51,7 @@ export default function SealPicker({ seals, selected, onChange }) {
               onChange={() => onChange([])}
               className="accent-yellow-400"
             />
-            <span className="text-sm text-gray-300">No seal</span>
+            <span className="text-sm text-gray-300">{t('sealPicker.noSeal')}</span>
           </label>
           {seals.map(s => (
             <label key={s.id} className="flex items-center gap-2 px-3 py-2 hover:bg-gray-700 cursor-pointer">

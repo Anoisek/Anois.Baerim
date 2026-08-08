@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -17,6 +18,7 @@ function extractStoragePath(url) {
 }
 
 function EditTileImageModal({ title, settingKey, currentUrl, onClose, onSaved }) {
+  const { t } = useTranslation()
   const [saving, setSaving] = useState(false)
   const [imageUrl, setImageUrl] = useState(currentUrl ?? '')
 
@@ -44,12 +46,12 @@ function EditTileImageModal({ title, settingKey, currentUrl, onClose, onSaved })
     <Modal title={title} onClose={onClose}>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-sm text-gray-400">Image</label>
+          <label className="text-sm text-gray-400">{t('home.image')}</label>
           {imageUrl ? (
             <div className="flex items-center gap-3">
               <img src={imageUrl} alt={title} className="w-16 h-16 object-contain rounded-lg border border-gray-600" />
               <button type="button" onClick={handleRemove} className="text-sm text-red-400 hover:text-red-300">
-                Remove image
+                {t('home.removeImage')}
               </button>
             </div>
           ) : (
@@ -57,7 +59,7 @@ function EditTileImageModal({ title, settingKey, currentUrl, onClose, onSaved })
           )}
           {imageUrl && (
             <div className="mt-1">
-              <p className="text-xs text-gray-500 mb-1">Replace with new image:</p>
+              <p className="text-xs text-gray-500 mb-1">{t('home.replaceImage')}</p>
               <ImageUpload onUploaded={handleNewImage} />
             </div>
           )}
@@ -67,7 +69,7 @@ function EditTileImageModal({ title, settingKey, currentUrl, onClose, onSaved })
           disabled={saving}
           className="bg-yellow-400 hover:bg-yellow-300 disabled:opacity-50 text-gray-950 font-bold rounded-lg py-2 transition-colors"
         >
-          {saving ? 'Saving...' : 'Save changes'}
+          {saving ? t('common.saving') : t('common.save')}
         </button>
       </div>
     </Modal>
@@ -76,6 +78,7 @@ function EditTileImageModal({ title, settingKey, currentUrl, onClose, onSaved })
 
 export default function Home() {
   const { isAdmin } = useAuth()
+  const { t } = useTranslation()
   const [categories, setCategories] = useState([])
   const [materialsImage, setMaterialsImage] = useState(null)
   const [systemsImage, setSystemsImage] = useState(null)
@@ -122,9 +125,9 @@ export default function Home() {
   }, [])
 
   const tiles = [
-    { kind: 'materials', key: 'materials', sort_order: materialsOrder, maintenance: materialsMaintenance, to: '/materials', image: materialsImage, emoji: '⚗️', label: 'Materials', onEdit: () => setEditingMaterials(true) },
-    { kind: 'systems', key: 'systems', sort_order: systemsOrder, maintenance: systemsMaintenance, to: '/systems', image: systemsImage, emoji: '⚙️', label: 'Systems', onEdit: () => setEditingSystems(true) },
-    { kind: 'buildcalculator', key: 'buildcalculator', sort_order: buildCalculatorOrder, maintenance: buildCalculatorMaintenance, to: '/buildcalculator', image: buildCalculatorImage, emoji: '🛡️', label: 'Build Calculator', onEdit: () => setEditingBuildCalculator(true) },
+    { kind: 'materials', key: 'materials', sort_order: materialsOrder, maintenance: materialsMaintenance, to: '/materials', image: materialsImage, emoji: '⚗️', label: t('home.materials'), onEdit: () => setEditingMaterials(true) },
+    { kind: 'systems', key: 'systems', sort_order: systemsOrder, maintenance: systemsMaintenance, to: '/systems', image: systemsImage, emoji: '⚙️', label: t('home.systems'), onEdit: () => setEditingSystems(true) },
+    { kind: 'buildcalculator', key: 'buildcalculator', sort_order: buildCalculatorOrder, maintenance: buildCalculatorMaintenance, to: '/buildcalculator', image: buildCalculatorImage, emoji: '🛡️', label: t('home.buildCalculator'), onEdit: () => setEditingBuildCalculator(true) },
     ...categories.map(cat => ({ kind: 'category', key: cat.id, sort_order: cat.sort_order, maintenance: cat.maintenance ?? false, to: `/chapter/${cat.id}`, image: cat.image_url, emoji: '📦', label: cat.name, onEdit: () => setEditing(cat), raw: cat })),
   ].sort((a, b) => a.sort_order - b.sort_order)
 
@@ -180,13 +183,13 @@ export default function Home() {
 
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-gray-100">Chapters</h1>
+            <h1 className="text-2xl font-bold text-gray-100">{t('home.chapters')}</h1>
             {isAdmin && (
               <button
                 onClick={() => setEditMode(v => !v)}
                 className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${editMode ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200'}`}
               >
-                {editMode ? 'Done' : 'Edit panel'}
+                {editMode ? t('common.done') : t('common.editPanel')}
               </button>
             )}
           </div>
@@ -214,7 +217,7 @@ export default function Home() {
               ))}
 
               {isAdmin && (
-                <Tile dashed emoji="+" label="New chapter" onClick={() => setShowAdd(true)} />
+                <Tile dashed emoji="+" label={t('tile.newChapter')} onClick={() => setShowAdd(true)} />
               )}
             </div>
           )}
@@ -239,7 +242,7 @@ export default function Home() {
 
       {editingMaterials && (
         <EditTileImageModal
-          title="Edit Materials tile"
+          title={t('home.editMaterialsTile')}
           settingKey="materials_image_url"
           currentUrl={materialsImage}
           onClose={() => setEditingMaterials(false)}
@@ -249,7 +252,7 @@ export default function Home() {
 
       {editingSystems && (
         <EditTileImageModal
-          title="Edit Systems tile"
+          title={t('home.editSystemsTile')}
           settingKey="systems_image_url"
           currentUrl={systemsImage}
           onClose={() => setEditingSystems(false)}
@@ -259,7 +262,7 @@ export default function Home() {
 
       {editingBuildCalculator && (
         <EditTileImageModal
-          title="Edit Build Calculator tile"
+          title={t('home.editBuildCalculatorTile')}
           settingKey="buildcalculator_image_url"
           currentUrl={buildCalculatorImage}
           onClose={() => setEditingBuildCalculator(false)}

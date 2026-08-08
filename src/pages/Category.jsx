@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -12,6 +13,7 @@ import Spinner from '../components/Spinner'
 export default function Category() {
   const { categoryId } = useParams()
   const { isAdmin } = useAuth()
+  const { t } = useTranslation()
   const [category, setCategory] = useState(null)
   const [subcategories, setSubcategories] = useState([])
   const [hasUncategorized, setHasUncategorized] = useState(false)
@@ -58,13 +60,13 @@ export default function Category() {
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
-        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: category?.name ?? 'Chapter' }]} />
+        <Breadcrumbs items={[{ label: t('common.home'), to: '/' }, { label: category?.name ?? t('common.chapter') }]} />
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             {category?.image_url && (
               <img src={category.image_url} alt={category.name} className="w-8 h-8 object-contain" />
             )}
-            <h1 className="text-2xl font-bold text-gray-100">{category?.name ?? 'Chapter'}</h1>
+            <h1 className="text-2xl font-bold text-gray-100">{category?.name ?? t('common.chapter')}</h1>
           </div>
           {isAdmin && (
             <div className="flex items-center gap-2">
@@ -72,13 +74,13 @@ export default function Category() {
                 onClick={() => setEditMode(v => !v)}
                 className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${editMode ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200'}`}
               >
-                {editMode ? 'Done' : 'Edit panel'}
+                {editMode ? t('common.done') : t('common.editPanel')}
               </button>
               <button
                 onClick={() => setShowModal(true)}
                 className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors"
               >
-                + Add category
+                {t('category.addCategory')}
               </button>
             </div>
           )}
@@ -87,7 +89,7 @@ export default function Category() {
         {loading ? <Spinner /> : subcategories.length === 0 && !hasUncategorized ? (
           <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
             <span className="text-5xl">📭</span>
-            <p className="text-sm">No categories in this chapter yet.</p>
+            <p className="text-sm">{t('category.noCategoriesYet')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -114,7 +116,7 @@ export default function Category() {
               <Tile
                 to={`/chapter/${categoryId}/sub/none`}
                 emoji="🗂️"
-                label="Uncategorized"
+                label={t('category.uncategorized')}
               />
             )}
           </div>

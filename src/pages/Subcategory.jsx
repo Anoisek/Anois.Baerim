@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -14,6 +15,7 @@ import { itemImages } from '../utils/itemImages'
 export default function Subcategory() {
   const { categoryId, subcategoryId } = useParams()
   const { isAdmin } = useAuth()
+  const { t } = useTranslation()
   const isUncategorized = subcategoryId === 'none'
   const [category, setCategory] = useState(null)
   const [subcategory, setSubcategory] = useState(null)
@@ -71,16 +73,16 @@ export default function Subcategory() {
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
         <Breadcrumbs items={[
-          { label: 'Home', to: '/' },
-          { label: category?.name ?? 'Chapter', to: `/chapter/${categoryId}` },
-          { label: isUncategorized ? 'Uncategorized' : (subcategory?.name ?? 'Category') },
+          { label: t('common.home'), to: '/' },
+          { label: category?.name ?? t('common.chapter'), to: `/chapter/${categoryId}` },
+          { label: isUncategorized ? t('category.uncategorized') : (subcategory?.name ?? t('common.category')) },
         ]} />
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             {subcategory?.image_url && (
               <img src={subcategory.image_url} alt={subcategory.name} className="w-8 h-8 object-contain" />
             )}
-            <h1 className="text-2xl font-bold text-gray-100">{isUncategorized ? 'Uncategorized' : (subcategory?.name ?? 'Category')}</h1>
+            <h1 className="text-2xl font-bold text-gray-100">{isUncategorized ? t('category.uncategorized') : (subcategory?.name ?? t('common.category'))}</h1>
           </div>
           {isAdmin && (
             <div className="flex items-center gap-2">
@@ -88,13 +90,13 @@ export default function Subcategory() {
                 onClick={() => setEditMode(v => !v)}
                 className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${editMode ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200'}`}
               >
-                {editMode ? 'Done' : 'Edit panel'}
+                {editMode ? t('common.done') : t('common.editPanel')}
               </button>
               <button
                 onClick={() => setShowModal(true)}
                 className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors"
               >
-                + Add item
+                {t('subcategory.addItem')}
               </button>
             </div>
           )}
@@ -103,7 +105,7 @@ export default function Subcategory() {
         {loading ? <Spinner /> : items.length === 0 ? (
           <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
             <span className="text-5xl">📭</span>
-            <p className="text-sm">No items in this category yet.</p>
+            <p className="text-sm">{t('subcategory.noItemsYet')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -130,7 +132,7 @@ export default function Subcategory() {
                 {item.maintenance && (
                   <span className="absolute inset-0 flex items-center justify-center bg-gray-950/70 rounded-2xl pointer-events-none">
                     <span className="text-xs font-bold text-yellow-400 bg-gray-900 border border-yellow-400/40 px-2 py-1 rounded-full">
-                      🚧 In Progress
+                      🚧 {t('common.inProgress')}
                     </span>
                   </span>
                 )}
@@ -146,7 +148,7 @@ export default function Subcategory() {
                   <button
                     onClick={e => { e.preventDefault(); e.stopPropagation(); navigate(`/items/${item.id}/usage`) }}
                     className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-800/90 border border-gray-600 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/50 transition-colors text-xs z-10"
-                    title="See where this is used"
+                    title={t('common.seeUsage')}
                   >
                     🔗
                   </button>
@@ -157,7 +159,7 @@ export default function Subcategory() {
                     className={`absolute bottom-2 right-2 text-xs px-1.5 py-1 rounded-full border transition-colors z-10 ${
                       item.maintenance ? 'bg-yellow-400 text-gray-950 border-yellow-400' : 'bg-gray-800/90 border-gray-600 text-gray-300 hover:text-yellow-400'
                     }`}
-                    title={item.maintenance ? 'End maintenance' : 'Mark as in progress'}
+                    title={item.maintenance ? t('common.endMaintenance') : t('common.markInProgress')}
                   >
                     🚧
                   </button>
@@ -166,7 +168,7 @@ export default function Subcategory() {
                   <button
                     onClick={e => { e.preventDefault(); e.stopPropagation(); setEditing(item) }}
                     className="absolute top-2 right-2 text-gray-600 hover:text-yellow-400 opacity-0 group-hover:opacity-100 transition-all text-base z-10"
-                    title="Edit"
+                    title={t('common.edit')}
                   >
                     ✏️
                   </button>

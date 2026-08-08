@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -36,6 +37,7 @@ function loadItemChoices(itemId) {
 }
 
 export default function BuildCalculator() {
+  const { t } = useTranslation()
   const [allItems, setAllItems] = useState([])
   const [selectedIds, setSelectedIds] = useState(loadList)
   const [search, setSearch] = useState('')
@@ -138,12 +140,12 @@ export default function BuildCalculator() {
       <Navbar />
       <div className="max-w-2xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
-        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Build Calculator' }]} />
+        <Breadcrumbs items={[{ label: t('common.home'), to: '/' }, { label: t('buildCalculator.title') }]} />
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-          <h1 className="text-2xl font-bold text-gray-100">Build Calculator</h1>
+          <h1 className="text-2xl font-bold text-gray-100">{t('buildCalculator.title')}</h1>
           {mode === 'global' && (
             <span className="text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-full">
-              Global Prices
+              {t('materials.globalPrices')}
             </span>
           )}
         </div>
@@ -151,7 +153,7 @@ export default function BuildCalculator() {
         <div className="flex flex-col gap-2 mb-4 relative">
           <input
             type="text"
-            placeholder="Search item to add..."
+            placeholder={t('buildCalculator.searchPlaceholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
             onFocus={() => setSearchFocused(true)}
@@ -172,7 +174,7 @@ export default function BuildCalculator() {
                     ? <img src={itemImages(it)[0]} alt={it.name} className="w-7 h-7 object-contain" />
                     : <span className="w-7 text-center text-lg">⚔️</span>}
                   <span className="text-sm text-white flex-1">{it.name}</span>
-                  <span className="text-xs text-yellow-400 shrink-0">+ Add</span>
+                  <span className="text-xs text-yellow-400 shrink-0">{t('buildCalculator.addItem')}</span>
                 </button>
               ))}
             </div>
@@ -186,14 +188,14 @@ export default function BuildCalculator() {
               onClick={resetPityToOne}
               className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
             >
-              🔄 Reset pity to 1 (all items)
+              {t('buildCalculator.resetPityAll')}
             </button>
             <button
               type="button"
               onClick={setPityToMax}
               className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
             >
-              ⬆ Set pity to max (all items)
+              {t('buildCalculator.setPityMaxAll')}
             </button>
           </div>
         )}
@@ -201,7 +203,7 @@ export default function BuildCalculator() {
         {loading ? <Spinner /> : selectedItems.length === 0 ? (
           <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
             <span className="text-5xl">🛡️</span>
-            <p className="text-sm">No items in your build yet — search above to add some.</p>
+            <p className="text-sm">{t('buildCalculator.noItemsYet')}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -223,7 +225,7 @@ export default function BuildCalculator() {
                       type="button"
                       onClick={() => removeItem(item.id)}
                       className="text-gray-600 hover:text-red-400 transition-colors text-lg leading-none shrink-0"
-                      title="Remove"
+                      title={t('buildCalculator.removeTooltip')}
                     >
                       ×
                     </button>
@@ -234,7 +236,7 @@ export default function BuildCalculator() {
 
             <div className="bg-gray-900 border border-yellow-400/20 rounded-2xl px-6 py-5 mt-1">
               <div className="flex justify-between items-center">
-                <span className="text-gray-300 font-semibold">Grand total</span>
+                <span className="text-gray-300 font-semibold">{t('buildCalculator.grandTotal')}</span>
                 <span className="text-3xl font-bold text-yellow-400 font-mono">{formatYang(grandTotal)}</span>
               </div>
             </div>

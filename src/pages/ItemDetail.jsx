@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -15,11 +16,10 @@ import {
   fetchGlobalPrices, makeMaterialPriceFn,
 } from '../utils/priceBook'
 
-const STEP_LABELS = {
-  0: 'Craft',
-  1: '+0 → +1', 2: '+1 → +2', 3: '+2 → +3',
-  4: '+3 → +4', 5: '+4 → +5', 6: '+5 → +6',
-  7: '+6 → +7', 8: '+7 → +8', 9: '+8 → +9',
+const STEP_LABEL_KEYS = {
+  0: 'itemDetail.step0', 1: 'itemDetail.step1', 2: 'itemDetail.step2', 3: 'itemDetail.step3',
+  4: 'itemDetail.step4', 5: 'itemDetail.step5', 6: 'itemDetail.step6',
+  7: 'itemDetail.step7', 8: 'itemDetail.step8', 9: 'itemDetail.step9',
 }
 
 const SCROLL_ORDER = [
@@ -45,6 +45,7 @@ function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChange, kind, globa
 }
 
 export default function ItemDetail() {
+  const { t } = useTranslation()
   const { itemId } = useParams()
   const [item, setItem] = useState(null)
   const [grouped, setGrouped] = useState({})
@@ -229,12 +230,12 @@ export default function ItemDetail() {
         {loading ? <Spinner /> : (
           <>
             <Breadcrumbs items={[
-              { label: 'Home', to: '/' },
-              { label: chapterName ?? 'Chapter', to: `/chapter/${item.category_id}` },
+              { label: t('common.home'), to: '/' },
+              { label: chapterName ?? t('common.chapter'), to: `/chapter/${item.category_id}` },
               ...(item.subcategory_id
-                ? [{ label: categoryName ?? 'Category', to: `/chapter/${item.category_id}/sub/${item.subcategory_id}` }]
+                ? [{ label: categoryName ?? t('common.category'), to: `/chapter/${item.category_id}/sub/${item.subcategory_id}` }]
                 : []),
-              { label: item?.name ?? 'Item' },
+              { label: item?.name ?? t('common.item') },
             ]} />
 
             {/* Item header */}
@@ -247,7 +248,7 @@ export default function ItemDetail() {
               <h1 className="text-2xl font-bold text-yellow-400">{item?.name}</h1>
               {mode === 'global' && (
                 <span className="ml-auto text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-full shrink-0">
-                  Global Prices
+                  {t('materials.globalPrices')}
                 </span>
               )}
             </div>
@@ -260,7 +261,7 @@ export default function ItemDetail() {
                     onClick={clearAllScrolls}
                     className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
                   >
-                    🚫 No scrolls on all steps
+                    {t('itemDetail.noScrollsAllSteps')}
                   </button>
                 )}
                 <button
@@ -268,14 +269,14 @@ export default function ItemDetail() {
                   onClick={resetAllPity}
                   className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
                 >
-                  🔄 Reset pity to 1 on all steps
+                  {t('itemDetail.resetPityAllSteps')}
                 </button>
                 <button
                   type="button"
                   onClick={setAllPityToMax}
                   className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
                 >
-                  ⬆ Max pity on all steps
+                  {t('itemDetail.maxPityAllSteps')}
                 </button>
               </div>
             )}
@@ -283,7 +284,7 @@ export default function ItemDetail() {
             {allSteps.length === 0 ? (
               <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
                 <span className="text-5xl">📭</span>
-                <p className="text-sm">No materials defined for this item.</p>
+                <p className="text-sm">{t('itemDetail.noMaterialsDefined')}</p>
               </div>
             ) : (
               <div className="flex flex-col gap-3">
@@ -298,7 +299,7 @@ export default function ItemDetail() {
                       {/* Step header bar */}
                       <div className="flex items-center justify-between px-5 py-3 bg-gray-800/60 border-b border-gray-700 flex-wrap gap-2">
                         <h2 className="text-xs font-bold text-yellow-400 uppercase tracking-widest">
-                          {STEP_LABELS[step]}
+                          {t(STEP_LABEL_KEYS[step])}
                         </h2>
                         <div className="flex items-center gap-2 flex-wrap">
                           {step !== 0 && scrolls.length > 0 && (
@@ -307,7 +308,7 @@ export default function ItemDetail() {
                               onChange={e => setSelectedScroll(prev => ({ ...prev, [step]: e.target.value }))}
                               className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-yellow-400"
                             >
-                              <option value="">No scroll</option>
+                              <option value="">{t('itemDetail.noScroll')}</option>
                               {scrolls.map(s => {
                                 const isMagic = s.name.toLowerCase().includes('magic stone')
                                 return <option key={s.id} value={s.id}>{isMagic ? `⭐ ${s.name}` : s.name}</option>
@@ -322,7 +323,7 @@ export default function ItemDetail() {
                             />
                           )}
                           <label className="flex items-center gap-1.5 text-xs text-gray-400">
-                            Pity{maxPityByStep[step] ? ` (max ${maxPityByStep[step]})` : ''}:
+                            {maxPityByStep[step] ? t('itemDetail.pityMax', { max: maxPityByStep[step] }) : t('itemDetail.pity')}:
                             <input
                               type="number"
                               min="1"
@@ -349,7 +350,7 @@ export default function ItemDetail() {
                             <div className="w-8 h-8 shrink-0 flex items-center justify-center">
                               <span className="text-lg">💰</span>
                             </div>
-                            <span className="flex-1 text-sm text-gray-400">Yang fee</span>
+                            <span className="flex-1 text-sm text-gray-400">{t('itemDetail.yangFee')}</span>
                             <span className="text-yellow-400 text-sm font-mono">{formatYang(yangCosts[step])}</span>
                           </div>
                         )}
@@ -369,7 +370,7 @@ export default function ItemDetail() {
                       {/* Subtotal */}
                       <div className="flex justify-between items-center px-5 py-3 bg-gray-800/40 border-t border-gray-700">
                         <span className="text-xs text-gray-500 uppercase tracking-wider">
-                          Subtotal{getPity(step) > 1 ? ` ×${getPity(step)}` : ''}
+                          {t('itemDetail.subtotal')}{getPity(step) > 1 ? ` ×${getPity(step)}` : ''}
                         </span>
                         <span className="text-sm font-bold text-yellow-400 font-mono">{formatYang(stepTotal(step))}</span>
                       </div>
@@ -387,11 +388,11 @@ export default function ItemDetail() {
                         onChange={e => setIncludeCraft(e.target.checked)}
                         className="accent-yellow-400 w-4 h-4"
                       />
-                      Include craft cost
+                      {t('itemDetail.includeCraftCost')}
                     </label>
                   )}
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-300 font-semibold">Total cost</span>
+                    <span className="text-gray-300 font-semibold">{t('itemDetail.totalCost')}</span>
                     <span className="text-3xl font-bold text-yellow-400 font-mono">{formatYang(total)}</span>
                   </div>
                 </div>

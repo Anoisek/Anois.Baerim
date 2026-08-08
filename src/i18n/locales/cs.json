@@ -1,0 +1,219 @@
+{
+  "common": {
+    "editPanel": "Panel úprav",
+    "done": "Hotovo",
+    "edit": "Upravit",
+    "save": "Uložit změny",
+    "saving": "Ukládání...",
+    "remove": "Odebrat",
+    "delete": "Smazat",
+    "cancel": "Zrušit",
+    "add": "Přidat",
+    "used": "Použito",
+    "inProgress": "Probíhá",
+    "endMaintenance": "Ukončit údržbu",
+    "markInProgress": "Označit jako probíhající",
+    "seeUsage": "Zobrazit, kde se to používá",
+    "home": "Domů",
+    "chapter": "Kapitola",
+    "category": "Kategorie",
+    "material": "Materiál",
+    "item": "Předmět"
+  },
+  "navbar": {
+    "tagline": "Neoficiální fanouškovský nástroj, nesouvisí s týmem Baerim",
+    "admin": "ADMIN",
+    "logOut": "Odhlásit se",
+    "adminLogin": "Přihlášení administrátora"
+  },
+  "globalSearch": {
+    "searchTooltip": "Hledat",
+    "placeholder": "Hledat kapitoly, kategorie, materiály, předměty...",
+    "typeAtLeast2": "Zadejte alespoň 2 znaky...",
+    "searching": "Hledání...",
+    "noResults": "Žádné výsledky.",
+    "chapters": "Kapitoly",
+    "categories": "Kategorie",
+    "materials": "Materiály",
+    "items": "Předměty"
+  },
+  "tile": {
+    "newChapter": "Nová kapitola"
+  },
+  "sealPicker": {
+    "noSeal": "Bez pečeti",
+    "seal": "Pečeť",
+    "seals": "{{count}} pečetí",
+    "noSealsDefined": "Nejsou definovány žádné pečeti."
+  },
+  "materialPriceCell": {
+    "computedTooltip": "Vypočteno z receptu",
+    "pricePlaceholder": "např. 50kk"
+  },
+  "login": {
+    "title": "Přístup administrátora",
+    "loginLabel": "Přihlašovací jméno",
+    "passwordLabel": "Heslo",
+    "loggingIn": "Přihlašování...",
+    "logIn": "Přihlásit se",
+    "invalidCredentials": "Neplatné přihlašovací jméno nebo heslo."
+  },
+  "home": {
+    "chapters": "Kapitoly",
+    "materials": "Materiály",
+    "systems": "Systémy",
+    "buildCalculator": "Kalkulačka buildů",
+    "editMaterialsTile": "Upravit dlaždici Materiály",
+    "editSystemsTile": "Upravit dlaždici Systémy",
+    "editBuildCalculatorTile": "Upravit dlaždici Kalkulačka buildů",
+    "image": "Obrázek",
+    "removeImage": "Odebrat obrázek",
+    "replaceImage": "Nahradit novým obrázkem:"
+  },
+  "systems": {
+    "title": "Systémy",
+    "interactiveMap": "Interaktivní mapa Mococko"
+  },
+  "materials": {
+    "title": "Materiály",
+    "myOwnPrices": "Moje vlastní ceny",
+    "globalPrices": "Globální ceny",
+    "submitToGlobal": "📤 Odeslat do globálních cen",
+    "submitToGlobalTooltip": "Odeslat tvé lokálně zadané ceny do sdílených globálních cen",
+    "submitting": "Odesílání...",
+    "exportPrices": "⬇ Exportovat ceny",
+    "exportTooltip": "Stáhnout tvé zadané ceny jako soubor",
+    "importPrices": "⬆ Importovat ceny",
+    "importTooltip": "Obnovit ceny z dříve exportovaného souboru",
+    "addMaterial": "+ Přidat materiál",
+    "searchPlaceholder": "Hledat materiál...",
+    "filterAll": "Vše",
+    "filterNoTag": "Bez štítku",
+    "filterScroll": "Svitek",
+    "filterSeal": "Pečeť",
+    "filterItem": "Předmět",
+    "filterCraftable": "Craftovatelné",
+    "tagScroll": "Svitek",
+    "tagSeal": "Pečeť",
+    "tagItem": "Předmět",
+    "tagCraftable": "Craftovatelné",
+    "noMaterialsYet": "Zatím žádné materiály.",
+    "noMatch": "Žádný materiál neodpovídá tvému hledání.",
+    "importError": "Tento soubor se nepodařilo přečíst — ujisti se, že jde o soubor s cenami exportovaný z tohoto webu.",
+    "submitResult": "Odesláno: {{accepted}} přijato{{rejectedText}}{{skippedText}}.",
+    "submitRejected": ", {{count}} odmítnuto (příliš daleko od aktuální globální ceny)",
+    "submitSkipped": ", {{count}} přeskočeno (již odesláno z tohoto prohlížeče za posledních 6h)"
+  },
+  "materialDetail": {
+    "usedInTooltip": "Zobrazit, kde se tento materiál používá",
+    "usedIn": "Použito v...",
+    "craft": "Vyrobit",
+    "pity": "Pity:",
+    "yangFee": "Poplatek v yang",
+    "subtotal": "Mezisoučet",
+    "totalCost": "Celková cena",
+    "noRecipe": "Pro tento materiál není definován žádný recept."
+  },
+  "materialUsage": {
+    "usedIn": "Použito v",
+    "notUsedAnywhere": "Zatím nikde nepoužito.",
+    "items": "Předměty",
+    "materials": "Materiály",
+    "usage": "Použití"
+  },
+  "category": {
+    "addCategory": "+ Přidat kategorii",
+    "noCategoriesYet": "V této kapitole zatím nejsou žádné kategorie.",
+    "uncategorized": "Nezařazeno"
+  },
+  "subcategory": {
+    "addItem": "+ Přidat předmět",
+    "noItemsYet": "V této kategorii zatím nejsou žádné předměty.",
+    "editTooltip": "Upravit"
+  },
+  "itemDetail": {
+    "step0": "Vyrobit",
+    "step1": "+0 → +1",
+    "step2": "+1 → +2",
+    "step3": "+2 → +3",
+    "step4": "+3 → +4",
+    "step5": "+4 → +5",
+    "step6": "+5 → +6",
+    "step7": "+6 → +7",
+    "step8": "+7 → +8",
+    "step9": "+8 → +9",
+    "noScrollsAllSteps": "🚫 Bez svitků na všech úrovních",
+    "resetPityAllSteps": "🔄 Resetovat pity na 1 na všech úrovních",
+    "maxPityAllSteps": "⬆ Max. pity na všech úrovních",
+    "noMaterialsDefined": "Pro tento předmět nejsou definovány žádné materiály.",
+    "noScroll": "Bez svitku",
+    "pity": "Pity",
+    "pityMax": "Pity (max {{max}})",
+    "yangFee": "Poplatek v yang",
+    "subtotal": "Mezisoučet",
+    "includeCraftCost": "Zahrnout náklady na výrobu",
+    "totalCost": "Celková cena"
+  },
+  "itemUsage": {
+    "usedIn": "Použito v",
+    "notUsedAnywhere": "Zatím nikde nepoužito jako ingredience.",
+    "items": "Předměty",
+    "usage": "Použití"
+  },
+  "buildCalculator": {
+    "title": "Kalkulačka buildů",
+    "searchPlaceholder": "Hledat předmět k přidání...",
+    "addItem": "+ Přidat",
+    "resetPityAll": "🔄 Resetovat pity na 1 (všechny předměty)",
+    "setPityMaxAll": "⬆ Nastavit max. pity (všechny předměty)",
+    "noItemsYet": "V tvém buildu zatím nejsou žádné předměty — vyhledej výše a nějaké přidej.",
+    "removeTooltip": "Odebrat",
+    "grandTotal": "Celkový součet"
+  },
+  "maps": {
+    "title": "Interaktivní mapa Mococko",
+    "hallOfFame": "🏆 Hall of Fame",
+    "noMapsYet": "Zatím žádné mapy.",
+    "hideCollected": "🙈 Skrýt sebrané",
+    "showCollected": "👁 Zobrazit sebrané",
+    "collected": "sebráno",
+    "editPanel": "Panel úprav",
+    "done": "Hotovo",
+    "clickToAddMarker": "Klikni kamkoli na mapu pro přidání značky.",
+    "editMapTooltip": "Upravit mapu",
+    "addMap": "+ Přidat mapu"
+  },
+  "hallOfFame": {
+    "title": "🏆 Hall of Fame",
+    "noHelpersYet": "Zatím nebyli přidáni žádní pomocníci.",
+    "namePlaceholder": "Jméno...",
+    "removeTooltip": "Odebrat"
+  },
+  "nicknamePrompt": {
+    "title": "Zadej svou přezdívku z Metin2",
+    "subtitle": "Potřebujeme ji, abychom tě mohli připsat do Hall of Fame za mokoko, které přidáš.",
+    "placeholder": "Tvá přezdívka...",
+    "confirm": "Potvrdit"
+  },
+  "markerPanel": {
+    "commentPlaceholder": "Přidat komentář...",
+    "removePhoto": "Odebrat fotku",
+    "post": "Odeslat",
+    "posting": "Odesílání...",
+    "noCommentsYet": "Zatím žádné komentáře. Buď první!",
+    "deleteTooltip": "Smazat",
+    "cooldownMessage": "Byl jsi zablokován za použití zakázaného slova. Komentovat budeš moci znovu za {{time}}.",
+    "bannedWordAlert": "Tvůj komentář obsahoval zakázané slovo. Možnost komentovat byla zablokována na 24h."
+  },
+  "addMarkerModal": {
+    "title": "Nová značka",
+    "photoOptional": "Fotka (volitelné)",
+    "addMarker": "Přidat značku",
+    "saving": "Ukládání..."
+  },
+  "imageUpload": {
+    "uploadError": "Chyba nahrávání: {{message}}",
+    "uploading": "Nahrávání...",
+    "chooseFile": "📁 Vybrat fotku"
+  }
+}

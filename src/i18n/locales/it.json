@@ -1,0 +1,219 @@
+{
+  "common": {
+    "editPanel": "Pannello di modifica",
+    "done": "Fatto",
+    "edit": "Modifica",
+    "save": "Salva modifiche",
+    "saving": "Salvataggio...",
+    "remove": "Rimuovi",
+    "delete": "Elimina",
+    "cancel": "Annulla",
+    "add": "Aggiungi",
+    "used": "Usato",
+    "inProgress": "In corso",
+    "endMaintenance": "Termina manutenzione",
+    "markInProgress": "Segna come in corso",
+    "seeUsage": "Vedi dove viene usato",
+    "home": "Home",
+    "chapter": "Capitolo",
+    "category": "Categoria",
+    "material": "Materiale",
+    "item": "Oggetto"
+  },
+  "navbar": {
+    "tagline": "Strumento amatoriale non ufficiale, non affiliato al team di Baerim",
+    "admin": "ADMIN",
+    "logOut": "Esci",
+    "adminLogin": "Accesso amministratore"
+  },
+  "globalSearch": {
+    "searchTooltip": "Cerca",
+    "placeholder": "Cerca capitoli, categorie, materiali, oggetti...",
+    "typeAtLeast2": "Digita almeno 2 caratteri...",
+    "searching": "Ricerca in corso...",
+    "noResults": "Nessun risultato.",
+    "chapters": "Capitoli",
+    "categories": "Categorie",
+    "materials": "Materiali",
+    "items": "Oggetti"
+  },
+  "tile": {
+    "newChapter": "Nuovo capitolo"
+  },
+  "sealPicker": {
+    "noSeal": "Nessun sigillo",
+    "seal": "Sigillo",
+    "seals": "{{count}} sigilli",
+    "noSealsDefined": "Nessun sigillo definito."
+  },
+  "materialPriceCell": {
+    "computedTooltip": "Calcolato dalla ricetta",
+    "pricePlaceholder": "es. 50kk"
+  },
+  "login": {
+    "title": "Accesso amministratore",
+    "loginLabel": "Utente",
+    "passwordLabel": "Password",
+    "loggingIn": "Accesso in corso...",
+    "logIn": "Accedi",
+    "invalidCredentials": "Utente o password non validi."
+  },
+  "home": {
+    "chapters": "Capitoli",
+    "materials": "Materiali",
+    "systems": "Sistemi",
+    "buildCalculator": "Calcolatore build",
+    "editMaterialsTile": "Modifica riquadro Materiali",
+    "editSystemsTile": "Modifica riquadro Sistemi",
+    "editBuildCalculatorTile": "Modifica riquadro Calcolatore build",
+    "image": "Immagine",
+    "removeImage": "Rimuovi immagine",
+    "replaceImage": "Sostituisci con nuova immagine:"
+  },
+  "systems": {
+    "title": "Sistemi",
+    "interactiveMap": "Mappa interattiva di Mococko"
+  },
+  "materials": {
+    "title": "Materiali",
+    "myOwnPrices": "I miei prezzi",
+    "globalPrices": "Prezzi globali",
+    "submitToGlobal": "📤 Invia ai prezzi globali",
+    "submitToGlobalTooltip": "Invia i tuoi prezzi inseriti localmente ai prezzi globali condivisi",
+    "submitting": "Invio in corso...",
+    "exportPrices": "⬇ Esporta prezzi",
+    "exportTooltip": "Scarica i tuoi prezzi inseriti come file",
+    "importPrices": "⬆ Importa prezzi",
+    "importTooltip": "Ripristina i prezzi da un file esportato in precedenza",
+    "addMaterial": "+ Aggiungi materiale",
+    "searchPlaceholder": "Cerca materiale...",
+    "filterAll": "Tutti",
+    "filterNoTag": "Senza tag",
+    "filterScroll": "Pergamena",
+    "filterSeal": "Sigillo",
+    "filterItem": "Oggetto",
+    "filterCraftable": "Fabbricabile",
+    "tagScroll": "Pergamena",
+    "tagSeal": "Sigillo",
+    "tagItem": "Oggetto",
+    "tagCraftable": "Fabbricabile",
+    "noMaterialsYet": "Ancora nessun materiale.",
+    "noMatch": "Nessun materiale corrisponde alla tua ricerca.",
+    "importError": "Impossibile leggere questo file — assicurati che sia un file di prezzi esportato da questo sito.",
+    "submitResult": "Inviati: {{accepted}} accettati{{rejectedText}}{{skippedText}}.",
+    "submitRejected": ", {{count}} rifiutati (troppo lontani dal prezzo globale attuale)",
+    "submitSkipped": ", {{count}} saltati (già inviati da questo browser nelle ultime 6h)"
+  },
+  "materialDetail": {
+    "usedInTooltip": "Vedi dove viene usato questo materiale",
+    "usedIn": "Usato in...",
+    "craft": "Fabbrica",
+    "pity": "Pity:",
+    "yangFee": "Costo in yang",
+    "subtotal": "Subtotale",
+    "totalCost": "Costo totale",
+    "noRecipe": "Nessuna ricetta definita per questo materiale."
+  },
+  "materialUsage": {
+    "usedIn": "Usato in",
+    "notUsedAnywhere": "Ancora non usato da nessuna parte.",
+    "items": "Oggetti",
+    "materials": "Materiali",
+    "usage": "Utilizzo"
+  },
+  "category": {
+    "addCategory": "+ Aggiungi categoria",
+    "noCategoriesYet": "Ancora nessuna categoria in questo capitolo.",
+    "uncategorized": "Senza categoria"
+  },
+  "subcategory": {
+    "addItem": "+ Aggiungi oggetto",
+    "noItemsYet": "Ancora nessun oggetto in questa categoria.",
+    "editTooltip": "Modifica"
+  },
+  "itemDetail": {
+    "step0": "Fabbrica",
+    "step1": "+0 → +1",
+    "step2": "+1 → +2",
+    "step3": "+2 → +3",
+    "step4": "+3 → +4",
+    "step5": "+4 → +5",
+    "step6": "+5 → +6",
+    "step7": "+6 → +7",
+    "step8": "+7 → +8",
+    "step9": "+8 → +9",
+    "noScrollsAllSteps": "🚫 Nessuna pergamena su tutti i livelli",
+    "resetPityAllSteps": "🔄 Reimposta pity a 1 su tutti i livelli",
+    "maxPityAllSteps": "⬆ Pity massimo su tutti i livelli",
+    "noMaterialsDefined": "Nessun materiale definito per questo oggetto.",
+    "noScroll": "Nessuna pergamena",
+    "pity": "Pity",
+    "pityMax": "Pity (max {{max}})",
+    "yangFee": "Costo in yang",
+    "subtotal": "Subtotale",
+    "includeCraftCost": "Includi costo di fabbricazione",
+    "totalCost": "Costo totale"
+  },
+  "itemUsage": {
+    "usedIn": "Usato in",
+    "notUsedAnywhere": "Ancora non usato come ingrediente da nessuna parte.",
+    "items": "Oggetti",
+    "usage": "Utilizzo"
+  },
+  "buildCalculator": {
+    "title": "Calcolatore build",
+    "searchPlaceholder": "Cerca oggetto da aggiungere...",
+    "addItem": "+ Aggiungi",
+    "resetPityAll": "🔄 Reimposta pity a 1 (tutti gli oggetti)",
+    "setPityMaxAll": "⬆ Imposta pity massimo (tutti gli oggetti)",
+    "noItemsYet": "Ancora nessun oggetto nel tuo build — cerca sopra per aggiungerne.",
+    "removeTooltip": "Rimuovi",
+    "grandTotal": "Totale complessivo"
+  },
+  "maps": {
+    "title": "Mappa interattiva di Mococko",
+    "hallOfFame": "🏆 Hall of Fame",
+    "noMapsYet": "Ancora nessuna mappa.",
+    "hideCollected": "🙈 Nascondi raccolti",
+    "showCollected": "👁 Mostra raccolti",
+    "collected": "raccolti",
+    "editPanel": "Pannello di modifica",
+    "done": "Fatto",
+    "clickToAddMarker": "Clicca in un punto qualsiasi della mappa per aggiungere un marcatore.",
+    "editMapTooltip": "Modifica mappa",
+    "addMap": "+ Aggiungi mappa"
+  },
+  "hallOfFame": {
+    "title": "🏆 Hall of Fame",
+    "noHelpersYet": "Ancora nessun aiutante aggiunto.",
+    "namePlaceholder": "Nome...",
+    "removeTooltip": "Rimuovi"
+  },
+  "nicknamePrompt": {
+    "title": "Inserisci il tuo nickname di Metin2",
+    "subtitle": "Ci serve per riconoscerti nella Hall of Fame per i mokoko che aggiungi.",
+    "placeholder": "Il tuo nickname...",
+    "confirm": "Conferma"
+  },
+  "markerPanel": {
+    "commentPlaceholder": "Aggiungi un commento...",
+    "removePhoto": "Rimuovi foto",
+    "post": "Pubblica",
+    "posting": "Pubblicazione in corso...",
+    "noCommentsYet": "Ancora nessun commento. Sii il primo!",
+    "deleteTooltip": "Elimina",
+    "cooldownMessage": "Sei stato bloccato per aver usato una parola vietata. Potrai commentare di nuovo tra {{time}}.",
+    "bannedWordAlert": "Il tuo commento conteneva una parola vietata. La possibilità di commentare è stata bloccata per 24h."
+  },
+  "addMarkerModal": {
+    "title": "Nuovo marcatore",
+    "photoOptional": "Foto (opzionale)",
+    "addMarker": "Aggiungi marcatore",
+    "saving": "Salvataggio..."
+  },
+  "imageUpload": {
+    "uploadError": "Errore di caricamento: {{message}}",
+    "uploading": "Caricamento...",
+    "chooseFile": "📁 Scegli foto"
+  }
+}

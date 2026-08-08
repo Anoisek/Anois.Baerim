@@ -1,0 +1,219 @@
+{
+  "common": {
+    "editPanel": "Panou de editare",
+    "done": "Gata",
+    "edit": "Editează",
+    "save": "Salvează modificările",
+    "saving": "Se salvează...",
+    "remove": "Elimină",
+    "delete": "Șterge",
+    "cancel": "Anulează",
+    "add": "Adaugă",
+    "used": "Folosit",
+    "inProgress": "În lucru",
+    "endMaintenance": "Încheie mentenanța",
+    "markInProgress": "Marchează ca în lucru",
+    "seeUsage": "Vezi unde este folosit",
+    "home": "Acasă",
+    "chapter": "Capitol",
+    "category": "Categorie",
+    "material": "Material",
+    "item": "Obiect"
+  },
+  "navbar": {
+    "tagline": "Instrument neoficial creat de fani, neafiliat cu echipa Baerim",
+    "admin": "ADMIN",
+    "logOut": "Deconectare",
+    "adminLogin": "Autentificare administrator"
+  },
+  "globalSearch": {
+    "searchTooltip": "Caută",
+    "placeholder": "Caută capitole, categorii, materiale, obiecte...",
+    "typeAtLeast2": "Introdu cel puțin 2 caractere...",
+    "searching": "Se caută...",
+    "noResults": "Niciun rezultat.",
+    "chapters": "Capitole",
+    "categories": "Categorii",
+    "materials": "Materiale",
+    "items": "Obiecte"
+  },
+  "tile": {
+    "newChapter": "Capitol nou"
+  },
+  "sealPicker": {
+    "noSeal": "Fără sigiliu",
+    "seal": "Sigiliu",
+    "seals": "{{count}} sigilii",
+    "noSealsDefined": "Nu sunt definite sigilii."
+  },
+  "materialPriceCell": {
+    "computedTooltip": "Calculat din rețetă",
+    "pricePlaceholder": "ex. 50kk"
+  },
+  "login": {
+    "title": "Acces administrator",
+    "loginLabel": "Utilizator",
+    "passwordLabel": "Parolă",
+    "loggingIn": "Se conectează...",
+    "logIn": "Conectare",
+    "invalidCredentials": "Utilizator sau parolă invalidă."
+  },
+  "home": {
+    "chapters": "Capitole",
+    "materials": "Materiale",
+    "systems": "Sisteme",
+    "buildCalculator": "Calculator de build-uri",
+    "editMaterialsTile": "Editează secțiunea Materiale",
+    "editSystemsTile": "Editează secțiunea Sisteme",
+    "editBuildCalculatorTile": "Editează secțiunea Calculator de build-uri",
+    "image": "Imagine",
+    "removeImage": "Elimină imaginea",
+    "replaceImage": "Înlocuiește cu o imagine nouă:"
+  },
+  "systems": {
+    "title": "Sisteme",
+    "interactiveMap": "Harta interactivă Mococko"
+  },
+  "materials": {
+    "title": "Materiale",
+    "myOwnPrices": "Prețurile mele",
+    "globalPrices": "Prețuri globale",
+    "submitToGlobal": "📤 Trimite la prețurile globale",
+    "submitToGlobalTooltip": "Trimite prețurile introduse local la prețurile globale partajate",
+    "submitting": "Se trimite...",
+    "exportPrices": "⬇ Exportă prețurile",
+    "exportTooltip": "Descarcă prețurile introduse ca fișier",
+    "importPrices": "⬆ Importă prețurile",
+    "importTooltip": "Restaurează prețurile dintr-un fișier exportat anterior",
+    "addMaterial": "+ Adaugă material",
+    "searchPlaceholder": "Caută material...",
+    "filterAll": "Toate",
+    "filterNoTag": "Fără etichetă",
+    "filterScroll": "Sul",
+    "filterSeal": "Sigiliu",
+    "filterItem": "Obiect",
+    "filterCraftable": "Fabricabil",
+    "tagScroll": "Sul",
+    "tagSeal": "Sigiliu",
+    "tagItem": "Obiect",
+    "tagCraftable": "Fabricabil",
+    "noMaterialsYet": "Încă nu există materiale.",
+    "noMatch": "Niciun material nu corespunde căutării tale.",
+    "importError": "Acest fișier nu a putut fi citit — asigură-te că este un fișier de prețuri exportat de pe acest site.",
+    "submitResult": "Trimise: {{accepted}} acceptate{{rejectedText}}{{skippedText}}.",
+    "submitRejected": ", {{count}} respinse (prea departe de prețul global actual)",
+    "submitSkipped": ", {{count}} omise (deja trimise din acest browser în ultimele 6 ore)"
+  },
+  "materialDetail": {
+    "usedInTooltip": "Vezi unde este folosit acest material",
+    "usedIn": "Folosit în...",
+    "craft": "Confecționează",
+    "pity": "Pity:",
+    "yangFee": "Taxă în yang",
+    "subtotal": "Subtotal",
+    "totalCost": "Cost total",
+    "noRecipe": "Nu este definită nicio rețetă pentru acest material."
+  },
+  "materialUsage": {
+    "usedIn": "Folosit în",
+    "notUsedAnywhere": "Încă nu este folosit nicăieri.",
+    "items": "Obiecte",
+    "materials": "Materiale",
+    "usage": "Utilizare"
+  },
+  "category": {
+    "addCategory": "+ Adaugă categorie",
+    "noCategoriesYet": "Încă nu există categorii în acest capitol.",
+    "uncategorized": "Necategorizat"
+  },
+  "subcategory": {
+    "addItem": "+ Adaugă obiect",
+    "noItemsYet": "Încă nu există obiecte în această categorie.",
+    "editTooltip": "Editează"
+  },
+  "itemDetail": {
+    "step0": "Confecționează",
+    "step1": "+0 → +1",
+    "step2": "+1 → +2",
+    "step3": "+2 → +3",
+    "step4": "+3 → +4",
+    "step5": "+4 → +5",
+    "step6": "+5 → +6",
+    "step7": "+6 → +7",
+    "step8": "+7 → +8",
+    "step9": "+8 → +9",
+    "noScrollsAllSteps": "🚫 Fără suluri pe toate etapele",
+    "resetPityAllSteps": "🔄 Resetează pity la 1 pe toate etapele",
+    "maxPityAllSteps": "⬆ Pity maxim pe toate etapele",
+    "noMaterialsDefined": "Nu sunt definite materiale pentru acest obiect.",
+    "noScroll": "Fără sul",
+    "pity": "Pity",
+    "pityMax": "Pity (max {{max}})",
+    "yangFee": "Taxă în yang",
+    "subtotal": "Subtotal",
+    "includeCraftCost": "Include costul de confecționare",
+    "totalCost": "Cost total"
+  },
+  "itemUsage": {
+    "usedIn": "Folosit în",
+    "notUsedAnywhere": "Încă nu este folosit ca ingredient nicăieri.",
+    "items": "Obiecte",
+    "usage": "Utilizare"
+  },
+  "buildCalculator": {
+    "title": "Calculator de build-uri",
+    "searchPlaceholder": "Caută un obiect de adăugat...",
+    "addItem": "+ Adaugă",
+    "resetPityAll": "🔄 Resetează pity la 1 (toate obiectele)",
+    "setPityMaxAll": "⬆ Setează pity maxim (toate obiectele)",
+    "noItemsYet": "Încă nu ai obiecte în build — caută mai sus pentru a adăuga unele.",
+    "removeTooltip": "Elimină",
+    "grandTotal": "Total general"
+  },
+  "maps": {
+    "title": "Harta interactivă Mococko",
+    "hallOfFame": "🏆 Hall of Fame",
+    "noMapsYet": "Încă nu există hărți.",
+    "hideCollected": "🙈 Ascunde colectate",
+    "showCollected": "👁 Arată colectate",
+    "collected": "colectate",
+    "editPanel": "Panou de editare",
+    "done": "Gata",
+    "clickToAddMarker": "Dă clic oriunde pe hartă pentru a adăuga un marcaj.",
+    "editMapTooltip": "Editează harta",
+    "addMap": "+ Adaugă hartă"
+  },
+  "hallOfFame": {
+    "title": "🏆 Hall of Fame",
+    "noHelpersYet": "Încă nu au fost adăugați ajutoare.",
+    "namePlaceholder": "Nume...",
+    "removeTooltip": "Elimină"
+  },
+  "nicknamePrompt": {
+    "title": "Introdu-ți numele din Metin2",
+    "subtitle": "Avem nevoie de el pentru a te menționa în Hall of Fame pentru mokoko pe care le adaugi.",
+    "placeholder": "Numele tău...",
+    "confirm": "Confirmă"
+  },
+  "markerPanel": {
+    "commentPlaceholder": "Adaugă un comentariu...",
+    "removePhoto": "Elimină fotografia",
+    "post": "Postează",
+    "posting": "Se postează...",
+    "noCommentsYet": "Încă nu există comentarii. Fii primul!",
+    "deleteTooltip": "Șterge",
+    "cooldownMessage": "Ai fost blocat pentru folosirea unui cuvânt interzis. Poți comenta din nou peste {{time}}.",
+    "bannedWordAlert": "Comentariul tău conținea un cuvânt interzis. Posibilitatea de a comenta a fost blocată pentru 24h."
+  },
+  "addMarkerModal": {
+    "title": "Marcaj nou",
+    "photoOptional": "Fotografie (opțional)",
+    "addMarker": "Adaugă marcaj",
+    "saving": "Se salvează..."
+  },
+  "imageUpload": {
+    "uploadError": "Eroare la încărcare: {{message}}",
+    "uploading": "Se încarcă...",
+    "chooseFile": "📁 Alege fotografia"
+  }
+}

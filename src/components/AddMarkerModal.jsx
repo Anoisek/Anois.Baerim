@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import Modal from './Modal'
@@ -17,6 +18,7 @@ async function ensureInHallOfFame(nickname) {
 
 export default function AddMarkerModal({ mapId, x, y, nextNumber, onClose, onAdded }) {
   const { nickname } = useAuth()
+  const { t } = useTranslation()
   const [imageUrl, setImageUrl] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -44,14 +46,14 @@ export default function AddMarkerModal({ mapId, x, y, nextNumber, onClose, onAdd
   }
 
   return (
-    <Modal title="New marker" onClose={onClose}>
+    <Modal title={t('addMarkerModal.title')} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col items-center gap-2">
           <img src={MARKER_ICON} alt="" className="w-12 h-12 object-contain" />
           <p className="text-sm font-semibold text-gray-200">Mokoko #{nextNumber}</p>
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-400">Photo (optional)</label>
+          <label className="text-sm text-gray-400">{t('addMarkerModal.photoOptional')}</label>
           <ImageUpload bucket="map-notes" onUploaded={setImageUrl} />
         </div>
         <button
@@ -59,7 +61,7 @@ export default function AddMarkerModal({ mapId, x, y, nextNumber, onClose, onAdd
           disabled={saving}
           className="bg-yellow-400 hover:bg-yellow-300 disabled:opacity-50 text-gray-950 font-bold rounded-lg py-2 transition-colors"
         >
-          {saving ? 'Saving...' : 'Add marker'}
+          {saving ? t('addMarkerModal.saving') : t('addMarkerModal.addMarker')}
         </button>
       </form>
     </Modal>
