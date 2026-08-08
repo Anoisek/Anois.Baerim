@@ -168,13 +168,13 @@ export default function Maps() {
                             : 'bg-gray-800/60 border-gray-700 hover:bg-gray-800 text-gray-200'
                         }`}
                       >
-                        <div className={`flex items-center justify-between gap-2 ${isAdmin ? 'pr-5' : ''} ${isAdmin && editMode ? 'pl-6' : ''}`}>
+                        <div className={`flex items-center justify-between gap-2 ${isAdmin ? 'pr-5 pl-6' : ''}`}>
                           <span className="font-semibold truncate">{m.name}</span>
                           <span className={`text-[10px] font-mono shrink-0 ${active ? 'text-gray-700' : 'text-gray-500'}`}>{done}/{total}</span>
                         </div>
-                        <div className={`text-xs ${active ? 'text-gray-800' : 'text-gray-500'} ${isAdmin && editMode ? 'pl-6' : ''}`}>{m.region}</div>
+                        <div className={`text-xs ${active ? 'text-gray-800' : 'text-gray-500'} ${isAdmin ? 'pl-6' : ''}`}>{m.region}</div>
                       </button>
-                      {isAdmin && editMode && (
+                      {isAdmin && (
                         <ReorderButtons
                           onUp={() => moveMap(index, -1)}
                           onDown={() => moveMap(index, 1)}
