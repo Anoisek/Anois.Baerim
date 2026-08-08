@@ -70,11 +70,10 @@ export default function Maps() {
     })
   }, [selectedMap?.id])
 
-  function toggleCollected(markerId) {
+  function markCollected(markerId) {
     setCollected(prev => {
-      const next = { ...prev }
-      if (next[markerId]) delete next[markerId]
-      else next[markerId] = true
+      if (prev[markerId]) return prev
+      const next = { ...prev, [markerId]: true }
       localStorage.setItem(COLLECTED_KEY, JSON.stringify(next))
       return next
     })
@@ -93,6 +92,7 @@ export default function Maps() {
     if (isAdmin && editMode) {
       setEditingMarker(marker)
     } else {
+      markCollected(marker.id)
       setOpenMarker(prev => (prev?.id === marker.id ? null : marker))
     }
   }
@@ -203,7 +203,6 @@ export default function Maps() {
                       />
                       {visibleMarkers.map(marker => {
                         const isCollected = !!collected[marker.id]
-                        const isOpen = openMarker?.id === marker.id
                         return (
                           <div
                             key={marker.id}
@@ -219,14 +218,6 @@ export default function Maps() {
                                 ? <img src={marker.icon} alt="" draggable="false" className="w-8 h-8 object-contain drop-shadow select-none" />
                                 : <span className="text-2xl leading-none drop-shadow">{marker.icon}</span>}
                             </button>
-                            {isOpen && !editMode && (
-                              <button
-                                onClick={e => { e.stopPropagation(); toggleCollected(marker.id) }}
-                                className="absolute left-1/2 -translate-x-1/2 -top-7 whitespace-nowrap text-[10px] bg-gray-900 border border-gray-600 rounded-full px-2 py-0.5 text-gray-200 hover:border-yellow-400 hover:text-yellow-400 transition-colors"
-                              >
-                                {isCollected ? '↺ Unmark' : '✓ Collected'}
-                              </button>
-                            )}
                           </div>
                         )
                       })}
