@@ -158,6 +158,12 @@ export default function Maps() {
                 {maps.map((m, index) => {
                   const active = m.id === selectedMap?.id
                   const { total, done } = mapStats(m.id)
+                  const complete = total > 0 && done === total
+                  const statColor = total === 0
+                    ? (active ? 'text-gray-700' : 'text-gray-500')
+                    : complete
+                      ? (active ? 'text-green-700' : 'text-green-400')
+                      : (active ? 'text-red-700' : 'text-red-400')
                   return (
                     <div key={m.id} className="relative shrink-0 md:shrink group">
                       <button
@@ -170,7 +176,7 @@ export default function Maps() {
                       >
                         <div className={`flex items-center justify-between gap-2 ${isAdmin ? 'pr-5 pl-6' : ''}`}>
                           <span className="font-semibold truncate">{m.name}</span>
-                          <span className={`text-[10px] font-mono shrink-0 ${active ? 'text-gray-700' : 'text-gray-500'}`}>{done}/{total}</span>
+                          <span className={`text-[10px] font-mono font-bold shrink-0 ${statColor}`}>{done}/{total}</span>
                         </div>
                         <div className={`text-xs ${active ? 'text-gray-800' : 'text-gray-500'} ${isAdmin ? 'pl-6' : ''}`}>{m.region}</div>
                       </button>
