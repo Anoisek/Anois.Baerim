@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import ImageUpload from './ImageUpload'
@@ -19,6 +20,7 @@ export default function MarkerPanel({ marker, onClose }) {
   const [imageUrl, setImageUrl] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [open, setOpen] = useState(false)
+  const [lightboxUrl, setLightboxUrl] = useState(null)
 
   useEffect(() => {
     const t = setTimeout(() => setOpen(true), 10)
@@ -113,7 +115,12 @@ export default function MarkerPanel({ marker, onClose }) {
               <div key={note.id} className="bg-gray-800/60 border border-gray-700 rounded-lg p-3 relative">
                 {note.comment && <p className="text-sm text-gray-200 whitespace-pre-wrap pr-6">{note.comment}</p>}
                 {note.image_url && (
-                  <img src={note.image_url} alt="" className="mt-2 max-h-40 rounded-lg border border-gray-700 object-contain" />
+                  <img
+                    src={note.image_url}
+                    alt=""
+                    onClick={() => setLightboxUrl(note.image_url)}
+                    className="mt-2 max-h-40 rounded-lg border border-gray-700 object-contain cursor-zoom-in hover:opacity-90 transition-opacity"
+                  />
                 )}
                 <p className="text-xs text-gray-500 mt-2">{new Date(note.created_at).toLocaleString()}</p>
                 {isAdmin && (
@@ -130,6 +137,28 @@ export default function MarkerPanel({ marker, onClose }) {
           </div>
         )}
       </div>
+
+      {lightboxUrl && createPortal(
+        <div
+          onClick={() => setLightboxUrl(null)}
+          className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 cursor-zoom-out"
+        >
+          <div className="relative max-w-full max-h-full" onClick={e => e.stopPropagation()}>
+            <img
+              src={lightboxUrl}
+              alt=""
+              className="max-w-full max-h-[90vh] object-contain rounded-lg cursor-default block"
+            />
+            <button
+              onClick={() => setLightboxUrl(null)}
+              className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-black/60 text-white/80 hover:text-white hover:bg-black/80 text-2xl leading-none"
+            >
+              ×
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   )
 }
