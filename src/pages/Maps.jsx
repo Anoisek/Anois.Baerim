@@ -70,10 +70,11 @@ export default function Maps() {
     })
   }, [selectedMap?.id])
 
-  function markCollected(markerId) {
+  function toggleCollected(markerId) {
     setCollected(prev => {
-      if (prev[markerId]) return prev
-      const next = { ...prev, [markerId]: true }
+      const next = { ...prev }
+      if (next[markerId]) delete next[markerId]
+      else next[markerId] = true
       localStorage.setItem(COLLECTED_KEY, JSON.stringify(next))
       return next
     })
@@ -92,7 +93,7 @@ export default function Maps() {
     if (isAdmin && editMode) {
       setEditingMarker(marker)
     } else {
-      markCollected(marker.id)
+      toggleCollected(marker.id)
       setOpenMarker(prev => (prev?.id === marker.id ? null : marker))
     }
   }
