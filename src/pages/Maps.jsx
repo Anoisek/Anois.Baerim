@@ -33,6 +33,7 @@ export default function Maps() {
   const [mapsLoading, setMapsLoading] = useState(true)
   const [markers, setMarkers] = useState([])
   const [markersLoading, setMarkersLoading] = useState(true)
+  const [allMarkers, setAllMarkers] = useState([])
 
   const [editMode, setEditMode] = useState(false)
   const [addingAt, setAddingAt] = useState(null)
@@ -49,7 +50,16 @@ export default function Maps() {
       setMaps(data ?? [])
       setMapsLoading(false)
     })
+    supabase.from('map_markers').select('id, map_id').then(({ data }) => {
+      setAllMarkers(data ?? [])
+    })
   }, [])
+
+  function mapStats(id) {
+    const markersOfMap = allMarkers.filter(mk => mk.map_id === id)
+    const done = markersOfMap.filter(mk => collected[mk.id]).length
+    return { total: markersOfMap.length, done }
+  }
 
   useEffect(() => {
     if (mapsLoading || maps.length === 0) return
@@ -132,6 +142,7 @@ export default function Maps() {
               <aside className="w-full md:w-56 shrink-0 flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible md:max-h-[70vh] md:overflow-y-auto pb-1 md:pb-0">
                 {maps.map(m => {
                   const active = m.id === selectedMap?.id
+                  const { total, done } = mapStats(m.id)
                   return (
                     <div key={m.id} className="relative shrink-0 md:shrink group">
                       <button
@@ -142,7 +153,10 @@ export default function Maps() {
                             : 'bg-gray-800/60 border-gray-700 hover:bg-gray-800 text-gray-200'
                         }`}
                       >
-                        <div className={`font-semibold ${isAdmin ? 'pr-5' : ''}`}>{m.name}</div>
+                        <div className={`flex items-center justify-between gap-2 ${isAdmin ? 'pr-5' : ''}`}>
+                          <span className="font-semibold truncate">{m.name}</span>
+                          <span className={`text-[10px] font-mono shrink-0 ${active ? 'text-gray-700' : 'text-gray-500'}`}>{done}/{total}</span>
+                        </div>
                         <div className={`text-xs ${active ? 'text-gray-800' : 'text-gray-500'}`}>{m.region}</div>
                       </button>
                       {isAdmin && (
@@ -243,7 +257,10 @@ export default function Maps() {
           y={addingAt.y}
           nextNumber={markers.length + 1}
           onClose={() => setAddingAt(null)}
-          onAdded={marker => setMarkers(prev => [...prev, marker])}
+          onAdded={marker => {
+            setMarkers(prev => [...prev, marker])
+            setAllMarkers(prev => [...prev, { id: marker.id, map_id: marker.map_id }])
+          }}
         />
       )}
 
@@ -252,7 +269,10 @@ export default function Maps() {
           marker={editingMarker}
           onClose={() => setEditingMarker(null)}
           onUpdated={marker => setMarkers(prev => prev.map(m => m.id === marker.id ? marker : m))}
-          onDeleted={id => setMarkers(prev => prev.filter(m => m.id !== id))}
+          onDeleted={id => {
+            setMarkers(prev => prev.filter(m => m.id !== id))
+            setAllMarkers(prev => prev.filter(mk => mk.id !== id))
+          }}
         />
       )}
 
