@@ -1,0 +1,237 @@
+import { useEffect, useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { supabase } from '../supabaseClient'
+import { useAuth } from '../context/AuthContext'
+import Navbar from '../components/Navbar'
+import Breadcrumbs from '../components/Breadcrumbs'
+import Spinner from '../components/Spinner'
+import AddMarkerModal from '../components/AddMarkerModal'
+import EditMarkerModal from '../components/EditMarkerModal'
+import MarkerPanel from '../components/MarkerPanel'
+
+const COLLECTED_KEY = 'map_collected_markers'
+
+function loadCollected() {
+  try {
+    return JSON.parse(localStorage.getItem(COLLECTED_KEY)) ?? {}
+  } catch {
+    return {}
+  }
+}
+
+export default function Maps() {
+  const { mapId } = useParams()
+  const navigate = useNavigate()
+  const { isAdmin, canAddMarkers } = useAuth()
+
+  const [maps, setMaps] = useState([])
+  const [mapsLoading, setMapsLoading] = useState(true)
+  const [markers, setMarkers] = useState([])
+  const [markersLoading, setMarkersLoading] = useState(true)
+
+  const [editMode, setEditMode] = useState(false)
+  const [addingAt, setAddingAt] = useState(null)
+  const [editingMarker, setEditingMarker] = useState(null)
+  const [openMarker, setOpenMarker] = useState(null)
+  const [collected, setCollected] = useState(loadCollected)
+  const [showCollected, setShowCollected] = useState(true)
+
+  useEffect(() => {
+    supabase.from('maps').select('*').order('sort_order').then(({ data }) => {
+      setMaps(data ?? [])
+      setMapsLoading(false)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (mapsLoading || maps.length === 0) return
+    if (!mapId || !maps.some(m => m.id === mapId)) {
+      navigate(`/systems/interactive-map/${maps[0].id}`, { replace: true })
+    }
+  }, [mapsLoading, maps, mapId, navigate])
+
+  const selectedMap = maps.find(m => m.id === mapId)
+
+  useEffect(() => {
+    if (!selectedMap) return
+    setMarkersLoading(true)
+    setOpenMarker(null)
+    setEditingMarker(null)
+    setAddingAt(null)
+    supabase.from('map_markers').select('*').eq('map_id', selectedMap.id).then(({ data }) => {
+      setMarkers(data ?? [])
+      setMarkersLoading(false)
+    })
+  }, [selectedMap?.id])
+
+  function toggleCollected(markerId) {
+    setCollected(prev => {
+      const next = { ...prev }
+      if (next[markerId]) delete next[markerId]
+      else next[markerId] = true
+      localStorage.setItem(COLLECTED_KEY, JSON.stringify(next))
+      return next
+    })
+  }
+
+  function handleContainerClick(e) {
+    if (!canAddMarkers || !editMode || !selectedMap) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = Math.round(((e.clientX - rect.left) / rect.width) * selectedMap.width)
+    const y = Math.round(((e.clientY - rect.top) / rect.height) * selectedMap.height)
+    setAddingAt({ x, y })
+  }
+
+  function handleMarkerClick(e, marker) {
+    e.stopPropagation()
+    if (isAdmin && editMode) {
+      setEditingMarker(marker)
+    } else {
+      setOpenMarker(prev => (prev?.id === marker.id ? null : marker))
+    }
+  }
+
+  const visibleMarkers = markers.filter(m => showCollected || !collected[m.id])
+
+  return (
+    <div className="min-h-screen text-white">
+      <Navbar />
+      <div className="max-w-5xl mx-auto px-6 py-10">
+        <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
+          <Breadcrumbs items={[
+            { label: 'Home', to: '/' },
+            { label: 'Systems', to: '/systems' },
+            { label: 'Mococko Interactive Map' },
+          ]} />
+          <h1 className="text-2xl font-bold text-gray-100 mb-6">Mococko Interactive Map</h1>
+
+          {mapsLoading ? <Spinner /> : maps.length === 0 ? (
+            <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
+              <span className="text-5xl">🗺️</span>
+              <p className="text-sm">No maps yet.</p>
+            </div>
+          ) : (
+            <div className="flex gap-4 flex-col md:flex-row">
+              <aside className="w-full md:w-56 shrink-0 flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible md:max-h-[70vh] md:overflow-y-auto pb-1 md:pb-0">
+                {maps.map(m => {
+                  const active = m.id === selectedMap?.id
+                  return (
+                    <button
+                      key={m.id}
+                      onClick={() => navigate(`/systems/interactive-map/${m.id}`)}
+                      className={`shrink-0 md:shrink text-left px-3 py-2 rounded-lg text-sm transition-colors border whitespace-nowrap md:whitespace-normal ${
+                        active
+                          ? 'bg-yellow-400 border-yellow-400 text-gray-950'
+                          : 'bg-gray-800/60 border-gray-700 hover:bg-gray-800 text-gray-200'
+                      }`}
+                    >
+                      <div className="font-semibold">{m.name}</div>
+                      <div className={`text-xs ${active ? 'text-gray-800' : 'text-gray-500'}`}>{m.region}</div>
+                    </button>
+                  )
+                })}
+              </aside>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                  <h2 className="text-lg font-bold text-gray-100">{selectedMap?.name}</h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-400">
+                      <strong className="text-gray-200">{markers.filter(m => collected[m.id]).length}</strong>/{markers.length} collected
+                    </span>
+                    <button
+                      onClick={() => setShowCollected(v => !v)}
+                      className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+                    >
+                      {showCollected ? '🙈 Hide collected' : '👁 Show collected'}
+                    </button>
+                    {canAddMarkers && (
+                      <button
+                        onClick={() => setEditMode(v => !v)}
+                        className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${editMode ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200'}`}
+                      >
+                        {editMode ? 'Done' : 'Edit panel'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {markersLoading || !selectedMap ? <Spinner /> : (
+                  <>
+                    <div
+                      className={`relative w-full rounded-xl overflow-hidden border border-gray-700 bg-gray-950 ${editMode ? 'cursor-crosshair' : ''}`}
+                      style={{ aspectRatio: `${selectedMap.width} / ${selectedMap.height}` }}
+                      onClick={handleContainerClick}
+                    >
+                      <img
+                        src={selectedMap.image_url}
+                        alt={selectedMap.name}
+                        draggable="false"
+                        className="w-full h-full object-contain select-none pointer-events-none"
+                      />
+                      {visibleMarkers.map(marker => {
+                        const isCollected = !!collected[marker.id]
+                        const isOpen = openMarker?.id === marker.id
+                        return (
+                          <div
+                            key={marker.id}
+                            className="absolute -translate-x-1/2 -translate-y-1/2"
+                            style={{ left: `${(marker.x / selectedMap.width) * 100}%`, top: `${(marker.y / selectedMap.height) * 100}%` }}
+                          >
+                            <button
+                              onClick={e => handleMarkerClick(e, marker)}
+                              title={marker.title || undefined}
+                              className={`block hover:scale-125 transition-transform ${isCollected ? 'opacity-40' : ''}`}
+                            >
+                              {marker.icon?.startsWith('/')
+                                ? <img src={marker.icon} alt="" draggable="false" className="w-8 h-8 object-contain drop-shadow select-none" />
+                                : <span className="text-2xl leading-none drop-shadow">{marker.icon}</span>}
+                            </button>
+                            {isOpen && !editMode && (
+                              <button
+                                onClick={e => { e.stopPropagation(); toggleCollected(marker.id) }}
+                                className="absolute left-1/2 -translate-x-1/2 -top-7 whitespace-nowrap text-[10px] bg-gray-900 border border-gray-600 rounded-full px-2 py-0.5 text-gray-200 hover:border-yellow-400 hover:text-yellow-400 transition-colors"
+                              >
+                                {isCollected ? '↺ Unmark' : '✓ Collected'}
+                              </button>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                    {canAddMarkers && editMode && (
+                      <p className="text-xs text-gray-500 mt-3">Click anywhere on the map to add a marker.</p>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {addingAt && selectedMap && (
+        <AddMarkerModal
+          mapId={selectedMap.id}
+          x={addingAt.x}
+          y={addingAt.y}
+          onClose={() => setAddingAt(null)}
+          onAdded={marker => setMarkers(prev => [...prev, marker])}
+        />
+      )}
+
+      {editingMarker && (
+        <EditMarkerModal
+          marker={editingMarker}
+          onClose={() => setEditingMarker(null)}
+          onUpdated={marker => setMarkers(prev => prev.map(m => m.id === marker.id ? marker : m))}
+          onDeleted={id => setMarkers(prev => prev.filter(m => m.id !== id))}
+        />
+      )}
+
+      {openMarker && (
+        <MarkerPanel marker={openMarker} onClose={() => setOpenMarker(null)} />
+      )}
+    </div>
+  )
+}

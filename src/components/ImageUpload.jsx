@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 
-export default function ImageUpload({ onUploaded }) {
+export default function ImageUpload({ onUploaded, bucket = 'images' }) {
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState(null)
 
@@ -15,14 +15,14 @@ export default function ImageUpload({ onUploaded }) {
     const ext = file.name.split('.').pop()
     const path = `${Date.now()}.${ext}`
 
-    const { error } = await supabase.storage.from('images').upload(path, file)
+    const { error } = await supabase.storage.from(bucket).upload(path, file)
     if (error) {
       alert('Błąd uploadu: ' + error.message)
       setUploading(false)
       return
     }
 
-    const { data } = supabase.storage.from('images').getPublicUrl(path)
+    const { data } = supabase.storage.from(bucket).getPublicUrl(path)
     onUploaded(data.publicUrl)
     setUploading(false)
   }

@@ -1,5 +1,6 @@
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
+import Tile from '../components/Tile'
 
 export default function Systems() {
   return (
@@ -10,9 +11,8 @@ export default function Systems() {
           <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Systems' }]} />
           <h1 className="text-2xl font-bold text-gray-100 mb-6">Systems</h1>
 
-          <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
-            <span className="text-5xl">⚙️</span>
-            <p className="text-sm">No systems yet.</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <Tile to="/systems/interactive-map" emoji="🗺️" label="Mococko Interactive Map" />
           </div>
         </div>
       </div>

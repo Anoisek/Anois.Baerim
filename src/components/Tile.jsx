@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import ReorderButtons from './ReorderButtons'
 
-export default function Tile({ to, image, emoji, label, dashed, onClick, onEdit, reorder, maintenance, onToggleMaintenance, blocked }) {
+export default function Tile({ to, image, emoji, label, sublabel, dashed, onClick, onEdit, reorder, maintenance, onToggleMaintenance, blocked }) {
   const cls = `group relative bg-gray-900/80 border ${dashed ? 'border-dashed border-gray-600' : 'border-gray-700'} rounded-2xl p-6 flex flex-col items-center gap-4 transition-all duration-200 ${
     blocked ? 'opacity-50 cursor-not-allowed' : 'hover:border-yellow-400/50 hover:bg-gray-800/80 hover:shadow-lg hover:shadow-black/40 hover:-translate-y-0.5'
   }`
@@ -10,12 +10,15 @@ export default function Tile({ to, image, emoji, label, dashed, onClick, onEdit,
     <>
       <div className="w-16 h-16 flex items-center justify-center">
         {image
-          ? <img src={image} alt={label} className="w-full h-full object-contain drop-shadow" />
+          ? <img src={image} alt={label} loading="lazy" className="w-full h-full object-contain drop-shadow" />
           : <span className="text-4xl">{emoji}</span>}
       </div>
       <span className={`text-sm font-semibold text-center leading-tight ${dashed ? 'text-gray-400 group-hover:text-white' : 'text-gray-100'} transition-colors`}>
         {label}
       </span>
+      {sublabel && (
+        <span className="text-xs text-gray-500 text-center -mt-3">{sublabel}</span>
+      )}
       {maintenance && (
         <span className="absolute inset-0 flex items-center justify-center bg-gray-950/70 rounded-2xl pointer-events-none">
           <span className="text-xs font-bold text-yellow-400 bg-gray-900 border border-yellow-400/40 px-2 py-1 rounded-full">

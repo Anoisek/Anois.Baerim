@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 
+const LOGIN_DOMAIN = '@baerim.local'
+
 export default function Login() {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
+  const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -13,8 +15,9 @@ export default function Login() {
     e.preventDefault()
     setError('')
     setLoading(true)
+    const email = login.includes('@') ? login.trim() : login.trim() + LOGIN_DOMAIN
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) setError('Invalid email or password.')
+    if (error) setError('Invalid login or password.')
     else navigate('/')
     setLoading(false)
   }
@@ -37,12 +40,13 @@ export default function Login() {
             </div>
           )}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Email</label>
+            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Login</label>
             <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
+              type="text"
+              value={login}
+              onChange={e => setLogin(e.target.value)}
               required
+              autoComplete="username"
               className="bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-yellow-400 transition-colors"
             />
           </div>
