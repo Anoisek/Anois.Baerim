@@ -66,7 +66,7 @@ export default function MarkerPanel({ marker, onClose }) {
     if (containsBannedWord(rawTrimmed)) {
       setCooldownUntil(startCooldown())
       setComment('')
-      alert('Twój komentarz zawierał niedozwolone słowo. Zablokowano możliwość komentowania na 24h.')
+      alert('Your comment contained a banned word. Commenting has been blocked for 24h.')
       return
     }
     const trimmed = censorText(rawTrimmed)
@@ -112,7 +112,7 @@ export default function MarkerPanel({ marker, onClose }) {
         {cooldownUntil > Date.now() ? (
           <div className="border-b border-gray-700 pb-4">
             <p className="text-sm text-red-400 bg-red-950/40 border border-red-800/50 rounded-lg px-3 py-2 text-center">
-              Zostałeś zablokowany za niedozwolone słowo. Możesz komentować ponownie za {formatRemaining(cooldownUntil - Date.now())}.
+              You've been blocked for using a banned word. You can comment again in {formatRemaining(cooldownUntil - Date.now())}.
             </p>
           </div>
         ) : (
