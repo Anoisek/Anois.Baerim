@@ -95,7 +95,7 @@ export default function Maps() {
       setMarkers(data ?? [])
       setMarkersLoading(false)
     })
-  }, [selectedMap?.id])
+  }, [selectedMap?.id, selectedMap?.width, selectedMap?.height])
 
   function toggleCollected(markerId) {
     setCollected(prev => {

@@ -23,6 +23,8 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
     e.preventDefault()
     if (!name.trim() || !region.trim() || !mark.trim() || !imageUrl || !dimensions) return
     setSaving(true)
+    const oldWidth = map.width
+    const oldHeight = map.height
     const { data, error } = await supabase
       .from('maps')
       .update({
@@ -38,10 +40,24 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
       .single()
     if (error) {
       alert('Error: ' + error.message)
-    } else {
-      onUpdated(data)
-      onClose()
+      setSaving(false)
+      return
     }
+    if (oldWidth && oldHeight && (dimensions.width !== oldWidth || dimensions.height !== oldHeight)) {
+      const { data: markers } = await supabase.from('map_markers').select('id, x, y').eq('map_id', map.id)
+      if (markers?.length) {
+        const scaleX = dimensions.width / oldWidth
+        const scaleY = dimensions.height / oldHeight
+        await Promise.all(markers.map(mk =>
+          supabase.from('map_markers').update({
+            x: Math.round(mk.x * scaleX),
+            y: Math.round(mk.y * scaleY),
+          }).eq('id', mk.id)
+        ))
+      }
+    }
+    onUpdated(data)
+    onClose()
     setSaving(false)
   }
 
