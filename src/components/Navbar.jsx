@@ -17,12 +17,12 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur border-b border-gray-800 px-6 py-3.5 flex items-center justify-between shadow-lg shadow-black/20 relative">
-      <div className="flex items-center gap-1">
-        <LanguageSwitcher />
+      <div className="flex items-center gap-2">
         <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
           <img src="/small_logo.png" alt="logo" className="h-8 w-auto" />
           <span className="text-yellow-400 font-bold text-lg tracking-tight">Baerim Calculator</span>
         </Link>
+        <LanguageSwitcher />
       </div>
       <span className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[11px] text-gray-600 pointer-events-none select-none">
         {t('navbar.tagline')}

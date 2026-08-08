@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LANGUAGES } from '../i18n/languages'
+import FlagIcon from './FlagIcon'
 
 export default function LanguageSwitcher() {
   const { i18n } = useTranslation()
@@ -26,10 +27,10 @@ export default function LanguageSwitcher() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(v => !v)}
-        className="text-xl leading-none hover:opacity-80 transition-opacity p-1.5"
+        className="hover:opacity-80 transition-opacity p-1.5"
         title={current.label}
       >
-        {current.flag}
+        <FlagIcon code={current.code} className="w-6 h-4 rounded-sm" />
       </button>
       {open && (
         <div className="absolute left-0 mt-2 w-44 max-h-80 overflow-y-auto bg-gray-900 border border-gray-700 rounded-xl shadow-xl shadow-black/40 z-50 py-1">
@@ -41,7 +42,7 @@ export default function LanguageSwitcher() {
                 l.code === current.code ? 'text-yellow-400' : 'text-gray-200'
               }`}
             >
-              <span className="text-lg leading-none">{l.flag}</span>
+              <FlagIcon code={l.code} className="w-5 h-3.5 rounded-sm" />
               <span>{l.label}</span>
             </button>
           ))}
