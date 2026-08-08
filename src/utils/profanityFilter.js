@@ -1,8 +1,27 @@
-// Tolerant patterns catch common leetspeak substitutions (1/!/| for i, 4/@ for a, 3 for e).
-// Add more patterns here if new slurs show up in comments.
+// Tolerant patterns catch common leetspeak substitutions (1/!/| for i, 4/@ for a, 3 for e, 0 for o).
+// Add more patterns here if new slurs/troll words show up in comments.
 const BANNED_PATTERNS = [
+  // racial slur (n-word) and variants
   /n[i1!|]+g{2,}[e3]r+/gi,
   /n[i1!|]+g{2,}[a4@]/gi,
+  // antisemitic slur
+  /k[i1!|]k[e3]/gi,
+  // slurs targeting East/Southeast Asian people
+  /ch[i1!|]nk/gi,
+  /g[o0]{2,}k/gi,
+  // slur targeting Latino/Hispanic people
+  /sp[i1!|]c/gi,
+  // homophobic slur
+  /f[a4@]g{2,}[o0]t/gi,
+  /\bf[a4@]g\b/gi,
+  // transphobic slur
+  /tr[a4@]nn?y/gi,
+  // ableist slur
+  /r[e3]t[a4@]rd/gi,
+  // severe vulgar harassment term
+  /c[u0]nt/gi,
+  // Polish homophobic slur
+  /p[e3]d[a4@][lł]/gi,
 ]
 
 export function censorText(text) {
