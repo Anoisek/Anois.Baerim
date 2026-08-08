@@ -202,6 +202,7 @@
     "posting": "Posting...",
     "noCommentsYet": "No comments yet. Be the first!",
     "deleteTooltip": "Delete",
+    "likeTooltip": "Like",
     "cooldownMessage": "You've been blocked for using a banned word. You can comment again in {{time}}.",
     "bannedWordAlert": "Your comment contained a banned word. Commenting has been blocked for 24h."
   },

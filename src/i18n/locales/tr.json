@@ -202,6 +202,7 @@
     "posting": "Gönderiliyor...",
     "noCommentsYet": "Henüz yorum yok. İlk sen ol!",
     "deleteTooltip": "Sil",
+    "likeTooltip": "Beğen",
     "cooldownMessage": "Yasaklı bir kelime kullandığın için engellendin. {{time}} sonra tekrar yorum yapabilirsin.",
     "bannedWordAlert": "Yorumun yasaklı bir kelime içeriyordu. Yorum yapma özelliğin 24 saatliğine engellendi."
   },

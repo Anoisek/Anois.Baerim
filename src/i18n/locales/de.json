@@ -202,6 +202,7 @@
     "posting": "Wird gesendet...",
     "noCommentsYet": "Noch keine Kommentare. Sei der Erste!",
     "deleteTooltip": "Löschen",
+    "likeTooltip": "Gefällt mir",
     "cooldownMessage": "Du wurdest wegen eines verbotenen Wortes gesperrt. Du kannst in {{time}} wieder kommentieren.",
     "bannedWordAlert": "Dein Kommentar enthielt ein verbotenes Wort. Kommentieren wurde für 24h gesperrt."
   },

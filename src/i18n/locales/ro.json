@@ -202,6 +202,7 @@
     "posting": "Se postează...",
     "noCommentsYet": "Încă nu există comentarii. Fii primul!",
     "deleteTooltip": "Șterge",
+    "likeTooltip": "Apreciază",
     "cooldownMessage": "Ai fost blocat pentru folosirea unui cuvânt interzis. Poți comenta din nou peste {{time}}.",
     "bannedWordAlert": "Comentariul tău conținea un cuvânt interzis. Posibilitatea de a comenta a fost blocată pentru 24h."
   },

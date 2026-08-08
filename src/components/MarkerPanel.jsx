@@ -21,6 +21,16 @@ function formatRemaining(ms) {
   return hours > 0 ? `${hours}h ${minutes}min` : `${minutes}min`
 }
 
+const LIKED_NOTES_KEY = 'liked_notes'
+
+function getLikedNotes() {
+  try {
+    return JSON.parse(localStorage.getItem(LIKED_NOTES_KEY)) ?? {}
+  } catch {
+    return {}
+  }
+}
+
 export default function MarkerPanel({ marker, onClose }) {
   const { isAdmin } = useAuth()
   const { t } = useTranslation()
@@ -32,6 +42,7 @@ export default function MarkerPanel({ marker, onClose }) {
   const [open, setOpen] = useState(false)
   const [lightboxUrl, setLightboxUrl] = useState(null)
   const [cooldownUntil, setCooldownUntil] = useState(getCooldownUntil)
+  const [likedNotes, setLikedNotes] = useState(getLikedNotes)
 
   useEffect(() => {
     const timer = setTimeout(() => setOpen(true), 10)
@@ -86,6 +97,21 @@ export default function MarkerPanel({ marker, onClose }) {
       setImageUrl('')
     }
     setSubmitting(false)
+  }
+
+  async function toggleLike(note) {
+    const alreadyLiked = !!likedNotes[note.id]
+    const delta = alreadyLiked ? -1 : 1
+    const { data, error } = await supabase.rpc('toggle_note_like', { note_id: note.id, delta })
+    if (error) return
+    setNotes(prev => prev.map(n => n.id === note.id ? { ...n, likes: data } : n))
+    setLikedNotes(prev => {
+      const next = { ...prev }
+      if (alreadyLiked) delete next[note.id]
+      else next[note.id] = true
+      localStorage.setItem(LIKED_NOTES_KEY, JSON.stringify(next))
+      return next
+    })
   }
 
   async function handleDeleteNote(note) {
@@ -158,7 +184,17 @@ export default function MarkerPanel({ marker, onClose }) {
                     className="mt-2 max-h-40 rounded-lg border border-gray-700 object-contain cursor-zoom-in hover:opacity-90 transition-opacity"
                   />
                 )}
-                <p className="text-xs text-gray-500 mt-2">{new Date(note.created_at).toLocaleString()}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-xs text-gray-500">{new Date(note.created_at).toLocaleString()}</p>
+                  <button
+                    onClick={() => toggleLike(note)}
+                    className={`flex items-center gap-1 text-xs transition-colors ${likedNotes[note.id] ? 'text-red-400' : 'text-gray-500 hover:text-red-300'}`}
+                    title={t('markerPanel.likeTooltip')}
+                  >
+                    <span>{likedNotes[note.id] ? '❤️' : '🤍'}</span>
+                    <span>{note.likes ?? 0}</span>
+                  </button>
+                </div>
                 {isAdmin && (
                   <button
                     onClick={() => handleDeleteNote(note)}

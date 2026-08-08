@@ -202,6 +202,7 @@
     "posting": "Pubblicazione in corso...",
     "noCommentsYet": "Ancora nessun commento. Sii il primo!",
     "deleteTooltip": "Elimina",
+    "likeTooltip": "Mi piace",
     "cooldownMessage": "Sei stato bloccato per aver usato una parola vietata. Potrai commentare di nuovo tra {{time}}.",
     "bannedWordAlert": "Il tuo commento conteneva una parola vietata. La possibilità di commentare è stata bloccata per 24h."
   },

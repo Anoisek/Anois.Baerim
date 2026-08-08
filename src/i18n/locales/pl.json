@@ -202,6 +202,7 @@
     "posting": "Wysyłanie...",
     "noCommentsYet": "Brak komentarzy. Bądź pierwszy!",
     "deleteTooltip": "Usuń",
+    "likeTooltip": "Polub",
     "cooldownMessage": "Zostałeś zablokowany za użycie niedozwolonego słowa. Możesz komentować ponownie za {{time}}.",
     "bannedWordAlert": "Twój komentarz zawierał niedozwolone słowo. Zablokowano możliwość komentowania na 24h."
   },

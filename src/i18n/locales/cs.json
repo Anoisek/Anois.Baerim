@@ -202,6 +202,7 @@
     "posting": "Odesílání...",
     "noCommentsYet": "Zatím žádné komentáře. Buď první!",
     "deleteTooltip": "Smazat",
+    "likeTooltip": "Líbí se mi",
     "cooldownMessage": "Byl jsi zablokován za použití zakázaného slova. Komentovat budeš moci znovu za {{time}}.",
     "bannedWordAlert": "Tvůj komentář obsahoval zakázané slovo. Možnost komentovat byla zablokována na 24h."
   },
