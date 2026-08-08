@@ -9,6 +9,8 @@ import AddMarkerModal from '../components/AddMarkerModal'
 import EditMarkerModal from '../components/EditMarkerModal'
 import MarkerPanel from '../components/MarkerPanel'
 import HallOfFameModal from '../components/HallOfFameModal'
+import AddMapModal from '../components/AddMapModal'
+import EditMapModal from '../components/EditMapModal'
 
 const COLLECTED_KEY = 'map_collected_markers'
 
@@ -37,6 +39,8 @@ export default function Maps() {
   const [collected, setCollected] = useState(loadCollected)
   const [showCollected, setShowCollected] = useState(true)
   const [showHelpers, setShowHelpers] = useState(false)
+  const [editingMap, setEditingMap] = useState(null)
+  const [addingMap, setAddingMap] = useState(false)
 
   useEffect(() => {
     supabase.from('maps').select('*').order('sort_order').then(({ data }) => {
@@ -126,20 +130,38 @@ export default function Maps() {
                 {maps.map(m => {
                   const active = m.id === selectedMap?.id
                   return (
-                    <button
-                      key={m.id}
-                      onClick={() => navigate(`/systems/interactive-map/${m.id}`)}
-                      className={`shrink-0 md:shrink text-left px-3 py-2 rounded-lg text-sm transition-colors border whitespace-nowrap md:whitespace-normal ${
-                        active
-                          ? 'bg-yellow-400 border-yellow-400 text-gray-950'
-                          : 'bg-gray-800/60 border-gray-700 hover:bg-gray-800 text-gray-200'
-                      }`}
-                    >
-                      <div className="font-semibold">{m.name}</div>
-                      <div className={`text-xs ${active ? 'text-gray-800' : 'text-gray-500'}`}>{m.region}</div>
-                    </button>
+                    <div key={m.id} className="relative shrink-0 md:shrink group">
+                      <button
+                        onClick={() => navigate(`/systems/interactive-map/${m.id}`)}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors border whitespace-nowrap md:whitespace-normal ${
+                          active
+                            ? 'bg-yellow-400 border-yellow-400 text-gray-950'
+                            : 'bg-gray-800/60 border-gray-700 hover:bg-gray-800 text-gray-200'
+                        }`}
+                      >
+                        <div className={`font-semibold ${isAdmin ? 'pr-5' : ''}`}>{m.name}</div>
+                        <div className={`text-xs ${active ? 'text-gray-800' : 'text-gray-500'}`}>{m.region}</div>
+                      </button>
+                      {isAdmin && (
+                        <button
+                          onClick={e => { e.stopPropagation(); setEditingMap(m) }}
+                          title="Edit map"
+                          className={`absolute top-1.5 right-1.5 text-xs opacity-60 hover:opacity-100 ${active ? 'text-gray-800' : 'text-gray-300'}`}
+                        >
+                          ✏️
+                        </button>
+                      )}
+                    </div>
                   )
                 })}
+                {isAdmin && (
+                  <button
+                    onClick={() => setAddingMap(true)}
+                    className="shrink-0 md:shrink text-left px-3 py-2 rounded-lg text-sm border border-dashed border-gray-600 text-gray-400 hover:text-white hover:border-gray-400 transition-colors"
+                  >
+                    + Add map
+                  </button>
+                )}
               </aside>
 
               <div className="flex-1 min-w-0">
@@ -246,6 +268,22 @@ export default function Maps() {
 
       {showHelpers && (
         <HallOfFameModal onClose={() => setShowHelpers(false)} />
+      )}
+
+      {editingMap && (
+        <EditMapModal
+          map={editingMap}
+          onClose={() => setEditingMap(null)}
+          onUpdated={updated => setMaps(prev => prev.map(m => m.id === updated.id ? updated : m))}
+        />
+      )}
+
+      {addingMap && (
+        <AddMapModal
+          nextSortOrder={Math.max(0, ...maps.map(m => m.sort_order)) + 10}
+          onClose={() => setAddingMap(false)}
+          onAdded={map => setMaps(prev => [...prev, map].sort((a, b) => a.sort_order - b.sort_order))}
+        />
       )}
     </div>
   )
