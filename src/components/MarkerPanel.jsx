@@ -4,13 +4,20 @@ import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import ImageUpload from './ImageUpload'
 import Spinner from './Spinner'
-import { censorText } from '../utils/profanityFilter'
+import { censorText, containsBannedWord, getCooldownUntil, startCooldown } from '../utils/profanityFilter'
 
 function extractStoragePath(url) {
   if (!url) return null
   const marker = '/object/public/map-notes/'
   const idx = url.indexOf(marker)
   return idx !== -1 ? url.slice(idx + marker.length) : null
+}
+
+function formatRemaining(ms) {
+  const totalMinutes = Math.max(1, Math.ceil(ms / 60000))
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+  return hours > 0 ? `${hours}h ${minutes}min` : `${minutes}min`
 }
 
 export default function MarkerPanel({ marker, onClose }) {
@@ -22,11 +29,21 @@ export default function MarkerPanel({ marker, onClose }) {
   const [submitting, setSubmitting] = useState(false)
   const [open, setOpen] = useState(false)
   const [lightboxUrl, setLightboxUrl] = useState(null)
+  const [cooldownUntil, setCooldownUntil] = useState(getCooldownUntil)
 
   useEffect(() => {
     const t = setTimeout(() => setOpen(true), 10)
     return () => clearTimeout(t)
   }, [])
+
+  useEffect(() => {
+    if (cooldownUntil <= Date.now()) return
+    const t = setInterval(() => {
+      const until = getCooldownUntil()
+      if (until <= Date.now()) setCooldownUntil(0)
+    }, 30000)
+    return () => clearInterval(t)
+  }, [cooldownUntil])
 
   useEffect(() => {
     setLoading(true)
@@ -43,8 +60,16 @@ export default function MarkerPanel({ marker, onClose }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const trimmed = censorText(comment.trim())
-    if (!trimmed && !imageUrl) return
+    if (cooldownUntil > Date.now()) return
+    const rawTrimmed = comment.trim()
+    if (!rawTrimmed && !imageUrl) return
+    if (containsBannedWord(rawTrimmed)) {
+      setCooldownUntil(startCooldown())
+      setComment('')
+      alert('Twój komentarz zawierał niedozwolone słowo. Zablokowano możliwość komentowania na 24h.')
+      return
+    }
+    const trimmed = censorText(rawTrimmed)
     setSubmitting(true)
     const { data, error } = await supabase
       .from('map_marker_notes')
@@ -84,29 +109,37 @@ export default function MarkerPanel({ marker, onClose }) {
       </div>
 
       <div className="p-4 flex flex-col gap-4">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2 border-b border-gray-700 pb-4">
-          <textarea
-            value={comment}
-            onChange={e => setComment(e.target.value)}
-            placeholder="Add a comment..."
-            rows={3}
-            maxLength={1000}
-            className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400 resize-none"
-          />
-          <ImageUpload bucket="map-notes" onUploaded={setImageUrl} />
-          {imageUrl && (
-            <button type="button" onClick={() => setImageUrl('')} className="text-xs text-red-400 hover:text-red-300 self-start">
-              Remove photo
+        {cooldownUntil > Date.now() ? (
+          <div className="border-b border-gray-700 pb-4">
+            <p className="text-sm text-red-400 bg-red-950/40 border border-red-800/50 rounded-lg px-3 py-2 text-center">
+              Zostałeś zablokowany za niedozwolone słowo. Możesz komentować ponownie za {formatRemaining(cooldownUntil - Date.now())}.
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-2 border-b border-gray-700 pb-4">
+            <textarea
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+              placeholder="Add a comment..."
+              rows={3}
+              maxLength={1000}
+              className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400 resize-none"
+            />
+            <ImageUpload bucket="map-notes" onUploaded={setImageUrl} />
+            {imageUrl && (
+              <button type="button" onClick={() => setImageUrl('')} className="text-xs text-red-400 hover:text-red-300 self-start">
+                Remove photo
+              </button>
+            )}
+            <button
+              type="submit"
+              disabled={submitting || (!comment.trim() && !imageUrl)}
+              className="bg-yellow-400 hover:bg-yellow-300 disabled:opacity-50 text-gray-950 font-bold rounded-lg py-2 text-sm transition-colors"
+            >
+              {submitting ? 'Posting...' : 'Post'}
             </button>
-          )}
-          <button
-            type="submit"
-            disabled={submitting || (!comment.trim() && !imageUrl)}
-            className="bg-yellow-400 hover:bg-yellow-300 disabled:opacity-50 text-gray-950 font-bold rounded-lg py-2 text-sm transition-colors"
-          >
-            {submitting ? 'Posting...' : 'Post'}
-          </button>
-        </form>
+          </form>
+        )}
 
         {loading ? <Spinner /> : notes.length === 0 ? (
           <p className="text-sm text-gray-500 text-center py-6">No comments yet. Be the first!</p>

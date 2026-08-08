@@ -13,3 +13,21 @@ export function censorText(text) {
   }
   return result
 }
+
+export function containsBannedWord(text) {
+  if (!text) return false
+  return BANNED_PATTERNS.some(pattern => new RegExp(pattern.source, 'i').test(text))
+}
+
+const COOLDOWN_KEY = 'comment_cooldown_until'
+const COOLDOWN_MS = 24 * 60 * 60 * 1000
+
+export function getCooldownUntil() {
+  return Number(localStorage.getItem(COOLDOWN_KEY) || 0)
+}
+
+export function startCooldown() {
+  const until = Date.now() + COOLDOWN_MS
+  localStorage.setItem(COOLDOWN_KEY, String(until))
+  return until
+}
