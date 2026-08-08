@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import ImageUpload from './ImageUpload'
 import Spinner from './Spinner'
+import { censorText } from '../utils/profanityFilter'
 
 function extractStoragePath(url) {
   if (!url) return null
@@ -42,7 +43,7 @@ export default function MarkerPanel({ marker, onClose }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const trimmed = comment.trim()
+    const trimmed = censorText(comment.trim())
     if (!trimmed && !imageUrl) return
     setSubmitting(true)
     const { data, error } = await supabase
