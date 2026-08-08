@@ -26,6 +26,11 @@
     "logOut": "Terminar sessão",
     "adminLogin": "Acesso de administrador"
   },
+  "uiScale": {
+    "title": "Ajustar tamanho da página",
+    "label": "Tamanho da página",
+    "reset": "Redefinir"
+  },
   "globalSearch": {
     "searchTooltip": "Pesquisar",
     "placeholder": "Pesquisar capítulos, categorias, materiais, itens...",

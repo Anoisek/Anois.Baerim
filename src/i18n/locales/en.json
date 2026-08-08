@@ -26,6 +26,11 @@
     "logOut": "Log out",
     "adminLogin": "Admin login"
   },
+  "uiScale": {
+    "title": "Adjust page size",
+    "label": "Page size",
+    "reset": "Reset"
+  },
   "globalSearch": {
     "searchTooltip": "Search",
     "placeholder": "Search chapters, categories, materials, items...",

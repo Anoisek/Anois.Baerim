@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { NightModeProvider } from './context/NightModeContext'
+import { UiScaleProvider } from './context/UiScaleContext'
 import NicknamePrompt from './components/NicknamePrompt'
 import Home from './pages/Home'
 import Login from './pages/Login'
@@ -20,6 +21,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <NightModeProvider>
+        <UiScaleProvider>
           <NicknamePrompt />
           <Routes>
           <Route path="/" element={<Home />} />
@@ -36,6 +38,7 @@ export default function App() {
           <Route path="/chapter/:categoryId/item/:itemId" element={<ItemDetail />} />
           <Route path="/items/:itemId/usage" element={<ItemUsage />} />
           </Routes>
+        </UiScaleProvider>
         </NightModeProvider>
       </AuthProvider>
     </BrowserRouter>

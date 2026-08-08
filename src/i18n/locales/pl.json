@@ -26,6 +26,11 @@
     "logOut": "Wyloguj",
     "adminLogin": "Logowanie admina"
   },
+  "uiScale": {
+    "title": "Dostosuj rozmiar strony",
+    "label": "Rozmiar strony",
+    "reset": "Resetuj"
+  },
   "globalSearch": {
     "searchTooltip": "Szukaj",
     "placeholder": "Szukaj rozdziałów, kategorii, materiałów, przedmiotów...",

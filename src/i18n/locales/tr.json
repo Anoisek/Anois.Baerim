@@ -26,6 +26,11 @@
     "logOut": "Çıkış yap",
     "adminLogin": "Yönetici girişi"
   },
+  "uiScale": {
+    "title": "Sayfa boyutunu ayarla",
+    "label": "Sayfa boyutu",
+    "reset": "Sıfırla"
+  },
   "globalSearch": {
     "searchTooltip": "Ara",
     "placeholder": "Bölüm, kategori, malzeme, eşya ara...",

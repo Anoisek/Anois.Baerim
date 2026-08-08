@@ -26,6 +26,11 @@
     "logOut": "Abmelden",
     "adminLogin": "Admin-Login"
   },
+  "uiScale": {
+    "title": "Seitengröße anpassen",
+    "label": "Seitengröße",
+    "reset": "Zurücksetzen"
+  },
   "globalSearch": {
     "searchTooltip": "Suchen",
     "placeholder": "Kapitel, Kategorien, Materialien, Gegenstände suchen...",

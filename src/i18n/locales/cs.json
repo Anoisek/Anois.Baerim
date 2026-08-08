@@ -26,6 +26,11 @@
     "logOut": "Odhlásit se",
     "adminLogin": "Přihlášení administrátora"
   },
+  "uiScale": {
+    "title": "Upravit velikost stránky",
+    "label": "Velikost stránky",
+    "reset": "Obnovit"
+  },
   "globalSearch": {
     "searchTooltip": "Hledat",
     "placeholder": "Hledat kapitoly, kategorie, materiály, předměty...",

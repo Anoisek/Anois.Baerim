@@ -26,6 +26,11 @@
     "logOut": "Deconectare",
     "adminLogin": "Autentificare administrator"
   },
+  "uiScale": {
+    "title": "Ajustează dimensiunea paginii",
+    "label": "Dimensiune pagină",
+    "reset": "Resetează"
+  },
   "globalSearch": {
     "searchTooltip": "Caută",
     "placeholder": "Caută capitole, categorii, materiale, obiecte...",

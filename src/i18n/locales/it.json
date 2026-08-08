@@ -26,6 +26,11 @@
     "logOut": "Esci",
     "adminLogin": "Accesso amministratore"
   },
+  "uiScale": {
+    "title": "Regola dimensione pagina",
+    "label": "Dimensione pagina",
+    "reset": "Ripristina"
+  },
   "globalSearch": {
     "searchTooltip": "Cerca",
     "placeholder": "Cerca capitoli, categorie, materiali, oggetti...",
