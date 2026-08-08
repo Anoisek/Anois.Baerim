@@ -12,6 +12,7 @@ import MarkerPanel from '../components/MarkerPanel'
 import HallOfFameModal from '../components/HallOfFameModal'
 import AddMapModal from '../components/AddMapModal'
 import EditMapModal from '../components/EditMapModal'
+import ReorderButtons from '../components/ReorderButtons'
 
 const COLLECTED_KEY = 'map_collected_markers'
 
@@ -54,6 +55,20 @@ export default function Maps() {
       setAllMarkers(data ?? [])
     })
   }, [])
+
+  async function persistMapOrder(id, newOrder) {
+    setMaps(prev => prev.map(m => m.id === id ? { ...m, sort_order: newOrder } : m).sort((a, b) => a.sort_order - b.sort_order))
+    await supabase.from('maps').update({ sort_order: newOrder }).eq('id', id)
+  }
+
+  function moveMap(index, delta) {
+    const targetIndex = index + delta
+    if (targetIndex < 0 || targetIndex >= maps.length) return
+    const a = maps[index]
+    const b = maps[targetIndex]
+    persistMapOrder(a.id, b.sort_order)
+    persistMapOrder(b.id, a.sort_order)
+  }
 
   function mapStats(id) {
     const markersOfMap = allMarkers.filter(mk => mk.map_id === id)
@@ -140,7 +155,7 @@ export default function Maps() {
           ) : (
             <div className="flex gap-4 flex-col md:flex-row">
               <aside className="w-full md:w-56 shrink-0 flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible md:max-h-[70vh] md:overflow-y-auto pb-1 md:pb-0">
-                {maps.map(m => {
+                {maps.map((m, index) => {
                   const active = m.id === selectedMap?.id
                   const { total, done } = mapStats(m.id)
                   return (
@@ -153,12 +168,20 @@ export default function Maps() {
                             : 'bg-gray-800/60 border-gray-700 hover:bg-gray-800 text-gray-200'
                         }`}
                       >
-                        <div className={`flex items-center justify-between gap-2 ${isAdmin ? 'pr-5' : ''}`}>
+                        <div className={`flex items-center justify-between gap-2 ${isAdmin ? 'pr-5' : ''} ${isAdmin && editMode ? 'pl-6' : ''}`}>
                           <span className="font-semibold truncate">{m.name}</span>
                           <span className={`text-[10px] font-mono shrink-0 ${active ? 'text-gray-700' : 'text-gray-500'}`}>{done}/{total}</span>
                         </div>
-                        <div className={`text-xs ${active ? 'text-gray-800' : 'text-gray-500'}`}>{m.region}</div>
+                        <div className={`text-xs ${active ? 'text-gray-800' : 'text-gray-500'} ${isAdmin && editMode ? 'pl-6' : ''}`}>{m.region}</div>
                       </button>
+                      {isAdmin && editMode && (
+                        <ReorderButtons
+                          onUp={() => moveMap(index, -1)}
+                          onDown={() => moveMap(index, 1)}
+                          disableUp={index === 0}
+                          disableDown={index === maps.length - 1}
+                        />
+                      )}
                       {isAdmin && (
                         <button
                           onClick={e => { e.stopPropagation(); setEditingMap(m) }}
