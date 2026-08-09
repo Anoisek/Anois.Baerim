@@ -238,5 +238,50 @@
     "learnMore": "Scopri di più",
     "accept": "Accetta",
     "decline": "Rifiuta"
+  },
+  "privacyPolicy": {
+    "lastUpdated": "Ultimo aggiornamento: 9 agosto 2026",
+    "intro": {
+      "title": "Cos'è questo sito",
+      "body": "Baerim Calculator è uno strumento non ufficiale, creato dai fan per i giocatori del server Baerim (Metin2). Il sito non è affiliato al team di Baerim né ai creatori di Metin2. Non serve un account né effettuare l'accesso per usarlo."
+    },
+    "localData": {
+      "title": "Dati salvati localmente nel tuo browser",
+      "intro": "Il sito salva alcuni dati esclusivamente in locale, nella memoria del tuo browser (localStorage) — questi dati non vengono mai inviati ad alcun server e scompaiono se cancelli i dati di navigazione. Servono per ricordare le tue impostazioni e i tuoi progressi tra una visita e l'altra:",
+      "items": [
+        "la lingua scelta e la modalità notturna",
+        "la dimensione dell'interfaccia scelta (scala HUD)",
+        "il nickname di Metin2 che hai inserito (usato per accreditarti nella Hall of Fame)",
+        "la tua lista di mokoko raccolti sulle mappe interattive",
+        "i commenti a cui hai messo mi piace sotto i marcatori dei mokoko",
+        "i tuoi prezzi dei materiali inseriti manualmente e la tua lista nel Build Calculator",
+        "le scelte di pergamene/sigilli/pity salvate per ogni oggetto",
+        "blocchi temporanei brevi dopo l'uso di una parola vietata in un commento"
+      ]
+    },
+    "serverData": {
+      "title": "Dati inviati al server",
+      "body": "Se aggiungi un commento sotto un mokoko sulla mappa (facoltativamente con una foto), invii un prezzo alla lista globale dei prezzi, o lasci il tuo nickname per la Hall of Fame — questi dati vengono salvati nel database del sito (Supabase) e sono visibili pubblicamente agli altri visitatori. Ti chiediamo di non includere dati personali nei commenti — non sono mai necessari."
+    },
+    "cookiesAds": {
+      "title": "Cookie e pubblicità",
+      "body": "Al momento il sito non mostra pubblicità e non usa cookie per il tracciamento o la profilazione. In futuro potrebbero essere aggiunte pubblicità piccole e poco invasive (ad es. Google AdSense) — se ciò accadrà, chiederemo il tuo consenso tramite un banner in fondo alla pagina prima di caricare qualsiasi cookie pubblicitario, e questa informativa verrà aggiornata con i dettagli."
+    },
+    "hostingLogs": {
+      "title": "Log di hosting",
+      "body": "Come la maggior parte dei siti web, l'infrastruttura di hosting (Vercel) e il database (Supabase) usati da questo sito possono registrare di routine indirizzi IP e informazioni tecniche di base sulle richieste (ad es. il tipo di browser) come parte del normale funzionamento e della sicurezza del servizio. Non abbiamo accesso diretto a questi dati oltre a statistiche di base."
+    },
+    "rights": {
+      "title": "I tuoi diritti",
+      "body": "Puoi eliminare i dati salvati localmente in qualsiasi momento cancellando i dati di navigazione per questo sito. Se vuoi che rimuoviamo un commento, una foto o una voce nella Hall of Fame che hai inviato, scrivici all’indirizzo qui sotto."
+    },
+    "changes": {
+      "title": "Modifiche a questa informativa",
+      "body": "Questa informativa potrebbe essere aggiornata con l'evoluzione del sito (ad esempio dopo l'attivazione della pubblicità). La data dell'ultimo aggiornamento è indicata in cima alla pagina."
+    },
+    "contact": {
+      "title": "Contatti",
+      "body": "Per qualsiasi cosa relativa alla privacy, scrivici a:"
+    }
   }
 }

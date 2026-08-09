@@ -238,5 +238,50 @@
     "learnMore": "Learn more",
     "accept": "Accept",
     "decline": "Decline"
+  },
+  "privacyPolicy": {
+    "lastUpdated": "Last updated: August 9, 2026",
+    "intro": {
+      "title": "What this site is",
+      "body": "Baerim Calculator is an unofficial, fan-made tool created for players of the Baerim server (Metin2). The site is not affiliated with the Baerim team or the creators of Metin2. You don't need an account or to log in to use it."
+    },
+    "localData": {
+      "title": "Data stored locally in your browser",
+      "intro": "The site saves some data purely locally, in your browser's storage (localStorage) — this data is never sent to any server and disappears if you clear your browsing data. It's used to remember your settings and progress between visits:",
+      "items": [
+        "your chosen site language and night mode",
+        "your chosen interface size (HUD scale)",
+        "the Metin2 nickname you entered (used to credit you in the Hall of Fame)",
+        "your list of collected mokoko on the interactive maps",
+        "comments you've liked under mokoko markers",
+        "your own manually entered material prices and your Build Calculator list",
+        "scroll/seal/pity choices saved per item",
+        "short-lived cooldowns after using a banned word in a comment"
+      ]
+    },
+    "serverData": {
+      "title": "Data sent to the server",
+      "body": "If you add a comment under a mokoko on the map (optionally with a photo), submit a price to the global price list, or leave your nickname for the Hall of Fame — that data is stored in the site's database (Supabase) and is publicly visible to other visitors. Please don't include personal information in comments — it's never needed."
+    },
+    "cookiesAds": {
+      "title": "Cookies and ads",
+      "body": "The site currently shows no ads and does not use cookies for tracking or profiling. Small, non-intrusive ads (e.g. Google AdSense) may be added in the future — if that happens, we'll ask for your consent via a banner at the bottom of the page before any advertising cookies load, and this policy will be updated with details."
+    },
+    "hostingLogs": {
+      "title": "Hosting logs",
+      "body": "Like most websites, the hosting infrastructure (Vercel) and database (Supabase) behind this site may routinely log IP addresses and basic technical request information (e.g. browser type) as part of normal service operation and security. We don't have direct access to this data beyond basic statistics."
+    },
+    "rights": {
+      "title": "Your rights",
+      "body": "You can delete locally stored data at any time by clearing your browsing data for this site. If you'd like us to remove a comment, photo, or Hall of Fame entry you submitted, write to us at the address below."
+    },
+    "changes": {
+      "title": "Changes to this policy",
+      "body": "This policy may be updated as the site evolves (e.g. once ads are launched). The date of the last update is shown at the top of the page."
+    },
+    "contact": {
+      "title": "Contact",
+      "body": "For anything related to privacy, write to us at:"
+    }
   }
 }

@@ -238,5 +238,50 @@
     "learnMore": "Mehr erfahren",
     "accept": "Akzeptieren",
     "decline": "Ablehnen"
+  },
+  "privacyPolicy": {
+    "lastUpdated": "Letzte Aktualisierung: 9. August 2026",
+    "intro": {
+      "title": "Was diese Seite ist",
+      "body": "Baerim Calculator ist ein inoffizielles, von Fans erstelltes Tool für Spieler des Baerim-Servers (Metin2). Die Seite ist nicht mit dem Baerim-Team oder den Machern von Metin2 verbunden. Du brauchst kein Konto und musst dich nicht anmelden, um sie zu nutzen."
+    },
+    "localData": {
+      "title": "Daten, die lokal in deinem Browser gespeichert werden",
+      "intro": "Die Seite speichert einige Daten ausschließlich lokal im Speicher deines Browsers (localStorage) — diese Daten werden nie an einen Server gesendet und verschwinden, wenn du deine Browserdaten löschst. Sie dienen dazu, deine Einstellungen und deinen Fortschritt zwischen Besuchen zu merken:",
+      "items": [
+        "deine gewählte Sprache und der Nachtmodus",
+        "die eingestellte Oberflächengröße (HUD-Skalierung)",
+        "dein eingegebener Metin2-Nickname (dient zur Nennung im Hall of Fame)",
+        "deine Liste gesammelter Mokoko auf den interaktiven Karten",
+        "von dir gelikte Kommentare unter Mokoko-Markern",
+        "deine eigenen, manuell eingegebenen Materialpreise und deine Build-Calculator-Liste",
+        "gespeicherte Schriftrollen-/Siegel-/Pity-Auswahl pro Item",
+        "kurze Sperrzeiten nach Verwendung eines verbotenen Wortes in einem Kommentar"
+      ]
+    },
+    "serverData": {
+      "title": "Daten, die an den Server gesendet werden",
+      "body": "Wenn du einen Kommentar unter einem Mokoko auf der Karte hinzufügst (optional mit Foto), einen Preis an die globale Preisliste meldest oder deinen Nickname für den Hall of Fame hinterlässt — landen diese Daten in der Datenbank der Seite (Supabase) und sind für andere Besucher öffentlich sichtbar. Bitte gib in Kommentaren keine persönlichen Daten an — sie werden dafür nie benötigt."
+    },
+    "cookiesAds": {
+      "title": "Cookies und Werbung",
+      "body": "Die Seite zeigt derzeit keine Werbung und verwendet keine Cookies zum Tracking oder Profiling. In Zukunft können kleine, wenig störende Anzeigen (z. B. Google AdSense) hinzugefügt werden — falls das passiert, fragen wir vorher per Banner am unteren Seitenrand nach deiner Zustimmung, bevor Werbe-Cookies geladen werden, und diese Richtlinie wird entsprechend aktualisiert."
+    },
+    "hostingLogs": {
+      "title": "Hosting-Protokolle",
+      "body": "Wie die meisten Websites können die Hosting-Infrastruktur (Vercel) und die Datenbank (Supabase) hinter dieser Seite routinemäßig IP-Adressen und grundlegende technische Anfrageinformationen (z. B. Browsertyp) im Rahmen des normalen Betriebs und der Sicherheit protokollieren. Wir haben keinen direkten Zugriff auf diese Daten, außer auf grundlegende Statistiken."
+    },
+    "rights": {
+      "title": "Deine Rechte",
+      "body": "Lokal gespeicherte Daten kannst du jederzeit löschen, indem du deine Browserdaten für diese Seite löschst. Wenn du möchtest, dass wir einen von dir eingereichten Kommentar, ein Foto oder einen Hall-of-Fame-Eintrag entfernen, schreib uns an die unten stehende Adresse."
+    },
+    "changes": {
+      "title": "Änderungen dieser Richtlinie",
+      "body": "Diese Richtlinie kann sich mit der Weiterentwicklung der Seite ändern (z. B. nach dem Start von Werbung). Das Datum der letzten Aktualisierung steht oben auf der Seite."
+    },
+    "contact": {
+      "title": "Kontakt",
+      "body": "Bei allem rund um den Datenschutz schreib uns an:"
+    }
   }
 }

@@ -238,5 +238,50 @@
     "learnMore": "En savoir plus",
     "accept": "Accepter",
     "decline": "Refuser"
+  },
+  "privacyPolicy": {
+    "lastUpdated": "Dernière mise à jour : 9 août 2026",
+    "intro": {
+      "title": "Ce qu'est ce site",
+      "body": "Baerim Calculator est un outil non officiel, créé par des fans pour les joueurs du serveur Baerim (Metin2). Le site n'est affilié ni à l'équipe de Baerim ni aux créateurs de Metin2. Tu n'as besoin ni de compte ni de connexion pour l'utiliser."
+    },
+    "localData": {
+      "title": "Données stockées localement dans ton navigateur",
+      "intro": "Le site enregistre certaines données uniquement en local, dans le stockage de ton navigateur (localStorage) — ces données ne sont jamais envoyées à un serveur et disparaissent si tu effaces tes données de navigation. Elles servent à mémoriser tes réglages et ta progression entre les visites :",
+      "items": [
+        "la langue choisie et le mode nuit",
+        "la taille d'interface choisie (échelle du HUD)",
+        "le pseudo Metin2 que tu as saisi (utilisé pour te créditer dans le Hall of Fame)",
+        "ta liste de mokoko collectés sur les cartes interactives",
+        "les commentaires que tu as aimés sous les marqueurs de mokoko",
+        "tes propres prix de matériaux saisis manuellement et ta liste du Build Calculator",
+        "les choix de parchemins/sceaux/pity enregistrés par objet",
+        "des blocages temporaires courts après l'utilisation d'un mot interdit dans un commentaire"
+      ]
+    },
+    "serverData": {
+      "title": "Données envoyées au serveur",
+      "body": "Si tu ajoutes un commentaire sous un mokoko sur la carte (avec une photo en option), que tu soumets un prix à la liste globale, ou que tu laisses ton pseudo pour le Hall of Fame — ces données sont stockées dans la base de données du site (Supabase) et visibles publiquement par les autres visiteurs. Merci de ne pas inclure de données personnelles dans les commentaires — elles ne sont jamais nécessaires."
+    },
+    "cookiesAds": {
+      "title": "Cookies et publicité",
+      "body": "Le site n'affiche actuellement aucune publicité et n'utilise pas de cookies de suivi ou de profilage. De petites publicités peu intrusives (par exemple Google AdSense) pourraient être ajoutées à l'avenir — si c'est le cas, nous te demanderons ton consentement via un bandeau en bas de page avant le chargement de tout cookie publicitaire, et cette politique sera mise à jour en conséquence."
+    },
+    "hostingLogs": {
+      "title": "Journaux d'hébergement",
+      "body": "Comme la plupart des sites web, l'infrastructure d'hébergement (Vercel) et la base de données (Supabase) utilisées par ce site peuvent enregistrer de façon routinière les adresses IP et des informations techniques de base sur les requêtes (par exemple le type de navigateur) dans le cadre du fonctionnement normal et de la sécurité du service. Nous n'avons pas d'accès direct à ces données, hormis des statistiques de base."
+    },
+    "rights": {
+      "title": "Tes droits",
+      "body": "Tu peux supprimer à tout moment les données stockées localement en effaçant les données de navigation de ce site. Si tu veux que nous supprimions un commentaire, une photo ou une entrée du Hall of Fame que tu as soumise, écris-nous à l'adresse ci-dessous."
+    },
+    "changes": {
+      "title": "Modifications de cette politique",
+      "body": "Cette politique peut être mise à jour à mesure que le site évolue (par exemple lors du lancement des publicités). La date de la dernière mise à jour figure en haut de la page."
+    },
+    "contact": {
+      "title": "Contact",
+      "body": "Pour toute question liée à la confidentialité, écris-nous à :"
+    }
   }
 }

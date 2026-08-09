@@ -238,5 +238,50 @@
     "learnMore": "Daha fazla bilgi",
     "accept": "Kabul et",
     "decline": "Reddet"
+  },
+  "privacyPolicy": {
+    "lastUpdated": "Son güncelleme: 9 Ağustos 2026",
+    "intro": {
+      "title": "Bu site nedir",
+      "body": "Baerim Calculator, Baerim sunucusu (Metin2) oyuncuları için yapılmış resmi olmayan, hayran yapımı bir araçtır. Site, Baerim ekibi veya Metin2 yapımcılarıyla bağlantılı değildir. Kullanmak için hesaba veya girişe ihtiyacın yok."
+    },
+    "localData": {
+      "title": "Tarayıcında yerel olarak saklanan veriler",
+      "intro": "Site bazı verileri yalnızca yerel olarak, tarayıcının depolama alanında (localStorage) saklar — bu veriler hiçbir zaman herhangi bir sunucuya gönderilmez ve tarama verilerini temizlersen kaybolur. Ziyaretler arasında ayarlarını ve ilerlemeni hatırlamak için kullanılır:",
+      "items": [
+        "seçtiğin site dili ve gece modu",
+        "ayarladığın arayüz boyutu (HUD ölçeği)",
+        "girdiğin Metin2 takma adı (Hall of Fame’de seni belirtmek için kullanılır)",
+        "etkileşimli haritalarda topladığın mokoko listesi",
+        "mokoko işaretçileri altında beğendiğin yorumlar",
+        "kendi elle girdiğin malzeme fiyatların ve Build Calculator listen",
+        "her eşya için kaydedilen tomar/mühür/pity seçimleri",
+        "bir yorumda yasaklı kelime kullandıktan sonraki kısa süreli engeller"
+      ]
+    },
+    "serverData": {
+      "title": "Sunucuya gönderilen veriler",
+      "body": "Haritadaki bir mokoko altına yorum eklersen (isteğe bağlı olarak fotoğrafla birlikte), küresel fiyat listesine bir fiyat gönderirsen ya da Hall of Fame için takma adını bırakırsan — bu veriler sitenin veritabanında (Supabase) saklanır ve diğer ziyaretçiler tarafından herkese açık şekilde görülebilir. Lütfen yorumlara kişisel bilgi eklemeyin — bunlara hiçbir zaman ihtiyaç yoktur."
+    },
+    "cookiesAds": {
+      "title": "Çerezler ve reklamlar",
+      "body": "Site şu anda reklam göstermiyor ve izleme veya profilleme için çerez kullanmıyor. Gelecekte küçük, rahatsız etmeyen reklamlar (örneğin Google AdSense) eklenebilir — bu olursa, herhangi bir reklam çerezi yüklenmeden önce sayfanın altındaki bir banner aracılığıyla onayını isteyeceğiz ve bu politika ayrıntılarla güncellenecek."
+    },
+    "hostingLogs": {
+      "title": "Barındırma günlükleri",
+      "body": "Çoğu web sitesi gibi, bu sitenin arkasındaki barındırma altyapısı (Vercel) ve veritabanı (Supabase), hizmetin normal işleyişi ve güvenliği kapsamında rutin olarak IP adreslerini ve temel teknik istek bilgilerini (örneğin tarayıcı türü) kaydedebilir. Temel istatistikler dışında bu verilere doğrudan erişimimiz yoktur."
+    },
+    "rights": {
+      "title": "Haklarınız",
+      "body": "Yerel olarak saklanan verileri, bu site için tarama verilerini temizleyerek istediğin zaman silebilirsin. Gönderdiğin bir yorumu, fotoğrafı veya Hall of Fame kaydını kaldırmamızı istiyorsan, aşağıdaki adresten bize yaz."
+    },
+    "changes": {
+      "title": "Bu politikadaki değişiklikler",
+      "body": "Bu politika, site geliştikçe (örneğin reklamlar başlatıldığında) güncellenebilir. Son güncelleme tarihi sayfanın üstünde gösterilir."
+    },
+    "contact": {
+      "title": "İletişim",
+      "body": "Gizlilikle ilgili her konuda bize şu adresten yazabilirsin:"
+    }
   }
 }

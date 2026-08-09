@@ -238,5 +238,50 @@
     "learnMore": "Zistiť viac",
     "accept": "Prijať",
     "decline": "Odmietnuť"
+  },
+  "privacyPolicy": {
+    "lastUpdated": "Posledná aktualizácia: 9. augusta 2026",
+    "intro": {
+      "title": "Čo je táto stránka",
+      "body": "Baerim Calculator je neoficiálny fanúšikovský nástroj vytvorený pre hráčov serveru Baerim (Metin2). Stránka nie je spojená s tímom Baerim ani s tvorcami Metin2. Na jej používanie nepotrebuješ účet ani prihlásenie."
+    },
+    "localData": {
+      "title": "Dáta ukladané lokálne v tvojom prehliadači",
+      "intro": "Stránka ukladá časť dát výlučne lokálne, v úložisku tvojho prehliadača (localStorage) — tieto dáta sa nikdy neposielajú na žiadny server a zmiznú, ak vymažeš dáta prehliadania. Slúžia na zapamätanie tvojich nastavení a postupu medzi návštevami:",
+      "items": [
+        "zvolený jazyk stránky a nočný režim",
+        "nastavenú veľkosť rozhrania (škálu HUD)",
+        "zadaný nick z Metin2 (používa sa na pripísanie zásluh v Hall of Fame)",
+        "tvoj zoznam zozbieraných mokoko na interaktívnych mapách",
+        "komentáre, ktorým si dal(a) like pod značkami mokoko",
+        "tvoje vlastné, ručne zadané ceny materiálov a tvoj zoznam v Build Calculatore",
+        "voľby zvitkov/pečatí/pity uložené pre jednotlivé predmety",
+        "krátke dočasné blokácie po použití zakázaného slova v komentári"
+      ]
+    },
+    "serverData": {
+      "title": "Dáta odosielané na server",
+      "body": "Ak pridáš komentár pod mokoko na mape (voliteľne s fotkou), odošleš cenu do globálneho cenníka, alebo necháš svoj nick pre Hall of Fame — tieto dáta sa ukladajú do databázy stránky (Supabase) a sú verejne viditeľné ostatným návštevníkom. Neuvádzaj prosím v komentároch osobné údaje — nikdy nie sú potrebné."
+    },
+    "cookiesAds": {
+      "title": "Cookies a reklamy",
+      "body": "Stránka momentálne nezobrazuje žiadne reklamy a nepoužíva cookies na sledovanie ani profilovanie. V budúcnosti môžu byť pridané malé, málo rušivé reklamy (napr. Google AdSense) — ak k tomu dôjde, požiadame ťa o súhlas prostredníctvom banneru v spodnej časti stránky pred načítaním akýchkoľvek reklamných cookies a tieto zásady budú o podrobnosti aktualizované."
+    },
+    "hostingLogs": {
+      "title": "Protokoly hostingu",
+      "body": "Rovnako ako väčšina webov, hostingová infraštruktúra (Vercel) a databáza (Supabase), na ktorých táto stránka beží, môžu bežne zaznamenávať IP adresy a základné technické informácie o požiadavkách (napr. typ prehliadača) v rámci bežnej prevádzky a zabezpečenia služby. K týmto dátam nemáme priamy prístup nad rámec základných štatistík."
+    },
+    "rights": {
+      "title": "Tvoje práva",
+      "body": "Lokálne uložené dáta môžeš kedykoľvek vymazať vymazaním dát prehliadania pre túto stránku. Ak chceš, aby sme odstránili komentár, fotku alebo záznam v Hall of Fame, ktorý si pridal(a), napíš nám na adresu nižšie."
+    },
+    "changes": {
+      "title": "Zmeny týchto zásad",
+      "body": "Tieto zásady môžu byť aktualizované s vývojom stránky (napr. po spustení reklám). Dátum poslednej aktualizácie je uvedený v hornej časti stránky."
+    },
+    "contact": {
+      "title": "Kontakt",
+      "body": "Vo veciach týkajúcich sa súkromia nám napíš na:"
+    }
   }
 }
