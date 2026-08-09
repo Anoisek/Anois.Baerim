@@ -186,6 +186,7 @@
     "done": "Hotovo",
     "clickToAddMarker": "Klikni kdekoľvek na mapu a pridaj značku.",
     "editMapTooltip": "Upraviť mapu",
+    "maxReachedTooltip": "Všetky mokoko na tejto mape už boli pridané",
     "addMap": "+ Pridať mapu"
   },
   "hallOfFame": {

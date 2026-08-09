@@ -186,6 +186,7 @@
     "done": "Gata",
     "clickToAddMarker": "Dă clic oriunde pe hartă pentru a adăuga un marcaj.",
     "editMapTooltip": "Editează harta",
+    "maxReachedTooltip": "Toate mokoko de pe această hartă au fost deja adăugate",
     "addMap": "+ Adaugă hartă"
   },
   "hallOfFame": {

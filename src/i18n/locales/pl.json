@@ -186,6 +186,7 @@
     "done": "Gotowe",
     "clickToAddMarker": "Kliknij w dowolne miejsce na mapie, aby dodać znacznik.",
     "editMapTooltip": "Edytuj mapę",
+    "maxReachedTooltip": "Wszystkie mokoko na tej mapie zostały już dodane",
     "addMap": "+ Dodaj mapę"
   },
   "hallOfFame": {

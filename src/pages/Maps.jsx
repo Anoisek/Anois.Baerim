@@ -13,6 +13,7 @@ import HallOfFameModal from '../components/HallOfFameModal'
 import AddMapModal from '../components/AddMapModal'
 import EditMapModal from '../components/EditMapModal'
 import ReorderButtons from '../components/ReorderButtons'
+import { getMaxMokoko } from '../utils/mokokoMaxCounts'
 
 const COLLECTED_KEY = 'map_collected_markers'
 
@@ -164,6 +165,8 @@ export default function Maps() {
                     : complete
                       ? (active ? 'text-green-700' : 'text-green-400')
                       : (active ? 'text-red-700' : 'text-red-400')
+                  const maxCount = getMaxMokoko(m.name)
+                  const isMaxed = maxCount != null && total >= maxCount
                   return (
                     <div key={m.id} className="relative shrink-0 md:shrink group">
                       <button
@@ -175,7 +178,12 @@ export default function Maps() {
                         }`}
                       >
                         <div className={`flex items-center justify-between gap-2 ${isAdmin ? 'pr-5 pl-6' : ''}`}>
-                          <span className="font-semibold truncate">{m.name}</span>
+                          <span className="flex items-center gap-1 min-w-0">
+                            {isMaxed && (
+                              <span className={active ? 'text-gray-900' : 'text-yellow-400'} title={t('maps.maxReachedTooltip')}>★</span>
+                            )}
+                            <span className="font-semibold truncate">{m.name}</span>
+                          </span>
                           <span className={`text-[10px] font-mono font-bold shrink-0 ${statColor}`}>{done}/{total}</span>
                         </div>
                         <div className={`text-xs ${active ? 'text-gray-800' : 'text-gray-500'} ${isAdmin ? 'pl-6' : ''}`}>{m.region}</div>

@@ -186,6 +186,7 @@
     "done": "Bitti",
     "clickToAddMarker": "İşaretçi eklemek için haritada herhangi bir yere tıkla.",
     "editMapTooltip": "Haritayı düzenle",
+    "maxReachedTooltip": "Bu haritadaki tüm mokoko zaten eklendi",
     "addMap": "+ Harita ekle"
   },
   "hallOfFame": {
