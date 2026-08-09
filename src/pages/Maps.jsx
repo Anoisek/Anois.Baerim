@@ -17,6 +17,17 @@ import MapPipButton from '../components/MapPipButton'
 
 const COLLECTED_KEY = 'map_collected_markers'
 
+function getNextMokokoNumber(markers) {
+  const used = new Set()
+  for (const m of markers) {
+    const match = /^Mokoko #(\d+)$/.exec(m.title ?? '')
+    if (match) used.add(Number(match[1]))
+  }
+  let n = 1
+  while (used.has(n)) n++
+  return n
+}
+
 function loadCollected() {
   try {
     return JSON.parse(localStorage.getItem(COLLECTED_KEY)) ?? {}
@@ -411,7 +422,7 @@ export default function Maps() {
           mapId={selectedMap.id}
           x={addingAt.x}
           y={addingAt.y}
-          nextNumber={markers.length + 1}
+          nextNumber={getNextMokokoNumber(markers)}
           onClose={() => setAddingAt(null)}
           onAdded={marker => {
             setMarkers(prev => [...prev, marker])
