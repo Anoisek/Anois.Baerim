@@ -194,7 +194,8 @@
     "exportProgressTooltip": "Descarcă progresul tău de mokoko colectate ca fișier",
     "importProgress": "⬆ Importă progresul",
     "importProgressTooltip": "Restaurează progresul de mokoko colectate dintr-un fișier exportat anterior",
-    "importError": "Acest fișier nu a putut fi citit — asigură-te că este un fișier de progres exportat de pe acest site."
+    "importError": "Acest fișier nu a putut fi citit — asigură-te că este un fișier de progres exportat de pe acest site.",
+    "repositionHint": "Dă clic oriunde pe hartă pentru a muta acest mokoko acolo. Apasă Esc pentru a anula."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

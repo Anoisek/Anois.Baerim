@@ -194,7 +194,8 @@
     "exportProgressTooltip": "Stiahnuť tvoj postup zozbieraných mokoko ako súbor",
     "importProgress": "⬆ Importovať postup",
     "importProgressTooltip": "Obnoviť postup zozbieraných mokoko z predtým exportovaného súboru",
-    "importError": "Tento súbor sa nepodarilo prečítať — uisti sa, že ide o súbor s postupom exportovaný z tejto stránky."
+    "importError": "Tento súbor sa nepodarilo prečítať — uisti sa, že ide o súbor s postupom exportovaný z tejto stránky.",
+    "repositionHint": "Klikni kdekoľvek na mapu, aby si tam presunul toto mokoko. Zrušíš klávesom Esc."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

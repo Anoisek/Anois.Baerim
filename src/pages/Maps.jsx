@@ -46,7 +46,10 @@ export default function Maps() {
   const [showHelpers, setShowHelpers] = useState(false)
   const [editingMap, setEditingMap] = useState(null)
   const [addingMap, setAddingMap] = useState(false)
+  const [repositioningMarker, setRepositioningMarker] = useState(null)
   const importInputRef = useRef(null)
+  const longPressTimerRef = useRef(null)
+  const longPressFiredRef = useRef(false)
 
   useEffect(() => {
     supabase.from('maps').select('*').order('sort_order').then(({ data }) => {
@@ -93,11 +96,25 @@ export default function Maps() {
     setOpenMarker(null)
     setEditingMarker(null)
     setAddingAt(null)
+    setRepositioningMarker(null)
     supabase.from('map_markers').select('*').eq('map_id', selectedMap.id).then(({ data }) => {
       setMarkers(data ?? [])
       setMarkersLoading(false)
     })
   }, [selectedMap?.id, selectedMap?.width, selectedMap?.height])
+
+  useEffect(() => {
+    setRepositioningMarker(null)
+  }, [editMode])
+
+  useEffect(() => {
+    if (!repositioningMarker) return
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') setRepositioningMarker(null)
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [repositioningMarker])
 
   function toggleCollected(markerId) {
     setCollected(prev => {
@@ -141,16 +158,49 @@ export default function Maps() {
     }
   }
 
+  async function moveMarkerTo(marker, x, y) {
+    setRepositioningMarker(null)
+    const { data, error } = await supabase.from('map_markers').update({ x, y }).eq('id', marker.id).select().single()
+    if (error) { alert('Error: ' + error.message); return }
+    setMarkers(prev => prev.map(m => m.id === data.id ? data : m))
+  }
+
   function handleContainerClick(e) {
-    if (!canAddMarkers || !editMode || !selectedMap) return
+    if (!selectedMap) return
     const rect = e.currentTarget.getBoundingClientRect()
     const x = Math.round(((e.clientX - rect.left) / rect.width) * selectedMap.width)
     const y = Math.round(((e.clientY - rect.top) / rect.height) * selectedMap.height)
+    if (repositioningMarker) {
+      moveMarkerTo(repositioningMarker, x, y)
+      return
+    }
+    if (!canAddMarkers || !editMode) return
     setAddingAt({ x, y })
+  }
+
+  function handleMarkerPointerDown(marker) {
+    if (!isAdmin || !editMode) return
+    clearTimeout(longPressTimerRef.current)
+    longPressTimerRef.current = setTimeout(() => {
+      longPressFiredRef.current = true
+      setRepositioningMarker(marker)
+    }, 2000)
+  }
+
+  function cancelLongPress() {
+    clearTimeout(longPressTimerRef.current)
   }
 
   function handleMarkerClick(e, marker) {
     e.stopPropagation()
+    if (longPressFiredRef.current) {
+      longPressFiredRef.current = false
+      return
+    }
+    if (repositioningMarker) {
+      setRepositioningMarker(null)
+      return
+    }
     if (isAdmin && editMode) {
       setEditingMarker(marker)
     } else {
@@ -305,7 +355,7 @@ export default function Maps() {
                 {markersLoading || !selectedMap ? <Spinner /> : (
                   <>
                     <div
-                      className={`relative w-full rounded-xl overflow-hidden border border-gray-700 bg-gray-950 ${editMode ? 'cursor-crosshair' : ''}`}
+                      className={`relative w-full rounded-xl overflow-hidden border border-gray-700 bg-gray-950 ${editMode || repositioningMarker ? 'cursor-crosshair' : ''}`}
                       style={{ aspectRatio: `${selectedMap.width} / ${selectedMap.height}` }}
                       onClick={handleContainerClick}
                     >
@@ -317,6 +367,7 @@ export default function Maps() {
                       />
                       {visibleMarkers.map(marker => {
                         const isCollected = !!collected[marker.id]
+                        const isRepositioning = repositioningMarker?.id === marker.id
                         return (
                           <div
                             key={marker.id}
@@ -325,8 +376,14 @@ export default function Maps() {
                           >
                             <button
                               onClick={e => handleMarkerClick(e, marker)}
+                              onPointerDown={() => handleMarkerPointerDown(marker)}
+                              onPointerUp={cancelLongPress}
+                              onPointerLeave={cancelLongPress}
+                              onPointerCancel={cancelLongPress}
                               title={marker.title || undefined}
-                              className={`block hover:scale-125 transition-transform ${isCollected ? 'opacity-40' : ''}`}
+                              className={`block hover:scale-125 transition-transform ${isCollected ? 'opacity-40' : ''} ${
+                                isRepositioning ? 'animate-pulse ring-4 ring-yellow-400 rounded-full' : ''
+                              }`}
                             >
                               {marker.icon?.startsWith('/')
                                 ? <img src={marker.icon} alt="" draggable="false" className="w-8 h-8 object-contain drop-shadow select-none" />
@@ -336,7 +393,9 @@ export default function Maps() {
                         )
                       })}
                     </div>
-                    {canAddMarkers && editMode && (
+                    {repositioningMarker ? (
+                      <p className="text-xs text-yellow-400 mt-3">{t('maps.repositionHint')}</p>
+                    ) : canAddMarkers && editMode && (
                       <p className="text-xs text-gray-500 mt-3">{t('maps.clickToAddMarker')}</p>
                     )}
                   </>

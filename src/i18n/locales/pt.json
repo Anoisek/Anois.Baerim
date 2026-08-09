@@ -194,7 +194,8 @@
     "exportProgressTooltip": "Descarrega o teu progresso de mokoko recolhidos como ficheiro",
     "importProgress": "⬆ Importar progresso",
     "importProgressTooltip": "Restaura o progresso de mokoko recolhidos a partir de um ficheiro exportado anteriormente",
-    "importError": "Não foi possível ler este ficheiro — certifica-te de que é um ficheiro de progresso exportado deste site."
+    "importError": "Não foi possível ler este ficheiro — certifica-te de que é um ficheiro de progresso exportado deste site.",
+    "repositionHint": "Clica em qualquer parte do mapa para mover este mokoko para lá. Esc para cancelar."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

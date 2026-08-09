@@ -194,7 +194,8 @@
     "exportProgressTooltip": "Lade deinen Mokoko-Sammelfortschritt als Datei herunter",
     "importProgress": "⬆ Fortschritt importieren",
     "importProgressTooltip": "Stelle den Mokoko-Sammelfortschritt aus einer zuvor exportierten Datei wieder her",
-    "importError": "Diese Datei konnte nicht gelesen werden — stelle sicher, dass es sich um eine von dieser Seite exportierte Fortschrittsdatei handelt."
+    "importError": "Diese Datei konnte nicht gelesen werden — stelle sicher, dass es sich um eine von dieser Seite exportierte Fortschrittsdatei handelt.",
+    "repositionHint": "Klicke irgendwo auf die Karte, um dieses Mokoko dorthin zu verschieben. Esc zum Abbrechen."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",
