@@ -189,7 +189,12 @@
     "maxReachedTooltip": "Toate mokoko de pe această hartă au fost deja adăugate",
     "addMap": "+ Adaugă hartă",
     "pipButton": "Scoate harta",
-    "pipTooltip": "Ține harta plutitoare deasupra altor ferestre"
+    "pipTooltip": "Ține harta plutitoare deasupra altor ferestre",
+    "exportProgress": "⬇ Exportă progresul",
+    "exportProgressTooltip": "Descarcă progresul tău de mokoko colectate ca fișier",
+    "importProgress": "⬆ Importă progresul",
+    "importProgressTooltip": "Restaurează progresul de mokoko colectate dintr-un fișier exportat anterior",
+    "importError": "Acest fișier nu a putut fi citit — asigură-te că este un fișier de progres exportat de pe acest site."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

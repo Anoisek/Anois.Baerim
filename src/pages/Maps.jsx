@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
@@ -46,6 +46,7 @@ export default function Maps() {
   const [showHelpers, setShowHelpers] = useState(false)
   const [editingMap, setEditingMap] = useState(null)
   const [addingMap, setAddingMap] = useState(false)
+  const importInputRef = useRef(null)
 
   useEffect(() => {
     supabase.from('maps').select('*').order('sort_order').then(({ data }) => {
@@ -108,6 +109,38 @@ export default function Maps() {
     })
   }
 
+  function handleExportProgress() {
+    const blob = new Blob([JSON.stringify(collected, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `baerim-mokoko-progress-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  function handleImportProgressClick() {
+    importInputRef.current?.click()
+  }
+
+  async function handleImportProgressFile(e) {
+    const file = e.target.files[0]
+    e.target.value = ''
+    if (!file) return
+    try {
+      const text = await file.text()
+      const parsed = JSON.parse(text)
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) throw new Error('Invalid file')
+      setCollected(prev => {
+        const next = { ...prev, ...parsed }
+        localStorage.setItem(COLLECTED_KEY, JSON.stringify(next))
+        return next
+      })
+    } catch {
+      alert(t('maps.importError'))
+    }
+  }
+
   function handleContainerClick(e) {
     if (!canAddMarkers || !editMode || !selectedMap) return
     const rect = e.currentTarget.getBoundingClientRect()
@@ -140,12 +173,29 @@ export default function Maps() {
           ]} />
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <h1 className="text-2xl font-bold text-gray-100">{t('maps.title')}</h1>
-            <button
-              onClick={() => setShowHelpers(true)}
-              className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
-            >
-              {t('maps.hallOfFame')}
-            </button>
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={handleExportProgress}
+                className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+                title={t('maps.exportProgressTooltip')}
+              >
+                {t('maps.exportProgress')}
+              </button>
+              <button
+                onClick={handleImportProgressClick}
+                className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+                title={t('maps.importProgressTooltip')}
+              >
+                {t('maps.importProgress')}
+              </button>
+              <input ref={importInputRef} type="file" accept="application/json" className="hidden" onChange={handleImportProgressFile} />
+              <button
+                onClick={() => setShowHelpers(true)}
+                className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+              >
+                {t('maps.hallOfFame')}
+              </button>
+            </div>
           </div>
 
           {mapsLoading ? <Spinner /> : maps.length === 0 ? (

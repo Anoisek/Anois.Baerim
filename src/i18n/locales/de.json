@@ -189,7 +189,12 @@
     "maxReachedTooltip": "Alle Mokoko auf dieser Karte wurden bereits hinzugefügt",
     "addMap": "+ Karte hinzufügen",
     "pipButton": "Karte lösen",
-    "pipTooltip": "Karte über anderen Fenstern schwebend halten"
+    "pipTooltip": "Karte über anderen Fenstern schwebend halten",
+    "exportProgress": "⬇ Fortschritt exportieren",
+    "exportProgressTooltip": "Lade deinen Mokoko-Sammelfortschritt als Datei herunter",
+    "importProgress": "⬆ Fortschritt importieren",
+    "importProgressTooltip": "Stelle den Mokoko-Sammelfortschritt aus einer zuvor exportierten Datei wieder her",
+    "importError": "Diese Datei konnte nicht gelesen werden — stelle sicher, dass es sich um eine von dieser Seite exportierte Fortschrittsdatei handelt."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

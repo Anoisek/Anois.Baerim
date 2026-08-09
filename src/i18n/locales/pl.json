@@ -189,7 +189,12 @@
     "maxReachedTooltip": "Wszystkie mokoko na tej mapie zostały już dodane",
     "addMap": "+ Dodaj mapę",
     "pipButton": "Wysuń mapę",
-    "pipTooltip": "Trzymaj mapę na wierzchu innych okien"
+    "pipTooltip": "Trzymaj mapę na wierzchu innych okien",
+    "exportProgress": "⬇ Eksportuj postęp",
+    "exportProgressTooltip": "Pobierz swój postęp zebranych mokoko jako plik",
+    "importProgress": "⬆ Importuj postęp",
+    "importProgressTooltip": "Przywróć postęp zebranych mokoko z wcześniej wyeksportowanego pliku",
+    "importError": "Nie udało się odczytać tego pliku — upewnij się, że to plik postępu wyeksportowany z tej strony."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

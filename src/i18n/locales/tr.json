@@ -189,7 +189,12 @@
     "maxReachedTooltip": "Bu haritadaki tüm mokoko zaten eklendi",
     "addMap": "+ Harita ekle",
     "pipButton": "Haritayı ayır",
-    "pipTooltip": "Haritayı diğer pencerelerin üzerinde yüzer halde tut"
+    "pipTooltip": "Haritayı diğer pencerelerin üzerinde yüzer halde tut",
+    "exportProgress": "⬇ İlerlemeyi dışa aktar",
+    "exportProgressTooltip": "Toplanan mokoko ilerlemeni dosya olarak indir",
+    "importProgress": "⬆ İlerlemeyi içe aktar",
+    "importProgressTooltip": "Daha önce dışa aktarılmış bir dosyadan toplanan mokoko ilerlemesini geri yükle",
+    "importError": "Bu dosya okunamadı — bu siteden dışa aktarılmış bir ilerleme dosyası olduğundan emin ol."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

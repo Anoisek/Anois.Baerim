@@ -189,7 +189,12 @@
     "maxReachedTooltip": "Všechna mokoko na této mapě již byla přidána",
     "addMap": "+ Přidat mapu",
     "pipButton": "Vysunout mapu",
-    "pipTooltip": "Udrž mapu plovoucí nad ostatními okny"
+    "pipTooltip": "Udrž mapu plovoucí nad ostatními okny",
+    "exportProgress": "⬇ Exportovat postup",
+    "exportProgressTooltip": "Stáhnout tvůj postup sebraných mokoko jako soubor",
+    "importProgress": "⬆ Importovat postup",
+    "importProgressTooltip": "Obnovit postup sebraných mokoko z dříve exportovaného souboru",
+    "importError": "Tento soubor se nepodařilo přečíst — ujisti se, že jde o soubor s postupem exportovaný z tohoto webu."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -189,7 +189,12 @@
     "maxReachedTooltip": "Todos os mokoko deste mapa já foram adicionados",
     "addMap": "+ Adicionar mapa",
     "pipButton": "Destacar mapa",
-    "pipTooltip": "Mantém o mapa flutuante por cima de outras janelas"
+    "pipTooltip": "Mantém o mapa flutuante por cima de outras janelas",
+    "exportProgress": "⬇ Exportar progresso",
+    "exportProgressTooltip": "Descarrega o teu progresso de mokoko recolhidos como ficheiro",
+    "importProgress": "⬆ Importar progresso",
+    "importProgressTooltip": "Restaura o progresso de mokoko recolhidos a partir de um ficheiro exportado anteriormente",
+    "importError": "Não foi possível ler este ficheiro — certifica-te de que é um ficheiro de progresso exportado deste site."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",
