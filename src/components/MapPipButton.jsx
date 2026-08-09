@@ -58,23 +58,17 @@ export default function MapPipButton({ map, markers, collected, onToggleCollecte
     setPipWindow(pip)
   }
 
+  if (!supported) return null
+
   return (
     <>
       <button
-        onClick={supported ? openPip : undefined}
-        disabled={!supported}
-        title={supported ? t('maps.pipTooltip') : t('maps.pipUnsupported')}
-        className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${
-          supported
-            ? 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200'
-            : 'bg-gray-800/50 border border-gray-700 text-gray-500 cursor-not-allowed'
-        }`}
+        onClick={openPip}
+        title={t('maps.pipTooltip')}
+        className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
       >
         🗗 {t('maps.pipButton')}
       </button>
-      {!supported && (
-        <span className="text-xs text-gray-500">{t('maps.pipUnsupportedNote')}</span>
-      )}
       {pipWindow && createPortal(
         <div style={{ padding: 12, color: '#e5e7eb', boxSizing: 'border-box' }}>
           <div className="flex items-center justify-between mb-2">

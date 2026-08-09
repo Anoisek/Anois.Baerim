@@ -189,9 +189,7 @@
     "maxReachedTooltip": "Ya se añadieron todos los mokoko de este mapa",
     "addMap": "+ Añadir mapa",
     "pipButton": "Flotar mapa",
-    "pipTooltip": "Mantén el mapa flotando sobre otras ventanas",
-    "pipUnsupported": "No compatible con este navegador (se requiere Chrome o Edge)",
-    "pipUnsupportedNote": "Solo disponible en Chrome o Edge"
+    "pipTooltip": "Mantén el mapa flotando sobre otras ventanas"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

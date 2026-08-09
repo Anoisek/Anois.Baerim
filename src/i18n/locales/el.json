@@ -189,9 +189,7 @@
     "maxReachedTooltip": "Όλα τα mokoko αυτού του χάρτη έχουν ήδη προστεθεί",
     "addMap": "+ Προσθήκη χάρτη",
     "pipButton": "Αποκόλληση χάρτη",
-    "pipTooltip": "Κράτα τον χάρτη αιωρούμενο πάνω από άλλα παράθυρα",
-    "pipUnsupported": "Δεν υποστηρίζεται σε αυτόν τον browser (απαιτείται Chrome ή Edge)",
-    "pipUnsupportedNote": "Διαθέσιμο μόνο σε Chrome ή Edge"
+    "pipTooltip": "Κράτα τον χάρτη αιωρούμενο πάνω από άλλα παράθυρα"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

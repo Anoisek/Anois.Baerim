@@ -189,9 +189,7 @@
     "maxReachedTooltip": "Toate mokoko de pe această hartă au fost deja adăugate",
     "addMap": "+ Adaugă hartă",
     "pipButton": "Scoate harta",
-    "pipTooltip": "Ține harta plutitoare deasupra altor ferestre",
-    "pipUnsupported": "Nesuportat în acest browser (necesită Chrome sau Edge)",
-    "pipUnsupportedNote": "Disponibil doar în Chrome sau Edge"
+    "pipTooltip": "Ține harta plutitoare deasupra altor ferestre"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

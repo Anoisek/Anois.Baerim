@@ -189,9 +189,7 @@
     "maxReachedTooltip": "Všetky mokoko na tejto mape už boli pridané",
     "addMap": "+ Pridať mapu",
     "pipButton": "Vysunúť mapu",
-    "pipTooltip": "Drž mapu plávajúcu nad ostatnými oknami",
-    "pipUnsupported": "V tomto prehliadači nepodporované (vyžaduje Chrome alebo Edge)",
-    "pipUnsupportedNote": "Dostupné len v Chrome alebo Edge"
+    "pipTooltip": "Drž mapu plávajúcu nad ostatnými oknami"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -189,9 +189,7 @@
     "maxReachedTooltip": "Bu haritadaki tüm mokoko zaten eklendi",
     "addMap": "+ Harita ekle",
     "pipButton": "Haritayı ayır",
-    "pipTooltip": "Haritayı diğer pencerelerin üzerinde yüzer halde tut",
-    "pipUnsupported": "Bu tarayıcıda desteklenmiyor (Chrome veya Edge gerekir)",
-    "pipUnsupportedNote": "Yalnızca Chrome veya Edge'de kullanılabilir"
+    "pipTooltip": "Haritayı diğer pencerelerin üzerinde yüzer halde tut"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",
