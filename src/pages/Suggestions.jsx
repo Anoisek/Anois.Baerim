@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 
-// TODO: replace with the real Formspree form ID (formspree.io) once created.
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID'
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xzepeeev'
 
 export default function Suggestions() {
   const { t } = useTranslation()
