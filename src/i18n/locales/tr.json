@@ -232,7 +232,8 @@
     "chooseFile": "📁 Fotoğraf seç"
   },
   "footer": {
-    "privacyPolicy": "Gizlilik Politikası"
+    "privacyPolicy": "Gizlilik Politikası",
+    "suggestions": "Öneriler"
   },
   "cookieConsent": {
     "message": "Bu site, dilini, ayarlarını ve ilerlemeni hatırlamak için tarayıcı yerel depolamasını kullanır.",
@@ -284,5 +285,16 @@
       "title": "İletişim",
       "body": "Gizlilikle ilgili her konuda bize şu adresten yazabilirsin:"
     }
+  },
+  "suggestions": {
+    "intro": "Siteyi geliştirmek için bir fikrin mi var, yoksa bir şey mi bozuk? Aşağıdan bize bildir.",
+    "nicknameLabel": "Metin2 takma adın",
+    "nicknamePlaceholder": "Takma adın (isteğe bağlı)",
+    "suggestionLabel": "Önerin",
+    "suggestionPlaceholder": "Önerini açıkla...",
+    "submit": "Gönder",
+    "sending": "Gönderiliyor...",
+    "success": "Teşekkürler! Önerin gönderildi.",
+    "error": "Önerin gönderilemedi. Lütfen daha sonra tekrar dene."
   }
 }

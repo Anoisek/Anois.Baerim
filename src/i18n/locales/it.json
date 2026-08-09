@@ -232,7 +232,8 @@
     "chooseFile": "📁 Scegli foto"
   },
   "footer": {
-    "privacyPolicy": "Informativa sulla privacy"
+    "privacyPolicy": "Informativa sulla privacy",
+    "suggestions": "Suggerimenti"
   },
   "cookieConsent": {
     "message": "Questo sito usa lo storage locale del browser per ricordare la tua lingua, le impostazioni e i progressi.",
@@ -284,5 +285,16 @@
       "title": "Contatti",
       "body": "Per qualsiasi cosa relativa alla privacy, scrivici a:"
     }
+  },
+  "suggestions": {
+    "intro": "Hai un'idea per migliorare il sito, o qualcosa non funziona? Faccelo sapere qui sotto.",
+    "nicknameLabel": "Il tuo nickname di Metin2",
+    "nicknamePlaceholder": "Il tuo nickname (facoltativo)",
+    "suggestionLabel": "Il tuo suggerimento",
+    "suggestionPlaceholder": "Descrivi il tuo suggerimento...",
+    "submit": "Invia",
+    "sending": "Invio in corso...",
+    "success": "Grazie! Il tuo suggerimento è stato inviato.",
+    "error": "Impossibile inviare il tuo suggerimento. Riprova più tardi."
   }
 }

@@ -232,7 +232,8 @@
     "chooseFile": "📁 Vybrat fotku"
   },
   "footer": {
-    "privacyPolicy": "Zásady ochrany osobních údajů"
+    "privacyPolicy": "Zásady ochrany osobních údajů",
+    "suggestions": "Náměty"
   },
   "cookieConsent": {
     "message": "Tento web používá lokální úložiště prohlížeče, aby si zapamatoval tvůj jazyk, nastavení a postup.",
@@ -284,5 +285,16 @@
       "title": "Kontakt",
       "body": "Ve věcech týkajících se soukromí nám napiš na:"
     }
+  },
+  "suggestions": {
+    "intro": "Máš nápad, jak vylepšit web, nebo něco nefunguje? Dej nám vědět níže.",
+    "nicknameLabel": "Tvůj nick z Metin2",
+    "nicknamePlaceholder": "Tvůj nick (volitelné)",
+    "suggestionLabel": "Tvůj námět",
+    "suggestionPlaceholder": "Popiš svůj námět...",
+    "submit": "Odeslat",
+    "sending": "Odesílání...",
+    "success": "Díky! Tvůj námět byl odeslán.",
+    "error": "Nepodařilo se odeslat tvůj námět. Zkus to prosím později."
   }
 }

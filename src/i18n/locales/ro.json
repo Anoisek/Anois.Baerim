@@ -232,7 +232,8 @@
     "chooseFile": "📁 Alege fotografia"
   },
   "footer": {
-    "privacyPolicy": "Politica de confidențialitate"
+    "privacyPolicy": "Politica de confidențialitate",
+    "suggestions": "Sugestii"
   },
   "cookieConsent": {
     "message": "Acest site folosește stocarea locală a browserului pentru a-ți reține limba, setările și progresul.",
@@ -284,5 +285,16 @@
       "title": "Contact",
       "body": "Pentru orice legat de confidențialitate, scrie-ne la:"
     }
+  },
+  "suggestions": {
+    "intro": "Ai o idee pentru a îmbunătăți site-ul, sau ceva nu funcționează? Spune-ne mai jos.",
+    "nicknameLabel": "Porecla ta de Metin2",
+    "nicknamePlaceholder": "Porecla ta (opțional)",
+    "suggestionLabel": "Sugestia ta",
+    "suggestionPlaceholder": "Descrie sugestia ta...",
+    "submit": "Trimite",
+    "sending": "Se trimite...",
+    "success": "Mulțumim! Sugestia ta a fost trimisă.",
+    "error": "Nu am putut trimite sugestia ta. Încearcă din nou mai târziu."
   }
 }

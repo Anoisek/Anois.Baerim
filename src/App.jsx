@@ -18,6 +18,7 @@ import Subcategory from './pages/Subcategory'
 import ItemDetail from './pages/ItemDetail'
 import ItemUsage from './pages/ItemUsage'
 import PrivacyPolicy from './pages/PrivacyPolicy'
+import Suggestions from './pages/Suggestions'
 
 export default function App() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/chapter/:categoryId/item/:itemId" element={<ItemDetail />} />
           <Route path="/items/:itemId/usage" element={<ItemUsage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/suggestions" element={<Suggestions />} />
           </Routes>
           <Footer />
           <CookieConsent />

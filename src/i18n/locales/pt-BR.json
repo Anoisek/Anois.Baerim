@@ -232,7 +232,8 @@
     "chooseFile": "📁 Escolher foto"
   },
   "footer": {
-    "privacyPolicy": "Política de privacidade"
+    "privacyPolicy": "Política de privacidade",
+    "suggestions": "Sugestões"
   },
   "cookieConsent": {
     "message": "Este site usa armazenamento local do navegador para lembrar seu idioma, configurações e progresso.",
@@ -284,5 +285,16 @@
       "title": "Contato",
       "body": "Para qualquer assunto relacionado a privacidade, escreva para:"
     }
+  },
+  "suggestions": {
+    "intro": "Tem uma ideia para melhorar o site, ou algo não está funcionando? Conte para a gente abaixo.",
+    "nicknameLabel": "Seu apelido de Metin2",
+    "nicknamePlaceholder": "Seu apelido (opcional)",
+    "suggestionLabel": "Sua sugestão",
+    "suggestionPlaceholder": "Descreva sua sugestão...",
+    "submit": "Enviar",
+    "sending": "Enviando...",
+    "success": "Obrigado! Sua sugestão foi enviada.",
+    "error": "Não foi possível enviar sua sugestão. Tente novamente mais tarde."
   }
 }
