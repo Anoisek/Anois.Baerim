@@ -1,3 +1,13 @@
+import softWords from './profaneWordsSoft.json'
+
+// Broad list (github.com/zautumnz/profane-words) of mild-to-strong profanity, used ONLY to
+// asterisk-censor displayed comments — it never triggers the comment ban/cooldown below,
+// since it also contains plenty of everyday words too mild to justify a 24h block.
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+const SOFT_PATTERN = new RegExp(`\\b(${softWords.map(escapeRegex).join('|')})\\b`, 'gi')
+
 // Tolerant patterns catch common leetspeak substitutions (1/!/| for i, 4/@ for a, 3 for e, 0 for o).
 // Add more patterns here if new slurs/troll words show up in comments.
 const BANNED_PATTERNS = [
@@ -30,6 +40,7 @@ export function censorText(text) {
   for (const pattern of BANNED_PATTERNS) {
     result = result.replace(pattern, match => '*'.repeat(match.length))
   }
+  result = result.replace(SOFT_PATTERN, match => '*'.repeat(match.length))
   return result
 }
 
