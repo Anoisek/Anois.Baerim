@@ -187,7 +187,11 @@
     "clickToAddMarker": "Klikni kamkoli na mapu pro přidání značky.",
     "editMapTooltip": "Upravit mapu",
     "maxReachedTooltip": "Všechna mokoko na této mapě již byla přidána",
-    "addMap": "+ Přidat mapu"
+    "addMap": "+ Přidat mapu",
+    "pipButton": "Vysunout mapu",
+    "pipTooltip": "Udrž mapu plovoucí nad ostatními okny",
+    "pipUnsupported": "V tomto prohlížeči nepodporováno (vyžaduje Chrome, Edge nebo Operu)",
+    "pipUnsupportedNote": "Dostupné pouze v Chrome, Edge nebo Opeře"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

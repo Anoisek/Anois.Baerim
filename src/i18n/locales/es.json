@@ -187,7 +187,11 @@
     "clickToAddMarker": "Haz clic en cualquier parte del mapa para añadir un marcador.",
     "editMapTooltip": "Editar mapa",
     "maxReachedTooltip": "Ya se añadieron todos los mokoko de este mapa",
-    "addMap": "+ Añadir mapa"
+    "addMap": "+ Añadir mapa",
+    "pipButton": "Flotar mapa",
+    "pipTooltip": "Mantén el mapa flotando sobre otras ventanas",
+    "pipUnsupported": "No compatible con este navegador (se requiere Chrome, Edge u Opera)",
+    "pipUnsupportedNote": "Solo disponible en Chrome, Edge u Opera"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

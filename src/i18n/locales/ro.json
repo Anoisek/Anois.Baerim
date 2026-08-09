@@ -187,7 +187,11 @@
     "clickToAddMarker": "Dă clic oriunde pe hartă pentru a adăuga un marcaj.",
     "editMapTooltip": "Editează harta",
     "maxReachedTooltip": "Toate mokoko de pe această hartă au fost deja adăugate",
-    "addMap": "+ Adaugă hartă"
+    "addMap": "+ Adaugă hartă",
+    "pipButton": "Scoate harta",
+    "pipTooltip": "Ține harta plutitoare deasupra altor ferestre",
+    "pipUnsupported": "Nesuportat în acest browser (necesită Chrome, Edge sau Opera)",
+    "pipUnsupportedNote": "Disponibil doar în Chrome, Edge sau Opera"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -187,7 +187,11 @@
     "clickToAddMarker": "Klicke irgendwo auf die Karte, um einen Marker hinzuzufügen.",
     "editMapTooltip": "Karte bearbeiten",
     "maxReachedTooltip": "Alle Mokoko auf dieser Karte wurden bereits hinzugefügt",
-    "addMap": "+ Karte hinzufügen"
+    "addMap": "+ Karte hinzufügen",
+    "pipButton": "Karte lösen",
+    "pipTooltip": "Karte über anderen Fenstern schwebend halten",
+    "pipUnsupported": "In diesem Browser nicht unterstützt (Chrome, Edge oder Opera erforderlich)",
+    "pipUnsupportedNote": "Nur in Chrome, Edge oder Opera verfügbar"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

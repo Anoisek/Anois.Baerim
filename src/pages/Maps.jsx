@@ -13,6 +13,7 @@ import HallOfFameModal from '../components/HallOfFameModal'
 import AddMapModal from '../components/AddMapModal'
 import EditMapModal from '../components/EditMapModal'
 import ReorderButtons from '../components/ReorderButtons'
+import MapPipButton from '../components/MapPipButton'
 
 const COLLECTED_KEY = 'map_collected_markers'
 
@@ -229,6 +230,17 @@ export default function Maps() {
                     >
                       {showCollected ? t('maps.hideCollected') : t('maps.showCollected')}
                     </button>
+                    {selectedMap && (
+                      <MapPipButton
+                        map={selectedMap}
+                        markers={markers}
+                        collected={collected}
+                        onToggleCollected={toggleCollected}
+                        doneCount={markers.filter(m => collected[m.id]).length}
+                        totalCount={markers.length}
+                        t={t}
+                      />
+                    )}
                     {canAddMarkers && (
                       <button
                         onClick={() => setEditMode(v => !v)}
