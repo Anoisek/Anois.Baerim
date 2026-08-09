@@ -14,6 +14,7 @@ import AddMapModal from '../components/AddMapModal'
 import EditMapModal from '../components/EditMapModal'
 import ReorderButtons from '../components/ReorderButtons'
 import MapPipButton from '../components/MapPipButton'
+import { isMarkerCollected } from '../utils/markerCollected'
 
 const COLLECTED_KEY = 'map_collected_markers'
 
@@ -67,7 +68,7 @@ export default function Maps() {
       setMaps(data ?? [])
       setMapsLoading(false)
     })
-    supabase.from('map_markers').select('id, map_id').then(({ data }) => {
+    supabase.from('map_markers').select('id, map_id, copied_from').then(({ data }) => {
       setAllMarkers(data ?? [])
     })
   }, [])
@@ -88,7 +89,7 @@ export default function Maps() {
 
   function mapStats(id) {
     const markersOfMap = allMarkers.filter(mk => mk.map_id === id)
-    const done = markersOfMap.filter(mk => collected[mk.id]).length
+    const done = markersOfMap.filter(mk => isMarkerCollected(mk, collected)).length
     return { total: markersOfMap.length, done }
   }
 
@@ -129,11 +130,10 @@ export default function Maps() {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [repositioningMarker])
 
-  function toggleCollected(markerId) {
+  function toggleCollected(marker) {
+    const current = isMarkerCollected(marker, collected)
     setCollected(prev => {
-      const next = { ...prev }
-      if (next[markerId]) delete next[markerId]
-      else next[markerId] = true
+      const next = { ...prev, [marker.id]: !current }
       localStorage.setItem(COLLECTED_KEY, JSON.stringify(next))
       return next
     })
@@ -217,12 +217,12 @@ export default function Maps() {
     if (isAdmin && editMode) {
       setEditingMarker(marker)
     } else {
-      toggleCollected(marker.id)
+      toggleCollected(marker)
       setOpenMarker(prev => (prev?.id === marker.id ? null : marker))
     }
   }
 
-  const visibleMarkers = markers.filter(m => showCollected || !collected[m.id])
+  const visibleMarkers = markers.filter(m => showCollected || !isMarkerCollected(m, collected))
 
   return (
     <div className="min-h-screen text-white">
@@ -338,7 +338,7 @@ export default function Maps() {
                   <h2 className="text-lg font-bold text-gray-100">{selectedMap?.name}</h2>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-400">
-                      <strong className="text-gray-200">{markers.filter(m => collected[m.id]).length}</strong>/{markers.length} {t('maps.collected')}
+                      <strong className="text-gray-200">{markers.filter(m => isMarkerCollected(m, collected)).length}</strong>/{markers.length} {t('maps.collected')}
                     </span>
                     <button
                       onClick={() => setShowCollected(v => !v)}
@@ -352,7 +352,7 @@ export default function Maps() {
                         markers={markers}
                         collected={collected}
                         onToggleCollected={toggleCollected}
-                        doneCount={markers.filter(m => collected[m.id]).length}
+                        doneCount={markers.filter(m => isMarkerCollected(m, collected)).length}
                         totalCount={markers.length}
                         t={t}
                       />
@@ -382,7 +382,7 @@ export default function Maps() {
                         className="w-full h-full object-contain select-none pointer-events-none"
                       />
                       {visibleMarkers.map(marker => {
-                        const isCollected = !!collected[marker.id]
+                        const isCollected = isMarkerCollected(marker, collected)
                         const isRepositioning = repositioningMarker?.id === marker.id
                         return (
                           <div

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { isMarkerCollected } from '../utils/markerCollected'
 
 export function isPipSupported() {
   return typeof window !== 'undefined' && 'documentPictureInPicture' in window
@@ -86,7 +87,7 @@ export default function MapPipButton({ map, markers, collected, onToggleCollecte
               className="w-full h-full object-contain select-none pointer-events-none"
             />
             {markers.map(marker => {
-              const isCollected = !!collected[marker.id]
+              const isCollected = isMarkerCollected(marker, collected)
               return (
                 <div
                   key={marker.id}
@@ -94,7 +95,7 @@ export default function MapPipButton({ map, markers, collected, onToggleCollecte
                   style={{ left: `${(marker.x / map.width) * 100}%`, top: `${(marker.y / map.height) * 100}%` }}
                 >
                   <button
-                    onClick={() => onToggleCollected(marker.id)}
+                    onClick={() => onToggleCollected(marker)}
                     title={marker.title || undefined}
                     className={`block hover:scale-125 transition-transform ${isCollected ? 'opacity-40' : ''}`}
                   >
