@@ -229,5 +229,14 @@
     "uploadError": "Eroare la încărcare: {{message}}",
     "uploading": "Se încarcă...",
     "chooseFile": "📁 Alege fotografia"
+  },
+  "footer": {
+    "privacyPolicy": "Politica de confidențialitate"
+  },
+  "cookieConsent": {
+    "message": "Acest site folosește stocarea locală a browserului pentru a-ți reține limba, setările și progresul.",
+    "learnMore": "Află mai multe",
+    "accept": "Acceptă",
+    "decline": "Refuză"
   }
 }

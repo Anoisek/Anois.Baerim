@@ -229,5 +229,14 @@
     "uploadError": "Error al subir: {{message}}",
     "uploading": "Subiendo...",
     "chooseFile": "📁 Elegir foto"
+  },
+  "footer": {
+    "privacyPolicy": "Política de privacidad"
+  },
+  "cookieConsent": {
+    "message": "Este sitio usa almacenamiento local del navegador para recordar tu idioma, ajustes y progreso.",
+    "learnMore": "Saber más",
+    "accept": "Aceptar",
+    "decline": "Rechazar"
   }
 }

@@ -229,5 +229,14 @@
     "uploadError": "Errore di caricamento: {{message}}",
     "uploading": "Caricamento...",
     "chooseFile": "📁 Scegli foto"
+  },
+  "footer": {
+    "privacyPolicy": "Informativa sulla privacy"
+  },
+  "cookieConsent": {
+    "message": "Questo sito usa lo storage locale del browser per ricordare la tua lingua, le impostazioni e i progressi.",
+    "learnMore": "Scopri di più",
+    "accept": "Accetta",
+    "decline": "Rifiuta"
   }
 }

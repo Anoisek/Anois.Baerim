@@ -3,6 +3,8 @@ import { AuthProvider } from './context/AuthContext'
 import { NightModeProvider } from './context/NightModeContext'
 import { UiScaleProvider } from './context/UiScaleContext'
 import NicknamePrompt from './components/NicknamePrompt'
+import Footer from './components/Footer'
+import CookieConsent from './components/CookieConsent'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Materials from './pages/Materials'
@@ -15,6 +17,7 @@ import Category from './pages/Category'
 import Subcategory from './pages/Subcategory'
 import ItemDetail from './pages/ItemDetail'
 import ItemUsage from './pages/ItemUsage'
+import PrivacyPolicy from './pages/PrivacyPolicy'
 
 export default function App() {
   return (
@@ -37,7 +40,10 @@ export default function App() {
           <Route path="/chapter/:categoryId/sub/:subcategoryId" element={<Subcategory />} />
           <Route path="/chapter/:categoryId/item/:itemId" element={<ItemDetail />} />
           <Route path="/items/:itemId/usage" element={<ItemUsage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           </Routes>
+          <Footer />
+          <CookieConsent />
         </UiScaleProvider>
         </NightModeProvider>
       </AuthProvider>

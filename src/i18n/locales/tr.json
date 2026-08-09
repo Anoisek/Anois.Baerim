@@ -229,5 +229,14 @@
     "uploadError": "Yükleme hatası: {{message}}",
     "uploading": "Yükleniyor...",
     "chooseFile": "📁 Fotoğraf seç"
+  },
+  "footer": {
+    "privacyPolicy": "Gizlilik Politikası"
+  },
+  "cookieConsent": {
+    "message": "Bu site, dilini, ayarlarını ve ilerlemeni hatırlamak için tarayıcı yerel depolamasını kullanır.",
+    "learnMore": "Daha fazla bilgi",
+    "accept": "Kabul et",
+    "decline": "Reddet"
   }
 }

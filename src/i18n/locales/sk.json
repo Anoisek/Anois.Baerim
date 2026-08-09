@@ -229,5 +229,14 @@
     "uploadError": "Chyba nahrávania: {{message}}",
     "uploading": "Nahrávanie...",
     "chooseFile": "📁 Vybrať fotku"
+  },
+  "footer": {
+    "privacyPolicy": "Zásady ochrany osobných údajov"
+  },
+  "cookieConsent": {
+    "message": "Táto stránka používa lokálne úložisko prehliadača na zapamätanie tvojho jazyka, nastavení a postupu.",
+    "learnMore": "Zistiť viac",
+    "accept": "Prijať",
+    "decline": "Odmietnuť"
   }
 }

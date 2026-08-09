@@ -229,5 +229,14 @@
     "uploadError": "Erro ao enviar: {{message}}",
     "uploading": "A enviar...",
     "chooseFile": "📁 Escolher foto"
+  },
+  "footer": {
+    "privacyPolicy": "Política de privacidade"
+  },
+  "cookieConsent": {
+    "message": "Este site usa armazenamento local do navegador para guardar o teu idioma, definições e progresso.",
+    "learnMore": "Saber mais",
+    "accept": "Aceitar",
+    "decline": "Recusar"
   }
 }
