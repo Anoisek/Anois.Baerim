@@ -297,5 +297,12 @@
     "sending": "Gönderiliyor...",
     "success": "Teşekkürler! Önerin gönderildi.",
     "error": "Önerin gönderilemedi. Lütfen daha sonra tekrar dene."
+  },
+  "announcement": {
+    "title": "Haritalar tamamlandı! 🎉",
+    "intro": "Tüm mokoko haritaları tamamlandı ve her mokoko artık sağlam, bulunması kolay bir yerde olmalı — hepsini bulmakta sorun yaşamamalısın.",
+    "thanks": "Haritaları doldurmaya yardımcı olan herkese kocaman teşekkürler: ekran görüntüsü gönderen, DM'den konum yazan ya da herhangi bir şekilde yardım eden herkese. Sizsiz olmazdı.",
+    "closing": "İyi Mokoko avları! 🍀",
+    "button": "Yaşasın!"
   }
 }

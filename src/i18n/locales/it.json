@@ -297,5 +297,12 @@
     "sending": "Invio in corso...",
     "success": "Grazie! Il tuo suggerimento è stato inviato.",
     "error": "Impossibile inviare il tuo suggerimento. Riprova più tardi."
+  },
+  "announcement": {
+    "title": "Le mappe sono complete! 🎉",
+    "intro": "Tutte le mappe dei mokoko sono terminate, e ogni mokoko dovrebbe ora trovarsi in una posizione solida e facile da trovare — non dovresti avere problemi a trovarli tutti.",
+    "thanks": "Un enorme grazie a tutti quelli che hanno aiutato a completare le mappe: a chi ha inviato screenshot, mi ha scritto le posizioni in DM, o ha aiutato in qualsiasi modo. Non ce l'avrei fatta senza di voi.",
+    "closing": "Buona caccia ai Mokoko! 🍀",
+    "button": "Evviva!"
   }
 }

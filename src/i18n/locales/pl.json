@@ -297,5 +297,12 @@
     "sending": "Wysyłanie...",
     "success": "Dzięki! Twoja sugestia została wysłana.",
     "error": "Nie udało się wysłać sugestii. Spróbuj ponownie później."
+  },
+  "announcement": {
+    "title": "Mapy są gotowe! 🎉",
+    "intro": "Wszystkie mapy z mokoko są ukończone, a każde mokoko powinno być teraz w sensownym, możliwym do znalezienia miejscu — nie powinieneś mieć problemu ze znalezieniem wszystkich.",
+    "thanks": "Ogromne podziękowania dla wszystkich, którzy pomogli uzupełnić mapy: każdemu, kto wysyłał screeny, pisał do mnie na DM z lokalizacjami albo pomógł w jakikolwiek sposób. Bez Was by się nie udało.",
+    "closing": "Udanych łowów na mokoko! 🍀",
+    "button": "Hura!"
   }
 }

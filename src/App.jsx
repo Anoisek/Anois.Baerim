@@ -5,6 +5,7 @@ import { UiScaleProvider } from './context/UiScaleContext'
 import NicknamePrompt from './components/NicknamePrompt'
 import Footer from './components/Footer'
 import CookieConsent from './components/CookieConsent'
+import MokokoAnnouncement from './components/MokokoAnnouncement'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Materials from './pages/Materials'
@@ -27,6 +28,7 @@ export default function App() {
         <NightModeProvider>
         <UiScaleProvider>
           <NicknamePrompt />
+          <MokokoAnnouncement />
           <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

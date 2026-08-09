@@ -297,5 +297,12 @@
     "sending": "Wird gesendet...",
     "success": "Danke! Dein Vorschlag wurde gesendet.",
     "error": "Dein Vorschlag konnte nicht gesendet werden. Versuch es später erneut."
+  },
+  "announcement": {
+    "title": "Die Karten sind fertig! 🎉",
+    "intro": "Alle Mokoko-Karten sind vollständig, und jedes Mokoko sollte jetzt an einer soliden, gut auffindbaren Stelle sein — du solltest keine Probleme haben, sie alle zu finden.",
+    "thanks": "Ein riesiges Dankeschön an alle, die geholfen haben, die Karten zu füllen: an alle, die Screenshots geschickt oder mir Standorte per DM geschickt haben, oder auf irgendeine Weise mitgeholfen haben. Ohne euch wäre das nicht möglich gewesen.",
+    "closing": "Viel Spaß bei der Mokoko-Jagd! 🍀",
+    "button": "Juhu!"
   }
 }

@@ -297,5 +297,12 @@
     "sending": "Odesílání...",
     "success": "Díky! Tvůj námět byl odeslán.",
     "error": "Nepodařilo se odeslat tvůj námět. Zkus to prosím později."
+  },
+  "announcement": {
+    "title": "Mapy jsou hotové! 🎉",
+    "intro": "Všechny mapy mokoko jsou dokončené a každé mokoko by teď mělo být na solidním, snadno nalezitelném místě — neměl bys mít problém najít je všechny.",
+    "thanks": "Obrovské díky všem, kdo pomohli s vyplňováním map: všem, kdo posílali screenshoty, psali mi lokace do DM, nebo pomohli jakkoliv jinak. Bez vás by to nešlo.",
+    "closing": "Ať se ti daří lov na mokoko! 🍀",
+    "button": "Juchů!"
   }
 }
