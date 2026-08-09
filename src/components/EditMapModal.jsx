@@ -10,6 +10,7 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
   const [imageUrl, setImageUrl] = useState(map.image_url ?? '')
   const [dimensions, setDimensions] = useState({ width: map.width, height: map.height })
   const [maxMokoko, setMaxMokoko] = useState(map.max_mokoko != null ? String(map.max_mokoko) : '')
+  const [adminOnly, setAdminOnly] = useState(!!map.admin_only)
   const [saving, setSaving] = useState(false)
 
   function handleUploaded(url) {
@@ -36,6 +37,7 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
         width: dimensions.width,
         height: dimensions.height,
         max_mokoko: maxMokoko.trim() === '' ? null : Number(maxMokoko),
+        admin_only: adminOnly,
       })
       .eq('id', map.id)
       .select()
@@ -122,6 +124,15 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
             <p className="text-xs text-gray-500">{dimensions.width} × {dimensions.height}</p>
           )}
         </div>
+        <label className="flex items-center gap-2 text-sm text-gray-400">
+          <input
+            type="checkbox"
+            checked={adminOnly}
+            onChange={e => setAdminOnly(e.target.checked)}
+            className="accent-yellow-400"
+          />
+          Only visible to admin
+        </label>
         <button
           type="submit"
           disabled={saving || !canSubmit}

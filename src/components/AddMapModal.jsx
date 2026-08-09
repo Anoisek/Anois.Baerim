@@ -9,6 +9,7 @@ export default function AddMapModal({ nextSortOrder, onClose, onAdded }) {
   const [mark, setMark] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [dimensions, setDimensions] = useState(null)
+  const [adminOnly, setAdminOnly] = useState(false)
   const [saving, setSaving] = useState(false)
 
   function handleUploaded(url) {
@@ -33,6 +34,7 @@ export default function AddMapModal({ nextSortOrder, onClose, onAdded }) {
         width: dimensions.width,
         height: dimensions.height,
         sort_order: nextSortOrder ?? 0,
+        admin_only: adminOnly,
       })
       .select()
       .single()
@@ -90,6 +92,15 @@ export default function AddMapModal({ nextSortOrder, onClose, onAdded }) {
             <p className="text-xs text-gray-500">{dimensions.width} × {dimensions.height}</p>
           )}
         </div>
+        <label className="flex items-center gap-2 text-sm text-gray-400">
+          <input
+            type="checkbox"
+            checked={adminOnly}
+            onChange={e => setAdminOnly(e.target.checked)}
+            className="accent-yellow-400"
+          />
+          Only visible to admin
+        </label>
         <button
           type="submit"
           disabled={saving || !canSubmit}

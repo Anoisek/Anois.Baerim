@@ -195,7 +195,8 @@
     "importProgress": "⬆ Importuj postęp",
     "importProgressTooltip": "Przywróć postęp zebranych mokoko z wcześniej wyeksportowanego pliku",
     "importError": "Nie udało się odczytać tego pliku — upewnij się, że to plik postępu wyeksportowany z tej strony.",
-    "repositionHint": "Kliknij nowe miejsce na mapie, aby przenieść tam to mokoko. Esc, aby anulować."
+    "repositionHint": "Kliknij nowe miejsce na mapie, aby przenieść tam to mokoko. Esc, aby anulować.",
+    "adminOnlyTooltip": "Widoczne tylko dla admina"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

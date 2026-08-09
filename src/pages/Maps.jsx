@@ -92,14 +92,16 @@ export default function Maps() {
     return { total: markersOfMap.length, done }
   }
 
-  useEffect(() => {
-    if (mapsLoading || maps.length === 0) return
-    if (!mapId || !maps.some(m => m.id === mapId)) {
-      navigate(`/systems/interactive-map/${maps[0].id}`, { replace: true })
-    }
-  }, [mapsLoading, maps, mapId, navigate])
+  const visibleMaps = maps.filter(m => isAdmin || !m.admin_only)
 
-  const selectedMap = maps.find(m => m.id === mapId)
+  useEffect(() => {
+    if (mapsLoading || visibleMaps.length === 0) return
+    if (!mapId || !visibleMaps.some(m => m.id === mapId)) {
+      navigate(`/systems/interactive-map/${visibleMaps[0].id}`, { replace: true })
+    }
+  }, [mapsLoading, visibleMaps, mapId, navigate])
+
+  const selectedMap = visibleMaps.find(m => m.id === mapId)
 
   useEffect(() => {
     if (!selectedMap) return
@@ -259,7 +261,7 @@ export default function Maps() {
             </div>
           </div>
 
-          {mapsLoading ? <Spinner /> : maps.length === 0 ? (
+          {mapsLoading ? <Spinner /> : visibleMaps.length === 0 ? (
             <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
               <span className="text-5xl">🗺️</span>
               <p className="text-sm">{t('maps.noMapsYet')}</p>
@@ -267,7 +269,7 @@ export default function Maps() {
           ) : (
             <div className="flex gap-4 flex-col md:flex-row">
               <aside className="w-full md:w-56 shrink-0 flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible md:max-h-[70vh] md:overflow-y-auto pb-1 md:pb-0">
-                {maps.map((m, index) => {
+                {visibleMaps.map((m, index) => {
                   const active = m.id === selectedMap?.id
                   const { total, done } = mapStats(m.id)
                   const complete = total > 0 && done === total
@@ -292,6 +294,9 @@ export default function Maps() {
                             {isMaxed && (
                               <span className={active ? 'text-gray-900' : 'text-yellow-400'} title={t('maps.maxReachedTooltip')}>★</span>
                             )}
+                            {m.admin_only && (
+                              <span className={active ? 'text-gray-900' : 'text-gray-500'} title={t('maps.adminOnlyTooltip')}>🔒</span>
+                            )}
                             <span className="font-semibold truncate">{m.name}</span>
                           </span>
                           <span className={`text-[10px] font-mono font-bold shrink-0 ${statColor}`}>{done}/{total}</span>
@@ -303,7 +308,7 @@ export default function Maps() {
                           onUp={() => moveMap(index, -1)}
                           onDown={() => moveMap(index, 1)}
                           disableUp={index === 0}
-                          disableDown={index === maps.length - 1}
+                          disableDown={index === visibleMaps.length - 1}
                         />
                       )}
                       {isAdmin && (

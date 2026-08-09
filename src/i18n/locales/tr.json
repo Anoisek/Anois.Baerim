@@ -195,7 +195,8 @@
     "importProgress": "⬆ İlerlemeyi içe aktar",
     "importProgressTooltip": "Daha önce dışa aktarılmış bir dosyadan toplanan mokoko ilerlemesini geri yükle",
     "importError": "Bu dosya okunamadı — bu siteden dışa aktarılmış bir ilerleme dosyası olduğundan emin ol.",
-    "repositionHint": "Bu mokokoyu oraya taşımak için haritada herhangi bir yere tıkla. İptal etmek için Esc."
+    "repositionHint": "Bu mokokoyu oraya taşımak için haritada herhangi bir yere tıkla. İptal etmek için Esc.",
+    "adminOnlyTooltip": "Yalnızca admin tarafından görülebilir"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -195,7 +195,8 @@
     "importProgress": "⬆ Importar progreso",
     "importProgressTooltip": "Restaura el progreso de mokoko recolectados desde un archivo exportado previamente",
     "importError": "No se pudo leer este archivo — asegúrate de que sea un archivo de progreso exportado desde este sitio.",
-    "repositionHint": "Haz clic en cualquier lugar del mapa para mover este mokoko allí. Pulsa Esc para cancelar."
+    "repositionHint": "Haz clic en cualquier lugar del mapa para mover este mokoko allí. Pulsa Esc para cancelar.",
+    "adminOnlyTooltip": "Visible solo para el admin"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",
