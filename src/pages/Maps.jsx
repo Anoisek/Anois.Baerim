@@ -230,7 +230,7 @@ export default function Maps() {
                     >
                       {showCollected ? t('maps.hideCollected') : t('maps.showCollected')}
                     </button>
-                    {selectedMap && (
+                    {selectedMap && !markersLoading && (
                       <MapPipButton
                         map={selectedMap}
                         markers={markers}
