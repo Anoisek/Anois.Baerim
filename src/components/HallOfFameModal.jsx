@@ -51,7 +51,7 @@ export default function HallOfFameModal({ onClose }) {
         {loading ? <Spinner /> : helpers.length === 0 ? (
           <p className="text-sm text-gray-500 text-center py-6">{t('hallOfFame.noHelpersYet')}</p>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 max-h-80 overflow-y-auto pr-1">
             {helpers.map(h => (
               <div key={h.id} className="flex items-center justify-between bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-2">
                 <span className="text-sm text-gray-200">⭐ {h.name}</span>
