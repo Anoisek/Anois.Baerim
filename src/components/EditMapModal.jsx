@@ -9,6 +9,7 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
   const [mark, setMark] = useState(map.mark ?? '')
   const [imageUrl, setImageUrl] = useState(map.image_url ?? '')
   const [dimensions, setDimensions] = useState({ width: map.width, height: map.height })
+  const [maxMokoko, setMaxMokoko] = useState(map.max_mokoko != null ? String(map.max_mokoko) : '')
   const [saving, setSaving] = useState(false)
 
   function handleUploaded(url) {
@@ -34,6 +35,7 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
         image_url: imageUrl,
         width: dimensions.width,
         height: dimensions.height,
+        max_mokoko: maxMokoko.trim() === '' ? null : Number(maxMokoko),
       })
       .eq('id', map.id)
       .select()
@@ -93,6 +95,17 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
             value={mark}
             onChange={e => setMark(e.target.value)}
             required
+            className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-400">Max mokoko on this map</label>
+          <input
+            type="number"
+            min="0"
+            value={maxMokoko}
+            onChange={e => setMaxMokoko(e.target.value)}
+            placeholder="e.g. 35 (leave empty if unknown)"
             className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
           />
         </div>

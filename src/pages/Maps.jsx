@@ -13,7 +13,6 @@ import HallOfFameModal from '../components/HallOfFameModal'
 import AddMapModal from '../components/AddMapModal'
 import EditMapModal from '../components/EditMapModal'
 import ReorderButtons from '../components/ReorderButtons'
-import { getMaxMokoko } from '../utils/mokokoMaxCounts'
 
 const COLLECTED_KEY = 'map_collected_markers'
 
@@ -165,8 +164,7 @@ export default function Maps() {
                     : complete
                       ? (active ? 'text-green-700' : 'text-green-400')
                       : (active ? 'text-red-700' : 'text-red-400')
-                  const maxCount = getMaxMokoko(m.name)
-                  const isMaxed = maxCount != null && total >= maxCount
+                  const isMaxed = m.max_mokoko != null && total >= m.max_mokoko
                   return (
                     <div key={m.id} className="relative shrink-0 md:shrink group">
                       <button
