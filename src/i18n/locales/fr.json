@@ -1,0 +1,226 @@
+{
+  "common": {
+    "editPanel": "Panneau d'édition",
+    "done": "Terminé",
+    "edit": "Modifier",
+    "save": "Enregistrer les modifications",
+    "saving": "Enregistrement...",
+    "remove": "Retirer",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "add": "Ajouter",
+    "used": "Utilisé",
+    "inProgress": "En cours",
+    "endMaintenance": "Terminer la maintenance",
+    "markInProgress": "Marquer comme en cours",
+    "seeUsage": "Voir où c'est utilisé",
+    "home": "Accueil",
+    "chapter": "Chapitre",
+    "category": "Catégorie",
+    "material": "Matériau",
+    "item": "Objet"
+  },
+  "navbar": {
+    "tagline": "Outil non officiel créé par des fans, non affilié à l'équipe de Baerim",
+    "admin": "ADMIN",
+    "logOut": "Déconnexion",
+    "adminLogin": "Connexion admin"
+  },
+  "uiScale": {
+    "title": "Ajuster la taille de la page",
+    "label": "Taille de la page",
+    "reset": "Réinitialiser"
+  },
+  "globalSearch": {
+    "searchTooltip": "Rechercher",
+    "placeholder": "Rechercher chapitres, catégories, matériaux, objets...",
+    "typeAtLeast2": "Tapez au moins 2 caractères...",
+    "searching": "Recherche...",
+    "noResults": "Aucun résultat.",
+    "chapters": "Chapitres",
+    "categories": "Catégories",
+    "materials": "Matériaux",
+    "items": "Objets"
+  },
+  "tile": {
+    "newChapter": "Nouveau chapitre"
+  },
+  "sealPicker": {
+    "noSeal": "Aucun sceau",
+    "seal": "Sceau",
+    "seals": "{{count}} sceaux",
+    "noSealsDefined": "Aucun sceau défini."
+  },
+  "materialPriceCell": {
+    "computedTooltip": "Calculé à partir de la recette",
+    "pricePlaceholder": "ex. 50kk"
+  },
+  "login": {
+    "title": "Accès admin",
+    "loginLabel": "Identifiant",
+    "passwordLabel": "Mot de passe",
+    "loggingIn": "Connexion...",
+    "logIn": "Se connecter",
+    "invalidCredentials": "Identifiant ou mot de passe invalide."
+  },
+  "home": {
+    "chapters": "Chapitres",
+    "materials": "Matériaux",
+    "systems": "Systèmes",
+    "buildCalculator": "Calculateur de build",
+    "editMaterialsTile": "Modifier la tuile Matériaux",
+    "editSystemsTile": "Modifier la tuile Systèmes",
+    "editBuildCalculatorTile": "Modifier la tuile Calculateur de build",
+    "image": "Image",
+    "removeImage": "Supprimer l'image",
+    "replaceImage": "Remplacer par une nouvelle image :"
+  },
+  "systems": {
+    "title": "Systèmes",
+    "interactiveMap": "Carte interactive Mokoko"
+  },
+  "materials": {
+    "title": "Matériaux",
+    "myOwnPrices": "Mes propres prix",
+    "globalPrices": "Prix globaux",
+    "submitToGlobal": "📤 Soumettre aux prix globaux",
+    "submitToGlobalTooltip": "Envoie les prix que tu as saisis localement vers les prix globaux partagés",
+    "submitting": "Envoi...",
+    "exportPrices": "⬇ Exporter les prix",
+    "exportTooltip": "Télécharger tes prix saisis sous forme de fichier",
+    "importPrices": "⬆ Importer les prix",
+    "importTooltip": "Restaurer les prix depuis un fichier précédemment exporté",
+    "addMaterial": "+ Ajouter un matériau",
+    "searchPlaceholder": "Rechercher un matériau...",
+    "filterAll": "Tous",
+    "filterNoTag": "Sans étiquette",
+    "filterScroll": "Parchemin",
+    "filterSeal": "Sceau",
+    "filterItem": "Objet",
+    "filterCraftable": "Fabricable",
+    "tagScroll": "Parchemin",
+    "tagSeal": "Sceau",
+    "tagItem": "Objet",
+    "tagCraftable": "Fabricable",
+    "noMaterialsYet": "Pas encore de matériaux.",
+    "noMatch": "Aucun matériau ne correspond à ta recherche.",
+    "importError": "Impossible de lire ce fichier — assure-toi qu'il s'agit d'un fichier de prix exporté depuis ce site.",
+    "submitResult": "Envoyés : {{accepted}} acceptés{{rejectedText}}{{skippedText}}.",
+    "submitRejected": ", {{count}} rejetés (trop éloignés du prix global actuel)",
+    "submitSkipped": ", {{count}} ignorés (déjà envoyés depuis ce navigateur au cours des 6 dernières heures)"
+  },
+  "materialDetail": {
+    "usedInTooltip": "Voir où ce matériau est utilisé",
+    "usedIn": "Utilisé dans...",
+    "craft": "Fabriquer",
+    "pity": "Pity :",
+    "yangFee": "Frais en yang",
+    "subtotal": "Sous-total",
+    "totalCost": "Coût total",
+    "noRecipe": "Aucune recette définie pour ce matériau."
+  },
+  "materialUsage": {
+    "usedIn": "Utilisé dans",
+    "notUsedAnywhere": "Pas encore utilisé nulle part.",
+    "items": "Objets",
+    "materials": "Matériaux",
+    "usage": "Utilisation"
+  },
+  "category": {
+    "addCategory": "+ Ajouter une catégorie",
+    "noCategoriesYet": "Pas encore de catégories dans ce chapitre.",
+    "uncategorized": "Non catégorisé"
+  },
+  "subcategory": {
+    "addItem": "+ Ajouter un objet",
+    "noItemsYet": "Pas encore d'objets dans cette catégorie.",
+    "editTooltip": "Modifier"
+  },
+  "itemDetail": {
+    "step0": "Fabriquer",
+    "step1": "+0 → +1",
+    "step2": "+1 → +2",
+    "step3": "+2 → +3",
+    "step4": "+3 → +4",
+    "step5": "+4 → +5",
+    "step6": "+5 → +6",
+    "step7": "+6 → +7",
+    "step8": "+7 → +8",
+    "step9": "+8 → +9",
+    "noScrollsAllSteps": "🚫 Aucun parchemin à toutes les étapes",
+    "resetPityAllSteps": "🔄 Réinitialiser le pity à 1 à toutes les étapes",
+    "maxPityAllSteps": "⬆ Pity max à toutes les étapes",
+    "noMaterialsDefined": "Aucun matériau défini pour cet objet.",
+    "noScroll": "Aucun parchemin",
+    "pity": "Pity",
+    "pityMax": "Pity (max {{max}})",
+    "yangFee": "Frais en yang",
+    "subtotal": "Sous-total",
+    "includeCraftCost": "Inclure le coût de fabrication",
+    "totalCost": "Coût total"
+  },
+  "itemUsage": {
+    "usedIn": "Utilisé dans",
+    "notUsedAnywhere": "Pas encore utilisé comme ingrédient nulle part.",
+    "items": "Objets",
+    "usage": "Utilisation"
+  },
+  "buildCalculator": {
+    "title": "Calculateur de build",
+    "searchPlaceholder": "Rechercher un objet à ajouter...",
+    "addItem": "+ Ajouter",
+    "resetPityAll": "🔄 Réinitialiser le pity à 1 (tous les objets)",
+    "setPityMaxAll": "⬆ Mettre le pity au max (tous les objets)",
+    "noItemsYet": "Pas encore d'objets dans ton build — recherche ci-dessus pour en ajouter.",
+    "removeTooltip": "Retirer",
+    "grandTotal": "Total général"
+  },
+  "maps": {
+    "title": "Carte interactive Mokoko",
+    "hallOfFame": "🏆 Hall of Fame",
+    "noMapsYet": "Pas encore de cartes.",
+    "hideCollected": "🙈 Masquer les collectés",
+    "showCollected": "👁 Afficher les collectés",
+    "collected": "collectés",
+    "editPanel": "Panneau d'édition",
+    "done": "Terminé",
+    "clickToAddMarker": "Clique n'importe où sur la carte pour ajouter un marqueur.",
+    "editMapTooltip": "Modifier la carte",
+    "maxReachedTooltip": "Tous les mokoko de cette carte ont déjà été ajoutés",
+    "addMap": "+ Ajouter une carte"
+  },
+  "hallOfFame": {
+    "title": "🏆 Hall of Fame",
+    "noHelpersYet": "Pas encore d'aidants ajoutés.",
+    "namePlaceholder": "Nom...",
+    "removeTooltip": "Retirer"
+  },
+  "nicknamePrompt": {
+    "title": "Entre ton pseudo Metin2",
+    "subtitle": "Nous en avons besoin pour te créditer dans le Hall of Fame pour les mokoko que tu ajoutes.",
+    "placeholder": "Ton pseudo...",
+    "confirm": "Confirmer"
+  },
+  "markerPanel": {
+    "commentPlaceholder": "Ajouter un commentaire...",
+    "removePhoto": "Supprimer la photo",
+    "post": "Publier",
+    "posting": "Publication...",
+    "noCommentsYet": "Pas encore de commentaires. Sois le premier !",
+    "deleteTooltip": "Supprimer",
+    "likeTooltip": "J'aime",
+    "cooldownMessage": "Tu as été bloqué pour avoir utilisé un mot interdit. Tu pourras commenter à nouveau dans {{time}}.",
+    "bannedWordAlert": "Ton commentaire contenait un mot interdit. La possibilité de commenter a été bloquée pendant 24h."
+  },
+  "addMarkerModal": {
+    "title": "Nouveau marqueur",
+    "photoOptional": "Photo (facultatif)",
+    "addMarker": "Ajouter un marqueur",
+    "saving": "Enregistrement..."
+  },
+  "imageUpload": {
+    "uploadError": "Erreur d'envoi : {{message}}",
+    "uploading": "Envoi...",
+    "chooseFile": "📁 Choisir une photo"
+  }
+}

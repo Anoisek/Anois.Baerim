@@ -1,0 +1,226 @@
+{
+  "common": {
+    "editPanel": "Painel de edição",
+    "done": "Concluído",
+    "edit": "Editar",
+    "save": "Salvar alterações",
+    "saving": "Salvando...",
+    "remove": "Remover",
+    "delete": "Excluir",
+    "cancel": "Cancelar",
+    "add": "Adicionar",
+    "used": "Usado",
+    "inProgress": "Em andamento",
+    "endMaintenance": "Encerrar manutenção",
+    "markInProgress": "Marcar como em andamento",
+    "seeUsage": "Ver onde isso é usado",
+    "home": "Início",
+    "chapter": "Capítulo",
+    "category": "Categoria",
+    "material": "Material",
+    "item": "Item"
+  },
+  "navbar": {
+    "tagline": "Ferramenta não oficial feita por fãs, sem afiliação com a equipe da Baerim",
+    "admin": "ADMIN",
+    "logOut": "Sair",
+    "adminLogin": "Login de administrador"
+  },
+  "uiScale": {
+    "title": "Ajustar tamanho da página",
+    "label": "Tamanho da página",
+    "reset": "Redefinir"
+  },
+  "globalSearch": {
+    "searchTooltip": "Pesquisar",
+    "placeholder": "Pesquisar capítulos, categorias, materiais, itens...",
+    "typeAtLeast2": "Digite pelo menos 2 caracteres...",
+    "searching": "Pesquisando...",
+    "noResults": "Nenhum resultado.",
+    "chapters": "Capítulos",
+    "categories": "Categorias",
+    "materials": "Materiais",
+    "items": "Itens"
+  },
+  "tile": {
+    "newChapter": "Novo capítulo"
+  },
+  "sealPicker": {
+    "noSeal": "Sem selo",
+    "seal": "Selo",
+    "seals": "{{count}} selos",
+    "noSealsDefined": "Nenhum selo definido."
+  },
+  "materialPriceCell": {
+    "computedTooltip": "Calculado a partir da receita",
+    "pricePlaceholder": "ex. 50kk"
+  },
+  "login": {
+    "title": "Acesso de administrador",
+    "loginLabel": "Usuário",
+    "passwordLabel": "Senha",
+    "loggingIn": "Entrando...",
+    "logIn": "Entrar",
+    "invalidCredentials": "Usuário ou senha inválidos."
+  },
+  "home": {
+    "chapters": "Capítulos",
+    "materials": "Materiais",
+    "systems": "Sistemas",
+    "buildCalculator": "Calculadora de builds",
+    "editMaterialsTile": "Editar bloco de Materiais",
+    "editSystemsTile": "Editar bloco de Sistemas",
+    "editBuildCalculatorTile": "Editar bloco de Calculadora de builds",
+    "image": "Imagem",
+    "removeImage": "Remover imagem",
+    "replaceImage": "Substituir por nova imagem:"
+  },
+  "systems": {
+    "title": "Sistemas",
+    "interactiveMap": "Mapa interativo de Mokoko"
+  },
+  "materials": {
+    "title": "Materiais",
+    "myOwnPrices": "Meus preços",
+    "globalPrices": "Preços globais",
+    "submitToGlobal": "📤 Enviar para preços globais",
+    "submitToGlobalTooltip": "Envia os preços que você inseriu localmente para os preços globais compartilhados",
+    "submitting": "Enviando...",
+    "exportPrices": "⬇ Exportar preços",
+    "exportTooltip": "Baixar seus preços inseridos como arquivo",
+    "importPrices": "⬆ Importar preços",
+    "importTooltip": "Restaurar preços a partir de um arquivo exportado anteriormente",
+    "addMaterial": "+ Adicionar material",
+    "searchPlaceholder": "Pesquisar material...",
+    "filterAll": "Todos",
+    "filterNoTag": "Sem etiqueta",
+    "filterScroll": "Pergaminho",
+    "filterSeal": "Selo",
+    "filterItem": "Item",
+    "filterCraftable": "Fabricável",
+    "tagScroll": "Pergaminho",
+    "tagSeal": "Selo",
+    "tagItem": "Item",
+    "tagCraftable": "Fabricável",
+    "noMaterialsYet": "Ainda não há materiais.",
+    "noMatch": "Nenhum material corresponde à sua pesquisa.",
+    "importError": "Não foi possível ler este arquivo — certifique-se de que é um arquivo de preços exportado deste site.",
+    "submitResult": "Enviado: {{accepted}} aceitos{{rejectedText}}{{skippedText}}.",
+    "submitRejected": ", {{count}} rejeitados (muito distantes do preço global atual)",
+    "submitSkipped": ", {{count}} ignorados (já enviados a partir deste navegador nas últimas 6h)"
+  },
+  "materialDetail": {
+    "usedInTooltip": "Ver onde este material é usado",
+    "usedIn": "Usado em...",
+    "craft": "Fabricar",
+    "pity": "Pity:",
+    "yangFee": "Taxa em yang",
+    "subtotal": "Subtotal",
+    "totalCost": "Custo total",
+    "noRecipe": "Nenhuma receita definida para este material."
+  },
+  "materialUsage": {
+    "usedIn": "Usado em",
+    "notUsedAnywhere": "Ainda não é usado em lugar nenhum.",
+    "items": "Itens",
+    "materials": "Materiais",
+    "usage": "Uso"
+  },
+  "category": {
+    "addCategory": "+ Adicionar categoria",
+    "noCategoriesYet": "Ainda não há categorias neste capítulo.",
+    "uncategorized": "Sem categoria"
+  },
+  "subcategory": {
+    "addItem": "+ Adicionar item",
+    "noItemsYet": "Ainda não há itens nesta categoria.",
+    "editTooltip": "Editar"
+  },
+  "itemDetail": {
+    "step0": "Fabricar",
+    "step1": "+0 → +1",
+    "step2": "+1 → +2",
+    "step3": "+2 → +3",
+    "step4": "+3 → +4",
+    "step5": "+4 → +5",
+    "step6": "+5 → +6",
+    "step7": "+6 → +7",
+    "step8": "+7 → +8",
+    "step9": "+8 → +9",
+    "noScrollsAllSteps": "🚫 Sem pergaminhos em todas as etapas",
+    "resetPityAllSteps": "🔄 Redefinir pity para 1 em todas as etapas",
+    "maxPityAllSteps": "⬆ Pity máximo em todas as etapas",
+    "noMaterialsDefined": "Nenhum material definido para este item.",
+    "noScroll": "Sem pergaminho",
+    "pity": "Pity",
+    "pityMax": "Pity (máx. {{max}})",
+    "yangFee": "Taxa em yang",
+    "subtotal": "Subtotal",
+    "includeCraftCost": "Incluir custo de fabricação",
+    "totalCost": "Custo total"
+  },
+  "itemUsage": {
+    "usedIn": "Usado em",
+    "notUsedAnywhere": "Ainda não é usado como ingrediente em lugar nenhum.",
+    "items": "Itens",
+    "usage": "Uso"
+  },
+  "buildCalculator": {
+    "title": "Calculadora de builds",
+    "searchPlaceholder": "Pesquisar item para adicionar...",
+    "addItem": "+ Adicionar",
+    "resetPityAll": "🔄 Redefinir pity para 1 (todos os itens)",
+    "setPityMaxAll": "⬆ Definir pity máximo (todos os itens)",
+    "noItemsYet": "Ainda não há itens no seu build — pesquise acima para adicionar alguns.",
+    "removeTooltip": "Remover",
+    "grandTotal": "Total geral"
+  },
+  "maps": {
+    "title": "Mapa interativo de Mokoko",
+    "hallOfFame": "🏆 Hall of Fame",
+    "noMapsYet": "Ainda não há mapas.",
+    "hideCollected": "🙈 Ocultar coletados",
+    "showCollected": "👁 Mostrar coletados",
+    "collected": "coletados",
+    "editPanel": "Painel de edição",
+    "done": "Concluído",
+    "clickToAddMarker": "Clique em qualquer lugar do mapa para adicionar um marcador.",
+    "editMapTooltip": "Editar mapa",
+    "maxReachedTooltip": "Todos os mokoko deste mapa já foram adicionados",
+    "addMap": "+ Adicionar mapa"
+  },
+  "hallOfFame": {
+    "title": "🏆 Hall of Fame",
+    "noHelpersYet": "Ainda não foram adicionados colaboradores.",
+    "namePlaceholder": "Nome...",
+    "removeTooltip": "Remover"
+  },
+  "nicknamePrompt": {
+    "title": "Digite seu apelido do Metin2",
+    "subtitle": "Precisamos dele para te dar crédito no Hall of Fame pelos mokoko que você adicionar.",
+    "placeholder": "Seu apelido...",
+    "confirm": "Confirmar"
+  },
+  "markerPanel": {
+    "commentPlaceholder": "Adicionar um comentário...",
+    "removePhoto": "Remover foto",
+    "post": "Publicar",
+    "posting": "Publicando...",
+    "noCommentsYet": "Ainda não há comentários. Seja o primeiro!",
+    "deleteTooltip": "Excluir",
+    "likeTooltip": "Curtir",
+    "cooldownMessage": "Você foi bloqueado por usar uma palavra proibida. Você poderá comentar novamente em {{time}}.",
+    "bannedWordAlert": "Seu comentário continha uma palavra proibida. A opção de comentar foi bloqueada por 24h."
+  },
+  "addMarkerModal": {
+    "title": "Novo marcador",
+    "photoOptional": "Foto (opcional)",
+    "addMarker": "Adicionar marcador",
+    "saving": "Salvando..."
+  },
+  "imageUpload": {
+    "uploadError": "Erro no envio: {{message}}",
+    "uploading": "Enviando...",
+    "chooseFile": "📁 Escolher foto"
+  }
+}

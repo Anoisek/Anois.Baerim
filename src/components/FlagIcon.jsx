@@ -27,11 +27,25 @@ const FLAGS = {
       <rect y="5" width="30" height="10" fill="#ffc400" />
     </svg>
   ),
+  fr: (
+    <svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg">
+      <rect width="10" height="20" fill="#0055a4" />
+      <rect x="10" width="10" height="20" fill="#fff" />
+      <rect x="20" width="10" height="20" fill="#ef4135" />
+    </svg>
+  ),
   pt: (
     <svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg">
       <rect width="12" height="20" fill="#006600" />
       <rect x="12" width="18" height="20" fill="#ff0000" />
       <circle cx="12" cy="10" r="3.5" fill="#ffcc00" stroke="#fff" strokeWidth="0.5" />
+    </svg>
+  ),
+  'pt-BR': (
+    <svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg">
+      <rect width="30" height="20" fill="#009c3b" />
+      <polygon points="15,2.5 27.5,10 15,17.5 2.5,10" fill="#ffdf00" />
+      <circle cx="15" cy="10" r="4.2" fill="#002776" />
     </svg>
   ),
   it: (

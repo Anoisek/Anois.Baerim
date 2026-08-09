@@ -5,6 +5,8 @@ import pl from './locales/pl.json'
 import de from './locales/de.json'
 import es from './locales/es.json'
 import pt from './locales/pt.json'
+import ptBR from './locales/pt-BR.json'
+import fr from './locales/fr.json'
 import it from './locales/it.json'
 import el from './locales/el.json'
 import cs from './locales/cs.json'
@@ -20,6 +22,8 @@ const resources = {
   de: { translation: de },
   es: { translation: es },
   pt: { translation: pt },
+  'pt-BR': { translation: ptBR },
+  fr: { translation: fr },
   it: { translation: it },
   el: { translation: el },
   cs: { translation: cs },
