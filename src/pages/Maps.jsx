@@ -118,6 +118,25 @@ export default function Maps() {
   }, [selectedMap?.id, selectedMap?.width, selectedMap?.height])
 
   useEffect(() => {
+    if (!markers.length) return
+    setCollected(prev => {
+      let changed = false
+      const next = { ...prev }
+      for (const m of markers) {
+        if (!m.copied_from) continue
+        if (Object.prototype.hasOwnProperty.call(next, m.id)) continue
+        if (next[m.copied_from]) {
+          next[m.id] = true
+          changed = true
+        }
+      }
+      if (!changed) return prev
+      localStorage.setItem(COLLECTED_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [markers])
+
+  useEffect(() => {
     setRepositioningMarker(null)
   }, [editMode])
 
