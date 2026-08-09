@@ -190,8 +190,8 @@
     "addMap": "+ Add map",
     "pipButton": "Pop out map",
     "pipTooltip": "Keep the map floating above other windows",
-    "pipUnsupported": "Not supported in this browser (Chrome, Edge or Opera required)",
-    "pipUnsupportedNote": "Only available in Chrome, Edge or Opera"
+    "pipUnsupported": "Not supported in this browser (Chrome or Edge required)",
+    "pipUnsupportedNote": "Only available in Chrome or Edge"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

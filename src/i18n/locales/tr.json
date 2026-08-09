@@ -190,8 +190,8 @@
     "addMap": "+ Harita ekle",
     "pipButton": "Haritayı ayır",
     "pipTooltip": "Haritayı diğer pencerelerin üzerinde yüzer halde tut",
-    "pipUnsupported": "Bu tarayıcıda desteklenmiyor (Chrome, Edge veya Opera gerekir)",
-    "pipUnsupportedNote": "Yalnızca Chrome, Edge veya Opera'da kullanılabilir"
+    "pipUnsupported": "Bu tarayıcıda desteklenmiyor (Chrome veya Edge gerekir)",
+    "pipUnsupportedNote": "Yalnızca Chrome veya Edge'de kullanılabilir"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

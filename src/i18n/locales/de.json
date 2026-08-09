@@ -190,8 +190,8 @@
     "addMap": "+ Karte hinzufügen",
     "pipButton": "Karte lösen",
     "pipTooltip": "Karte über anderen Fenstern schwebend halten",
-    "pipUnsupported": "In diesem Browser nicht unterstützt (Chrome, Edge oder Opera erforderlich)",
-    "pipUnsupportedNote": "Nur in Chrome, Edge oder Opera verfügbar"
+    "pipUnsupported": "In diesem Browser nicht unterstützt (Chrome oder Edge erforderlich)",
+    "pipUnsupportedNote": "Nur in Chrome oder Edge verfügbar"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

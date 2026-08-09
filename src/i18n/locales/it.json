@@ -190,8 +190,8 @@
     "addMap": "+ Aggiungi mappa",
     "pipButton": "Apri mappa fluttuante",
     "pipTooltip": "Mantieni la mappa in primo piano sopra le altre finestre",
-    "pipUnsupported": "Non supportato in questo browser (richiede Chrome, Edge o Opera)",
-    "pipUnsupportedNote": "Disponibile solo su Chrome, Edge o Opera"
+    "pipUnsupported": "Non supportato in questo browser (richiede Chrome o Edge)",
+    "pipUnsupportedNote": "Disponibile solo su Chrome o Edge"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

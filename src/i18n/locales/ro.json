@@ -190,8 +190,8 @@
     "addMap": "+ Adaugă hartă",
     "pipButton": "Scoate harta",
     "pipTooltip": "Ține harta plutitoare deasupra altor ferestre",
-    "pipUnsupported": "Nesuportat în acest browser (necesită Chrome, Edge sau Opera)",
-    "pipUnsupportedNote": "Disponibil doar în Chrome, Edge sau Opera"
+    "pipUnsupported": "Nesuportat în acest browser (necesită Chrome sau Edge)",
+    "pipUnsupportedNote": "Disponibil doar în Chrome sau Edge"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

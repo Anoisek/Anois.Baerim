@@ -190,8 +190,8 @@
     "addMap": "+ Přidat mapu",
     "pipButton": "Vysunout mapu",
     "pipTooltip": "Udrž mapu plovoucí nad ostatními okny",
-    "pipUnsupported": "V tomto prohlížeči nepodporováno (vyžaduje Chrome, Edge nebo Operu)",
-    "pipUnsupportedNote": "Dostupné pouze v Chrome, Edge nebo Opeře"
+    "pipUnsupported": "V tomto prohlížeči nepodporováno (vyžaduje Chrome nebo Edge)",
+    "pipUnsupportedNote": "Dostupné pouze v Chrome nebo Edge"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

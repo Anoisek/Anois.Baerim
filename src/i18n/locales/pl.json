@@ -190,8 +190,8 @@
     "addMap": "+ Dodaj mapę",
     "pipButton": "Wysuń mapę",
     "pipTooltip": "Trzymaj mapę na wierzchu innych okien",
-    "pipUnsupported": "Niedostępne w tej przeglądarce (wymagany Chrome, Edge lub Opera)",
-    "pipUnsupportedNote": "Dostępne tylko w Chrome, Edge lub Operze"
+    "pipUnsupported": "Niedostępne w tej przeglądarce (wymagany Chrome lub Edge)",
+    "pipUnsupportedNote": "Dostępne tylko w Chrome lub Edge"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

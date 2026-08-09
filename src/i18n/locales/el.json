@@ -190,8 +190,8 @@
     "addMap": "+ Προσθήκη χάρτη",
     "pipButton": "Αποκόλληση χάρτη",
     "pipTooltip": "Κράτα τον χάρτη αιωρούμενο πάνω από άλλα παράθυρα",
-    "pipUnsupported": "Δεν υποστηρίζεται σε αυτόν τον browser (απαιτείται Chrome, Edge ή Opera)",
-    "pipUnsupportedNote": "Διαθέσιμο μόνο σε Chrome, Edge ή Opera"
+    "pipUnsupported": "Δεν υποστηρίζεται σε αυτόν τον browser (απαιτείται Chrome ή Edge)",
+    "pipUnsupportedNote": "Διαθέσιμο μόνο σε Chrome ή Edge"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",
