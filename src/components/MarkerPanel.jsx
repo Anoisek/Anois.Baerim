@@ -50,6 +50,16 @@ export default function MarkerPanel({ marker, onClose }) {
   }, [])
 
   useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key !== 'Escape') return
+      if (lightboxUrl) setLightboxUrl(null)
+      else onClose()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [lightboxUrl, onClose])
+
+  useEffect(() => {
     if (cooldownUntil <= Date.now()) return
     const interval = setInterval(() => {
       const until = getCooldownUntil()
