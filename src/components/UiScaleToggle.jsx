@@ -6,7 +6,12 @@ export default function UiScaleToggle() {
   const { scale, setScale, MIN_SCALE, MAX_SCALE, DEFAULT_SCALE } = useUiScale()
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const [previewScale, setPreviewScale] = useState(scale)
   const ref = useRef(null)
+
+  useEffect(() => {
+    setPreviewScale(scale)
+  }, [scale])
 
   useEffect(() => {
     function handleClick(e) {
@@ -33,20 +38,23 @@ export default function UiScaleToggle() {
         >
           <div className="flex items-center justify-between text-gray-400" style={{ fontSize: 12 }}>
             <span>{t('uiScale.label')}</span>
-            <span className="text-gray-200 font-mono">{scale}%</span>
+            <span className="text-gray-200 font-mono">{previewScale}%</span>
           </div>
           <input
             type="range"
             min={MIN_SCALE}
             max={MAX_SCALE}
             step={5}
-            value={scale}
-            onChange={e => setScale(Number(e.target.value))}
+            value={previewScale}
+            onChange={e => setPreviewScale(Number(e.target.value))}
+            onMouseUp={e => setScale(Number(e.target.value))}
+            onTouchEnd={e => setScale(Number(e.target.value))}
+            onKeyUp={e => setScale(Number(e.target.value))}
             className="accent-yellow-400"
             style={{ width: '100%' }}
           />
           <button
-            onClick={() => setScale(DEFAULT_SCALE)}
+            onClick={() => { setPreviewScale(DEFAULT_SCALE); setScale(DEFAULT_SCALE) }}
             className="self-start text-gray-400 hover:text-yellow-400 transition-colors"
             style={{ fontSize: 12 }}
           >
