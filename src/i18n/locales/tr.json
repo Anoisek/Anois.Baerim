@@ -304,5 +304,10 @@
     "thanks": "Haritaları doldurmaya yardımcı olan herkese kocaman teşekkürler: ekran görüntüsü gönderen, DM'den konum yazan ya da herhangi bir şekilde yardım eden herkese. Sizsiz olmazdı.",
     "closing": "İyi Mokoko avları! 🍀",
     "button": "Yaşasın!"
+  },
+  "completion": {
+    "title": "Tebrikler, hepsini buldun! 🎉",
+    "body": "Her haritadaki her mokokoyu tek tek topladın. Bu ciddi bir azim işi — helal olsun!",
+    "button": "Yaşasın!"
   }
 }

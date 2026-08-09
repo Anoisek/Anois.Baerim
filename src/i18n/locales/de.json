@@ -304,5 +304,10 @@
     "thanks": "Ein riesiges Dankeschön an alle, die geholfen haben, die Karten zu füllen: an alle, die Screenshots geschickt oder mir Standorte per DM geschickt haben, oder auf irgendeine Weise mitgeholfen haben. Ohne euch wäre das nicht möglich gewesen.",
     "closing": "Viel Spaß bei der Mokoko-Jagd! 🍀",
     "button": "Juhu!"
+  },
+  "completion": {
+    "title": "Glückwunsch, du hast sie alle! 🎉",
+    "body": "Du hast wirklich jedes einzelne Mokoko auf jeder Karte gesammelt. Das ist echte Hingabe — gut gemacht!",
+    "button": "Juhu!"
   }
 }

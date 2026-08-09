@@ -14,6 +14,7 @@ import AddMapModal from '../components/AddMapModal'
 import EditMapModal from '../components/EditMapModal'
 import ReorderButtons from '../components/ReorderButtons'
 import MapPipButton from '../components/MapPipButton'
+import MokokoCompletionModal from '../components/MokokoCompletionModal'
 import { isMarkerCollected } from '../utils/markerCollected'
 
 const COLLECTED_KEY = 'map_collected_markers'
@@ -94,6 +95,10 @@ export default function Maps() {
   }
 
   const visibleMaps = maps.filter(m => isAdmin || !m.admin_only)
+
+  const redWoodV2 = maps.find(m => m.name === 'Red Wood v2')
+  const eligibleMarkers = allMarkers.filter(mk => mk.map_id !== redWoodV2?.id)
+  const allMokokoCollected = eligibleMarkers.length > 0 && eligibleMarkers.every(mk => isMarkerCollected(mk, collected))
 
   useEffect(() => {
     if (mapsLoading || visibleMaps.length === 0) return
@@ -474,6 +479,8 @@ export default function Maps() {
       {showHelpers && (
         <HallOfFameModal onClose={() => setShowHelpers(false)} />
       )}
+
+      <MokokoCompletionModal show={allMokokoCollected} />
 
       {editingMap && (
         <EditMapModal

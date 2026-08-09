@@ -304,5 +304,10 @@
     "thanks": "Obrovská vďaka všetkým, ktorí pomohli s vypĺňaním máp: všetkým, čo posielali screenshoty, písali mi lokácie do DM, alebo pomohli akokoľvek inak. Bez vás by to nešlo.",
     "closing": "Nech sa ti darí lov na mokoko! 🍀",
     "button": "Hurá!"
+  },
+  "completion": {
+    "title": "Gratulujeme, máš ich všetky! 🎉",
+    "body": "Pozbieral/a si doslova každé mokoko na každej mape. To chce poriadnu dávku odhodlania — skvelá práca!",
+    "button": "Hurá!"
   }
 }

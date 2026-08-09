@@ -304,5 +304,10 @@
     "thanks": "Mulțumiri uriașe tuturor celor care au ajutat la completarea hărților: tuturor celor care au trimis capturi de ecran, mi-au scris locații pe DM, sau au ajutat în orice fel. Nu aș fi reușit fără voi.",
     "closing": "Vânătoare plăcută de Mokoko! 🍀",
     "button": "Ura!"
+  },
+  "completion": {
+    "title": "Felicitări, le-ai adunat pe toate! 🎉",
+    "body": "Ai colectat absolut fiecare mokoko de pe fiecare hartă. E nevoie de multă dedicare pentru asta — bravo!",
+    "button": "Ura!"
   }
 }

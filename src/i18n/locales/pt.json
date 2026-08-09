@@ -304,5 +304,10 @@
     "thanks": "Um enorme obrigado a todos os que ajudaram a preencher os mapas: a quem enviou capturas de ecrã, me mandou localizações por DM, ou ajudou de qualquer forma. Não teria sido possível sem vocês.",
     "closing": "Boa caça aos Mokoko! 🍀",
     "button": "Uhul!"
+  },
+  "completion": {
+    "title": "Parabéns, apanhaste-os todos! 🎉",
+    "body": "Recolheste absolutamente todos os mokoko em todos os mapas. Isso é dedicação a sério — muito bem!",
+    "button": "Uhul!"
   }
 }

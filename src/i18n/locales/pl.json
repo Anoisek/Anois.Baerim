@@ -304,5 +304,10 @@
     "thanks": "Ogromne podziękowania dla wszystkich, którzy pomogli uzupełnić mapy: każdemu, kto wysyłał screeny, pisał do mnie na DM z lokalizacjami albo pomógł w jakikolwiek sposób. Bez Was by się nie udało.",
     "closing": "Udanych łowów na mokoko! 🍀",
     "button": "Hura!"
+  },
+  "completion": {
+    "title": "Gratulacje, masz je wszystkie! 🎉",
+    "body": "Zebrałeś/aś dosłownie każde mokoko na każdej mapie. To wymagało niezłej determinacji — brawo!",
+    "button": "Hura!"
   }
 }
