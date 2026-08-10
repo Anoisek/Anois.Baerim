@@ -196,7 +196,13 @@
     "importProgressTooltip": "Przywróć postęp zebranych mokoko z wcześniej wyeksportowanego pliku",
     "importError": "Nie udało się odczytać tego pliku — upewnij się, że to plik postępu wyeksportowany z tej strony.",
     "repositionHint": "Kliknij nowe miejsce na mapie, aby przenieść tam to mokoko. Esc, aby anulować.",
-    "adminOnlyTooltip": "Widoczne tylko dla admina"
+    "adminOnlyTooltip": "Widoczne tylko dla admina",
+    "selectAll": "☑ Zaznacz wszystkie",
+    "deselectAll": "☐ Odznacz wszystkie",
+    "confirmBulkMarkTitle": "Na pewno?",
+    "confirmSelectAllWarning": "To oznaczy wszystkie mokoko na tej mapie jako zebrane. Tego nie da się cofnąć.",
+    "confirmDeselectAllWarning": "To oznaczy wszystkie mokoko na tej mapie jako niezebrane. Tego nie da się cofnąć.",
+    "confirmBulkMarkYes": "Tak, zrób to"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

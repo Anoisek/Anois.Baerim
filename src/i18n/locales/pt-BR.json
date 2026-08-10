@@ -196,7 +196,13 @@
     "importProgressTooltip": "Restaure o progresso de mokoko coletados a partir de um arquivo exportado anteriormente",
     "importError": "Não foi possível ler este arquivo — certifique-se de que é um arquivo de progresso exportado deste site.",
     "repositionHint": "Clique em qualquer lugar do mapa para mover este mokoko para lá. Esc para cancelar.",
-    "adminOnlyTooltip": "Visível apenas para o admin"
+    "adminOnlyTooltip": "Visível apenas para o admin",
+    "selectAll": "☑ Selecionar tudo",
+    "deselectAll": "☐ Desmarcar tudo",
+    "confirmBulkMarkTitle": "Tem certeza?",
+    "confirmSelectAllWarning": "Isso vai marcar todos os mokoko deste mapa como coletados. Isso não pode ser desfeito.",
+    "confirmDeselectAllWarning": "Isso vai desmarcar todos os mokoko deste mapa como coletados. Isso não pode ser desfeito.",
+    "confirmBulkMarkYes": "Sim, fazer"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

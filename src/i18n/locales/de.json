@@ -196,7 +196,13 @@
     "importProgressTooltip": "Stelle den Mokoko-Sammelfortschritt aus einer zuvor exportierten Datei wieder her",
     "importError": "Diese Datei konnte nicht gelesen werden — stelle sicher, dass es sich um eine von dieser Seite exportierte Fortschrittsdatei handelt.",
     "repositionHint": "Klicke irgendwo auf die Karte, um dieses Mokoko dorthin zu verschieben. Esc zum Abbrechen.",
-    "adminOnlyTooltip": "Nur für Admin sichtbar"
+    "adminOnlyTooltip": "Nur für Admin sichtbar",
+    "selectAll": "☑ Alle auswählen",
+    "deselectAll": "☐ Alle abwählen",
+    "confirmBulkMarkTitle": "Bist du sicher?",
+    "confirmSelectAllWarning": "Dadurch werden alle Mokoko auf dieser Karte als gesammelt markiert. Das kann nicht rückgängig gemacht werden.",
+    "confirmDeselectAllWarning": "Dadurch wird die Markierung aller Mokoko auf dieser Karte als gesammelt entfernt. Das kann nicht rückgängig gemacht werden.",
+    "confirmBulkMarkYes": "Ja, tun"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

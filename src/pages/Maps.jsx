@@ -15,6 +15,7 @@ import EditMapModal from '../components/EditMapModal'
 import ReorderButtons from '../components/ReorderButtons'
 import MapPipButton from '../components/MapPipButton'
 import MokokoCompletionModal from '../components/MokokoCompletionModal'
+import ConfirmBulkMarkModal from '../components/ConfirmBulkMarkModal'
 import { isMarkerCollected } from '../utils/markerCollected'
 
 const COLLECTED_KEY = 'map_collected_markers'
@@ -60,6 +61,7 @@ export default function Maps() {
   const [editingMap, setEditingMap] = useState(null)
   const [addingMap, setAddingMap] = useState(false)
   const [repositioningMarker, setRepositioningMarker] = useState(null)
+  const [confirmBulkMode, setConfirmBulkMode] = useState(null)
   const importInputRef = useRef(null)
   const longPressTimerRef = useRef(null)
   const longPressFiredRef = useRef(false)
@@ -154,6 +156,16 @@ export default function Maps() {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [repositioningMarker])
 
+  function applyBulkMark(value) {
+    setCollected(prev => {
+      const next = { ...prev }
+      for (const m of markers) next[m.id] = value
+      localStorage.setItem(COLLECTED_KEY, JSON.stringify(next))
+      return next
+    })
+    setConfirmBulkMode(null)
+  }
+
   function toggleCollected(marker) {
     const current = isMarkerCollected(marker, collected)
     setCollected(prev => {
@@ -247,6 +259,7 @@ export default function Maps() {
   }
 
   const visibleMarkers = markers.filter(m => showCollected || !isMarkerCollected(m, collected))
+  const allCollectedOnMap = markers.length > 0 && markers.every(m => isMarkerCollected(m, collected))
 
   return (
     <div className="min-h-screen text-white">
@@ -370,6 +383,14 @@ export default function Maps() {
                     >
                       {showCollected ? t('maps.hideCollected') : t('maps.showCollected')}
                     </button>
+                    {markers.length > 0 && (
+                      <button
+                        onClick={() => setConfirmBulkMode(allCollectedOnMap ? 'deselect' : 'select')}
+                        className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+                      >
+                        {allCollectedOnMap ? t('maps.deselectAll') : t('maps.selectAll')}
+                      </button>
+                    )}
                     {selectedMap && !markersLoading && (
                       <MapPipButton
                         map={selectedMap}
@@ -481,6 +502,14 @@ export default function Maps() {
       )}
 
       <MokokoCompletionModal show={allMokokoCollected} />
+
+      {confirmBulkMode && (
+        <ConfirmBulkMarkModal
+          mode={confirmBulkMode}
+          onCancel={() => setConfirmBulkMode(null)}
+          onConfirm={() => applyBulkMark(confirmBulkMode === 'select')}
+        />
+      )}
 
       {editingMap && (
         <EditMapModal

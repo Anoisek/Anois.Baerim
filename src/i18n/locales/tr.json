@@ -196,7 +196,13 @@
     "importProgressTooltip": "Daha önce dışa aktarılmış bir dosyadan toplanan mokoko ilerlemesini geri yükle",
     "importError": "Bu dosya okunamadı — bu siteden dışa aktarılmış bir ilerleme dosyası olduğundan emin ol.",
     "repositionHint": "Bu mokokoyu oraya taşımak için haritada herhangi bir yere tıkla. İptal etmek için Esc.",
-    "adminOnlyTooltip": "Yalnızca admin tarafından görülebilir"
+    "adminOnlyTooltip": "Yalnızca admin tarafından görülebilir",
+    "selectAll": "☑ Tümünü seç",
+    "deselectAll": "☐ Tümünün seçimini kaldır",
+    "confirmBulkMarkTitle": "Emin misin?",
+    "confirmSelectAllWarning": "Bu, haritadaki tüm mokokoları toplanmış olarak işaretleyecek. Bu işlem geri alınamaz.",
+    "confirmDeselectAllWarning": "Bu, haritadaki tüm mokokoların işaretini kaldıracak. Bu işlem geri alınamaz.",
+    "confirmBulkMarkYes": "Evet, yap"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

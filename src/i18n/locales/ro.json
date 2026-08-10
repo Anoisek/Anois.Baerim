@@ -196,7 +196,13 @@
     "importProgressTooltip": "Restaurează progresul de mokoko colectate dintr-un fișier exportat anterior",
     "importError": "Acest fișier nu a putut fi citit — asigură-te că este un fișier de progres exportat de pe acest site.",
     "repositionHint": "Dă clic oriunde pe hartă pentru a muta acest mokoko acolo. Apasă Esc pentru a anula.",
-    "adminOnlyTooltip": "Vizibil doar pentru admin"
+    "adminOnlyTooltip": "Vizibil doar pentru admin",
+    "selectAll": "☑ Selectează tot",
+    "deselectAll": "☐ Deselectează tot",
+    "confirmBulkMarkTitle": "Ești sigur?",
+    "confirmSelectAllWarning": "Aceasta va marca toate mokoko de pe această hartă ca fiind colectate. Nu poate fi anulat.",
+    "confirmDeselectAllWarning": "Aceasta va debifa toate mokoko de pe această hartă ca fiind colectate. Nu poate fi anulat.",
+    "confirmBulkMarkYes": "Da, fă-o"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

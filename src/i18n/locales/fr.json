@@ -196,7 +196,13 @@
     "importProgressTooltip": "Restaure la progression de mokoko collectés à partir d'un fichier précédemment exporté",
     "importError": "Impossible de lire ce fichier — assure-toi qu'il s'agit d'un fichier de progression exporté depuis ce site.",
     "repositionHint": "Clique n'importe où sur la carte pour déplacer ce mokoko à cet endroit. Échap pour annuler.",
-    "adminOnlyTooltip": "Visible uniquement par l'admin"
+    "adminOnlyTooltip": "Visible uniquement par l'admin",
+    "selectAll": "☑ Tout sélectionner",
+    "deselectAll": "☐ Tout désélectionner",
+    "confirmBulkMarkTitle": "Es-tu sûr ?",
+    "confirmSelectAllWarning": "Cela marquera tous les mokoko de cette carte comme récupérés. Cette action est irréversible.",
+    "confirmDeselectAllWarning": "Cela retirera le marquage « récupéré » de tous les mokoko de cette carte. Cette action est irréversible.",
+    "confirmBulkMarkYes": "Oui, fais-le"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

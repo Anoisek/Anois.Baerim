@@ -196,7 +196,13 @@
     "importProgressTooltip": "Restore collected mokoko progress from a previously exported file",
     "importError": "Could not read this file — make sure it is a progress file exported from this site.",
     "repositionHint": "Click anywhere on the map to move this mokoko there. Press Esc to cancel.",
-    "adminOnlyTooltip": "Only visible to admin"
+    "adminOnlyTooltip": "Only visible to admin",
+    "selectAll": "☑ Select all",
+    "deselectAll": "☐ Deselect all",
+    "confirmBulkMarkTitle": "Are you sure?",
+    "confirmSelectAllWarning": "This will mark every mokoko on this map as collected. This cannot be undone.",
+    "confirmDeselectAllWarning": "This will mark every mokoko on this map as not collected. This cannot be undone.",
+    "confirmBulkMarkYes": "Yes, do it"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

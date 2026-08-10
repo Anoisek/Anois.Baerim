@@ -196,7 +196,13 @@
     "importProgressTooltip": "Obnovit postup sebraných mokoko z dříve exportovaného souboru",
     "importError": "Tento soubor se nepodařilo přečíst — ujisti se, že jde o soubor s postupem exportovaný z tohoto webu.",
     "repositionHint": "Klikni kamkoli na mapu, abys tam přesunul toto mokoko. Zrušíš klávesou Esc.",
-    "adminOnlyTooltip": "Viditelné pouze pro admina"
+    "adminOnlyTooltip": "Viditelné pouze pro admina",
+    "selectAll": "☑ Vybrat vše",
+    "deselectAll": "☐ Zrušit výběr všech",
+    "confirmBulkMarkTitle": "Jsi si jistý?",
+    "confirmSelectAllWarning": "Tímto označíš všechna mokoko na této mapě jako sebraná. Nedá se to vrátit zpět.",
+    "confirmDeselectAllWarning": "Tímto zrušíš označení všech mokoko na této mapě jako sebraných. Nedá se to vrátit zpět.",
+    "confirmBulkMarkYes": "Ano, udělat to"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",
