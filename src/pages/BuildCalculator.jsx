@@ -5,6 +5,8 @@ import { supabase } from '../supabaseClient'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
+import Modal from '../components/Modal'
+import MaterialTile from '../components/MaterialTile'
 import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
 import {
@@ -50,8 +52,10 @@ export default function BuildCalculator() {
   const [allItemMaxPity, setAllItemMaxPity] = useState({})
   const [defaultScrollByStep, setDefaultScrollByStep] = useState({})
   const [globalPrices, setGlobalPrices] = useState({})
+  const [materialsById, setMaterialsById] = useState({})
   const [loading, setLoading] = useState(true)
   const [refreshTick, setRefreshTick] = useState(0)
+  const [showSummary, setShowSummary] = useState(false)
   const { rawInputs, mode } = usePriceBook()
 
   useEffect(() => {
@@ -63,8 +67,9 @@ export default function BuildCalculator() {
       supabase.from('item_items').select('item_id, component_item_id, quantity, step'),
       supabase.from('item_step_yang').select('item_id, step, yang_cost, max_pity'),
       supabase.from('materials').select('id, name, image_url').eq('is_upgrade_scroll', true).order('name'),
+      supabase.from('materials').select('id, name, image_url, is_craftable'),
       fetchGlobalPrices(),
-    ]).then(([itemsRes, recipeRes, allMatsRes, allItemMatsRes, allItemItemsRes, allItemYangRes, scrollsRes, globalPricesMap]) => {
+    ]).then(([itemsRes, recipeRes, allMatsRes, allItemMatsRes, allItemItemsRes, allItemYangRes, scrollsRes, allMaterialsRes, globalPricesMap]) => {
       setAllItems(itemsRes.data ?? [])
       setRecipes(buildRecipeMap(recipeRes.data))
       setCraftYangCosts(buildYangCostMap(allMatsRes.data))
@@ -73,6 +78,9 @@ export default function BuildCalculator() {
       setAllItemYang(buildItemYangMap(allItemYangRes.data))
       setAllItemMaxPity(buildItemMaxPityMap(allItemYangRes.data))
       setDefaultScrollByStep(buildDefaultScrollMap(scrollsRes.data))
+      const byId = {}
+      for (const m of allMaterialsRes.data ?? []) byId[m.id] = m
+      setMaterialsById(byId)
       setGlobalPrices(globalPricesMap)
       setLoading(false)
     })
@@ -91,6 +99,66 @@ export default function BuildCalculator() {
 
   const selectedItems = selectedIds.map(id => allItems.find(i => i.id === id)).filter(Boolean)
   const grandTotal = selectedItems.reduce((s, it) => s + computeItemPrice(it.id, ctx), 0)
+
+  // Mirrors computeItemPrice's per-item step/choice logic, but collects the raw
+  // ingredient rows instead of summing straight to a price — so the popup can show
+  // "what to gather" across every selected item at once.
+  function buildMaterialsSummary() {
+    const map = new Map()
+
+    function addRow(material, kind, qty) {
+      const key = `${kind}-${material.id}`
+      const existing = map.get(key)
+      if (existing) existing.quantity += qty
+      else map.set(key, { material, kind, quantity: qty })
+    }
+
+    for (const item of selectedItems) {
+      const choices = loadItemChoices(item.id)
+      const includeCraft = choices?.includeCraft ?? true
+      const matSteps = allItemMaterials[item.id] ?? {}
+      const itemSteps = allItemItems[item.id] ?? {}
+      const yangSteps = allItemYang[item.id] ?? {}
+      const maxPityMap = allItemMaxPity[item.id] ?? {}
+
+      const steps = new Set([
+        ...Object.keys(matSteps).map(Number),
+        ...Object.keys(itemSteps).map(Number),
+        ...Object.keys(yangSteps).map(Number),
+      ])
+
+      for (const step of steps) {
+        if (step === 0 && !includeCraft) continue
+
+        let pity = choices ? Math.max(1, parseInt(choices.pity?.[step]) || 1) : 1
+        const maxPity = maxPityMap[step]
+        if (maxPity) pity = Math.min(pity, maxPity)
+
+        for (const row of matSteps[step] ?? []) {
+          const mat = materialsById[row.material_id]
+          if (mat) addRow(mat, 'material', row.quantity * pity)
+        }
+        for (const row of itemSteps[step] ?? []) {
+          const comp = allItems.find(i => i.id === row.component_item_id)
+          if (comp) addRow(comp, 'item', row.quantity * pity)
+        }
+
+        if (step !== 0) {
+          const scrollId = choices ? (choices.selectedScroll?.[step] ?? '') : defaultScrollByStep[step]
+          const scrollMat = scrollId ? materialsById[scrollId] : null
+          if (scrollMat) addRow(scrollMat, 'material', pity)
+
+          for (const sealId of choices?.selectedSeals?.[step] ?? []) {
+            const sealMat = materialsById[sealId]
+            if (sealMat) addRow(sealMat, 'material', pity)
+          }
+        }
+      }
+    }
+
+    const rows = [...map.values()].sort((a, b) => a.material.name.localeCompare(b.material.name))
+    return { rows }
+  }
 
   function addItem(id) {
     if (selectedIds.includes(id)) return
@@ -234,6 +302,14 @@ export default function BuildCalculator() {
               })}
             </div>
 
+            <button
+              type="button"
+              onClick={() => setShowSummary(true)}
+              className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+            >
+              {t('itemDetail.materialsSummary')}
+            </button>
+
             <div className="bg-gray-900 border border-yellow-400/20 rounded-2xl px-6 py-5 mt-1">
               <div className="flex justify-between items-center">
                 <span className="text-gray-300 font-semibold">{t('buildCalculator.grandTotal')}</span>
@@ -244,6 +320,23 @@ export default function BuildCalculator() {
         )}
         </div>
       </div>
+
+      {showSummary && (() => {
+        const { rows } = buildMaterialsSummary()
+        return (
+          <Modal title={t('itemDetail.materialsSummaryTitle')} onClose={() => setShowSummary(false)}>
+            {rows.length === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-6">{t('itemDetail.noMaterialsDefined')}</p>
+            ) : (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                {rows.map(row => (
+                  <MaterialTile key={`${row.kind}-${row.material.id}`} mat={row.material} quantity={row.quantity} kind={row.kind} />
+                ))}
+              </div>
+            )}
+          </Modal>
+        )
+      })()}
     </div>
   )
 }

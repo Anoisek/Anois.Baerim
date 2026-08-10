@@ -10,7 +10,8 @@ import Modal from '../components/Modal'
 import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
 import ItemImage from '../components/ItemImage'
-import MaterialPriceCell from '../components/MaterialPriceCell'
+import MatRow from '../components/MatRow'
+import MaterialTile from '../components/MaterialTile'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   computeItemPrice, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
@@ -27,23 +28,6 @@ const SCROLL_ORDER = [
   'Blessing Scroll', 'Dragon Scroll', 'Scroll of Honor',
   'Blacksmith Handbook', 'Scroll of War', 'Magic Stone',
 ]
-
-function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChange, kind, globalMode }) {
-  const lineTotal = unitPrice * quantity
-  return (
-    <div className="flex items-center gap-3 min-w-0">
-      <div className="w-8 h-8 shrink-0 flex items-center justify-center">
-        {mat.image_url
-          ? <img src={mat.image_url} alt={mat.name} className="w-full h-full object-contain" />
-          : <span className="text-lg">{kind === 'item' ? '⚔️' : '🧪'}</span>}
-      </div>
-      <span className="flex-1 text-sm text-gray-200 truncate">{mat.name}</span>
-      <span className="text-gray-500 text-xs shrink-0">×{quantity}</span>
-      <MaterialPriceCell material={mat} rawValue={rawValue} computedValue={unitPrice} onPriceChange={onPriceChange} computed={kind === 'item' || globalMode ? true : undefined} />
-      <span className="text-yellow-400 text-sm w-24 text-right font-mono shrink-0">{formatYang(lineTotal)}</span>
-    </div>
-  )
-}
 
 export default function ItemDetail() {
   const { t } = useTranslation()
@@ -244,7 +228,6 @@ export default function ItemDetail() {
 
   function buildMaterialsSummary() {
     const map = new Map()
-    let yangTotal = 0
 
     function addRow(material, kind, qty) {
       const key = `${kind}-${material.id}`
@@ -256,7 +239,6 @@ export default function ItemDetail() {
     for (const step of allSteps) {
       if (!isStepIncluded(step)) continue
       const p = getPity(step)
-      yangTotal += (yangCosts[step] ?? 0) * p
 
       for (const row of grouped[step] ?? []) addRow(row.material, row.kind, row.quantity * p)
 
@@ -271,7 +253,7 @@ export default function ItemDetail() {
     }
 
     const rows = [...map.values()].sort((a, b) => a.material.name.localeCompare(b.material.name))
-    return { rows, yangTotal }
+    return { rows }
   }
 
   return (
@@ -485,39 +467,16 @@ export default function ItemDetail() {
       </div>
 
       {showSummary && (() => {
-        const { rows, yangTotal } = buildMaterialsSummary()
-        const grandTotal = rows.reduce((s, r) => s + rowPrice(r) * r.quantity, 0) + yangTotal
+        const { rows } = buildMaterialsSummary()
         return (
           <Modal title={t('itemDetail.materialsSummaryTitle')} onClose={() => setShowSummary(false)}>
-            {rows.length === 0 && yangTotal === 0 ? (
+            {rows.length === 0 ? (
               <p className="text-sm text-gray-500 text-center py-6">{t('itemDetail.noMaterialsDefined')}</p>
             ) : (
-              <div className="flex flex-col gap-3">
-                {yangTotal > 0 && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 shrink-0 flex items-center justify-center">
-                      <span className="text-lg">💰</span>
-                    </div>
-                    <span className="flex-1 text-sm text-gray-400">{t('itemDetail.yangFee')}</span>
-                    <span className="text-yellow-400 text-sm font-mono">{formatYang(yangTotal)}</span>
-                  </div>
-                )}
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                 {rows.map(row => (
-                  <MatRow
-                    key={`${row.kind}-${row.material.id}`}
-                    mat={row.material}
-                    quantity={row.quantity}
-                    unitPrice={rowPrice(row)}
-                    rawValue={rawInputs[row.material.id]}
-                    onPriceChange={setPrice}
-                    kind={row.kind}
-                    globalMode={mode === 'global'}
-                  />
+                  <MaterialTile key={`${row.kind}-${row.material.id}`} mat={row.material} quantity={row.quantity} kind={row.kind} />
                 ))}
-                <div className="border-t border-gray-700 pt-3 flex justify-between items-center">
-                  <span className="text-gray-300 font-semibold text-sm">{t('itemDetail.totalCost')}</span>
-                  <span className="text-xl font-bold text-yellow-400 font-mono">{formatYang(grandTotal)}</span>
-                </div>
               </div>
             )}
           </Modal>

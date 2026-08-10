@@ -1,0 +1,19 @@
+import { formatYang } from '../utils/formatYang'
+import MaterialPriceCell from './MaterialPriceCell'
+
+export default function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChange, kind, globalMode }) {
+  const lineTotal = unitPrice * quantity
+  return (
+    <div className="flex items-center gap-3 min-w-0">
+      <div className="w-8 h-8 shrink-0 flex items-center justify-center">
+        {mat.image_url
+          ? <img src={mat.image_url} alt={mat.name} className="w-full h-full object-contain" />
+          : <span className="text-lg">{kind === 'item' ? '⚔️' : '🧪'}</span>}
+      </div>
+      <span className="flex-1 text-sm text-gray-200 truncate">{mat.name}</span>
+      <span className="text-gray-500 text-xs shrink-0">×{quantity}</span>
+      <MaterialPriceCell material={mat} rawValue={rawValue} computedValue={unitPrice} onPriceChange={onPriceChange} computed={kind === 'item' || globalMode ? true : undefined} />
+      <span className="text-yellow-400 text-sm w-24 text-right font-mono shrink-0">{formatYang(lineTotal)}</span>
+    </div>
+  )
+}
