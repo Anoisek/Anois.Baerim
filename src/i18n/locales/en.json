@@ -120,7 +120,8 @@
     "noRecipe": "No recipe defined for this material.",
     "variant": "Variant {{current}}/{{count}}",
     "prevVariant": "Previous variant",
-    "nextVariant": "Next variant"
+    "nextVariant": "Next variant",
+    "produces": "Produces ×{{count}}"
   },
   "materialUsage": {
     "usedIn": "Used in",

@@ -120,7 +120,8 @@
     "noRecipe": "Pro tento materiál není definován žádný recept.",
     "variant": "Varianta {{current}}/{{count}}",
     "prevVariant": "Předchozí varianta",
-    "nextVariant": "Další varianta"
+    "nextVariant": "Další varianta",
+    "produces": "Vyrobí ×{{count}}"
   },
   "materialUsage": {
     "usedIn": "Použito v",

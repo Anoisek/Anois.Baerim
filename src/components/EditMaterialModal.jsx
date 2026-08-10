@@ -24,6 +24,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
   const [variantComponents, setVariantComponents] = useState({}) // variants 2+: { variant: { materialId: qty } }
   const [variantCount, setVariantCount] = useState(1)
   const [activeVariant, setActiveVariant] = useState(1)
+  const [variantYield, setVariantYield] = useState({}) // { variant: string }
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -33,7 +34,8 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
     Promise.all([
       supabase.from('materials').select('*').order('name'),
       supabase.from('material_materials').select('component_id, quantity, variant').eq('material_id', material.id),
-    ]).then(([matsRes, compRes]) => {
+      supabase.from('material_craft_variant_yield').select('variant, yield').eq('material_id', material.id),
+    ]).then(([matsRes, compRes, yieldRes]) => {
       setAllMaterials((matsRes.data ?? []).filter(m => m.id !== material.id))
       const c = {}
       const vc = {}
@@ -51,6 +53,10 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
       setComponents(c)
       setVariantComponents(vc)
       setVariantCount(maxVariant)
+
+      const vy = {}
+      for (const row of yieldRes.data ?? []) vy[row.variant] = String(row.yield)
+      setVariantYield(vy)
     })
   }, [material.id])
 
@@ -132,6 +138,16 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
       }
 
       if (rows.length > 0) await supabase.from('material_materials').insert(rows)
+    }
+
+    await supabase.from('material_craft_variant_yield').delete().eq('material_id', material.id)
+    if (isCraftable && isPvp) {
+      const yieldRows = []
+      for (let v = 1; v <= variantCount; v++) {
+        const y = Math.max(1, parseInt(variantYield[v]) || 1)
+        yieldRows.push({ material_id: material.id, variant: v, yield: y })
+      }
+      await supabase.from('material_craft_variant_yield').insert(yieldRows)
     }
 
     onUpdated(data)
@@ -325,6 +341,19 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
                 >
                   ›
                 </button>
+              </div>
+            )}
+
+            {isPvp && (
+              <div className="flex items-center justify-between gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+                <span className="text-sm text-gray-300">Produces (yield of this variant)</span>
+                <input
+                  type="number"
+                  min="1"
+                  value={variantYield[activeVariant] ?? '1'}
+                  onChange={e => setVariantYield(prev => ({ ...prev, [activeVariant]: e.target.value }))}
+                  className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-16 text-center text-sm focus:outline-none focus:border-yellow-400"
+                />
               </div>
             )}
 

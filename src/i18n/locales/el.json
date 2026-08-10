@@ -120,7 +120,8 @@
     "noRecipe": "Δεν έχει οριστεί συνταγή για αυτό το υλικό.",
     "variant": "Παραλλαγή {{current}}/{{count}}",
     "prevVariant": "Προηγούμενη παραλλαγή",
-    "nextVariant": "Επόμενη παραλλαγή"
+    "nextVariant": "Επόμενη παραλλαγή",
+    "produces": "Παράγει ×{{count}}"
   },
   "materialUsage": {
     "usedIn": "Χρησιμοποιείται σε",

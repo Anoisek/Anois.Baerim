@@ -17,6 +17,7 @@ export default function AddMaterialModal({ onClose, onAdded }) {
   const [variantComponents, setVariantComponents] = useState({}) // variants 2+: { variant: { materialId: qty } }
   const [variantCount, setVariantCount] = useState(1)
   const [activeVariant, setActiveVariant] = useState(1)
+  const [variantYield, setVariantYield] = useState({}) // { variant: string }
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -103,6 +104,15 @@ export default function AddMaterialModal({ onClose, onAdded }) {
       if (rows.length > 0) {
         const { error: err } = await supabase.from('material_materials').insert(rows)
         if (err) { alert('Error saving recipe: ' + err.message); setSaving(false); return }
+      }
+
+      if (isPvp) {
+        const yieldRows = []
+        for (let v = 1; v <= variantCount; v++) {
+          const y = Math.max(1, parseInt(variantYield[v]) || 1)
+          yieldRows.push({ material_id: data.id, variant: v, yield: y })
+        }
+        await supabase.from('material_craft_variant_yield').insert(yieldRows)
       }
     }
 
@@ -228,6 +238,19 @@ export default function AddMaterialModal({ onClose, onAdded }) {
                 >
                   ›
                 </button>
+              </div>
+            )}
+
+            {isPvp && (
+              <div className="flex items-center justify-between gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+                <span className="text-sm text-gray-300">Produces (yield of this variant)</span>
+                <input
+                  type="number"
+                  min="1"
+                  value={variantYield[activeVariant] ?? '1'}
+                  onChange={e => setVariantYield(prev => ({ ...prev, [activeVariant]: e.target.value }))}
+                  className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-16 text-center text-sm focus:outline-none focus:border-yellow-400"
+                />
               </div>
             )}
 

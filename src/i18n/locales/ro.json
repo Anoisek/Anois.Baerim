@@ -120,7 +120,8 @@
     "noRecipe": "Nu este definită nicio rețetă pentru acest material.",
     "variant": "Varianta {{current}}/{{count}}",
     "prevVariant": "Varianta anterioară",
-    "nextVariant": "Varianta următoare"
+    "nextVariant": "Varianta următoare",
+    "produces": "Produce ×{{count}}"
   },
   "materialUsage": {
     "usedIn": "Folosit în",

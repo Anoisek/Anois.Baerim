@@ -16,6 +16,7 @@ export default function MaterialDetail() {
   const [material, setMaterial] = useState(null)
   const [components, setComponents] = useState([])
   const [variantRows, setVariantRows] = useState({}) // { [variant]: [{ material, quantity }] }
+  const [variantYield, setVariantYield] = useState({}) // { [variant]: yield }
   const [activeVariant, setActiveVariant] = useState(1)
   const [recipes, setRecipes] = useState({})
   const [craftYangCosts, setCraftYangCosts] = useState({})
@@ -32,8 +33,9 @@ export default function MaterialDetail() {
       supabase.from('material_materials').select('quantity, variant, component:materials!material_materials_component_id_fkey(id, name, image_url, is_craftable)').eq('material_id', materialId),
       supabase.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
       supabase.from('materials').select('id, craft_yang_cost'),
+      supabase.from('material_craft_variant_yield').select('variant, yield').eq('material_id', materialId),
       fetchGlobalPrices(),
-    ]).then(([matRes, compRes, recipeRes, allMatsRes, globalPricesMap]) => {
+    ]).then(([matRes, compRes, recipeRes, allMatsRes, yieldRes, globalPricesMap]) => {
       setMaterial(matRes.data)
       setComponents((compRes.data ?? []).filter(r => (r.variant ?? 1) === 1))
       const byVariant = {}
@@ -43,6 +45,9 @@ export default function MaterialDetail() {
         byVariant[v].push({ material: row.component, quantity: row.quantity })
       }
       setVariantRows(byVariant)
+      const vy = {}
+      for (const row of yieldRes.data ?? []) vy[row.variant] = row.yield
+      setVariantYield(vy)
       setRecipes(buildRecipeMap(recipeRes.data))
       setCraftYangCosts(buildYangCostMap(allMatsRes.data))
       setGlobalPrices(globalPricesMap)
@@ -139,6 +144,9 @@ export default function MaterialDetail() {
                       </button>
                     </div>
                   )}
+                  <p className="text-center text-xs text-gray-400">
+                    {t('materialDetail.produces', { count: variantYield[activeVariant] ?? 1 })}
+                  </p>
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                     {(variantRows[activeVariant] ?? []).map(row => (
                       <MaterialTile key={row.material.id} mat={row.material} quantity={row.quantity} />

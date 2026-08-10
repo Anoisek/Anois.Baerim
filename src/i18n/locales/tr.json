@@ -120,7 +120,8 @@
     "noRecipe": "Bu malzeme için tarif tanımlanmamış.",
     "variant": "Varyant {{current}}/{{count}}",
     "prevVariant": "Önceki varyant",
-    "nextVariant": "Sonraki varyant"
+    "nextVariant": "Sonraki varyant",
+    "produces": "Üretir ×{{count}}"
   },
   "materialUsage": {
     "usedIn": "Şurada kullanıldı",
