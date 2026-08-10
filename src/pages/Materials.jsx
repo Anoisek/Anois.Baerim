@@ -274,13 +274,15 @@ export default function Materials() {
                       <span className="text-xs bg-green-900/60 text-green-300 border border-green-700/50 px-2 py-0.5 rounded-full">{t('materials.tagCraftable')}</span>
                     )}
                   </div>
-                  <MaterialPriceCell
-                    material={mat}
-                    rawValue={rawInputs[mat.id]}
-                    computedValue={mode === 'global' || mat.is_craftable ? priceFn(mat.id) : undefined}
-                    onPriceChange={setPrice}
-                    computed={mode === 'global' ? true : undefined}
-                  />
+                  {!mat.is_pvp && (
+                    <MaterialPriceCell
+                      material={mat}
+                      rawValue={rawInputs[mat.id]}
+                      computedValue={mode === 'global' || mat.is_craftable ? priceFn(mat.id) : undefined}
+                      onPriceChange={setPrice}
+                      computed={mode === 'global' ? true : undefined}
+                    />
+                  )}
                   {(usedInItemIds.has(mat.id) || usedAsComponentIds.has(mat.id)) && (
                     <button
                       onClick={e => { e.preventDefault(); e.stopPropagation(); navigate(`/materials/${mat.id}/usage`) }}
