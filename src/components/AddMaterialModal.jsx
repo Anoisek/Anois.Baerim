@@ -10,6 +10,7 @@ export default function AddMaterialModal({ onClose, onAdded }) {
   const [tag, setTag] = useState('')
   const [isCraftable, setIsCraftable] = useState(false)
   const [isPvp, setIsPvp] = useState(false)
+  const [isPvpOnly, setIsPvpOnly] = useState(false)
   const [craftYangCost, setCraftYangCost] = useState('')
   const [allMaterials, setAllMaterials] = useState([])
   const [components, setComponents] = useState({}) // variant 1: { materialId: qty }
@@ -75,6 +76,7 @@ export default function AddMaterialModal({ onClose, onAdded }) {
         is_craftable: isCraftable,
         craft_yang_cost: isCraftable && !isPvp ? (parseYang(craftYangCost) || null) : null,
         is_pvp: isPvp,
+        is_pvp_only: isPvpOnly,
       })
       .select()
       .single()
@@ -109,7 +111,7 @@ export default function AddMaterialModal({ onClose, onAdded }) {
     setSaving(false)
   }
 
-  const filtered = allMaterials.filter(m => m.name.toLowerCase().includes(search.toLowerCase()))
+  const filtered = allMaterials.filter(m => (isPvp || !m.is_pvp_only) && m.name.toLowerCase().includes(search.toLowerCase()))
 
   return (
     <Modal title="New material" onClose={onClose}>
@@ -160,6 +162,16 @@ export default function AddMaterialModal({ onClose, onAdded }) {
             className="accent-red-400 w-4 h-4"
           />
           <span className="text-sm text-gray-200">PVP only (shown only in the PVP materials tab)</span>
+        </label>
+
+        <label className="flex items-center gap-3 cursor-pointer select-none bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+          <input
+            type="checkbox"
+            checked={isPvpOnly}
+            onChange={e => setIsPvpOnly(e.target.checked)}
+            className="accent-red-400 w-4 h-4"
+          />
+          <span className="text-sm text-gray-200">PVP-only ingredient (hidden from item recipes — only pickable when crafting other PVP materials)</span>
         </label>
 
         {isCraftable && (

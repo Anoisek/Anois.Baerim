@@ -221,7 +221,7 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
     onClose()
   }
 
-  const filteredMaterials = allMaterials.filter(m => m.name.toLowerCase().includes(search.toLowerCase()))
+  const filteredMaterials = allMaterials.filter(m => !m.is_pvp_only && m.name.toLowerCase().includes(search.toLowerCase()))
   const filteredItems = allItems.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
   const currentStepMats = stepMaterials[activeStep] ?? {}
   const currentStepItems = stepItems[activeStep] ?? {}
