@@ -259,7 +259,7 @@ export default function ItemDetail() {
   return (
     <div className="min-h-screen text-white">
       <Navbar />
-      <div className="max-w-2xl mx-auto px-6 py-10">
+      <div className="max-w-4xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
         {loading ? <Spinner /> : (
           <>
@@ -391,7 +391,7 @@ export default function ItemDetail() {
                               }}
                               className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-14 text-center text-xs text-white focus:outline-none focus:border-yellow-400"
                             />
-                            {getPity(step) > 1 && <span className="text-yellow-400 font-bold">×{getPity(step)}</span>}
+                            <span className={`text-yellow-400 font-bold min-w-[1.75rem] shrink-0 ${getPity(step) > 1 ? '' : 'opacity-0'}`}>×{getPity(step)}</span>
                           </label>
                         </div>
                       </div>

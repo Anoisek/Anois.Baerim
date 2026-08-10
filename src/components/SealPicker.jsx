@@ -33,7 +33,7 @@ export default function SealPicker({ seals, selected, onChange }) {
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="bg-gray-800 border border-gray-600 rounded-lg px-2 py-1 text-sm text-white focus:outline-none focus:border-yellow-400 flex items-center gap-1 min-w-24"
+        className="bg-gray-800 border border-gray-600 rounded-lg px-2 py-1 text-sm text-white focus:outline-none focus:border-yellow-400 flex items-center gap-1 w-32 shrink-0"
       >
         <span className="flex-1 text-left truncate">{label}</span>
         <span className="text-gray-400 text-xs">{open ? '▲' : '▼'}</span>
