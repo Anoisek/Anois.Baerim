@@ -1,18 +1,20 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useModalSlot } from '../context/ModalQueueContext'
 
 const COMPLETION_KEY = 'mokoko_all_collected_seen'
 
 export default function MokokoCompletionModal({ show }) {
   const { t } = useTranslation()
   const [dismissed, setDismissed] = useState(() => localStorage.getItem(COMPLETION_KEY) === 'true')
+  const isOpen = useModalSlot('mokokoCompletion', show && !dismissed)
 
   function handleClose() {
     localStorage.setItem(COMPLETION_KEY, 'true')
     setDismissed(true)
   }
 
-  if (dismissed || !show) return null
+  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">

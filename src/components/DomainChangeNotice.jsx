@@ -1,18 +1,20 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useModalSlot } from '../context/ModalQueueContext'
 
 const NOTICE_KEY = 'domain_change_notice_v1_seen'
 
 export default function DomainChangeNotice() {
   const { t } = useTranslation()
   const [dismissed, setDismissed] = useState(() => localStorage.getItem(NOTICE_KEY) === 'true')
+  const isOpen = useModalSlot('domainChange', !dismissed)
 
   function handleClose() {
     localStorage.setItem(NOTICE_KEY, 'true')
     setDismissed(true)
   }
 
-  if (dismissed) return null
+  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">

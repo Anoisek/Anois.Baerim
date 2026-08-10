@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { NightModeProvider } from './context/NightModeContext'
 import { UiScaleProvider } from './context/UiScaleContext'
+import { ModalQueueProvider } from './context/ModalQueueContext'
 import NicknamePrompt from './components/NicknamePrompt'
 import Footer from './components/Footer'
 import CookieConsent from './components/CookieConsent'
@@ -30,6 +31,7 @@ export default function App() {
       <AuthProvider>
         <NightModeProvider>
         <UiScaleProvider>
+        <ModalQueueProvider>
           <NicknamePrompt />
           <MokokoAnnouncement />
           <DomainChangeNotice />
@@ -54,6 +56,7 @@ export default function App() {
           </Routes>
           <Footer />
           <CookieConsent />
+        </ModalQueueProvider>
         </UiScaleProvider>
         </NightModeProvider>
       </AuthProvider>
