@@ -237,13 +237,13 @@
     "suggestions": "Öneriler"
   },
   "cookieConsent": {
-    "message": "Bu site, dilini, ayarlarını ve ilerlemeni hatırlamak için tarayıcı yerel depolamasını kullanır.",
+    "message": "Bu site, dilini, ayarlarını ve ilerlemeni hatırlamak için tarayıcı yerel depolamasını kullanır. Kabul edersen, barındırma maliyetlerini karşılamaya yardımcı olmak için reklamlar da (Google AdSense) göstereceğiz.",
     "learnMore": "Daha fazla bilgi",
     "accept": "Kabul et",
     "decline": "Reddet"
   },
   "privacyPolicy": {
-    "lastUpdated": "Son güncelleme: 9 Ağustos 2026",
+    "lastUpdated": "Son güncelleme: 10 Ağustos 2026",
     "intro": {
       "title": "Bu site nedir",
       "body": "Baerim Calculator, Baerim sunucusu (Metin2) oyuncuları için yapılmış resmi olmayan, hayran yapımı bir araçtır. Site, Baerim ekibi veya Metin2 yapımcılarıyla bağlantılı değildir. Kullanmak için hesaba veya girişe ihtiyacın yok."
@@ -268,7 +268,7 @@
     },
     "cookiesAds": {
       "title": "Çerezler ve reklamlar",
-      "body": "Site şu anda reklam göstermiyor ve izleme veya profilleme için çerez kullanmıyor. Gelecekte küçük, rahatsız etmeyen reklamlar (örneğin Google AdSense) eklenebilir — bu olursa, herhangi bir reklam çerezi yüklenmeden önce sayfanın altındaki bir banner aracılığıyla onayını isteyeceğiz ve bu politika ayrıntılarla güncellenecek."
+      "body": "Bu site, barındırma maliyetlerini karşılamaya yardımcı olmak için Google AdSense aracılığıyla reklam gösterir. Reklam çerezleri yalnızca sayfanın altındaki banner'ı kabul ettikten sonra yüklenir — reddedersen hiçbir reklam çerezi ayarlanmaz ve kişiselleştirilmiş reklamlar görmezsin. Seçimini istediğin zaman tarayıcında bu sitenin verilerini silerek değiştirebilirsin."
     },
     "hostingLogs": {
       "title": "Barındırma günlükleri",

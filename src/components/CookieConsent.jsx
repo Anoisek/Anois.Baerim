@@ -1,17 +1,10 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-
-const CONSENT_KEY = 'cookie_consent'
+import { useConsent, setConsent } from '../utils/consent'
 
 export default function CookieConsent() {
   const { t } = useTranslation()
-  const [choice, setChoice] = useState(() => localStorage.getItem(CONSENT_KEY))
-
-  function choose(value) {
-    localStorage.setItem(CONSENT_KEY, value)
-    setChoice(value)
-  }
+  const choice = useConsent()
 
   if (choice) return null
 
@@ -26,13 +19,13 @@ export default function CookieConsent() {
         </p>
         <div className="flex gap-2 shrink-0">
           <button
-            onClick={() => choose('declined')}
+            onClick={() => setConsent('declined')}
             className="px-3 py-2 rounded-xl text-xs font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
           >
             {t('cookieConsent.decline')}
           </button>
           <button
-            onClick={() => choose('accepted')}
+            onClick={() => setConsent('accepted')}
             className="px-3 py-2 rounded-xl text-xs font-semibold bg-yellow-400 hover:bg-yellow-300 text-gray-950 transition-colors"
           >
             {t('cookieConsent.accept')}

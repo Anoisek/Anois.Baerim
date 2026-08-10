@@ -237,13 +237,13 @@
     "suggestions": "Sugestie"
   },
   "cookieConsent": {
-    "message": "Ta strona używa lokalnej pamięci przeglądarki, żeby zapamiętać Twój język, ustawienia i postęp.",
+    "message": "Ta strona używa lokalnej pamięci przeglądarki, żeby zapamiętać Twój język, ustawienia i postęp. Jeśli zaakceptujesz, wyświetlimy też reklamy (Google AdSense), żeby pomóc pokryć koszty hostingu.",
     "learnMore": "Dowiedz się więcej",
     "accept": "Akceptuję",
     "decline": "Odrzuć"
   },
   "privacyPolicy": {
-    "lastUpdated": "Ostatnia aktualizacja: 9 sierpnia 2026",
+    "lastUpdated": "Ostatnia aktualizacja: 10 sierpnia 2026",
     "intro": {
       "title": "Czym jest ta strona",
       "body": "Baerim Calculator to nieoficjalne, fanowskie narzędzie stworzone dla graczy serwera Baerim (Metin2). Strona nie jest powiązana z zespołem Baerim ani z twórcami gry Metin2. Nie wymaga zakładania konta ani logowania, żeby z niej korzystać."
@@ -268,7 +268,7 @@
     },
     "cookiesAds": {
       "title": "Cookies i reklamy",
-      "body": "Obecnie strona nie wyświetla reklam ani nie używa cookies do śledzenia czy profilowania. W przyszłości planowane jest dodanie niewielkich, mało inwazyjnych reklam (np. Google AdSense) — jeśli to nastąpi, przed załadowaniem jakichkolwiek cookies reklamowych poprosimy o Twoją zgodę za pomocą banera na dole strony, a ta polityka zostanie zaktualizowana o szczegóły."
+      "body": "Ta strona wyświetla reklamy przez Google AdSense, żeby pomóc pokryć koszty hostingu. Cookies reklamowe ładują się dopiero po Twojej zgodzie wyrażonej w banerze na dole strony — jeśli odrzucisz, żadne cookies reklamowe nie zostaną ustawione i nie zobaczysz spersonalizowanych reklam. Możesz zmienić swój wybór w każdej chwili, czyszcząc dane tej strony w przeglądarce."
     },
     "hostingLogs": {
       "title": "Logi hostingu",

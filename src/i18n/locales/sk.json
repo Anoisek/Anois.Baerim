@@ -237,13 +237,13 @@
     "suggestions": "Návrhy"
   },
   "cookieConsent": {
-    "message": "Táto stránka používa lokálne úložisko prehliadača na zapamätanie tvojho jazyka, nastavení a postupu.",
+    "message": "Táto stránka používa lokálne úložisko prehliadača na zapamätanie tvojho jazyka, nastavení a postupu. Ak súhlasíš, zobrazíme aj reklamy (Google AdSense), aby sme pomohli pokryť náklady na hosting.",
     "learnMore": "Zistiť viac",
     "accept": "Prijať",
     "decline": "Odmietnuť"
   },
   "privacyPolicy": {
-    "lastUpdated": "Posledná aktualizácia: 9. augusta 2026",
+    "lastUpdated": "Posledná aktualizácia: 10. augusta 2026",
     "intro": {
       "title": "Čo je táto stránka",
       "body": "Baerim Calculator je neoficiálny fanúšikovský nástroj vytvorený pre hráčov serveru Baerim (Metin2). Stránka nie je spojená s tímom Baerim ani s tvorcami Metin2. Na jej používanie nepotrebuješ účet ani prihlásenie."
@@ -268,7 +268,7 @@
     },
     "cookiesAds": {
       "title": "Cookies a reklamy",
-      "body": "Stránka momentálne nezobrazuje žiadne reklamy a nepoužíva cookies na sledovanie ani profilovanie. V budúcnosti môžu byť pridané malé, málo rušivé reklamy (napr. Google AdSense) — ak k tomu dôjde, požiadame ťa o súhlas prostredníctvom banneru v spodnej časti stránky pred načítaním akýchkoľvek reklamných cookies a tieto zásady budú o podrobnosti aktualizované."
+      "body": "Táto stránka zobrazuje reklamy prostredníctvom Google AdSense, aby pomohla pokryť náklady na hosting. Reklamné cookies sa načítajú až po tvojom súhlase prostredníctvom banneru v spodnej časti stránky — ak odmietneš, žiadne reklamné cookies sa nenastavia a neuvidíš personalizované reklamy. Svoju voľbu môžeš kedykoľvek zmeniť vymazaním údajov tejto stránky vo svojom prehliadači."
     },
     "hostingLogs": {
       "title": "Protokoly hostingu",

@@ -237,13 +237,13 @@
     "suggestions": "Suggestions"
   },
   "cookieConsent": {
-    "message": "This site uses local browser storage to remember your language, settings and progress.",
+    "message": "This site uses local browser storage to remember your language, settings and progress. If you accept, we'll also show ads (Google AdSense) to help cover hosting costs.",
     "learnMore": "Learn more",
     "accept": "Accept",
     "decline": "Decline"
   },
   "privacyPolicy": {
-    "lastUpdated": "Last updated: August 9, 2026",
+    "lastUpdated": "Last updated: August 10, 2026",
     "intro": {
       "title": "What this site is",
       "body": "Baerim Calculator is an unofficial, fan-made tool created for players of the Baerim server (Metin2). The site is not affiliated with the Baerim team or the creators of Metin2. You don't need an account or to log in to use it."
@@ -268,7 +268,7 @@
     },
     "cookiesAds": {
       "title": "Cookies and ads",
-      "body": "The site currently shows no ads and does not use cookies for tracking or profiling. Small, non-intrusive ads (e.g. Google AdSense) may be added in the future — if that happens, we'll ask for your consent via a banner at the bottom of the page before any advertising cookies load, and this policy will be updated with details."
+      "body": "This site shows ads via Google AdSense to help cover hosting costs. Advertising cookies are only loaded after you accept the cookie banner at the bottom of the page — if you decline, no advertising cookies are set and you won't see personalized ads. You can change your choice at any time by clearing this site's data in your browser."
     },
     "hostingLogs": {
       "title": "Hosting logs",
