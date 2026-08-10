@@ -12,6 +12,25 @@ export function setConsent(value) {
   window.dispatchEvent(new Event(CONSENT_EVENT))
 }
 
+export function resumeAds() {
+  if (window.__adsResumed) return
+
+  function tryResume() {
+    if (typeof window.adsbygoogle?.requestAds === 'function') {
+      window.adsbygoogle.requestAds()
+      window.__adsResumed = true
+      return true
+    }
+    return false
+  }
+
+  if (tryResume()) return
+  const interval = setInterval(() => {
+    if (tryResume()) clearInterval(interval)
+  }, 200)
+  setTimeout(() => clearInterval(interval), 15000)
+}
+
 export function useConsent() {
   const [consent, setConsentState] = useState(getConsent)
 
