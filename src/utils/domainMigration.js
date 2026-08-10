@@ -51,16 +51,20 @@ function collectPayload() {
 }
 
 // Call once on app boot. Returns true if it triggered a redirect (caller should skip rendering).
+// Every visit to the old domain redirects to the new one; only the first visit (per browser)
+// carries the localStorage payload along — later redirects are plain, data's already there.
 export function redirectToNewDomain() {
   if (location.hostname !== OLD_HOST) return false
-  if (localStorage.getItem(MIGRATED_FLAG) === 'true') return false
 
-  localStorage.setItem(MIGRATED_FLAG, 'true')
-
-  const payload = collectPayload()
+  const alreadyMigrated = localStorage.getItem(MIGRATED_FLAG) === 'true'
   const target = new URL(location.pathname + location.search, NEW_ORIGIN)
-  if (Object.keys(payload).length > 0) {
-    target.searchParams.set(MIGRATE_PARAM, toBase64(JSON.stringify(payload)))
+
+  if (!alreadyMigrated) {
+    localStorage.setItem(MIGRATED_FLAG, 'true')
+    const payload = collectPayload()
+    if (Object.keys(payload).length > 0) {
+      target.searchParams.set(MIGRATE_PARAM, toBase64(JSON.stringify(payload)))
+    }
   }
   target.hash = location.hash
 
