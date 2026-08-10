@@ -43,6 +43,7 @@ export default function Materials() {
   const [showAdd, setShowAdd] = useState(false)
   const [editing, setEditing] = useState(null)
   const [filter, setFilter] = useState('all')
+  const [chapterTab, setChapterTab] = useState('chapter1')
   const [search, setSearch] = useState('')
   const [globalPrices, setGlobalPrices] = useState({})
   const [submitting, setSubmitting] = useState(false)
@@ -180,6 +181,20 @@ export default function Materials() {
 
         {materials.length > 0 && (
           <div className="flex flex-col gap-3 mb-6">
+            <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-xl p-1 self-start">
+              <button
+                onClick={() => setChapterTab('chapter1')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${chapterTab === 'chapter1' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
+              >
+                Chapter I
+              </button>
+              <button
+                onClick={() => setChapterTab('pvp')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${chapterTab === 'pvp' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
+              >
+                PVP
+              </button>
+            </div>
             <input
               type="text"
               placeholder={t('materials.searchPlaceholder')}
@@ -204,7 +219,11 @@ export default function Materials() {
         )}
 
         {(() => {
-          const visible = materials.filter(mat => matchesFilter(mat, filter) && mat.name.toLowerCase().includes(search.toLowerCase()))
+          const visible = materials.filter(mat =>
+            (chapterTab === 'pvp' ? mat.is_pvp : !mat.is_pvp) &&
+            matchesFilter(mat, filter) &&
+            mat.name.toLowerCase().includes(search.toLowerCase())
+          )
           if (loading) return <Spinner />
           if (materials.length === 0) {
             return (

@@ -16,6 +16,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
   const [imageUrl, setImageUrl] = useState(material.image_url ?? '')
   const [tag, setTag] = useState(material.is_upgrade_scroll ? 'scroll' : material.is_seal ? 'seal' : material.is_item ? 'item' : '')
   const [isCraftable, setIsCraftable] = useState(material.is_craftable ?? false)
+  const [isPvp, setIsPvp] = useState(material.is_pvp ?? false)
   const [craftYangCost, setCraftYangCost] = useState(material.craft_yang_cost ? String(material.craft_yang_cost) : '')
   const [allMaterials, setAllMaterials] = useState([])
   const [components, setComponents] = useState({}) // { materialId: qty }
@@ -66,6 +67,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
         is_item: tag === 'item',
         is_craftable: isCraftable,
         craft_yang_cost: isCraftable ? (parseYang(craftYangCost) || null) : null,
+        is_pvp: isPvp,
       })
       .eq('id', material.id)
       .select()
@@ -200,6 +202,16 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
             className="accent-green-400 w-4 h-4"
           />
           <span className="text-sm text-gray-200">Craftable</span>
+        </label>
+
+        <label className="flex items-center gap-3 cursor-pointer select-none bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+          <input
+            type="checkbox"
+            checked={isPvp}
+            onChange={e => setIsPvp(e.target.checked)}
+            className="accent-red-400 w-4 h-4"
+          />
+          <span className="text-sm text-gray-200">PVP only (shown only in the PVP materials tab)</span>
         </label>
 
         {isCraftable && (

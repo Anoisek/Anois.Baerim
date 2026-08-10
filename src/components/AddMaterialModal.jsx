@@ -9,6 +9,7 @@ export default function AddMaterialModal({ onClose, onAdded }) {
   const [imageUrl, setImageUrl] = useState('')
   const [tag, setTag] = useState('')
   const [isCraftable, setIsCraftable] = useState(false)
+  const [isPvp, setIsPvp] = useState(false)
   const [craftYangCost, setCraftYangCost] = useState('')
   const [allMaterials, setAllMaterials] = useState([])
   const [components, setComponents] = useState({}) // { materialId: qty }
@@ -50,6 +51,7 @@ export default function AddMaterialModal({ onClose, onAdded }) {
         is_item: tag === 'item',
         is_craftable: isCraftable,
         craft_yang_cost: isCraftable ? (parseYang(craftYangCost) || null) : null,
+        is_pvp: isPvp,
       })
       .select()
       .single()
@@ -116,6 +118,16 @@ export default function AddMaterialModal({ onClose, onAdded }) {
             className="accent-green-400 w-4 h-4"
           />
           <span className="text-sm text-gray-200">Craftable</span>
+        </label>
+
+        <label className="flex items-center gap-3 cursor-pointer select-none bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+          <input
+            type="checkbox"
+            checked={isPvp}
+            onChange={e => setIsPvp(e.target.checked)}
+            className="accent-red-400 w-4 h-4"
+          />
+          <span className="text-sm text-gray-200">PVP only (shown only in the PVP materials tab)</span>
         </label>
 
         {isCraftable && (
