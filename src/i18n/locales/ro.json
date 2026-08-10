@@ -305,6 +305,11 @@
     "closing": "Vânătoare plăcută de Mokoko! 🍀",
     "button": "Ura!"
   },
+  "domainChange": {
+    "title": "Ne-am mutat! 🔗",
+    "body": "Site-ul are acum o adresă nouă: anois-baerim.pages.dev. Actualizează-ți marcajul ca să ajungi mereu la locul potrivit.",
+    "button": "Am înțeles"
+  },
   "completion": {
     "title": "Felicitări, le-ai adunat pe toate! 🎉",
     "body": "Ai colectat absolut fiecare mokoko de pe fiecare hartă. E nevoie de multă dedicare pentru asta — bravo!",

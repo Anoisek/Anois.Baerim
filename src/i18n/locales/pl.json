@@ -305,6 +305,11 @@
     "closing": "Udanych łowów na mokoko! 🍀",
     "button": "Hura!"
   },
+  "domainChange": {
+    "title": "Zmieniliśmy adres! 🔗",
+    "body": "Strona działa teraz pod nowym adresem: anois-baerim.pages.dev. Zaktualizuj zakładkę, żeby zawsze trafiać we właściwe miejsce.",
+    "button": "Rozumiem"
+  },
   "completion": {
     "title": "Gratulacje, masz je wszystkie! 🎉",
     "body": "Zebrałeś/aś dosłownie każde mokoko na każdej mapie. To wymagało niezłej determinacji — brawo!",

@@ -305,6 +305,11 @@
     "closing": "İyi Mokoko avları! 🍀",
     "button": "Yaşasın!"
   },
+  "domainChange": {
+    "title": "Taşındık! 🔗",
+    "body": "Site artık yeni bir adreste: anois-baerim.pages.dev. Her zaman doğru yere ulaşmak için yer imini güncelle.",
+    "button": "Anladım"
+  },
   "completion": {
     "title": "Tebrikler, hepsini buldun! 🎉",
     "body": "Her haritadaki her mokokoyu tek tek topladın. Bu ciddi bir azim işi — helal olsun!",

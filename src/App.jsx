@@ -8,6 +8,7 @@ import CookieConsent from './components/CookieConsent'
 import GoogleAdsense from './components/GoogleAdsense'
 import SideRailAds from './components/SideRailAds'
 import MokokoAnnouncement from './components/MokokoAnnouncement'
+import DomainChangeNotice from './components/DomainChangeNotice'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Materials from './pages/Materials'
@@ -31,6 +32,7 @@ export default function App() {
         <UiScaleProvider>
           <NicknamePrompt />
           <MokokoAnnouncement />
+          <DomainChangeNotice />
           <GoogleAdsense />
           <SideRailAds />
           <Routes>

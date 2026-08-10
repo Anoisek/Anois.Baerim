@@ -305,6 +305,11 @@
     "closing": "Happy Mokoko hunting! 🍀",
     "button": "YAY"
   },
+  "domainChange": {
+    "title": "We've moved! 🔗",
+    "body": "The site now lives at a new address: anois-baerim.pages.dev. Update your bookmark so you always land in the right place.",
+    "button": "Understood"
+  },
   "completion": {
     "title": "Congrats, you got them all! 🎉",
     "body": "You've collected every single mokoko across every map. That's some serious dedication — well done!",
