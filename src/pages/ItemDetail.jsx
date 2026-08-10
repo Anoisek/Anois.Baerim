@@ -65,7 +65,7 @@ export default function ItemDetail() {
       supabase.from('item_step_yang').select('step, yang_cost, max_pity').eq('item_id', itemId),
       supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_upgrade_scroll', true).order('name'),
       supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_seal', true).order('name'),
-      supabase.from('material_materials').select('material_id, component_id, quantity'),
+      supabase.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
       supabase.from('materials').select('id, craft_yang_cost'),
       supabase.from('item_materials').select('item_id, material_id, quantity, step'),
       supabase.from('item_items').select('item_id, component_item_id, quantity, step'),

@@ -117,7 +117,10 @@
     "yangFee": "Frais en yang",
     "subtotal": "Sous-total",
     "totalCost": "Coût total",
-    "noRecipe": "Aucune recette définie pour ce matériau."
+    "noRecipe": "Aucune recette définie pour ce matériau.",
+    "variant": "Variante {{current}}/{{count}}",
+    "prevVariant": "Variante précédente",
+    "nextVariant": "Variante suivante"
   },
   "materialUsage": {
     "usedIn": "Utilisé dans",

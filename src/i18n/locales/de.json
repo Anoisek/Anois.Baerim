@@ -117,7 +117,10 @@
     "yangFee": "Yang-Gebühr",
     "subtotal": "Zwischensumme",
     "totalCost": "Gesamtkosten",
-    "noRecipe": "Für dieses Material ist kein Rezept definiert."
+    "noRecipe": "Für dieses Material ist kein Rezept definiert.",
+    "variant": "Variante {{current}}/{{count}}",
+    "prevVariant": "Vorherige Variante",
+    "nextVariant": "Nächste Variante"
   },
   "materialUsage": {
     "usedIn": "Verwendet in",

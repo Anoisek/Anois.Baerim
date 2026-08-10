@@ -117,7 +117,10 @@
     "yangFee": "Yang fee",
     "subtotal": "Subtotal",
     "totalCost": "Total cost",
-    "noRecipe": "No recipe defined for this material."
+    "noRecipe": "No recipe defined for this material.",
+    "variant": "Variant {{current}}/{{count}}",
+    "prevVariant": "Previous variant",
+    "nextVariant": "Next variant"
   },
   "materialUsage": {
     "usedIn": "Used in",

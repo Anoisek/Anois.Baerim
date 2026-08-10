@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import MaterialPriceCell from '../components/MaterialPriceCell'
+import MaterialTile from '../components/MaterialTile'
 import { formatYang } from '../utils/formatYang'
 import { usePriceBook, buildRecipeMap, buildYangCostMap, fetchGlobalPrices, makeMaterialPriceFn } from '../utils/priceBook'
 
@@ -14,6 +15,8 @@ export default function MaterialDetail() {
   const { materialId } = useParams()
   const [material, setMaterial] = useState(null)
   const [components, setComponents] = useState([])
+  const [variantRows, setVariantRows] = useState({}) // { [variant]: [{ material, quantity }] }
+  const [activeVariant, setActiveVariant] = useState(1)
   const [recipes, setRecipes] = useState({})
   const [craftYangCosts, setCraftYangCosts] = useState({})
   const [globalPrices, setGlobalPrices] = useState({})
@@ -23,21 +26,32 @@ export default function MaterialDetail() {
   const navigate = useNavigate()
 
   useEffect(() => {
+    setActiveVariant(1)
     Promise.all([
       supabase.from('materials').select('*').eq('id', materialId).single(),
-      supabase.from('material_materials').select('quantity, component:materials!material_materials_component_id_fkey(id, name, image_url, is_craftable)').eq('material_id', materialId),
-      supabase.from('material_materials').select('material_id, component_id, quantity'),
+      supabase.from('material_materials').select('quantity, variant, component:materials!material_materials_component_id_fkey(id, name, image_url, is_craftable)').eq('material_id', materialId),
+      supabase.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
       supabase.from('materials').select('id, craft_yang_cost'),
       fetchGlobalPrices(),
     ]).then(([matRes, compRes, recipeRes, allMatsRes, globalPricesMap]) => {
       setMaterial(matRes.data)
-      setComponents(compRes.data ?? [])
+      setComponents((compRes.data ?? []).filter(r => (r.variant ?? 1) === 1))
+      const byVariant = {}
+      for (const row of compRes.data ?? []) {
+        const v = row.variant ?? 1
+        if (!byVariant[v]) byVariant[v] = []
+        byVariant[v].push({ material: row.component, quantity: row.quantity })
+      }
+      setVariantRows(byVariant)
       setRecipes(buildRecipeMap(recipeRes.data))
       setCraftYangCosts(buildYangCostMap(allMatsRes.data))
       setGlobalPrices(globalPricesMap)
       setLoading(false)
     })
   }, [materialId])
+
+  const variantNumbers = Object.keys(variantRows).map(Number).sort((a, b) => a - b)
+  const variantCount = variantNumbers.length > 0 ? Math.max(...variantNumbers) : 0
 
   const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts })
 
@@ -66,7 +80,7 @@ export default function MaterialDetail() {
               </div>
               <div className="flex flex-col gap-2">
                 <h1 className="text-2xl font-bold text-yellow-400">{material?.name}</h1>
-                {material && (
+                {material && !material.is_pvp && (
                   <MaterialPriceCell
                     material={material}
                     rawValue={rawInputs[material.id]}
@@ -92,7 +106,47 @@ export default function MaterialDetail() {
               </div>
             </div>
 
-            {!material?.is_craftable ? null : components.length === 0 && !craftYangFee ? (
+            {!material?.is_craftable ? null : material.is_pvp ? (
+              variantCount === 0 ? (
+                <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
+                  <span className="text-5xl">📭</span>
+                  <p className="text-sm">{t('materialDetail.noRecipe')}</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {variantCount > 1 && (
+                    <div className="flex items-center justify-center gap-4 bg-gray-900 border border-gray-700 rounded-2xl px-4 py-2 self-center">
+                      <button
+                        type="button"
+                        onClick={() => setActiveVariant(v => Math.max(1, v - 1))}
+                        disabled={activeVariant === 1}
+                        title={t('materialDetail.prevVariant')}
+                        className="text-gray-300 hover:text-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-lg leading-none px-1"
+                      >
+                        ‹
+                      </button>
+                      <span className="text-sm text-white font-semibold min-w-[6rem] text-center">
+                        {t('materialDetail.variant', { current: activeVariant, count: variantCount })}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setActiveVariant(v => Math.min(variantCount, v + 1))}
+                        disabled={activeVariant === variantCount}
+                        title={t('materialDetail.nextVariant')}
+                        className="text-gray-300 hover:text-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-lg leading-none px-1"
+                      >
+                        ›
+                      </button>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    {(variantRows[activeVariant] ?? []).map(row => (
+                      <MaterialTile key={row.material.id} mat={row.material} quantity={row.quantity} />
+                    ))}
+                  </div>
+                </div>
+              )
+            ) : components.length === 0 && !craftYangFee ? (
               <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
                 <span className="text-5xl">📭</span>
                 <p className="text-sm">{t('materialDetail.noRecipe')}</p>

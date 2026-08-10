@@ -117,7 +117,10 @@
     "yangFee": "Poplatek v yang",
     "subtotal": "Mezisoučet",
     "totalCost": "Celková cena",
-    "noRecipe": "Pro tento materiál není definován žádný recept."
+    "noRecipe": "Pro tento materiál není definován žádný recept.",
+    "variant": "Varianta {{current}}/{{count}}",
+    "prevVariant": "Předchozí varianta",
+    "nextVariant": "Další varianta"
   },
   "materialUsage": {
     "usedIn": "Použito v",

@@ -12,7 +12,10 @@ export default function AddMaterialModal({ onClose, onAdded }) {
   const [isPvp, setIsPvp] = useState(false)
   const [craftYangCost, setCraftYangCost] = useState('')
   const [allMaterials, setAllMaterials] = useState([])
-  const [components, setComponents] = useState({}) // { materialId: qty }
+  const [components, setComponents] = useState({}) // variant 1: { materialId: qty }
+  const [variantComponents, setVariantComponents] = useState({}) // variants 2+: { variant: { materialId: qty } }
+  const [variantCount, setVariantCount] = useState(1)
+  const [activeVariant, setActiveVariant] = useState(1)
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -37,6 +40,26 @@ export default function AddMaterialModal({ onClose, onAdded }) {
     setComponents(prev => ({ ...prev, [materialId]: val }))
   }
 
+  function toggleActiveComponent(materialId) {
+    if (activeVariant === 1) { toggleComponent(materialId); return }
+    setVariantComponents(prev => {
+      const cur = { ...(prev[activeVariant] ?? {}) }
+      if (cur[materialId] !== undefined) delete cur[materialId]
+      else cur[materialId] = 1
+      return { ...prev, [activeVariant]: cur }
+    })
+  }
+
+  function setActiveQty(materialId, val) {
+    if (activeVariant === 1) { setQty(materialId, val); return }
+    setVariantComponents(prev => ({
+      ...prev,
+      [activeVariant]: { ...(prev[activeVariant] ?? {}), [materialId]: val },
+    }))
+  }
+
+  const activeComponents = activeVariant === 1 ? components : (variantComponents[activeVariant] ?? {})
+
   async function handleSubmit(e) {
     e.preventDefault()
     if (!name.trim()) return
@@ -50,7 +73,7 @@ export default function AddMaterialModal({ onClose, onAdded }) {
         is_seal: tag === 'seal',
         is_item: tag === 'item',
         is_craftable: isCraftable,
-        craft_yang_cost: isCraftable ? (parseYang(craftYangCost) || null) : null,
+        craft_yang_cost: isCraftable && !isPvp ? (parseYang(craftYangCost) || null) : null,
         is_pvp: isPvp,
       })
       .select()
@@ -65,7 +88,16 @@ export default function AddMaterialModal({ onClose, onAdded }) {
     if (isCraftable) {
       const rows = Object.entries(components)
         .filter(([, qty]) => Number(qty) > 0)
-        .map(([component_id, quantity]) => ({ material_id: data.id, component_id, quantity: Number(quantity) }))
+        .map(([component_id, quantity]) => ({ material_id: data.id, component_id, quantity: Number(quantity), variant: 1 }))
+
+      if (isPvp) {
+        for (let v = 2; v <= variantCount; v++) {
+          for (const [component_id, qty] of Object.entries(variantComponents[v] ?? {})) {
+            if (Number(qty) > 0) rows.push({ material_id: data.id, component_id, quantity: Number(qty), variant: v })
+          }
+        }
+      }
+
       if (rows.length > 0) {
         const { error: err } = await supabase.from('material_materials').insert(rows)
         if (err) { alert('Error saving recipe: ' + err.message); setSaving(false); return }
@@ -134,17 +166,58 @@ export default function AddMaterialModal({ onClose, onAdded }) {
           <div className="flex flex-col gap-2">
             <label className="text-sm text-gray-400">Crafted from</label>
 
-            <div className="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
-              <span className="text-yellow-400 text-sm font-semibold shrink-0">Craft yang cost</span>
-              <input
-                type="text"
-                placeholder="e.g. 50kk"
-                value={craftYangCost}
-                onChange={e => setCraftYangCost(e.target.value)}
-                className="bg-transparent flex-1 text-white text-sm focus:outline-none text-right"
-              />
-              <span className="text-gray-400 text-sm shrink-0">yang</span>
-            </div>
+            {!isPvp && (
+              <div className="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+                <span className="text-yellow-400 text-sm font-semibold shrink-0">Craft yang cost</span>
+                <input
+                  type="text"
+                  placeholder="e.g. 50kk"
+                  value={craftYangCost}
+                  onChange={e => setCraftYangCost(e.target.value)}
+                  className="bg-transparent flex-1 text-white text-sm focus:outline-none text-right"
+                />
+                <span className="text-gray-400 text-sm shrink-0">yang</span>
+              </div>
+            )}
+
+            {isPvp && (
+              <div className="flex items-center justify-between gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+                <span className="text-sm text-gray-300">Number of craft variants</span>
+                <input
+                  type="number"
+                  min="1"
+                  value={variantCount}
+                  onChange={e => {
+                    const n = Math.max(1, parseInt(e.target.value) || 1)
+                    setVariantCount(n)
+                    setActiveVariant(v => Math.min(v, n))
+                  }}
+                  className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-16 text-center text-sm focus:outline-none focus:border-yellow-400"
+                />
+              </div>
+            )}
+
+            {isPvp && variantCount > 1 && (
+              <div className="flex items-center justify-center gap-4 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveVariant(v => Math.max(1, v - 1))}
+                  disabled={activeVariant === 1}
+                  className="text-gray-300 hover:text-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-lg leading-none px-1"
+                >
+                  ‹
+                </button>
+                <span className="text-sm text-white font-semibold">Variant {activeVariant} / {variantCount}</span>
+                <button
+                  type="button"
+                  onClick={() => setActiveVariant(v => Math.min(variantCount, v + 1))}
+                  disabled={activeVariant === variantCount}
+                  className="text-gray-300 hover:text-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-lg leading-none px-1"
+                >
+                  ›
+                </button>
+              </div>
+            )}
 
             <input
               type="text"
@@ -159,20 +232,20 @@ export default function AddMaterialModal({ onClose, onAdded }) {
                 <div key={mat.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-700">
                   <input
                     type="checkbox"
-                    checked={components[mat.id] !== undefined}
-                    onChange={() => toggleComponent(mat.id)}
+                    checked={activeComponents[mat.id] !== undefined}
+                    onChange={() => toggleActiveComponent(mat.id)}
                     className="accent-yellow-400"
                   />
                   {mat.image_url
                     ? <img src={mat.image_url} alt={mat.name} className="w-7 h-7 object-contain" />
                     : <span className="w-7 text-center text-lg">🧪</span>}
                   <span className="text-sm text-white flex-1">{mat.name}</span>
-                  {components[mat.id] !== undefined && (
+                  {activeComponents[mat.id] !== undefined && (
                     <input
                       type="number"
                       min="1"
-                      value={components[mat.id]}
-                      onChange={e => setQty(mat.id, e.target.value)}
+                      value={activeComponents[mat.id]}
+                      onChange={e => setActiveQty(mat.id, e.target.value)}
                       onClick={e => e.stopPropagation()}
                       className="bg-gray-700 border border-gray-500 rounded px-2 py-1 w-16 text-right text-sm focus:outline-none focus:border-yellow-400"
                     />

@@ -61,7 +61,7 @@ export default function BuildCalculator() {
   useEffect(() => {
     Promise.all([
       supabase.from('items').select('id, name, image_url, image_urls, category_id').order('name'),
-      supabase.from('material_materials').select('material_id, component_id, quantity'),
+      supabase.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
       supabase.from('materials').select('id, craft_yang_cost'),
       supabase.from('item_materials').select('item_id, material_id, quantity, step'),
       supabase.from('item_items').select('item_id, component_item_id, quantity, step'),

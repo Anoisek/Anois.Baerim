@@ -117,7 +117,10 @@
     "yangFee": "Taxă în yang",
     "subtotal": "Subtotal",
     "totalCost": "Cost total",
-    "noRecipe": "Nu este definită nicio rețetă pentru acest material."
+    "noRecipe": "Nu este definită nicio rețetă pentru acest material.",
+    "variant": "Varianta {{current}}/{{count}}",
+    "prevVariant": "Varianta anterioară",
+    "nextVariant": "Varianta următoare"
   },
   "materialUsage": {
     "usedIn": "Folosit în",

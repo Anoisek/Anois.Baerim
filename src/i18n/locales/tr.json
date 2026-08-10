@@ -117,7 +117,10 @@
     "yangFee": "Yang ücreti",
     "subtotal": "Ara toplam",
     "totalCost": "Toplam maliyet",
-    "noRecipe": "Bu malzeme için tarif tanımlanmamış."
+    "noRecipe": "Bu malzeme için tarif tanımlanmamış.",
+    "variant": "Varyant {{current}}/{{count}}",
+    "prevVariant": "Önceki varyant",
+    "nextVariant": "Sonraki varyant"
   },
   "materialUsage": {
     "usedIn": "Şurada kullanıldı",

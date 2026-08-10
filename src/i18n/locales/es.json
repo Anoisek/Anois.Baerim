@@ -117,7 +117,10 @@
     "yangFee": "Tarifa de yang",
     "subtotal": "Subtotal",
     "totalCost": "Coste total",
-    "noRecipe": "No hay receta definida para este material."
+    "noRecipe": "No hay receta definida para este material.",
+    "variant": "Variante {{current}}/{{count}}",
+    "prevVariant": "Variante anterior",
+    "nextVariant": "Variante siguiente"
   },
   "materialUsage": {
     "usedIn": "Usado en",

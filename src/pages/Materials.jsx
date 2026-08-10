@@ -56,7 +56,7 @@ export default function Materials() {
   useEffect(() => {
     Promise.all([
       supabase.from('materials').select('*').order('name'),
-      supabase.from('material_materials').select('material_id, component_id, quantity'),
+      supabase.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
       fetchGlobalPrices(),
       supabase.from('item_materials').select('material_id'),
     ]).then(([matsRes, recipeRes, globalPricesMap, itemMatsRes]) => {
