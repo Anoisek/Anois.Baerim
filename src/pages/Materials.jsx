@@ -186,7 +186,7 @@ export default function Materials() {
                 onClick={() => setChapterTab('chapter1')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${chapterTab === 'chapter1' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
               >
-                Chapter I
+                Materials
               </button>
               <button
                 onClick={() => setChapterTab('pvp')}
