@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import SealPicker from '../components/SealPicker'
 import Spinner from '../components/Spinner'
+import Modal from '../components/Modal'
 import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
 import ItemImage from '../components/ItemImage'
@@ -64,6 +65,8 @@ export default function ItemDetail() {
   const [selectedSeals, setSelectedSeals] = useState({})
   const [pity, setPity] = useState({})
   const [includeCraft, setIncludeCraft] = useState(true)
+  const [excludedSteps, setExcludedSteps] = useState({})
+  const [showSummary, setShowSummary] = useState(false)
   const [globalPrices, setGlobalPrices] = useState({})
   const [chapterName, setChapterName] = useState(null)
   const [categoryName, setCategoryName] = useState(null)
@@ -122,6 +125,8 @@ export default function ItemDetail() {
       setAllItemMaxPity(buildItemMaxPityMap(allItemYangRes.data))
       setDefaultScrollByStep(buildDefaultScrollMap(sorted))
       setGlobalPrices(globalPricesMap)
+
+      setExcludedSteps({})
 
       const saved = localStorage.getItem(`item_choices_${itemId}`)
       const savedChoices = saved ? JSON.parse(saved) : null
@@ -188,6 +193,20 @@ export default function ItemDetail() {
     })
   }
 
+  function toggleStepIncluded(step) {
+    setExcludedSteps(prev => {
+      const next = { ...prev }
+      if (prev[step]) {
+        // including this step implies every lower step must be reached too
+        for (let s = 1; s <= step; s++) next[s] = false
+      } else {
+        // excluding this step means every higher step is unreachable too
+        for (let s = step; s <= 9; s++) next[s] = true
+      }
+      return next
+    })
+  }
+
   const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts })
 
   function priceOf(materialId) {
@@ -220,7 +239,40 @@ export default function ItemDetail() {
   function stepTotal(step) { return (matCost(grouped[step] ?? []) + (yangCosts[step] ?? 0) + scrollCost(step) + sealsCost(step)) * getPity(step) }
 
   const allSteps = [...new Set([...Object.keys(grouped).map(Number), ...Object.keys(yangCosts).map(Number)])].sort((a, b) => a - b)
-  const total = allSteps.reduce((s, step) => (step === 0 && !includeCraft) ? s : s + stepTotal(step), 0)
+  function isStepIncluded(step) { return !(step === 0 && !includeCraft) && !excludedSteps[step] }
+  const total = allSteps.reduce((s, step) => isStepIncluded(step) ? s + stepTotal(step) : s, 0)
+
+  function buildMaterialsSummary() {
+    const map = new Map()
+    let yangTotal = 0
+
+    function addRow(material, kind, qty) {
+      const key = `${kind}-${material.id}`
+      const existing = map.get(key)
+      if (existing) existing.quantity += qty
+      else map.set(key, { material, kind, quantity: qty })
+    }
+
+    for (const step of allSteps) {
+      if (!isStepIncluded(step)) continue
+      const p = getPity(step)
+      yangTotal += (yangCosts[step] ?? 0) * p
+
+      for (const row of grouped[step] ?? []) addRow(row.material, row.kind, row.quantity * p)
+
+      const scrollId = selectedScroll[step]
+      const scrollMat = scrollId ? scrolls.find(s => s.id === scrollId) : null
+      if (scrollMat) addRow(scrollMat, 'material', p)
+
+      for (const sealId of selectedSeals[step] ?? []) {
+        const sealMat = seals.find(s => s.id === sealId)
+        if (sealMat) addRow(sealMat, 'material', p)
+      }
+    }
+
+    const rows = [...map.values()].sort((a, b) => a.material.name.localeCompare(b.material.name))
+    return { rows, yangTotal }
+  }
 
   return (
     <div className="min-h-screen text-white">
@@ -253,7 +305,7 @@ export default function ItemDetail() {
               )}
             </div>
 
-            {(scrolls.length > 0 || allSteps.some(s => s !== 0)) && (
+            {allSteps.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
                 {scrolls.length > 0 && (
                   <button
@@ -264,20 +316,24 @@ export default function ItemDetail() {
                     {t('itemDetail.noScrollsAllSteps')}
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={resetAllPity}
-                  className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
-                >
-                  {t('itemDetail.resetPityAllSteps')}
-                </button>
-                <button
-                  type="button"
-                  onClick={setAllPityToMax}
-                  className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
-                >
-                  {t('itemDetail.maxPityAllSteps')}
-                </button>
+                {(scrolls.length > 0 || allSteps.some(s => s !== 0)) && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={resetAllPity}
+                      className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      {t('itemDetail.resetPityAllSteps')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={setAllPityToMax}
+                      className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      {t('itemDetail.maxPityAllSteps')}
+                    </button>
+                  </>
+                )}
               </div>
             )}
 
@@ -294,14 +350,30 @@ export default function ItemDetail() {
                   const stepSealMats = (selectedSeals[step] ?? []).map(id => seals.find(s => s.id === id)).filter(Boolean)
                   const hasExtras = scrollMat || stepSealMats.length > 0
 
+                  const stepExcluded = step !== 0 && !!excludedSteps[step]
+
                   return (
-                    <div key={step} className="bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden">
+                    <div key={step} className={`bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden${stepExcluded ? ' opacity-50' : ''}`}>
                       {/* Step header bar */}
                       <div className="flex items-center justify-between px-5 py-3 bg-gray-800/60 border-b border-gray-700 flex-wrap gap-2">
                         <h2 className="text-xs font-bold text-yellow-400 uppercase tracking-widest">
                           {t(STEP_LABEL_KEYS[step])}
                         </h2>
                         <div className="flex items-center gap-2 flex-wrap">
+                          {step !== 0 && (
+                            <label
+                              className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer select-none"
+                              title={t('itemDetail.includeStepTooltip')}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={!stepExcluded}
+                                onChange={() => toggleStepIncluded(step)}
+                                className="accent-yellow-400 w-3.5 h-3.5"
+                              />
+                              {t('itemDetail.includeStep')}
+                            </label>
+                          )}
                           {step !== 0 && scrolls.length > 0 && (
                             <select
                               value={scrollId}
@@ -371,12 +443,21 @@ export default function ItemDetail() {
                       <div className="flex justify-between items-center px-5 py-3 bg-gray-800/40 border-t border-gray-700">
                         <span className="text-xs text-gray-500 uppercase tracking-wider">
                           {t('itemDetail.subtotal')}{getPity(step) > 1 ? ` ×${getPity(step)}` : ''}
+                          {stepExcluded && ` (${t('itemDetail.excludedFromTotal')})`}
                         </span>
-                        <span className="text-sm font-bold text-yellow-400 font-mono">{formatYang(stepTotal(step))}</span>
+                        <span className={`text-sm font-bold font-mono ${stepExcluded ? 'text-gray-600 line-through' : 'text-yellow-400'}`}>{formatYang(stepTotal(step))}</span>
                       </div>
                     </div>
                   )
                 })}
+
+                <button
+                  type="button"
+                  onClick={() => setShowSummary(true)}
+                  className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+                >
+                  {t('itemDetail.materialsSummary')}
+                </button>
 
                 {/* Total card */}
                 <div className="bg-gray-900 border border-yellow-400/20 rounded-2xl px-6 py-5 mt-1">
@@ -402,6 +483,46 @@ export default function ItemDetail() {
         )}
         </div>
       </div>
+
+      {showSummary && (() => {
+        const { rows, yangTotal } = buildMaterialsSummary()
+        const grandTotal = rows.reduce((s, r) => s + rowPrice(r) * r.quantity, 0) + yangTotal
+        return (
+          <Modal title={t('itemDetail.materialsSummaryTitle')} onClose={() => setShowSummary(false)}>
+            {rows.length === 0 && yangTotal === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-6">{t('itemDetail.noMaterialsDefined')}</p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {yangTotal > 0 && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 shrink-0 flex items-center justify-center">
+                      <span className="text-lg">💰</span>
+                    </div>
+                    <span className="flex-1 text-sm text-gray-400">{t('itemDetail.yangFee')}</span>
+                    <span className="text-yellow-400 text-sm font-mono">{formatYang(yangTotal)}</span>
+                  </div>
+                )}
+                {rows.map(row => (
+                  <MatRow
+                    key={`${row.kind}-${row.material.id}`}
+                    mat={row.material}
+                    quantity={row.quantity}
+                    unitPrice={rowPrice(row)}
+                    rawValue={rawInputs[row.material.id]}
+                    onPriceChange={setPrice}
+                    kind={row.kind}
+                    globalMode={mode === 'global'}
+                  />
+                ))}
+                <div className="border-t border-gray-700 pt-3 flex justify-between items-center">
+                  <span className="text-gray-300 font-semibold text-sm">{t('itemDetail.totalCost')}</span>
+                  <span className="text-xl font-bold text-yellow-400 font-mono">{formatYang(grandTotal)}</span>
+                </div>
+              </div>
+            )}
+          </Modal>
+        )
+      })()}
     </div>
   )
 }
