@@ -80,7 +80,18 @@
     "interactiveMap": "Mokoko İnteraktif Haritası",
     "exploration": "Keşif",
     "blockedMessage": "Bu sayfa henüz kullanılamıyor.",
-    "noMapYet": "Henüz harita yüklenmedi."
+    "noMapYet": "Henüz harita yüklenmedi.",
+    "editLevel": "Seviye {{level}} düzenle",
+    "levelTitleLabel": "Başlık",
+    "levelTitlePlaceholder": "Seviye {{level}}",
+    "levelDescriptionLabel": "Açıklama",
+    "levelDescriptionPlaceholder": "Ne, nerede ve nasıl...",
+    "positionX": "Konum X (%)",
+    "positionY": "Konum Y (%)",
+    "positionHint": "Harita görselinin sol üst köşesinden itibaren yüzde.",
+    "levelNotFound": "Seviye bulunamadı.",
+    "levelShort": "Seviye {{level}}",
+    "noDescriptionYet": "Henüz açıklama yok."
   },
   "materials": {
     "title": "Malzemeler",

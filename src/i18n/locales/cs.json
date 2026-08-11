@@ -80,7 +80,18 @@
     "interactiveMap": "Interaktivní mapa Mokoko",
     "exploration": "Průzkum",
     "blockedMessage": "Tato stránka ještě není dostupná.",
-    "noMapYet": "Zatím nebyla nahrána žádná mapa."
+    "noMapYet": "Zatím nebyla nahrána žádná mapa.",
+    "editLevel": "Upravit úroveň {{level}}",
+    "levelTitleLabel": "Název",
+    "levelTitlePlaceholder": "Úroveň {{level}}",
+    "levelDescriptionLabel": "Popis",
+    "levelDescriptionPlaceholder": "Co, kde a jak...",
+    "positionX": "Pozice X (%)",
+    "positionY": "Pozice Y (%)",
+    "positionHint": "Procenta od levého horního rohu obrázku mapy.",
+    "levelNotFound": "Úroveň nenalezena.",
+    "levelShort": "Úroveň {{level}}",
+    "noDescriptionYet": "Zatím žádný popis."
   },
   "materials": {
     "title": "Materiály",

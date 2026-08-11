@@ -80,7 +80,18 @@
     "interactiveMap": "Mokoko Interactive Map",
     "exploration": "Exploration",
     "blockedMessage": "This page isn't available yet.",
-    "noMapYet": "No map uploaded yet."
+    "noMapYet": "No map uploaded yet.",
+    "editLevel": "Edit level {{level}}",
+    "levelTitleLabel": "Title",
+    "levelTitlePlaceholder": "Level {{level}}",
+    "levelDescriptionLabel": "Description",
+    "levelDescriptionPlaceholder": "What, where, and how...",
+    "positionX": "Position X (%)",
+    "positionY": "Position Y (%)",
+    "positionHint": "Percentage from the top-left corner of the map image.",
+    "levelNotFound": "Level not found.",
+    "levelShort": "Level {{level}}",
+    "noDescriptionYet": "No description yet."
   },
   "materials": {
     "title": "Materials",

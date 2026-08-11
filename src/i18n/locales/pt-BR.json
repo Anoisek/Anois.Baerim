@@ -80,7 +80,18 @@
     "interactiveMap": "Mapa interativo de Mokoko",
     "exploration": "Exploração",
     "blockedMessage": "Esta página ainda não está disponível.",
-    "noMapYet": "Nenhum mapa enviado ainda."
+    "noMapYet": "Nenhum mapa enviado ainda.",
+    "editLevel": "Editar nível {{level}}",
+    "levelTitleLabel": "Título",
+    "levelTitlePlaceholder": "Nível {{level}}",
+    "levelDescriptionLabel": "Descrição",
+    "levelDescriptionPlaceholder": "O quê, onde e como...",
+    "positionX": "Posição X (%)",
+    "positionY": "Posição Y (%)",
+    "positionHint": "Porcentagem a partir do canto superior esquerdo da imagem do mapa.",
+    "levelNotFound": "Nível não encontrado.",
+    "levelShort": "Nível {{level}}",
+    "noDescriptionYet": "Ainda sem descrição."
   },
   "materials": {
     "title": "Materiais",

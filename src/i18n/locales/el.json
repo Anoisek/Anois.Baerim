@@ -80,7 +80,18 @@
     "interactiveMap": "Διαδραστικός χάρτης Mokoko",
     "exploration": "Εξερεύνηση",
     "blockedMessage": "Αυτή η σελίδα δεν είναι ακόμη διαθέσιμη.",
-    "noMapYet": "Δεν έχει ανέβει ακόμη χάρτης."
+    "noMapYet": "Δεν έχει ανέβει ακόμη χάρτης.",
+    "editLevel": "Επεξεργασία επιπέδου {{level}}",
+    "levelTitleLabel": "Τίτλος",
+    "levelTitlePlaceholder": "Επίπεδο {{level}}",
+    "levelDescriptionLabel": "Περιγραφή",
+    "levelDescriptionPlaceholder": "Τι, πού και πώς...",
+    "positionX": "Θέση X (%)",
+    "positionY": "Θέση Y (%)",
+    "positionHint": "Ποσοστό από την πάνω αριστερή γωνία της εικόνας του χάρτη.",
+    "levelNotFound": "Το επίπεδο δεν βρέθηκε.",
+    "levelShort": "Επίπεδο {{level}}",
+    "noDescriptionYet": "Δεν υπάρχει ακόμη περιγραφή."
   },
   "materials": {
     "title": "Υλικά",
