@@ -169,7 +169,11 @@
     "yangFee": "Yang ücreti",
     "subtotal": "Ara toplam",
     "includeCraftCost": "Üretim maliyetini dahil et",
-    "totalCost": "Toplam maliyet"
+    "totalCost": "Toplam maliyet",
+    "overviewUpgrade": "Yükseltme",
+    "overviewQty": "adet",
+    "overviewPrice": "Fiyat",
+    "goToCalculator": "Hesap makinesine git"
   },
   "itemUsage": {
     "usedIn": "Şurada kullanıldı",

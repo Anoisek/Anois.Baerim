@@ -12,6 +12,7 @@ import { itemImages } from '../utils/itemImages'
 import ItemImage from '../components/ItemImage'
 import MatRow from '../components/MatRow'
 import MaterialTile from '../components/MaterialTile'
+import CraftOverviewPanel from '../components/CraftOverviewPanel'
 import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
@@ -204,6 +205,10 @@ export default function ItemDetail() {
     })
   }
 
+  function goToCalculator() {
+    document.getElementById('interactive-calculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts })
 
   function priceOf(materialId) {
@@ -321,19 +326,39 @@ export default function ItemDetail() {
             ]} />
 
             {/* Item header */}
-            <div className="flex items-center gap-5 mb-8 p-5 bg-gray-900 border border-gray-700 rounded-2xl">
+            <div className="flex items-center gap-5 mb-6 p-5 bg-gray-900 border border-gray-700 rounded-2xl flex-wrap">
               <div className="w-20 h-20 shrink-0 flex items-center justify-center">
                 {itemImages(item).length > 0
                   ? <ItemImage images={itemImages(item)} alt={item.name} className="w-full h-full object-contain drop-shadow-lg" />
                   : <span className="text-5xl">⚔️</span>}
               </div>
-              <h1 className="text-2xl font-bold text-yellow-400">{item ? formatItemName(item) : ''}</h1>
+              <h1 className="text-2xl font-bold text-yellow-400 flex-1">{item ? formatItemName(item) : ''}</h1>
+              {allSteps.length > 0 && (
+                <button
+                  type="button"
+                  onClick={goToCalculator}
+                  className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shrink-0"
+                >
+                  {t('itemDetail.goToCalculator')}
+                </button>
+              )}
+              {isPvpItem && maxVariantCount > 1 && (
+                <button
+                  type="button"
+                  onClick={cycleGlobalVariant}
+                  className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shrink-0"
+                >
+                  {t('itemDetail.variant', { current: currentGlobalVariant, count: maxVariantCount })}
+                </button>
+              )}
               {mode === 'global' && (
-                <span className="ml-auto text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-full shrink-0">
+                <span className="text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-full shrink-0">
                   {t('materials.globalPrices')}
                 </span>
               )}
             </div>
+
+            <CraftOverviewPanel allSteps={allSteps} grouped={grouped} yangCosts={yangCosts} />
 
             {allSteps.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
@@ -364,15 +389,6 @@ export default function ItemDetail() {
                     </button>
                   </>
                 )}
-                {isPvpItem && maxVariantCount > 1 && (
-                  <button
-                    type="button"
-                    onClick={cycleGlobalVariant}
-                    className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
-                  >
-                    {t('itemDetail.variant', { current: currentGlobalVariant, count: maxVariantCount })}
-                  </button>
-                )}
               </div>
             )}
 
@@ -382,7 +398,7 @@ export default function ItemDetail() {
                 <p className="text-sm">{t('itemDetail.noMaterialsDefined')}</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 scroll-mt-20" id="interactive-calculator">
                 {allSteps.map(step => {
                   const scrollId = selectedScroll[step] ?? ''
                   const scrollMat = scrolls.find(s => s.id === scrollId)

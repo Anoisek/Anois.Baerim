@@ -169,7 +169,11 @@
     "yangFee": "Opłata w yang",
     "subtotal": "Suma częściowa",
     "includeCraftCost": "Uwzględnij koszt stworzenia",
-    "totalCost": "Koszt całkowity"
+    "totalCost": "Koszt całkowity",
+    "overviewUpgrade": "Ulepszanie",
+    "overviewQty": "szt.",
+    "overviewPrice": "Cena",
+    "goToCalculator": "Przejdź do kalkulatora"
   },
   "itemUsage": {
     "usedIn": "Użyto w",

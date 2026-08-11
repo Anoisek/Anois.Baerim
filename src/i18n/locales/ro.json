@@ -169,7 +169,11 @@
     "yangFee": "Taxă în yang",
     "subtotal": "Subtotal",
     "includeCraftCost": "Include costul de confecționare",
-    "totalCost": "Cost total"
+    "totalCost": "Cost total",
+    "overviewUpgrade": "Îmbunătățire",
+    "overviewQty": "buc.",
+    "overviewPrice": "Preț",
+    "goToCalculator": "Mergi la calculator"
   },
   "itemUsage": {
     "usedIn": "Folosit în",

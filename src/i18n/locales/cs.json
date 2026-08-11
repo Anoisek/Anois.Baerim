@@ -169,7 +169,11 @@
     "yangFee": "Poplatek v yang",
     "subtotal": "Mezisoučet",
     "includeCraftCost": "Zahrnout náklady na výrobu",
-    "totalCost": "Celková cena"
+    "totalCost": "Celková cena",
+    "overviewUpgrade": "Vylepšení",
+    "overviewQty": "ks",
+    "overviewPrice": "Cena",
+    "goToCalculator": "Přejít na kalkulačku"
   },
   "itemUsage": {
     "usedIn": "Použito v",

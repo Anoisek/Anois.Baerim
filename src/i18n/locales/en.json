@@ -169,7 +169,11 @@
     "yangFee": "Yang fee",
     "subtotal": "Subtotal",
     "includeCraftCost": "Include craft cost",
-    "totalCost": "Total cost"
+    "totalCost": "Total cost",
+    "overviewUpgrade": "Upgrade",
+    "overviewQty": "qty",
+    "overviewPrice": "Price",
+    "goToCalculator": "Go to calculator"
   },
   "itemUsage": {
     "usedIn": "Used in",

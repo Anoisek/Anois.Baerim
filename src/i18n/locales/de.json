@@ -169,7 +169,11 @@
     "yangFee": "Yang-Gebühr",
     "subtotal": "Zwischensumme",
     "includeCraftCost": "Herstellungskosten einbeziehen",
-    "totalCost": "Gesamtkosten"
+    "totalCost": "Gesamtkosten",
+    "overviewUpgrade": "Verbesserung",
+    "overviewQty": "Stk.",
+    "overviewPrice": "Preis",
+    "goToCalculator": "Zum Rechner"
   },
   "itemUsage": {
     "usedIn": "Verwendet in",

@@ -169,7 +169,11 @@
     "yangFee": "Χρέωση yang",
     "subtotal": "Μερικό σύνολο",
     "includeCraftCost": "Συμπερίληψη κόστους κατασκευής",
-    "totalCost": "Συνολικό κόστος"
+    "totalCost": "Συνολικό κόστος",
+    "overviewUpgrade": "Αναβάθμιση",
+    "overviewQty": "τεμ.",
+    "overviewPrice": "Τιμή",
+    "goToCalculator": "Μετάβαση στον υπολογιστή"
   },
   "itemUsage": {
     "usedIn": "Χρησιμοποιείται σε",

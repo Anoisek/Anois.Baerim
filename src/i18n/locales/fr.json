@@ -169,7 +169,11 @@
     "yangFee": "Frais en yang",
     "subtotal": "Sous-total",
     "includeCraftCost": "Inclure le coût de fabrication",
-    "totalCost": "Coût total"
+    "totalCost": "Coût total",
+    "overviewUpgrade": "Amélioration",
+    "overviewQty": "qté",
+    "overviewPrice": "Prix",
+    "goToCalculator": "Aller au calculateur"
   },
   "itemUsage": {
     "usedIn": "Utilisé dans",
