@@ -99,9 +99,12 @@ export default function ItemDetail() {
         const v = row.variant ?? 1
         if (!yc[row.step]) yc[row.step] = {}
         yc[row.step][v] = row.yang_cost
-        if (row.max_pity != null) {
+        // Craft (step 0) is a single deterministic action, not a chance-based upgrade —
+        // default it to max_pity 0 (no bonus) when nobody set one explicitly.
+        const maxPity = row.max_pity ?? (row.step === 0 ? 0 : null)
+        if (maxPity != null) {
           if (!mp[row.step]) mp[row.step] = {}
-          mp[row.step][v] = row.max_pity
+          mp[row.step][v] = maxPity
         }
       }
       setYangByVariant(yc)

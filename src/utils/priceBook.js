@@ -195,13 +195,16 @@ export function buildItemYangMap(rows) {
 // rows: [{ item_id, step, variant, max_pity }] -> { itemId: { step: { variant: max_pity } } }
 // max_pity is the highest pity value selectable (0-based: pity 0 = ×1 materials).
 // 0 is a meaningful cap (always ×1) and must not be treated the same as "no cap".
+// Craft (step 0) is a single deterministic action, not a chance-based upgrade — it
+// defaults to max_pity 0 (no bonus) when nobody set one explicitly.
 export function buildItemMaxPityMap(rows) {
   const map = {}
   for (const row of rows ?? []) {
-    if (row.max_pity == null) continue
+    const maxPity = row.max_pity ?? (row.step === 0 ? 0 : null)
+    if (maxPity == null) continue
     if (!map[row.item_id]) map[row.item_id] = {}
     if (!map[row.item_id][row.step]) map[row.item_id][row.step] = {}
-    map[row.item_id][row.step][row.variant ?? 1] = row.max_pity
+    map[row.item_id][row.step][row.variant ?? 1] = maxPity
   }
   return map
 }
