@@ -266,10 +266,15 @@ export default function ItemDetail() {
 
   // Pity is entered 0-based (0 = ×1 materials, matching the in-game counter), so the
   // actual material multiplier is always the entered value + 1.
-  function getPity(step) {
+  // Clamped separately from raw `pity` state so a value saved before max_pity existed
+  // (or before this 0-based scheme) can't display/compute above the current cap.
+  function getPityInput(step) {
     const val = Math.max(0, parseInt(pity[step]) || 0)
     const max = maxPityByStep[step]
-    return (max != null ? Math.min(val, max) : val) + 1
+    return max != null ? Math.min(val, max) : val
+  }
+  function getPity(step) {
+    return getPityInput(step) + 1
   }
   function matCost(rows) { return rows.reduce((s, r) => s + rowPrice(r) * r.quantity, 0) }
   function scrollCost(step) { const id = selectedScroll[step]; return id ? priceOf(id) : 0 }
@@ -491,7 +496,7 @@ export default function ItemDetail() {
                               type="number"
                               min="0"
                               max={maxPityByStep[step] ?? undefined}
-                              value={pity[step] ?? 0}
+                              value={getPityInput(step)}
                               onChange={e => {
                                 const raw = e.target.value
                                 const max = maxPityByStep[step]
