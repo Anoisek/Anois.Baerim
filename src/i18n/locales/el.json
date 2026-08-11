@@ -77,7 +77,10 @@
   },
   "systems": {
     "title": "Συστήματα",
-    "interactiveMap": "Διαδραστικός χάρτης Mokoko"
+    "interactiveMap": "Διαδραστικός χάρτης Mokoko",
+    "exploration": "Εξερεύνηση",
+    "blockedMessage": "Αυτή η σελίδα δεν είναι ακόμη διαθέσιμη.",
+    "noMapYet": "Δεν έχει ανέβει ακόμη χάρτης."
   },
   "materials": {
     "title": "Υλικά",

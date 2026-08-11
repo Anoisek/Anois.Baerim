@@ -17,6 +17,7 @@ import Materials from './pages/Materials'
 import MaterialDetail from './pages/MaterialDetail'
 import MaterialUsage from './pages/MaterialUsage'
 import Systems from './pages/Systems'
+import Exploration from './pages/Exploration'
 import Maps from './pages/Maps'
 import BuildCalculator from './pages/BuildCalculator'
 import Category from './pages/Category'
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/materials/:materialId" element={<MaterialDetail />} />
           <Route path="/materials/:materialId/usage" element={<MaterialUsage />} />
           <Route path="/systems" element={<Systems />} />
+          <Route path="/systems/exploration" element={<Exploration />} />
           <Route path="/systems/interactive-map" element={<Maps />} />
           <Route path="/systems/interactive-map/:mapId" element={<Maps />} />
           <Route path="/buildcalculator" element={<BuildCalculator />} />

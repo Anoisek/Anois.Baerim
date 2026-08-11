@@ -77,7 +77,10 @@
   },
   "systems": {
     "title": "Sistemas",
-    "interactiveMap": "Mapa interativo de Mokoko"
+    "interactiveMap": "Mapa interativo de Mokoko",
+    "exploration": "Exploração",
+    "blockedMessage": "Esta página ainda não está disponível.",
+    "noMapYet": "Ainda não foi carregado nenhum mapa."
   },
   "materials": {
     "title": "Materiais",

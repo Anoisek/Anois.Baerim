@@ -77,7 +77,10 @@
   },
   "systems": {
     "title": "Systémy",
-    "interactiveMap": "Interaktivní mapa Mokoko"
+    "interactiveMap": "Interaktivní mapa Mokoko",
+    "exploration": "Průzkum",
+    "blockedMessage": "Tato stránka ještě není dostupná.",
+    "noMapYet": "Zatím nebyla nahrána žádná mapa."
   },
   "materials": {
     "title": "Materiály",

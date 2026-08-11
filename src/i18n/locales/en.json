@@ -77,7 +77,10 @@
   },
   "systems": {
     "title": "Systems",
-    "interactiveMap": "Mokoko Interactive Map"
+    "interactiveMap": "Mokoko Interactive Map",
+    "exploration": "Exploration",
+    "blockedMessage": "This page isn't available yet.",
+    "noMapYet": "No map uploaded yet."
   },
   "materials": {
     "title": "Materials",

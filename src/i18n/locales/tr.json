@@ -77,7 +77,10 @@
   },
   "systems": {
     "title": "Sistemler",
-    "interactiveMap": "Mokoko İnteraktif Haritası"
+    "interactiveMap": "Mokoko İnteraktif Haritası",
+    "exploration": "Keşif",
+    "blockedMessage": "Bu sayfa henüz kullanılamıyor.",
+    "noMapYet": "Henüz harita yüklenmedi."
   },
   "materials": {
     "title": "Malzemeler",

@@ -77,7 +77,10 @@
   },
   "systems": {
     "title": "Systeme",
-    "interactiveMap": "Interaktive Mokoko-Karte"
+    "interactiveMap": "Interaktive Mokoko-Karte",
+    "exploration": "Erkundung",
+    "blockedMessage": "Diese Seite ist noch nicht verfügbar.",
+    "noMapYet": "Noch keine Karte hochgeladen."
   },
   "materials": {
     "title": "Materialien",

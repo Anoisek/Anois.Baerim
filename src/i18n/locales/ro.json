@@ -77,7 +77,10 @@
   },
   "systems": {
     "title": "Sisteme",
-    "interactiveMap": "Harta interactivă Mokoko"
+    "interactiveMap": "Harta interactivă Mokoko",
+    "exploration": "Explorare",
+    "blockedMessage": "Această pagină nu este încă disponibilă.",
+    "noMapYet": "Nicio hartă încărcată încă."
   },
   "materials": {
     "title": "Materiale",
