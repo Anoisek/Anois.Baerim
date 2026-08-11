@@ -75,7 +75,7 @@ export default function ExplorationLevel() {
               </div>
 
               <div className="flex items-center gap-3 mb-6 p-5 bg-gray-900 border border-gray-700 rounded-2xl flex-wrap">
-                <span className="text-3xl">🚩</span>
+                <img src="/exploration_flag.png" alt="" className="w-14 h-14 object-contain shrink-0" />
                 <h1 className="text-2xl font-bold text-yellow-400 flex-1">
                   {row.title || t('systems.levelTitlePlaceholder', { level: row.level })}
                 </h1>
