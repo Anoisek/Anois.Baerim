@@ -107,7 +107,8 @@
     "importError": "Datei konnte nicht gelesen werden — stelle sicher, dass es sich um eine von dieser Seite exportierte Preisdatei handelt.",
     "submitResult": "Gesendet: {{accepted}} akzeptiert{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} abgelehnt (zu weit vom aktuellen globalen Preis entfernt)",
-    "submitSkipped": ", {{count}} übersprungen (in den letzten 6h bereits von diesem Browser gesendet)"
+    "submitSkipped": ", {{count}} übersprungen (in den letzten 6h bereits von diesem Browser gesendet)",
+    "manualPrice": "Manueller Preis"
   },
   "materialDetail": {
     "usedInTooltip": "Zeigen, wo dieses Material verwendet wird",

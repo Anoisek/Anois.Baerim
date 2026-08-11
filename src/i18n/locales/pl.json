@@ -107,7 +107,8 @@
     "importError": "Nie udało się odczytać pliku — upewnij się, że to plik z cenami wyeksportowany z tej strony.",
     "submitResult": "Wysłano: {{accepted}} zaakceptowanych{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} odrzuconych (zbyt daleko od aktualnej ceny globalnej)",
-    "submitSkipped": ", {{count}} pominiętych (już wysłano z tej przeglądarki w ciągu ostatnich 6h)"
+    "submitSkipped": ", {{count}} pominiętych (już wysłano z tej przeglądarki w ciągu ostatnich 6h)",
+    "manualPrice": "Ręczna cena"
   },
   "materialDetail": {
     "usedInTooltip": "Zobacz, gdzie ten materiał jest używany",

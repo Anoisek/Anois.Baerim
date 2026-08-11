@@ -107,7 +107,8 @@
     "importError": "Could not read this file — make sure it is a prices file exported from this site.",
     "submitResult": "Submitted: {{accepted}} accepted{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} rejected (too far from the current global price)",
-    "submitSkipped": ", {{count}} skipped (already submitted from this browser in the last 6h)"
+    "submitSkipped": ", {{count}} skipped (already submitted from this browser in the last 6h)",
+    "manualPrice": "Manual price"
   },
   "materialDetail": {
     "usedInTooltip": "See where this material is used",

@@ -52,7 +52,7 @@ export default function Materials() {
   const [submitting, setSubmitting] = useState(false)
   const [usedInItemIds, setUsedInItemIds] = useState(new Set())
   const [usedAsComponentIds, setUsedAsComponentIds] = useState(new Set())
-  const { rawInputs, setPrice, importPrices, mode, setMode } = usePriceBook()
+  const { rawInputs, setPrice, importPrices, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
   const fileInputRef = useRef(null)
   const navigate = useNavigate()
 
@@ -123,7 +123,7 @@ export default function Materials() {
   }
 
   const yangCosts = buildYangCostMap(materials)
-  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts })
+  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts, manualOverrides })
 
   return (
     <div className="min-h-screen text-white">
@@ -278,13 +278,31 @@ export default function Materials() {
                     )}
                   </div>
                   {!mat.is_pvp && (
-                    <MaterialPriceCell
-                      material={mat}
-                      rawValue={rawInputs[mat.id]}
-                      computedValue={mode === 'global' || mat.is_craftable ? priceFn(mat.id) : undefined}
-                      onPriceChange={setPrice}
-                      computed={mode === 'global' ? true : undefined}
-                    />
+                    <>
+                      {mat.is_craftable && mode !== 'global' && (
+                        <label
+                          className="flex items-center gap-1.5 text-[0.65rem] text-gray-400 hover:text-gray-300 mb-1.5 cursor-pointer select-none"
+                          onClick={e => e.stopPropagation()}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={manualOverrides.has(mat.id)}
+                            onChange={() => {}}
+                            onClick={e => { e.preventDefault(); e.stopPropagation(); toggleManualOverride(mat.id) }}
+                            className="accent-yellow-400 w-3 h-3"
+                          />
+                          {t('materials.manualPrice')}
+                        </label>
+                      )}
+                      <MaterialPriceCell
+                        material={mat}
+                        rawValue={rawInputs[mat.id]}
+                        computedValue={mode === 'global' || (mat.is_craftable && !manualOverrides.has(mat.id)) ? priceFn(mat.id) : undefined}
+                        onPriceChange={setPrice}
+                        computed={mode === 'global' ? true : undefined}
+                        manualOverride={manualOverrides.has(mat.id)}
+                      />
+                    </>
                   )}
                   {(usedInItemIds.has(mat.id) || usedAsComponentIds.has(mat.id)) && (
                     <button

@@ -58,7 +58,7 @@ export default function ItemDetail() {
   const [chapterName, setChapterName] = useState(null)
   const [categoryName, setCategoryName] = useState(null)
   const [loading, setLoading] = useState(true)
-  const { rawInputs, setPrice, mode } = usePriceBook()
+  const { rawInputs, setPrice, mode, manualOverrides } = usePriceBook()
 
   useEffect(() => {
     Promise.all([
@@ -205,7 +205,7 @@ export default function ItemDetail() {
     })
   }
 
-  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts })
+  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides })
 
   function priceOf(materialId) {
     return priceFn(materialId)

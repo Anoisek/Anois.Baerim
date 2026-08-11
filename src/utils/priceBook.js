@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient'
 
 const KEY = 'material_prices'
 const MODE_KEY = 'price_mode'
+const MANUAL_OVERRIDE_KEY = 'manual_price_materials'
 
 function load() {
   try {
@@ -17,9 +18,18 @@ function loadMode() {
   return localStorage.getItem(MODE_KEY) === 'global' ? 'global' : 'own'
 }
 
+function loadManualOverrides() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(MANUAL_OVERRIDE_KEY)) ?? [])
+  } catch {
+    return new Set()
+  }
+}
+
 export function usePriceBook() {
   const [rawInputs, setRawInputs] = useState(load)
   const [mode, setModeState] = useState(loadMode)
+  const [manualOverrides, setManualOverrides] = useState(loadManualOverrides)
 
   function setPrice(materialId, raw) {
     setRawInputs(prev => {
@@ -42,17 +52,32 @@ export function usePriceBook() {
     localStorage.setItem(MODE_KEY, next)
   }
 
-  return { rawInputs, setPrice, importPrices, mode, setMode }
+  // Lets a craftable material's price be typed in by hand instead of always
+  // being auto-computed from its recipe — some recipes don't reflect reality
+  // well enough (missing ingredients, NPC-only steps, etc).
+  function toggleManualOverride(materialId) {
+    setManualOverrides(prev => {
+      const next = new Set(prev)
+      if (next.has(materialId)) next.delete(materialId)
+      else next.add(materialId)
+      localStorage.setItem(MANUAL_OVERRIDE_KEY, JSON.stringify([...next]))
+      return next
+    })
+  }
+
+  return { rawInputs, setPrice, importPrices, mode, setMode, manualOverrides, toggleManualOverride }
 }
 
 // recipes: { [materialId]: [{ component_id, quantity }] }
 // yangCosts: { [materialId]: number } — craft yang fee, added on top of component cost
-export function computePrice(materialId, rawInputs, recipes, yangCosts = {}, visited = new Set()) {
+// manualOverrides: Set<materialId> — materials whose price is typed in by hand even
+// though they have a recipe (see usePriceBook's toggleManualOverride)
+export function computePrice(materialId, rawInputs, recipes, yangCosts = {}, visited = new Set(), manualOverrides = null) {
   if (visited.has(materialId)) return 0
   const recipe = recipes[materialId]
-  if (recipe && recipe.length > 0) {
+  if (recipe && recipe.length > 0 && !manualOverrides?.has(materialId)) {
     const nextVisited = new Set(visited).add(materialId)
-    const componentsCost = recipe.reduce((sum, row) => sum + computePrice(row.component_id, rawInputs, recipes, yangCosts, nextVisited) * row.quantity, 0)
+    const componentsCost = recipe.reduce((sum, row) => sum + computePrice(row.component_id, rawInputs, recipes, yangCosts, nextVisited, manualOverrides) * row.quantity, 0)
     return componentsCost + (yangCosts[materialId] || 0)
   }
   return parseYang(rawInputs[materialId] ?? '') || 0
@@ -73,10 +98,10 @@ export function computeGlobalPrice(materialId, globalPrices, recipes, yangCosts 
   return 0
 }
 
-export function makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts }) {
+export function makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts, manualOverrides }) {
   return mode === 'global'
     ? id => computeGlobalPrice(id, globalPrices, recipes, yangCosts)
-    : id => computePrice(id, rawInputs, recipes, yangCosts)
+    : id => computePrice(id, rawInputs, recipes, yangCosts, new Set(), manualOverrides)
 }
 
 export async function fetchGlobalPrices() {

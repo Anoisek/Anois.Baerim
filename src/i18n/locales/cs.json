@@ -107,7 +107,8 @@
     "importError": "Tento soubor se nepodařilo přečíst — ujisti se, že jde o soubor s cenami exportovaný z tohoto webu.",
     "submitResult": "Odesláno: {{accepted}} přijato{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} odmítnuto (příliš daleko od aktuální globální ceny)",
-    "submitSkipped": ", {{count}} přeskočeno (již odesláno z tohoto prohlížeče za posledních 6h)"
+    "submitSkipped": ", {{count}} přeskočeno (již odesláno z tohoto prohlížeče za posledních 6h)",
+    "manualPrice": "Ruční cena"
   },
   "materialDetail": {
     "usedInTooltip": "Zobrazit, kde se tento materiál používá",

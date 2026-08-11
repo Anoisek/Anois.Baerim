@@ -107,7 +107,8 @@
     "importError": "Acest fișier nu a putut fi citit — asigură-te că este un fișier de prețuri exportat de pe acest site.",
     "submitResult": "Trimise: {{accepted}} acceptate{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} respinse (prea departe de prețul global actual)",
-    "submitSkipped": ", {{count}} omise (deja trimise din acest browser în ultimele 6 ore)"
+    "submitSkipped": ", {{count}} omise (deja trimise din acest browser în ultimele 6 ore)",
+    "manualPrice": "Preț manual"
   },
   "materialDetail": {
     "usedInTooltip": "Vezi unde este folosit acest material",

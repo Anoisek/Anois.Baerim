@@ -57,7 +57,7 @@ export default function BuildCalculator() {
   const [loading, setLoading] = useState(true)
   const [refreshTick, setRefreshTick] = useState(0)
   const [showSummary, setShowSummary] = useState(false)
-  const { rawInputs, mode } = usePriceBook()
+  const { rawInputs, mode, manualOverrides } = usePriceBook()
 
   useEffect(() => {
     Promise.all([
@@ -87,7 +87,7 @@ export default function BuildCalculator() {
     })
   }, [])
 
-  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts })
+  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides })
 
   const ctx = {
     materialPriceFn: priceFn,

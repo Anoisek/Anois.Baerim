@@ -107,7 +107,8 @@
     "importError": "Impossible de lire ce fichier — assure-toi qu'il s'agit d'un fichier de prix exporté depuis ce site.",
     "submitResult": "Envoyés : {{accepted}} acceptés{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} rejetés (trop éloignés du prix global actuel)",
-    "submitSkipped": ", {{count}} ignorés (déjà envoyés depuis ce navigateur au cours des 6 dernières heures)"
+    "submitSkipped": ", {{count}} ignorés (déjà envoyés depuis ce navigateur au cours des 6 dernières heures)",
+    "manualPrice": "Prix manuel"
   },
   "materialDetail": {
     "usedInTooltip": "Voir où ce matériau est utilisé",

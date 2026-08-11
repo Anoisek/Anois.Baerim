@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import { formatYang } from '../utils/formatYang'
 
-export default function MaterialPriceCell({ material, rawValue, computedValue, onPriceChange, computed }) {
+export default function MaterialPriceCell({ material, rawValue, computedValue, onPriceChange, computed, manualOverride }) {
   const { t } = useTranslation()
-  if (computed ?? material.is_craftable) {
+  if (computed ?? (material.is_craftable && !manualOverride)) {
     return (
       <span
         title={t('materialPriceCell.computedTooltip')}
@@ -19,6 +19,7 @@ export default function MaterialPriceCell({ material, rawValue, computedValue, o
       placeholder={t('materialPriceCell.pricePlaceholder')}
       value={rawValue ?? ''}
       onChange={e => onPriceChange(material.id, e.target.value)}
+      onClick={e => { e.preventDefault(); e.stopPropagation() }}
       className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 w-28 text-right text-sm focus:outline-none focus:border-yellow-400 shrink-0 transition-colors"
     />
   )

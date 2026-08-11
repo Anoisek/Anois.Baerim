@@ -25,7 +25,7 @@ export default function MaterialDetail() {
   const [globalPrices, setGlobalPrices] = useState({})
   const [pity, setPity] = useState(1)
   const [loading, setLoading] = useState(true)
-  const { rawInputs, setPrice, mode } = usePriceBook()
+  const { rawInputs, setPrice, mode, manualOverrides } = usePriceBook()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function MaterialDetail() {
   const variantNumbers = Object.keys(variantRows).map(Number).sort((a, b) => a - b)
   const variantCount = variantNumbers.length > 0 ? Math.max(...variantNumbers) : 0
 
-  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts })
+  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides })
 
   function priceOf(id) {
     return priceFn(id)

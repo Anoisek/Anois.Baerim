@@ -107,7 +107,8 @@
     "importError": "Bu dosya okunamadı — bu siteden dışa aktarılmış bir fiyat dosyası olduğundan emin ol.",
     "submitResult": "Gönderildi: {{accepted}} kabul edildi{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} reddedildi (mevcut küresel fiyattan çok uzak)",
-    "submitSkipped": ", {{count}} atlandı (bu tarayıcıdan son 6 saat içinde zaten gönderildi)"
+    "submitSkipped": ", {{count}} atlandı (bu tarayıcıdan son 6 saat içinde zaten gönderildi)",
+    "manualPrice": "Manuel fiyat"
   },
   "materialDetail": {
     "usedInTooltip": "Bu malzemenin nerede kullanıldığını gör",
