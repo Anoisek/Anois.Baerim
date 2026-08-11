@@ -246,7 +246,7 @@ export default function ItemDetail() {
     const v = getStepVariant(step)
     grouped[step] = groupedByVariant[step]?.[v] ?? []
     yangCosts[step] = yangByVariant[step]?.[v] ?? 0
-    if (maxPityByVariant[step]?.[v]) maxPityByStep[step] = maxPityByVariant[step][v]
+    if (maxPityByVariant[step]?.[v] != null) maxPityByStep[step] = maxPityByVariant[step][v]
   }
 
   function itemIngredientCtx() {
