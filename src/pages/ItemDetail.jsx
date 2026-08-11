@@ -136,13 +136,15 @@ export default function ItemDetail() {
         setSelectedVariant(savedChoices.variantByStep ?? {})
       } else {
         setSelectedVariant({})
-        const war = sorted.find(s => s.name.toLowerCase().includes('scroll of war'))
-        const magic = sorted.find(s => s.name.toLowerCase().includes('magic stone'))
-        if (war || magic) {
-          setSelectedScroll({
-            1: war?.id ?? '', 2: war?.id ?? '', 3: war?.id ?? '', 4: war?.id ?? '',
-            5: magic?.id ?? '', 6: magic?.id ?? '', 7: magic?.id ?? '', 8: magic?.id ?? '', 9: magic?.id ?? '',
-          })
+        if (itemId !== ENIGMA_POTION_ID) {
+          const war = sorted.find(s => s.name.toLowerCase().includes('scroll of war'))
+          const magic = sorted.find(s => s.name.toLowerCase().includes('magic stone'))
+          if (war || magic) {
+            setSelectedScroll({
+              1: war?.id ?? '', 2: war?.id ?? '', 3: war?.id ?? '', 4: war?.id ?? '',
+              5: magic?.id ?? '', 6: magic?.id ?? '', 7: magic?.id ?? '', 8: magic?.id ?? '', 9: magic?.id ?? '',
+            })
+          }
         }
       }
 
@@ -382,6 +384,16 @@ export default function ItemDetail() {
             </div>
 
             <CraftOverviewPanel allSteps={allSteps} grouped={grouped} yangCosts={yangCosts} />
+
+            {isRangedUpgradeItem && allSteps.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowSummary(true)}
+                className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors mb-6"
+              >
+                {t('itemDetail.materialsSummary')}
+              </button>
+            )}
 
             {!isRangedUpgradeItem && (
             <>
