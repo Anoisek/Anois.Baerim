@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import Navbar from '../components/Navbar'
@@ -57,6 +57,7 @@ export default function ItemDetail() {
   const [globalPrices, setGlobalPrices] = useState({})
   const [chapterName, setChapterName] = useState(null)
   const [categoryName, setCategoryName] = useState(null)
+  const [siblingItems, setSiblingItems] = useState([])
   const [loading, setLoading] = useState(true)
   const { rawInputs, setPrice, mode, manualOverrides, toggleManualOverride } = usePriceBook()
 
@@ -151,12 +152,17 @@ export default function ItemDetail() {
 
   useEffect(() => {
     if (!item) return
+    let siblingsQuery = supabase.from('items').select('id, name, image_url, image_urls, category_id').eq('category_id', item.category_id).order('sort_order')
+    siblingsQuery = item.subcategory_id ? siblingsQuery.eq('subcategory_id', item.subcategory_id) : siblingsQuery.is('subcategory_id', null)
+
     Promise.all([
       supabase.from('categories').select('name').eq('id', item.category_id).single(),
       item.subcategory_id ? supabase.from('subcategories').select('name').eq('id', item.subcategory_id).single() : Promise.resolve({ data: null }),
-    ]).then(([catRes, subRes]) => {
+      siblingsQuery,
+    ]).then(([catRes, subRes, siblingsRes]) => {
       setChapterName(catRes.data?.name ?? null)
       setCategoryName(subRes.data?.name ?? null)
+      setSiblingItems(siblingsRes.data ?? [])
     })
   }, [item])
 
@@ -212,6 +218,10 @@ export default function ItemDetail() {
   }
 
   const isPvpItem = item?.category_id === PVP_CATEGORY_ID
+
+  const siblingIndex = siblingItems.findIndex(i => i.id === itemId)
+  const prevItem = siblingIndex > 0 ? siblingItems[siblingIndex - 1] : null
+  const nextItem = siblingIndex >= 0 && siblingIndex < siblingItems.length - 1 ? siblingItems[siblingIndex + 1] : null
 
   function variantCountForStep(step) {
     const fromGroups = Object.keys(groupedByVariant[step] ?? {}).map(Number)
@@ -320,6 +330,31 @@ export default function ItemDetail() {
                 : []),
               { label: item ? formatItemName(item) : t('common.item') },
             ]} />
+
+            {(prevItem || nextItem) && (
+              <div className="flex items-center justify-between gap-3 mb-4">
+                {prevItem ? (
+                  <Link
+                    to={`/chapter/${prevItem.category_id}/item/${prevItem.id}`}
+                    className="flex items-center gap-1.5 min-w-0 text-xs text-gray-400 hover:text-yellow-400 transition-colors"
+                    title={formatItemName(prevItem)}
+                  >
+                    <span className="text-base leading-none shrink-0">‹</span>
+                    <span className="truncate">{formatItemName(prevItem)}</span>
+                  </Link>
+                ) : <span />}
+                {nextItem && (
+                  <Link
+                    to={`/chapter/${nextItem.category_id}/item/${nextItem.id}`}
+                    className="flex items-center gap-1.5 min-w-0 text-xs text-gray-400 hover:text-yellow-400 transition-colors text-right"
+                    title={formatItemName(nextItem)}
+                  >
+                    <span className="truncate">{formatItemName(nextItem)}</span>
+                    <span className="text-base leading-none shrink-0">›</span>
+                  </Link>
+                )}
+              </div>
+            )}
 
             {/* Item header */}
             <div className="flex items-center gap-5 mb-6 p-5 bg-gray-900 border border-gray-700 rounded-2xl flex-wrap">
