@@ -214,7 +214,7 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
     const maxPityByStepLocal = {}
     for (const row of yangRes.data ?? []) {
       if (row.yang_cost) yangByStepLocal[row.step] = String(row.yang_cost)
-      if (row.max_pity) maxPityByStepLocal[row.step] = String(row.max_pity)
+      if (row.max_pity != null) maxPityByStepLocal[row.step] = String(row.max_pity)
     }
 
     // Replace only the target variant slot for every step, leaving other variants/steps untouched.
@@ -307,21 +307,21 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
     }
 
     // Insert yang costs / max pity (variant 1 + PVP extra variants)
-    // Steps that actually have materials/items default to max pity 1 unless overridden or cleared.
+    // Steps that actually have materials/items default to max pity 0 (no bonus, ×1) unless overridden or cleared.
     const yangRows = []
     const contentSteps = new Set([...Object.keys(stepMaterials), ...Object.keys(stepItems)].map(Number))
     const steps = new Set([...contentSteps, ...Object.keys(stepYang).map(Number), ...Object.keys(stepMaxPity).map(Number)])
     for (const step of steps) {
       const cost = parseYang(stepYang[step])
       const rawMaxPity = stepMaxPity[step]
-      const maxPity = rawMaxPity !== undefined ? parseInt(rawMaxPity, 10) : (contentSteps.has(step) ? 1 : NaN)
-      if ((cost !== '' && cost > 0) || (!isNaN(maxPity) && maxPity > 0)) {
+      const maxPity = rawMaxPity !== undefined ? parseInt(rawMaxPity, 10) : (contentSteps.has(step) ? 0 : NaN)
+      if ((cost !== '' && cost > 0) || (!isNaN(maxPity) && maxPity >= 0)) {
         yangRows.push({
           item_id: item.id,
           step: Number(step),
           variant: 1,
           yang_cost: cost !== '' && cost > 0 ? cost : 0,
-          max_pity: !isNaN(maxPity) && maxPity > 0 ? maxPity : null,
+          max_pity: !isNaN(maxPity) && maxPity >= 0 ? maxPity : null,
         })
       }
     }
@@ -332,14 +332,14 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
           const cost = parseYang(extraVariantYang[step]?.[variant])
           const hasContent = Object.keys(extraVariantMaterials[step]?.[variant] ?? {}).length > 0 || Object.keys(extraVariantItems[step]?.[variant] ?? {}).length > 0
           const rawMaxPity = extraVariantMaxPity[step]?.[variant]
-          const maxPity = rawMaxPity !== undefined ? parseInt(rawMaxPity, 10) : (hasContent ? 1 : NaN)
-          if ((cost !== '' && cost > 0) || (!isNaN(maxPity) && maxPity > 0)) {
+          const maxPity = rawMaxPity !== undefined ? parseInt(rawMaxPity, 10) : (hasContent ? 0 : NaN)
+          if ((cost !== '' && cost > 0) || (!isNaN(maxPity) && maxPity >= 0)) {
             yangRows.push({
               item_id: item.id,
               step,
               variant,
               yang_cost: cost !== '' && cost > 0 ? cost : 0,
-              max_pity: !isNaN(maxPity) && maxPity > 0 ? maxPity : null,
+              max_pity: !isNaN(maxPity) && maxPity >= 0 ? maxPity : null,
             })
           }
         }
@@ -553,9 +553,9 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
             <span className="text-yellow-400 text-sm font-semibold shrink-0">Max pity</span>
             <input
               type="number"
-              min="1"
+              min="0"
               placeholder="no limit"
-              value={activeMaxPity(activeStep) || 1}
+              value={activeMaxPity(activeStep) || 0}
               onChange={e => setActiveMaxPity(activeStep, e.target.value)}
               className="bg-transparent flex-1 text-white text-sm focus:outline-none text-right"
             />

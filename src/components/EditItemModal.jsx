@@ -108,10 +108,10 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
         if (v > (variantCounts[row.step] ?? 1)) variantCounts[row.step] = v
         if (v === 1) {
           if (row.yang_cost) sy[row.step] = String(row.yang_cost)
-          if (row.max_pity) smp[row.step] = String(row.max_pity)
+          if (row.max_pity != null) smp[row.step] = String(row.max_pity)
         } else {
           if (row.yang_cost) { if (!evy[row.step]) evy[row.step] = {}; evy[row.step][v] = String(row.yang_cost) }
-          if (row.max_pity) { if (!evmp[row.step]) evmp[row.step] = {}; evmp[row.step][v] = String(row.max_pity) }
+          if (row.max_pity != null) { if (!evmp[row.step]) evmp[row.step] = {}; evmp[row.step][v] = String(row.max_pity) }
         }
       }
       setStepYang(sy)
@@ -281,7 +281,7 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
     const maxPityByStepLocal = {}
     for (const row of yangRes.data ?? []) {
       if (row.yang_cost) yangByStepLocal[row.step] = String(row.yang_cost)
-      if (row.max_pity) maxPityByStepLocal[row.step] = String(row.max_pity)
+      if (row.max_pity != null) maxPityByStepLocal[row.step] = String(row.max_pity)
     }
 
     // Replace only the target variant slot for every step, leaving other variants/steps untouched.
@@ -371,13 +371,13 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
     for (const step of yangSteps) {
       const cost = parseYang(stepYang[step])
       const maxPity = parseInt(stepMaxPity[step], 10)
-      if ((cost !== '' && cost > 0) || (!isNaN(maxPity) && maxPity > 0)) {
+      if ((cost !== '' && cost > 0) || (!isNaN(maxPity) && maxPity >= 0)) {
         yangRows.push({
           item_id: item.id,
           step: Number(step),
           variant: 1,
           yang_cost: cost !== '' && cost > 0 ? cost : 0,
-          max_pity: !isNaN(maxPity) && maxPity > 0 ? maxPity : null,
+          max_pity: !isNaN(maxPity) && maxPity >= 0 ? maxPity : null,
         })
       }
     }
@@ -387,13 +387,13 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
         for (let variant = 2; variant <= count; variant++) {
           const cost = parseYang(extraVariantYang[step]?.[variant])
           const maxPity = parseInt(extraVariantMaxPity[step]?.[variant], 10)
-          if ((cost !== '' && cost > 0) || (!isNaN(maxPity) && maxPity > 0)) {
+          if ((cost !== '' && cost > 0) || (!isNaN(maxPity) && maxPity >= 0)) {
             yangRows.push({
               item_id: item.id,
               step,
               variant,
               yang_cost: cost !== '' && cost > 0 ? cost : 0,
-              max_pity: !isNaN(maxPity) && maxPity > 0 ? maxPity : null,
+              max_pity: !isNaN(maxPity) && maxPity >= 0 ? maxPity : null,
             })
           }
         }
@@ -622,7 +622,7 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
             <span className="text-yellow-400 text-sm font-semibold shrink-0">Max pity</span>
             <input
               type="number"
-              min="1"
+              min="0"
               placeholder="no limit"
               value={activeMaxPity(activeStep)}
               onChange={e => setActiveMaxPity(activeStep, e.target.value)}

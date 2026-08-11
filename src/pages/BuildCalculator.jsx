@@ -133,9 +133,10 @@ export default function BuildCalculator() {
 
         const variant = choices?.variantByStep?.[step] ?? 1
 
-        let pity = choices ? Math.max(1, parseInt(choices.pity?.[step]) || 1) : 1
+        let pity = choices ? Math.max(0, parseInt(choices.pity?.[step]) || 0) : 0
         const maxPity = maxPityMap[step]?.[variant]
-        if (maxPity) pity = Math.min(pity, maxPity)
+        if (maxPity != null) pity = Math.min(pity, maxPity)
+        pity += 1
 
         for (const row of (matSteps[step] ?? []).filter(r => (r.variant ?? 1) === variant)) {
           const mat = materialsById[row.material_id]
@@ -214,11 +215,11 @@ export default function BuildCalculator() {
     setRefreshTick(t => t + 1)
   }
 
-  function resetPityToOne() {
+  function resetPityToZero() {
     for (const id of selectedIds) {
       const choices = loadItemChoices(id) ?? { selectedScroll: {}, selectedSeals: {}, pity: {}, includeCraft: true }
       const nextPity = {}
-      for (let s = 0; s <= 9; s++) nextPity[s] = 1
+      for (let s = 0; s <= 9; s++) nextPity[s] = 0
       choices.pity = nextPity
       localStorage.setItem(`item_choices_${id}`, JSON.stringify(choices))
     }
@@ -233,7 +234,7 @@ export default function BuildCalculator() {
       for (let s = 0; s <= 9; s++) {
         const variant = choices.variantByStep?.[s] ?? 1
         const max = maxMap[s]?.[variant]
-        if (max) nextPity[s] = max
+        if (max != null) nextPity[s] = max
       }
       choices.pity = nextPity
       localStorage.setItem(`item_choices_${id}`, JSON.stringify(choices))
@@ -295,7 +296,7 @@ export default function BuildCalculator() {
           <div className="flex flex-wrap gap-2 mb-4">
             <button
               type="button"
-              onClick={resetPityToOne}
+              onClick={resetPityToZero}
               className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
             >
               {t('buildCalculator.resetPityAll')}

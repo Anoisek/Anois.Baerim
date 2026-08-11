@@ -193,10 +193,12 @@ export function buildItemYangMap(rows) {
 }
 
 // rows: [{ item_id, step, variant, max_pity }] -> { itemId: { step: { variant: max_pity } } }
+// max_pity is the highest pity value selectable (0-based: pity 0 = ×1 materials).
+// 0 is a meaningful cap (always ×1) and must not be treated the same as "no cap".
 export function buildItemMaxPityMap(rows) {
   const map = {}
   for (const row of rows ?? []) {
-    if (!row.max_pity) continue
+    if (row.max_pity == null) continue
     if (!map[row.item_id]) map[row.item_id] = {}
     if (!map[row.item_id][row.step]) map[row.item_id][row.step] = {}
     map[row.item_id][row.step][row.variant ?? 1] = row.max_pity
@@ -226,8 +228,8 @@ function loadItemChoices(itemId) {
 // Price for an item used as an ingredient: materials + nested items + yang, using
 // whatever scroll/seal/pity/include-craft choices the user already saved on that
 // item's own page (item_choices_<id> in localStorage). Falls back to the default
-// scroll auto-selection, pity=1, no seals, craft included — only if the item was
-// never opened/configured, matching what its page would show on first visit.
+// scroll auto-selection, pity=0 (×1 materials), no seals, craft included — only if
+// the item was never opened/configured, matching what its page would show on first visit.
 // ctx.materialPriceFn: (materialId) => number — supplied by the caller, own- or global-mode aware.
 export function computeItemPrice(itemId, ctx, visited = new Set()) {
   if (visited.has(itemId)) return 0
@@ -269,10 +271,10 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
       for (const sealId of sealIds) stepCost += ctx.materialPriceFn(sealId)
     }
 
-    let pity = choices ? Math.max(1, parseInt(choices.pity?.[step]) || 1) : 1
+    let pityInput = choices ? Math.max(0, parseInt(choices.pity?.[step]) || 0) : 0
     const maxPity = ctx.itemMaxPity?.[itemId]?.[step]?.[variant]
-    if (maxPity) pity = Math.min(pity, maxPity)
-    stepCost *= pity
+    if (maxPity != null) pityInput = Math.min(pityInput, maxPity)
+    stepCost *= pityInput + 1
 
     total += stepCost
   }

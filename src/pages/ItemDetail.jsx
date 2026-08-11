@@ -99,7 +99,7 @@ export default function ItemDetail() {
         const v = row.variant ?? 1
         if (!yc[row.step]) yc[row.step] = {}
         yc[row.step][v] = row.yang_cost
-        if (row.max_pity) {
+        if (row.max_pity != null) {
           if (!mp[row.step]) mp[row.step] = {}
           mp[row.step][v] = row.max_pity
         }
@@ -186,7 +186,7 @@ export default function ItemDetail() {
   function resetAllPity() {
     setPity(prev => {
       const next = { ...prev }
-      for (let s = 0; s <= 9; s++) next[s] = 1
+      for (let s = 0; s <= 9; s++) next[s] = 0
       return next
     })
   }
@@ -195,7 +195,7 @@ export default function ItemDetail() {
     setPity(prev => {
       const next = { ...prev }
       for (let s = 0; s <= 9; s++) {
-        if (maxPityByStep[s]) next[s] = maxPityByStep[s]
+        if (maxPityByStep[s] != null) next[s] = maxPityByStep[s]
       }
       return next
     })
@@ -264,10 +264,12 @@ export default function ItemDetail() {
     return row.kind === 'item' ? computeItemPrice(row.material.id, itemIngredientCtx()) : priceOf(row.material.id)
   }
 
+  // Pity is entered 0-based (0 = ×1 materials, matching the in-game counter), so the
+  // actual material multiplier is always the entered value + 1.
   function getPity(step) {
-    const val = Math.max(1, parseInt(pity[step]) || 1)
+    const val = Math.max(0, parseInt(pity[step]) || 0)
     const max = maxPityByStep[step]
-    return max ? Math.min(val, max) : val
+    return (max != null ? Math.min(val, max) : val) + 1
   }
   function matCost(rows) { return rows.reduce((s, r) => s + rowPrice(r) * r.quantity, 0) }
   function scrollCost(step) { const id = selectedScroll[step]; return id ? priceOf(id) : 0 }
@@ -484,16 +486,16 @@ export default function ItemDetail() {
                             />
                           )}
                           <label className="flex items-center gap-1.5 text-xs text-gray-400">
-                            {maxPityByStep[step] ? t('itemDetail.pityMax', { max: maxPityByStep[step] }) : t('itemDetail.pity')}:
+                            {maxPityByStep[step] != null ? t('itemDetail.pityMax', { max: maxPityByStep[step] }) : t('itemDetail.pity')}:
                             <input
                               type="number"
-                              min="1"
-                              max={maxPityByStep[step] || undefined}
-                              value={pity[step] ?? 1}
+                              min="0"
+                              max={maxPityByStep[step] ?? undefined}
+                              value={pity[step] ?? 0}
                               onChange={e => {
                                 const raw = e.target.value
                                 const max = maxPityByStep[step]
-                                const clamped = max && Number(raw) > max ? String(max) : raw
+                                const clamped = max != null && Number(raw) > max ? String(max) : raw
                                 setPity(prev => ({ ...prev, [step]: clamped }))
                               }}
                               className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-14 text-center text-xs text-white focus:outline-none focus:border-yellow-400"
