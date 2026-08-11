@@ -9,8 +9,8 @@ function shortYang(v) {
 
 function OverviewIcon({ row, large }) {
   const name = row.kind === 'item' ? formatItemName(row.material) : row.material.name
-  const box = large ? 'w-10 h-10' : 'w-9 h-9'
-  const img = large ? 'w-7 h-7' : 'w-6 h-6'
+  const box = large ? 'w-10 h-10' : 'w-11 h-11'
+  const img = large ? 'w-7 h-7' : 'w-8 h-8'
   const to = row.kind === 'item' ? `/chapter/${row.material.category_id}/item/${row.material.id}` : `/materials/${row.material.id}`
   return (
     <Link
@@ -48,7 +48,7 @@ export default function CraftOverviewPanel({ allSteps, grouped, yangCosts }) {
           <div className="overflow-x-auto rounded-xl border border-gray-700">
             <div
               className="grid bg-gray-900"
-              style={{ gridTemplateColumns: `minmax(3.4rem,4rem) repeat(${upgradeSteps.length}, 4.5rem)` }}
+              style={{ gridTemplateColumns: `minmax(3.4rem,4rem) repeat(${upgradeSteps.length}, 5rem)` }}
             >
               <div className="bg-gray-800/80 text-[0.6rem] font-bold uppercase text-gray-500 border-b border-r border-gray-800 flex items-center justify-center px-1 py-1.5">
                 {t('common.material')}
@@ -65,7 +65,7 @@ export default function CraftOverviewPanel({ allSteps, grouped, yangCosts }) {
                   {upgradeSteps.map(step => {
                     const r = (grouped[step] ?? [])[row]
                     return (
-                      <div key={step} className="h-12 border-b border-r border-gray-800 flex items-center justify-center p-1">
+                      <div key={step} className="h-14 border-b border-r border-gray-800 flex items-center justify-center p-1">
                         {r ? <OverviewIcon row={r} /> : <span className="text-gray-600 text-sm">–</span>}
                       </div>
                     )
