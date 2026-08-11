@@ -31,7 +31,7 @@ function OverviewIcon({ row, large }) {
 // Compact "at a glance" summary of an item's craft + upgrade path, shown above
 // the interactive calculator. Reads the same grouped/yangCosts data the
 // calculator itself uses, so the two are always in sync.
-export default function CraftOverviewPanel({ allSteps, grouped, yangCosts, stepLabels }) {
+export default function CraftOverviewPanel({ allSteps, grouped, yangCosts }) {
   const { t } = useTranslation()
   const upgradeSteps = allSteps.filter(s => s !== 0)
   const craftMats = grouped[0] ?? []
@@ -54,8 +54,8 @@ export default function CraftOverviewPanel({ allSteps, grouped, yangCosts, stepL
                 {t('common.material')}
               </div>
               {upgradeSteps.map(step => (
-                <div key={step} className="bg-gray-800/80 text-yellow-400 text-xs font-bold border-b border-r border-gray-800 flex items-center justify-center text-center leading-tight py-1.5 px-1 font-mono">
-                  {stepLabels?.[step] ?? `+${step}`}
+                <div key={step} className="bg-gray-800/80 text-yellow-400 text-xs font-bold border-b border-r border-gray-800 flex items-center justify-center py-1.5 font-mono">
+                  +{step}
                 </div>
               ))}
 

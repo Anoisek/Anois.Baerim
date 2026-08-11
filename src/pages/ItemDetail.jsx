@@ -219,7 +219,6 @@ export default function ItemDetail() {
 
   const isPvpItem = item?.category_id === PVP_CATEGORY_ID
   const isRangedUpgradeItem = itemId === ENIGMA_POTION_ID
-  const rangedStepLabels = { 1: '+1 → +50', 2: '+51 → +100', 3: '+101 → +200' }
 
   const siblingIndex = siblingItems.findIndex(i => i.id === itemId)
   const prevItem = siblingIndex > 0 ? siblingItems[siblingIndex - 1] : null
@@ -382,12 +381,7 @@ export default function ItemDetail() {
               )}
             </div>
 
-            <CraftOverviewPanel
-              allSteps={allSteps}
-              grouped={grouped}
-              yangCosts={yangCosts}
-              stepLabels={isRangedUpgradeItem ? rangedStepLabels : undefined}
-            />
+            <CraftOverviewPanel allSteps={allSteps} grouped={grouped} yangCosts={yangCosts} />
 
             {!isRangedUpgradeItem && (
             <>
