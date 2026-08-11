@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { parseYang } from '../utils/formatYang'
+import { CATEGORY_TAGS } from '../utils/materialCategoryTags'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 
@@ -15,6 +16,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
   const [name, setName] = useState(material.name)
   const [imageUrl, setImageUrl] = useState(material.image_url ?? '')
   const [tag, setTag] = useState(material.is_upgrade_scroll ? 'scroll' : material.is_seal ? 'seal' : material.is_item ? 'item' : '')
+  const [categoryTag, setCategoryTag] = useState(material.category_tag ?? '')
   const [isCraftable, setIsCraftable] = useState(material.is_craftable ?? false)
   const [isPvp, setIsPvp] = useState(material.is_pvp ?? false)
   const [isPvpOnly, setIsPvpOnly] = useState(material.is_pvp_only ?? false)
@@ -108,6 +110,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
         is_upgrade_scroll: tag === 'scroll',
         is_seal: tag === 'seal',
         is_item: tag === 'item',
+        category_tag: categoryTag || null,
         is_craftable: isCraftable,
         craft_yang_cost: isCraftable && !isPvp ? (parseYang(craftYangCost) || null) : null,
         is_pvp: isPvp,
@@ -254,6 +257,20 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
             <option value="scroll">Upgrade Scroll</option>
             <option value="seal">Seal of Gods</option>
             <option value="item">Item</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-400">Category (sorting only, not shown on the tile)</label>
+          <select
+            value={categoryTag}
+            onChange={e => setCategoryTag(e.target.value)}
+            className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
+          >
+            <option value="">No category</option>
+            {CATEGORY_TAGS.map(c => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
           </select>
         </div>
 

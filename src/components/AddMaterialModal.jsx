@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { parseYang } from '../utils/formatYang'
+import { CATEGORY_TAGS } from '../utils/materialCategoryTags'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 
@@ -8,6 +9,7 @@ export default function AddMaterialModal({ onClose, onAdded }) {
   const [name, setName] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [tag, setTag] = useState('')
+  const [categoryTag, setCategoryTag] = useState('')
   const [isCraftable, setIsCraftable] = useState(false)
   const [isPvp, setIsPvp] = useState(false)
   const [isPvpOnly, setIsPvpOnly] = useState(false)
@@ -74,6 +76,7 @@ export default function AddMaterialModal({ onClose, onAdded }) {
         is_upgrade_scroll: tag === 'scroll',
         is_seal: tag === 'seal',
         is_item: tag === 'item',
+        category_tag: categoryTag || null,
         is_craftable: isCraftable,
         craft_yang_cost: isCraftable && !isPvp ? (parseYang(craftYangCost) || null) : null,
         is_pvp: isPvp,
@@ -151,6 +154,20 @@ export default function AddMaterialModal({ onClose, onAdded }) {
             <option value="scroll">Upgrade Scroll</option>
             <option value="seal">Seal of Gods</option>
             <option value="item">Item</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-400">Category (sorting only, not shown on the tile)</label>
+          <select
+            value={categoryTag}
+            onChange={e => setCategoryTag(e.target.value)}
+            className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
+          >
+            <option value="">No category</option>
+            {CATEGORY_TAGS.map(c => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
           </select>
         </div>
 

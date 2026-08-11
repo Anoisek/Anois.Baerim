@@ -13,6 +13,7 @@ import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   fetchGlobalPrices, submitPricesToGlobal, makeMaterialPriceFn,
 } from '../utils/priceBook'
+import { sortByCategoryTag } from '../utils/materialCategoryTags'
 
 const FILTERS = [
   { key: 'all', labelKey: 'materials.filterAll' },
@@ -219,11 +220,11 @@ export default function Materials() {
         )}
 
         {(() => {
-          const visible = materials.filter(mat =>
+          const visible = sortByCategoryTag(materials.filter(mat =>
             (chapterTab === 'pvp' ? mat.is_pvp : !mat.is_pvp) &&
             matchesFilter(mat, filter) &&
             mat.name.toLowerCase().includes(search.toLowerCase())
-          )
+          ))
           if (loading) return <Spinner />
           if (materials.length === 0) {
             return (
