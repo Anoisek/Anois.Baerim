@@ -38,7 +38,7 @@ export default function CraftOverviewPanel({ allSteps, grouped, yangCosts }) {
 
   if (upgradeSteps.length === 0 && craftMats.length === 0) return null
 
-  const maxRows = upgradeSteps.length > 0 ? Math.max(1, ...upgradeSteps.map(s => (grouped[s] ?? []).length)) : 0
+  const maxRows = upgradeSteps.length > 0 ? Math.max(3, ...upgradeSteps.map(s => (grouped[s] ?? []).length)) : 0
 
   return (
     <div className="flex flex-col gap-5 mb-6">
@@ -93,11 +93,6 @@ export default function CraftOverviewPanel({ allSteps, grouped, yangCosts }) {
             <div className="flex flex-wrap gap-2 bg-gray-900 border border-gray-700 rounded-xl p-2.5">
               {craftMats.map(row => (
                 <OverviewIcon key={`${row.kind}-${row.material.id}`} row={row} large />
-              ))}
-              {[0, 1].map(i => (
-                <div key={`empty-${i}`} className="relative w-10 h-10 shrink-0 bg-black/40 border border-gray-700 rounded-md flex items-center justify-center">
-                  <span className="text-gray-600 text-sm">–</span>
-                </div>
               ))}
             </div>
             <div className="inline-flex items-center gap-2 self-start bg-yellow-600/15 border border-yellow-500/30 rounded-lg px-3 py-1.5">
