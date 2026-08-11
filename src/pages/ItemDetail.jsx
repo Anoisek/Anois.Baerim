@@ -205,10 +205,6 @@ export default function ItemDetail() {
     })
   }
 
-  function goToCalculator() {
-    document.getElementById('interactive-calculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
-
   const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts })
 
   function priceOf(materialId) {
@@ -333,15 +329,6 @@ export default function ItemDetail() {
                   : <span className="text-5xl">⚔️</span>}
               </div>
               <h1 className="text-2xl font-bold text-yellow-400 flex-1">{item ? formatItemName(item) : ''}</h1>
-              {allSteps.length > 0 && (
-                <button
-                  type="button"
-                  onClick={goToCalculator}
-                  className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shrink-0"
-                >
-                  {t('itemDetail.goToCalculator')}
-                </button>
-              )}
               {isPvpItem && maxVariantCount > 1 && (
                 <button
                   type="button"
@@ -398,7 +385,7 @@ export default function ItemDetail() {
                 <p className="text-sm">{t('itemDetail.noMaterialsDefined')}</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-3 scroll-mt-20" id="interactive-calculator">
+              <div className="flex flex-col gap-3">
                 {allSteps.map(step => {
                   const scrollId = selectedScroll[step] ?? ''
                   const scrollMat = scrolls.find(s => s.id === scrollId)

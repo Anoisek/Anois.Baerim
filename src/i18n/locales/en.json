@@ -171,9 +171,7 @@
     "includeCraftCost": "Include craft cost",
     "totalCost": "Total cost",
     "overviewUpgrade": "Upgrade",
-    "overviewQty": "qty",
-    "overviewPrice": "Price",
-    "goToCalculator": "Go to calculator"
+    "overviewPrice": "Price"
   },
   "itemUsage": {
     "usedIn": "Used in",

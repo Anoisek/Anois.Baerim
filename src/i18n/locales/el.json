@@ -171,9 +171,7 @@
     "includeCraftCost": "Συμπερίληψη κόστους κατασκευής",
     "totalCost": "Συνολικό κόστος",
     "overviewUpgrade": "Αναβάθμιση",
-    "overviewQty": "τεμ.",
-    "overviewPrice": "Τιμή",
-    "goToCalculator": "Μετάβαση στον υπολογιστή"
+    "overviewPrice": "Τιμή"
   },
   "itemUsage": {
     "usedIn": "Χρησιμοποιείται σε",

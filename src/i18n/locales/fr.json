@@ -171,9 +171,7 @@
     "includeCraftCost": "Inclure le coût de fabrication",
     "totalCost": "Coût total",
     "overviewUpgrade": "Amélioration",
-    "overviewQty": "qté",
-    "overviewPrice": "Prix",
-    "goToCalculator": "Aller au calculateur"
+    "overviewPrice": "Prix"
   },
   "itemUsage": {
     "usedIn": "Utilisé dans",

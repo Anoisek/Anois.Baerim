@@ -171,9 +171,7 @@
     "includeCraftCost": "Includi costo di fabbricazione",
     "totalCost": "Costo totale",
     "overviewUpgrade": "Potenziamento",
-    "overviewQty": "qtà",
-    "overviewPrice": "Prezzo",
-    "goToCalculator": "Vai al calcolatore"
+    "overviewPrice": "Prezzo"
   },
   "itemUsage": {
     "usedIn": "Usato in",

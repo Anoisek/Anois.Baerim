@@ -171,9 +171,7 @@
     "includeCraftCost": "Incluir custo de fabricação",
     "totalCost": "Custo total",
     "overviewUpgrade": "Aprimoramento",
-    "overviewQty": "qtd.",
-    "overviewPrice": "Preço",
-    "goToCalculator": "Ir para a calculadora"
+    "overviewPrice": "Preço"
   },
   "itemUsage": {
     "usedIn": "Usado em",

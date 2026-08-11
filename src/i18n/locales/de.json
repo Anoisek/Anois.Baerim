@@ -171,9 +171,7 @@
     "includeCraftCost": "Herstellungskosten einbeziehen",
     "totalCost": "Gesamtkosten",
     "overviewUpgrade": "Verbesserung",
-    "overviewQty": "Stk.",
-    "overviewPrice": "Preis",
-    "goToCalculator": "Zum Rechner"
+    "overviewPrice": "Preis"
   },
   "itemUsage": {
     "usedIn": "Verwendet in",

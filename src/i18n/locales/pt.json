@@ -171,9 +171,7 @@
     "includeCraftCost": "Incluir custo de fabrico",
     "totalCost": "Custo total",
     "overviewUpgrade": "Melhoria",
-    "overviewQty": "qtd.",
-    "overviewPrice": "Preço",
-    "goToCalculator": "Ir para a calculadora"
+    "overviewPrice": "Preço"
   },
   "itemUsage": {
     "usedIn": "Usado em",

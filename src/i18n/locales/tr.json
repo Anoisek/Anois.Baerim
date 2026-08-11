@@ -171,9 +171,7 @@
     "includeCraftCost": "Üretim maliyetini dahil et",
     "totalCost": "Toplam maliyet",
     "overviewUpgrade": "Yükseltme",
-    "overviewQty": "adet",
-    "overviewPrice": "Fiyat",
-    "goToCalculator": "Hesap makinesine git"
+    "overviewPrice": "Fiyat"
   },
   "itemUsage": {
     "usedIn": "Şurada kullanıldı",

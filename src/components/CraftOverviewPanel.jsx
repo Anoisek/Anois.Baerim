@@ -42,9 +42,9 @@ export default function CraftOverviewPanel({ allSteps, grouped, yangCosts }) {
           <div className="overflow-x-auto rounded-xl border border-gray-700">
             <div
               className="grid bg-gray-900 min-w-full"
-              style={{ gridTemplateColumns: `minmax(2.6rem,3.2rem) repeat(${upgradeSteps.length}, minmax(2.3rem, 1fr))` }}
+              style={{ gridTemplateColumns: `minmax(3.4rem,4rem) repeat(${upgradeSteps.length}, minmax(2.3rem, 1fr))` }}
             >
-              <div className="bg-gray-800/80 text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 border-b border-r border-gray-800 flex items-center justify-center px-1 py-1.5">
+              <div className="bg-gray-800/80 text-[0.6rem] font-bold uppercase text-gray-500 border-b border-r border-gray-800 flex items-center justify-center px-1 py-1.5">
                 {t('common.material')}
               </div>
               {upgradeSteps.map(step => (
@@ -55,18 +55,12 @@ export default function CraftOverviewPanel({ allSteps, grouped, yangCosts }) {
 
               {Array.from({ length: maxRows }).map((_, row) => (
                 <div key={row} className="contents">
-                  <div className="bg-gray-800/40 text-[0.58rem] text-gray-500 border-b border-r border-gray-800 flex items-center justify-end px-1.5">
-                    {row === 0 ? t('itemDetail.overviewQty') : ''}
-                  </div>
+                  <div className="bg-gray-800/40 border-b border-r border-gray-800" />
                   {upgradeSteps.map(step => {
                     const r = (grouped[step] ?? [])[row]
                     return (
                       <div key={step} className="h-12 border-b border-r border-gray-800 flex items-center justify-center p-1">
-                        {r
-                          ? <OverviewIcon row={r} />
-                          : row === 0 && (grouped[step] ?? []).length === 0
-                            ? <span className="text-gray-600 text-sm">–</span>
-                            : null}
+                        {r ? <OverviewIcon row={r} /> : <span className="text-gray-600 text-sm">–</span>}
                       </div>
                     )
                   })}
@@ -96,6 +90,7 @@ export default function CraftOverviewPanel({ allSteps, grouped, yangCosts }) {
               ))}
             </div>
             <div className="inline-flex items-center gap-2 self-start bg-yellow-600/15 border border-yellow-500/30 rounded-lg px-3 py-1.5">
+              <span className="text-base leading-none">💰</span>
               <span className="text-yellow-400 font-bold text-sm font-mono">{formatYang(yangCosts[0] ?? 0)}</span>
             </div>
           </div>

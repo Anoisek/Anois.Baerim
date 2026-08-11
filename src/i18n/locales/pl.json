@@ -171,9 +171,7 @@
     "includeCraftCost": "Uwzględnij koszt stworzenia",
     "totalCost": "Koszt całkowity",
     "overviewUpgrade": "Ulepszanie",
-    "overviewQty": "szt.",
-    "overviewPrice": "Cena",
-    "goToCalculator": "Przejdź do kalkulatora"
+    "overviewPrice": "Cena"
   },
   "itemUsage": {
     "usedIn": "Użyto w",

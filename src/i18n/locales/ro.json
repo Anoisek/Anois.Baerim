@@ -171,9 +171,7 @@
     "includeCraftCost": "Include costul de confecționare",
     "totalCost": "Cost total",
     "overviewUpgrade": "Îmbunătățire",
-    "overviewQty": "buc.",
-    "overviewPrice": "Preț",
-    "goToCalculator": "Mergi la calculator"
+    "overviewPrice": "Preț"
   },
   "itemUsage": {
     "usedIn": "Folosit în",

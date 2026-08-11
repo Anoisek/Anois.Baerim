@@ -171,9 +171,7 @@
     "includeCraftCost": "Zahrnout náklady na výrobu",
     "totalCost": "Celková cena",
     "overviewUpgrade": "Vylepšení",
-    "overviewQty": "ks",
-    "overviewPrice": "Cena",
-    "goToCalculator": "Přejít na kalkulačku"
+    "overviewPrice": "Cena"
   },
   "itemUsage": {
     "usedIn": "Použito v",
