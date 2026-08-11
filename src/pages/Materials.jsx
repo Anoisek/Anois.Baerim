@@ -8,12 +8,14 @@ import AddMaterialModal from '../components/AddMaterialModal'
 import EditMaterialModal from '../components/EditMaterialModal'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import Spinner from '../components/Spinner'
+import ItemImage from '../components/ItemImage'
 import { supabase } from '../supabaseClient'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   fetchGlobalPrices, submitPricesToGlobal, makeMaterialPriceFn,
 } from '../utils/priceBook'
 import { sortByCategoryTag } from '../utils/materialCategoryTags'
+import { itemImages as materialImages } from '../utils/itemImages'
 
 const FILTERS = [
   { key: 'all', labelKey: 'materials.filterAll' },
@@ -254,8 +256,8 @@ export default function Materials() {
                   className={`group relative bg-gray-900 border border-gray-700 rounded-2xl p-5 flex flex-col items-center transition-all duration-200 hover:border-gray-500 hover:bg-gray-800 ${mat.is_craftable ? 'hover:border-green-400/50' : ''}`}
                 >
                   <div className="w-16 h-16 flex items-center justify-center mb-3">
-                    {mat.image_url
-                      ? <img src={mat.image_url} alt={mat.name} className="w-full h-full object-contain drop-shadow" />
+                    {materialImages(mat).length > 0
+                      ? <ItemImage images={materialImages(mat)} alt={mat.name} className="w-full h-full object-contain drop-shadow" />
                       : <span className="text-4xl">🧪</span>}
                   </div>
                   <span className="text-sm font-semibold text-gray-100 text-center leading-tight line-clamp-2 min-h-[2.5rem] flex items-center mb-2">

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { parseYang } from '../utils/formatYang'
 import { CATEGORY_TAGS } from '../utils/materialCategoryTags'
+import { itemImages as materialImages } from '../utils/itemImages'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 
@@ -14,7 +15,7 @@ function extractStoragePath(url) {
 
 export default function EditMaterialModal({ material, onClose, onUpdated, onDeleted }) {
   const [name, setName] = useState(material.name)
-  const [imageUrl, setImageUrl] = useState(material.image_url ?? '')
+  const [imageUrls, setImageUrls] = useState(materialImages(material))
   const [tag, setTag] = useState(material.is_upgrade_scroll ? 'scroll' : material.is_seal ? 'seal' : material.is_item ? 'item' : '')
   const [categoryTag, setCategoryTag] = useState(material.category_tag ?? '')
   const [isCraftable, setIsCraftable] = useState(material.is_craftable ?? false)
@@ -97,6 +98,12 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
 
   const activeComponents = activeVariant === 1 ? components : (variantComponents[activeVariant] ?? {})
 
+  async function removeImageAt(i) {
+    const path = extractStoragePath(imageUrls[i])
+    if (path) await supabase.storage.from('images').remove([path])
+    setImageUrls(prev => prev.filter((_, idx) => idx !== i))
+  }
+
   async function handleSave(e) {
     e.preventDefault()
     if (!name.trim()) return
@@ -106,7 +113,8 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
       .from('materials')
       .update({
         name: name.trim(),
-        image_url: imageUrl || null,
+        image_urls: imageUrls,
+        image_url: imageUrls[0] ?? null,
         is_upgrade_scroll: tag === 'scroll',
         is_seal: tag === 'seal',
         is_item: tag === 'item',
@@ -158,19 +166,6 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
     setSaving(false)
   }
 
-  async function handleRemoveImage() {
-    const path = extractStoragePath(material.image_url)
-    if (path) await supabase.storage.from('images').remove([path])
-    setImageUrl('')
-  }
-
-  async function handleNewImage(url) {
-    // Remove old image from storage if it exists
-    const path = extractStoragePath(imageUrl)
-    if (path) await supabase.storage.from('images').remove([path])
-    setImageUrl(url)
-  }
-
   async function handleDelete() {
     setDeleting(true)
 
@@ -192,8 +187,8 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
       return
     }
 
-    const path = extractStoragePath(material.image_url)
-    if (path) await supabase.storage.from('images').remove([path])
+    const paths = imageUrls.map(extractStoragePath).filter(Boolean)
+    if (paths.length > 0) await supabase.storage.from('images').remove(paths)
 
     const { error } = await supabase.from('materials').delete().eq('id', material.id)
     if (error) {
@@ -223,27 +218,24 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm text-gray-400">Image</label>
-          {imageUrl ? (
-            <div className="flex items-center gap-3">
-              <img src={imageUrl} alt={name} className="w-16 h-16 object-contain rounded-lg border border-gray-600" />
-              <button
-                type="button"
-                onClick={handleRemoveImage}
-                className="text-sm text-red-400 hover:text-red-300"
-              >
-                Remove image
-              </button>
-            </div>
-          ) : (
-            <ImageUpload onUploaded={handleNewImage} />
-          )}
-          {imageUrl && (
-            <div className="mt-1">
-              <p className="text-xs text-gray-500 mb-1">Replace with new image:</p>
-              <ImageUpload onUploaded={handleNewImage} />
+          <label className="text-sm text-gray-400">Images (add several to cycle through them)</label>
+          {imageUrls.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {imageUrls.map((url, i) => (
+                <div key={url} className="relative">
+                  <img src={url} alt="" className="w-16 h-16 object-contain rounded-lg border border-gray-600" />
+                  <button
+                    type="button"
+                    onClick={() => removeImageAt(i)}
+                    className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full w-5 h-5 text-xs leading-none flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
             </div>
           )}
+          <ImageUpload onUploaded={url => setImageUrls(prev => [...prev, url])} />
         </div>
 
         <div className="flex flex-col gap-1">

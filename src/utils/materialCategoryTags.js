@@ -20,13 +20,29 @@ export const CATEGORY_TAGS = [
 
 const CATEGORY_TAG_ORDER = CATEGORY_TAGS.map(t => t.value)
 
+// Fixed name order within a category tag, for tags where alphabetical
+// order doesn't match the desired display order. Materials not listed
+// here fall back to alphabetical, after the ones that are listed.
+const CATEGORY_ITEM_ORDER = {
+  pearl: ['Clam', 'White Pearl', 'Blue Pearl', 'Red Pearl', 'Pearl Fusion'],
+}
+
 export function categoryTagRank(categoryTag) {
   const idx = CATEGORY_TAG_ORDER.indexOf(categoryTag)
   return idx === -1 ? CATEGORY_TAG_ORDER.length : idx
 }
 
+function itemRankWithinCategory(mat) {
+  const order = CATEGORY_ITEM_ORDER[mat.category_tag]
+  if (!order) return Infinity
+  const idx = order.findIndex(n => n.toLowerCase() === mat.name.toLowerCase())
+  return idx === -1 ? order.length : idx
+}
+
 export function sortByCategoryTag(materials) {
   return [...materials].sort((a, b) =>
-    categoryTagRank(a.category_tag) - categoryTagRank(b.category_tag) || a.name.localeCompare(b.name)
+    categoryTagRank(a.category_tag) - categoryTagRank(b.category_tag) ||
+    itemRankWithinCategory(a) - itemRankWithinCategory(b) ||
+    a.name.localeCompare(b.name)
   )
 }

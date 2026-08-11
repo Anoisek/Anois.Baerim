@@ -7,7 +7,7 @@ import ImageUpload from './ImageUpload'
 
 export default function AddMaterialModal({ onClose, onAdded }) {
   const [name, setName] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
+  const [imageUrls, setImageUrls] = useState([])
   const [tag, setTag] = useState('')
   const [categoryTag, setCategoryTag] = useState('')
   const [isCraftable, setIsCraftable] = useState(false)
@@ -72,7 +72,8 @@ export default function AddMaterialModal({ onClose, onAdded }) {
       .from('materials')
       .insert({
         name: name.trim(),
-        image_url: imageUrl || null,
+        image_urls: imageUrls,
+        image_url: imageUrls[0] ?? null,
         is_upgrade_scroll: tag === 'scroll',
         is_seal: tag === 'seal',
         is_item: tag === 'item',
@@ -139,9 +140,25 @@ export default function AddMaterialModal({ onClose, onAdded }) {
             className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
           />
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-400">Image (optional)</label>
-          <ImageUpload onUploaded={setImageUrl} />
+        <div className="flex flex-col gap-2">
+          <label className="text-sm text-gray-400">Images (optional — add several to cycle through them)</label>
+          {imageUrls.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {imageUrls.map((url, i) => (
+                <div key={url} className="relative">
+                  <img src={url} alt="" className="w-16 h-16 object-contain rounded-lg border border-gray-600" />
+                  <button
+                    type="button"
+                    onClick={() => setImageUrls(prev => prev.filter((_, idx) => idx !== i))}
+                    className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full w-5 h-5 text-xs leading-none flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <ImageUpload onUploaded={url => setImageUrls(prev => [...prev, url])} />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-400">Tag</label>

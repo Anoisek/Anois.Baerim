@@ -7,8 +7,10 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import MaterialTile from '../components/MaterialTile'
+import ItemImage from '../components/ItemImage'
 import { formatYang } from '../utils/formatYang'
 import { usePriceBook, buildRecipeMap, buildYangCostMap, fetchGlobalPrices, makeMaterialPriceFn } from '../utils/priceBook'
+import { itemImages as materialImages } from '../utils/itemImages'
 
 export default function MaterialDetail() {
   const { t } = useTranslation()
@@ -79,8 +81,8 @@ export default function MaterialDetail() {
             <Breadcrumbs items={[{ label: t('common.home'), to: '/' }, { label: t('materials.title'), to: '/materials' }, { label: material?.name ?? t('common.material') }]} />
             <div className="flex items-center gap-5 mb-8 p-5 bg-gray-900 border border-gray-700 rounded-2xl flex-wrap">
               <div className="w-20 h-20 shrink-0 flex items-center justify-center">
-                {material?.image_url
-                  ? <img src={material.image_url} alt={material.name} className="w-full h-full object-contain drop-shadow-lg" />
+                {material && materialImages(material).length > 0
+                  ? <ItemImage images={materialImages(material)} alt={material.name} className="w-full h-full object-contain drop-shadow-lg" />
                   : <span className="text-5xl">🧪</span>}
               </div>
               <div className="flex flex-col gap-2">
