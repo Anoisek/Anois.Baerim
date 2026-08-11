@@ -156,23 +156,25 @@ export function buildItemStepMap(rows) {
   return map
 }
 
-// rows: [{ item_id, step, yang_cost }] -> { itemId: { step: yang_cost } }
+// rows: [{ item_id, step, variant, yang_cost }] -> { itemId: { step: { variant: yang_cost } } }
 export function buildItemYangMap(rows) {
   const map = {}
   for (const row of rows ?? []) {
     if (!map[row.item_id]) map[row.item_id] = {}
-    map[row.item_id][row.step] = row.yang_cost
+    if (!map[row.item_id][row.step]) map[row.item_id][row.step] = {}
+    map[row.item_id][row.step][row.variant ?? 1] = row.yang_cost
   }
   return map
 }
 
-// rows: [{ item_id, step, max_pity }] -> { itemId: { step: max_pity } }
+// rows: [{ item_id, step, variant, max_pity }] -> { itemId: { step: { variant: max_pity } } }
 export function buildItemMaxPityMap(rows) {
   const map = {}
   for (const row of rows ?? []) {
     if (!row.max_pity) continue
     if (!map[row.item_id]) map[row.item_id] = {}
-    map[row.item_id][row.step] = row.max_pity
+    if (!map[row.item_id][row.step]) map[row.item_id][row.step] = {}
+    map[row.item_id][row.step][row.variant ?? 1] = row.max_pity
   }
   return map
 }
@@ -223,14 +225,16 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
   for (const step of steps) {
     if (step === 0 && !includeCraft) continue
 
+    const variant = choices?.variantByStep?.[step] ?? 1
+
     let stepCost = 0
-    for (const row of matSteps[step] ?? []) {
+    for (const row of (matSteps[step] ?? []).filter(r => (r.variant ?? 1) === variant)) {
       stepCost += ctx.materialPriceFn(row.material_id) * row.quantity
     }
-    for (const row of itemSteps[step] ?? []) {
+    for (const row of (itemSteps[step] ?? []).filter(r => (r.variant ?? 1) === variant)) {
       stepCost += computeItemPrice(row.component_item_id, ctx, nextVisited) * row.quantity
     }
-    stepCost += yangSteps[step] ?? 0
+    stepCost += yangSteps[step]?.[variant] ?? 0
 
     if (step !== 0) {
       const scrollId = choices ? (choices.selectedScroll?.[step] ?? '') : ctx.defaultScrollByStep[step]
@@ -241,7 +245,7 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
     }
 
     let pity = choices ? Math.max(1, parseInt(choices.pity?.[step]) || 1) : 1
-    const maxPity = ctx.itemMaxPity?.[itemId]?.[step]
+    const maxPity = ctx.itemMaxPity?.[itemId]?.[step]?.[variant]
     if (maxPity) pity = Math.min(pity, maxPity)
     stepCost *= pity
 

@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import { itemImages } from '../utils/itemImages'
+import { formatItemName } from '../utils/itemName'
 
 function dedupeById(rows) {
   return Array.from(new Map(rows.map(r => [r.id, r])).values())
@@ -55,7 +56,7 @@ export default function ItemUsage() {
             <Breadcrumbs items={[
               { label: t('common.home'), to: '/' },
               { label: chapterName ?? t('common.chapter'), to: item ? `/chapter/${item.category_id}` : undefined },
-              { label: item?.name ?? t('common.item'), to: item ? `/chapter/${item.category_id}/item/${item.id}` : undefined },
+              { label: item ? formatItemName(item) : t('common.item'), to: item ? `/chapter/${item.category_id}/item/${item.id}` : undefined },
               { label: t('itemUsage.usage') },
             ]} />
 
@@ -66,7 +67,7 @@ export default function ItemUsage() {
                   : <span className="text-5xl">⚔️</span>}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-yellow-400">{item?.name}</h1>
+                <h1 className="text-2xl font-bold text-yellow-400">{item ? formatItemName(item) : ''}</h1>
                 <p className="text-sm text-gray-500">{t('itemUsage.usedIn')}</p>
               </div>
             </div>
@@ -81,7 +82,7 @@ export default function ItemUsage() {
                 <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('itemUsage.items')}</h2>
                 <div className="flex flex-col gap-2">
                   {usedInItems.map(it => (
-                    <UsageRow key={it.id} to={`/chapter/${it.category_id}/item/${it.id}`} image={it.image_url} name={it.name} />
+                    <UsageRow key={it.id} to={`/chapter/${it.category_id}/item/${it.id}`} image={it.image_url} name={formatItemName(it)} />
                   ))}
                 </div>
               </div>

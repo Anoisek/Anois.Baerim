@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { parseYang } from '../utils/formatYang'
+import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 
@@ -23,21 +24,32 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
   const [allMaterials, setAllMaterials] = useState([])
   const [allItems, setAllItems] = useState([])
   const [pickerMode, setPickerMode] = useState('materials') // 'materials' | 'items'
-  const [stepMaterials, setStepMaterials] = useState({})  // { step: { materialId: qty } }
-  const [stepItems, setStepItems] = useState({})          // { step: { itemId: qty } }
-  const [stepYang, setStepYang] = useState({})            // { step: yang_cost string }
-  const [stepMaxPity, setStepMaxPity] = useState({})       // { step: max_pity string }
+  const [stepMaterials, setStepMaterials] = useState({})  // variant 1: { step: { materialId: qty } }
+  const [stepItems, setStepItems] = useState({})          // variant 1: { step: { itemId: qty } }
+  const [stepYang, setStepYang] = useState({})            // variant 1: { step: yang_cost string }
+  const [stepMaxPity, setStepMaxPity] = useState({})       // variant 1: { step: max_pity string }
+  const [extraVariantMaterials, setExtraVariantMaterials] = useState({}) // variants 2+: { step: { variant: { materialId: qty } } }
+  const [extraVariantItems, setExtraVariantItems] = useState({})         // variants 2+: { step: { variant: { itemId: qty } } }
+  const [extraVariantYang, setExtraVariantYang] = useState({})           // variants 2+: { step: { variant: string } }
+  const [extraVariantMaxPity, setExtraVariantMaxPity] = useState({})     // variants 2+: { step: { variant: string } }
+  const [stepVariantCount, setStepVariantCount] = useState({}) // { step: number }
+  const [activeVariantByStep, setActiveVariantByStep] = useState({}) // { step: number }
   const [activeStep, setActiveStep] = useState(0)
+  const [bulkVariantCount, setBulkVariantCount] = useState('2')
   const [search, setSearch] = useState('')
   const [copySearch, setCopySearch] = useState('')
+  const [copyFromVariant, setCopyFromVariant] = useState('1')
+  const [copyToVariant, setCopyToVariant] = useState('1')
   const [copying, setCopying] = useState(false)
   const [saving, setSaving] = useState(false)
+
+  const isPvpCategory = categoryId === PVP_CATEGORY_ID
 
   useEffect(() => {
     supabase.from('materials').select('*').order('name').then(({ data }) => {
       setAllMaterials(data ?? [])
     })
-    supabase.from('items').select('id, name, image_url').order('name').then(({ data }) => {
+    supabase.from('items').select('id, name, image_url, category_id').order('name').then(({ data }) => {
       setAllItems(data ?? [])
     })
   }, [])
@@ -80,46 +92,158 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
     }))
   }
 
+  function getStepVariantCount(step) { return stepVariantCount[step] ?? 1 }
+  function getActiveVariant(step) { return activeVariantByStep[step] ?? 1 }
+
+  function setVariantCountForStep(step, n) {
+    setStepVariantCount(prev => ({ ...prev, [step]: n }))
+    setActiveVariantByStep(prev => ({ ...prev, [step]: Math.min(prev[step] ?? 1, n) }))
+  }
+
+  function setVariantCountForAllSteps(n) {
+    setStepVariantCount(() => {
+      const next = {}
+      for (let s = 0; s <= 9; s++) next[s] = n
+      return next
+    })
+    setActiveVariantByStep(prev => {
+      const next = { ...prev }
+      for (let s = 0; s <= 9; s++) next[s] = Math.min(next[s] ?? 1, n)
+      return next
+    })
+  }
+
+  function setActiveVariantForStep(step, v) {
+    setActiveVariantByStep(prev => ({ ...prev, [step]: v }))
+  }
+
+  function activeMats(step) {
+    const v = getActiveVariant(step)
+    return v === 1 ? (stepMaterials[step] ?? {}) : (extraVariantMaterials[step]?.[v] ?? {})
+  }
+
+  function activeItms(step) {
+    const v = getActiveVariant(step)
+    return v === 1 ? (stepItems[step] ?? {}) : (extraVariantItems[step]?.[v] ?? {})
+  }
+
+  function activeYang(step) {
+    const v = getActiveVariant(step)
+    return v === 1 ? (stepYang[step] ?? '') : (extraVariantYang[step]?.[v] ?? '')
+  }
+
+  function activeMaxPity(step) {
+    const v = getActiveVariant(step)
+    return v === 1 ? (stepMaxPity[step] ?? '') : (extraVariantMaxPity[step]?.[v] ?? '')
+  }
+
+  function toggleActiveMaterial(step, materialId) {
+    const v = getActiveVariant(step)
+    if (v === 1) { toggleMaterial(step, materialId); return }
+    setExtraVariantMaterials(prev => {
+      const varData = { ...(prev[step]?.[v] ?? {}) }
+      if (varData[materialId] !== undefined) delete varData[materialId]
+      else varData[materialId] = 1
+      return { ...prev, [step]: { ...(prev[step] ?? {}), [v]: varData } }
+    })
+  }
+
+  function setActiveMaterialQty(step, materialId, val) {
+    const v = getActiveVariant(step)
+    if (v === 1) { setQty(step, materialId, val); return }
+    setExtraVariantMaterials(prev => ({
+      ...prev,
+      [step]: { ...(prev[step] ?? {}), [v]: { ...(prev[step]?.[v] ?? {}), [materialId]: val } },
+    }))
+  }
+
+  function toggleActiveItem(step, itemId) {
+    const v = getActiveVariant(step)
+    if (v === 1) { toggleItem(step, itemId); return }
+    setExtraVariantItems(prev => {
+      const varData = { ...(prev[step]?.[v] ?? {}) }
+      if (varData[itemId] !== undefined) delete varData[itemId]
+      else varData[itemId] = 1
+      return { ...prev, [step]: { ...(prev[step] ?? {}), [v]: varData } }
+    })
+  }
+
+  function setActiveItemQty(step, itemId, val) {
+    const v = getActiveVariant(step)
+    if (v === 1) { setItemQty(step, itemId, val); return }
+    setExtraVariantItems(prev => ({
+      ...prev,
+      [step]: { ...(prev[step] ?? {}), [v]: { ...(prev[step]?.[v] ?? {}), [itemId]: val } },
+    }))
+  }
+
+  function setActiveYang(step, val) {
+    const v = getActiveVariant(step)
+    if (v === 1) { setStepYang(prev => ({ ...prev, [step]: val })); return }
+    setExtraVariantYang(prev => ({ ...prev, [step]: { ...(prev[step] ?? {}), [v]: val } }))
+  }
+
+  function setActiveMaxPity(step, val) {
+    const v = getActiveVariant(step)
+    if (v === 1) { setStepMaxPity(prev => ({ ...prev, [step]: val })); return }
+    setExtraVariantMaxPity(prev => ({ ...prev, [step]: { ...(prev[step] ?? {}), [v]: val } }))
+  }
+
   async function copyRecipeFrom(sourceItemId) {
     setCopying(true)
+    const fromV = Math.max(1, parseInt(copyFromVariant) || 1)
+    const toV = Math.max(1, parseInt(copyToVariant) || 1)
+
     const [matRes, itemRes, yangRes] = await Promise.all([
-      supabase.from('item_materials').select('material_id, quantity, step').eq('item_id', sourceItemId),
-      supabase.from('item_items').select('component_item_id, quantity, step').eq('item_id', sourceItemId),
-      supabase.from('item_step_yang').select('step, yang_cost, max_pity').eq('item_id', sourceItemId),
+      supabase.from('item_materials').select('material_id, quantity, step').eq('item_id', sourceItemId).eq('variant', fromV),
+      supabase.from('item_items').select('component_item_id, quantity, step').eq('item_id', sourceItemId).eq('variant', fromV),
+      supabase.from('item_step_yang').select('step, yang_cost, max_pity').eq('item_id', sourceItemId).eq('variant', fromV),
     ])
 
-    const sm = {}
+    const matsByStep = {}
     for (const row of matRes.data ?? []) {
-      if (!sm[row.step]) sm[row.step] = {}
-      sm[row.step][row.material_id] = row.quantity
+      if (!matsByStep[row.step]) matsByStep[row.step] = {}
+      matsByStep[row.step][row.material_id] = row.quantity
     }
-    setStepMaterials(sm)
-
-    const si = {}
+    const itemsByStep = {}
     for (const row of itemRes.data ?? []) {
-      if (!si[row.step]) si[row.step] = {}
-      si[row.step][row.component_item_id] = row.quantity
+      if (!itemsByStep[row.step]) itemsByStep[row.step] = {}
+      itemsByStep[row.step][row.component_item_id] = row.quantity
     }
-    setStepItems(si)
-
-    const sy = {}
-    const smp = {}
+    const yangByStepLocal = {}
+    const maxPityByStepLocal = {}
     for (const row of yangRes.data ?? []) {
-      if (row.yang_cost) sy[row.step] = String(row.yang_cost)
-      if (row.max_pity) smp[row.step] = String(row.max_pity)
+      if (row.yang_cost) yangByStepLocal[row.step] = String(row.yang_cost)
+      if (row.max_pity) maxPityByStepLocal[row.step] = String(row.max_pity)
     }
-    setStepYang(sy)
-    setStepMaxPity(smp)
+
+    // Replace only the target variant slot for every step, leaving other variants/steps untouched.
+    if (toV === 1) {
+      setStepMaterials(() => { const n = {}; for (let s = 0; s <= 9; s++) n[s] = matsByStep[s] ?? {}; return n })
+      setStepItems(() => { const n = {}; for (let s = 0; s <= 9; s++) n[s] = itemsByStep[s] ?? {}; return n })
+      setStepYang(() => { const n = {}; for (let s = 0; s <= 9; s++) n[s] = yangByStepLocal[s] ?? ''; return n })
+      setStepMaxPity(() => { const n = {}; for (let s = 0; s <= 9; s++) n[s] = maxPityByStepLocal[s] ?? ''; return n })
+    } else {
+      setExtraVariantMaterials(prev => { const n = { ...prev }; for (let s = 0; s <= 9; s++) n[s] = { ...(n[s] ?? {}), [toV]: matsByStep[s] ?? {} }; return n })
+      setExtraVariantItems(prev => { const n = { ...prev }; for (let s = 0; s <= 9; s++) n[s] = { ...(n[s] ?? {}), [toV]: itemsByStep[s] ?? {} }; return n })
+      setExtraVariantYang(prev => { const n = { ...prev }; for (let s = 0; s <= 9; s++) n[s] = { ...(n[s] ?? {}), [toV]: yangByStepLocal[s] ?? '' }; return n })
+      setExtraVariantMaxPity(prev => { const n = { ...prev }; for (let s = 0; s <= 9; s++) n[s] = { ...(n[s] ?? {}), [toV]: maxPityByStepLocal[s] ?? '' }; return n })
+    }
+    setStepVariantCount(prev => {
+      const n = { ...prev }
+      for (let s = 0; s <= 9; s++) n[s] = Math.max(n[s] ?? 1, toV)
+      return n
+    })
 
     setCopySearch('')
     setCopying(false)
   }
 
   function countForStep(step) {
-    const mats = Object.keys(stepMaterials[step] ?? {}).length
-    const its = Object.keys(stepItems[step] ?? {}).length
-    const yang = stepYang[step] ? 1 : 0
-    const maxPity = stepMaxPity[step] ? 1 : 0
+    const mats = Object.keys(activeMats(step)).length
+    const its = Object.keys(activeItms(step)).length
+    const yang = activeYang(step) ? 1 : 0
+    const maxPity = activeMaxPity(step) ? 1 : 0
     return mats + its + yang + maxPity
   }
 
@@ -140,12 +264,19 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
       return
     }
 
-    // Insert materials
+    // Insert materials (variant 1 + PVP extra variants)
     const matRows = []
     for (const [step, mats] of Object.entries(stepMaterials)) {
       for (const [material_id, quantity] of Object.entries(mats)) {
-        if (Number(quantity) > 0) {
-          matRows.push({ item_id: item.id, material_id, quantity: Number(quantity), step: Number(step) })
+        if (Number(quantity) > 0) matRows.push({ item_id: item.id, material_id, quantity: Number(quantity), step: Number(step), variant: 1 })
+      }
+    }
+    if (isPvpCategory) {
+      for (const [step, byVariant] of Object.entries(extraVariantMaterials)) {
+        for (const [variant, mats] of Object.entries(byVariant)) {
+          for (const [material_id, quantity] of Object.entries(mats)) {
+            if (Number(quantity) > 0) matRows.push({ item_id: item.id, material_id, quantity: Number(quantity), step: Number(step), variant: Number(variant) })
+          }
         }
       }
     }
@@ -154,12 +285,19 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
       if (err) { alert('Error saving materials: ' + err.message); setSaving(false); return }
     }
 
-    // Insert item ingredients
+    // Insert item ingredients (variant 1 + PVP extra variants)
     const itemRows = []
     for (const [step, its] of Object.entries(stepItems)) {
       for (const [component_item_id, quantity] of Object.entries(its)) {
-        if (Number(quantity) > 0) {
-          itemRows.push({ item_id: item.id, component_item_id, quantity: Number(quantity), step: Number(step) })
+        if (Number(quantity) > 0) itemRows.push({ item_id: item.id, component_item_id, quantity: Number(quantity), step: Number(step), variant: 1 })
+      }
+    }
+    if (isPvpCategory) {
+      for (const [step, byVariant] of Object.entries(extraVariantItems)) {
+        for (const [variant, its] of Object.entries(byVariant)) {
+          for (const [component_item_id, quantity] of Object.entries(its)) {
+            if (Number(quantity) > 0) itemRows.push({ item_id: item.id, component_item_id, quantity: Number(quantity), step: Number(step), variant: Number(variant) })
+          }
         }
       }
     }
@@ -168,7 +306,7 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
       if (err) { alert('Error saving item ingredients: ' + err.message); setSaving(false); return }
     }
 
-    // Insert yang costs / max pity
+    // Insert yang costs / max pity (variant 1 + PVP extra variants)
     // Steps that actually have materials/items default to max pity 1 unless overridden or cleared.
     const yangRows = []
     const contentSteps = new Set([...Object.keys(stepMaterials), ...Object.keys(stepItems)].map(Number))
@@ -181,9 +319,30 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
         yangRows.push({
           item_id: item.id,
           step: Number(step),
+          variant: 1,
           yang_cost: cost !== '' && cost > 0 ? cost : 0,
           max_pity: !isNaN(maxPity) && maxPity > 0 ? maxPity : null,
         })
+      }
+    }
+    if (isPvpCategory) {
+      for (let step = 0; step <= 9; step++) {
+        const count = getStepVariantCount(step)
+        for (let variant = 2; variant <= count; variant++) {
+          const cost = parseYang(extraVariantYang[step]?.[variant])
+          const hasContent = Object.keys(extraVariantMaterials[step]?.[variant] ?? {}).length > 0 || Object.keys(extraVariantItems[step]?.[variant] ?? {}).length > 0
+          const rawMaxPity = extraVariantMaxPity[step]?.[variant]
+          const maxPity = rawMaxPity !== undefined ? parseInt(rawMaxPity, 10) : (hasContent ? 1 : NaN)
+          if ((cost !== '' && cost > 0) || (!isNaN(maxPity) && maxPity > 0)) {
+            yangRows.push({
+              item_id: item.id,
+              step,
+              variant,
+              yang_cost: cost !== '' && cost > 0 ? cost : 0,
+              max_pity: !isNaN(maxPity) && maxPity > 0 ? maxPity : null,
+            })
+          }
+        }
       }
     }
     if (yangRows.length > 0) {
@@ -198,8 +357,10 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
 
   const filteredMaterials = allMaterials.filter(m => !m.is_pvp_only && m.name.toLowerCase().includes(search.toLowerCase()))
   const filteredItems = allItems.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
-  const currentStepMats = stepMaterials[activeStep] ?? {}
-  const currentStepItems = stepItems[activeStep] ?? {}
+  const currentStepMats = activeMats(activeStep)
+  const currentStepItems = activeItms(activeStep)
+  const activeVariant = getActiveVariant(activeStep)
+  const activeVariantCount = getStepVariantCount(activeStep)
 
   return (
     <Modal title="Add item" onClose={onClose}>
@@ -238,6 +399,27 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
 
         <div className="flex flex-col gap-2">
           <label className="text-sm text-gray-400">Copy recipe from existing item (optional)</label>
+          {isPvpCategory && (
+            <div className="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+              <span className="text-xs text-gray-300 shrink-0">Copy variant</span>
+              <input
+                type="number"
+                min="1"
+                value={copyFromVariant}
+                onChange={e => setCopyFromVariant(e.target.value)}
+                className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-14 text-center text-xs focus:outline-none focus:border-yellow-400"
+              />
+              <span className="text-xs text-gray-300 shrink-0">from source into variant</span>
+              <input
+                type="number"
+                min="1"
+                value={copyToVariant}
+                onChange={e => setCopyToVariant(e.target.value)}
+                className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-14 text-center text-xs focus:outline-none focus:border-yellow-400"
+              />
+              <span className="text-xs text-gray-300 shrink-0">of this item</span>
+            </div>
+          )}
           <input
             type="text"
             placeholder="Search item to copy from..."
@@ -262,7 +444,7 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
                   {it.image_url
                     ? <img src={it.image_url} alt={it.name} className="w-7 h-7 object-contain" />
                     : <span className="w-7 text-center text-lg">⚔️</span>}
-                  <span className="text-sm text-white flex-1">{it.name}</span>
+                  <span className="text-sm text-white flex-1">{formatItemName(it)}</span>
                   <span className="text-xs text-yellow-400 shrink-0">Copy</span>
                 </button>
               ))}
@@ -296,14 +478,71 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
             ))}
           </div>
 
+          {isPvpCategory && (
+            <div className="flex items-center justify-between gap-2 bg-yellow-900/20 border border-yellow-700/40 rounded-lg px-3 py-2">
+              <span className="text-sm text-gray-300">Set variants for ALL steps (craft + all upgrades) at once</span>
+              <div className="flex items-center gap-2 shrink-0">
+                <input
+                  type="number"
+                  min="1"
+                  value={bulkVariantCount}
+                  onChange={e => setBulkVariantCount(e.target.value)}
+                  className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-16 text-center text-sm focus:outline-none focus:border-yellow-400"
+                />
+                <button
+                  type="button"
+                  onClick={() => setVariantCountForAllSteps(Math.max(1, parseInt(bulkVariantCount) || 1))}
+                  className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-3 py-1 rounded-lg text-xs transition-colors"
+                >
+                  Apply to all steps
+                </button>
+              </div>
+            </div>
+          )}
+
+          {isPvpCategory && (
+            <div className="flex items-center justify-between gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+              <span className="text-sm text-gray-300">Number of craft/upgrade variants (this step only)</span>
+              <input
+                type="number"
+                min="1"
+                value={activeVariantCount}
+                onChange={e => setVariantCountForStep(activeStep, Math.max(1, parseInt(e.target.value) || 1))}
+                className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-16 text-center text-sm focus:outline-none focus:border-yellow-400"
+              />
+            </div>
+          )}
+
+          {isPvpCategory && activeVariantCount > 1 && (
+            <div className="flex items-center justify-center gap-4 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+              <button
+                type="button"
+                onClick={() => setActiveVariantForStep(activeStep, Math.max(1, activeVariant - 1))}
+                disabled={activeVariant === 1}
+                className="text-gray-300 hover:text-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-lg leading-none px-1"
+              >
+                ‹
+              </button>
+              <span className="text-sm text-white font-semibold">Variant {activeVariant} / {activeVariantCount}</span>
+              <button
+                type="button"
+                onClick={() => setActiveVariantForStep(activeStep, Math.min(activeVariantCount, activeVariant + 1))}
+                disabled={activeVariant === activeVariantCount}
+                className="text-gray-300 hover:text-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-lg leading-none px-1"
+              >
+                ›
+              </button>
+            </div>
+          )}
+
           {/* Yang cost for current step */}
           <div className="flex items-center gap-2 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
             <span className="text-yellow-400 text-sm font-semibold shrink-0">Yang cost</span>
             <input
               type="text"
               placeholder="e.g. 50kk"
-              value={stepYang[activeStep] ?? ''}
-              onChange={e => setStepYang(prev => ({ ...prev, [activeStep]: e.target.value }))}
+              value={activeYang(activeStep)}
+              onChange={e => setActiveYang(activeStep, e.target.value)}
               className="bg-transparent flex-1 text-white text-sm focus:outline-none text-right"
             />
             <span className="text-gray-400 text-sm shrink-0">yang</span>
@@ -316,8 +555,8 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
               type="number"
               min="1"
               placeholder="no limit"
-              value={stepMaxPity[activeStep] ?? 1}
-              onChange={e => setStepMaxPity(prev => ({ ...prev, [activeStep]: e.target.value }))}
+              value={activeMaxPity(activeStep) || 1}
+              onChange={e => setActiveMaxPity(activeStep, e.target.value)}
               className="bg-transparent flex-1 text-white text-sm focus:outline-none text-right"
             />
           </div>
@@ -363,7 +602,7 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
                   <input
                     type="checkbox"
                     checked={currentStepMats[mat.id] !== undefined}
-                    onChange={() => toggleMaterial(activeStep, mat.id)}
+                    onChange={() => toggleActiveMaterial(activeStep, mat.id)}
                     className="accent-yellow-400"
                   />
                   {mat.image_url
@@ -375,7 +614,7 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
                       type="number"
                       min="1"
                       value={currentStepMats[mat.id]}
-                      onChange={e => setQty(activeStep, mat.id, e.target.value)}
+                      onChange={e => setActiveMaterialQty(activeStep, mat.id, e.target.value)}
                       onClick={e => e.stopPropagation()}
                       className="bg-gray-700 border border-gray-500 rounded px-2 py-1 w-16 text-right text-sm focus:outline-none focus:border-yellow-400"
                     />
@@ -393,19 +632,19 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
                   <input
                     type="checkbox"
                     checked={currentStepItems[it.id] !== undefined}
-                    onChange={() => toggleItem(activeStep, it.id)}
+                    onChange={() => toggleActiveItem(activeStep, it.id)}
                     className="accent-yellow-400"
                   />
                   {it.image_url
                     ? <img src={it.image_url} alt={it.name} className="w-7 h-7 object-contain" />
                     : <span className="w-7 text-center text-lg">⚔️</span>}
-                  <span className="text-sm text-white flex-1">{it.name}</span>
+                  <span className="text-sm text-white flex-1">{formatItemName(it)}</span>
                   {currentStepItems[it.id] !== undefined && (
                     <input
                       type="number"
                       min="1"
                       value={currentStepItems[it.id]}
-                      onChange={e => setItemQty(activeStep, it.id, e.target.value)}
+                      onChange={e => setActiveItemQty(activeStep, it.id, e.target.value)}
                       onClick={e => e.stopPropagation()}
                       className="bg-gray-700 border border-gray-500 rounded px-2 py-1 w-16 text-right text-sm focus:outline-none focus:border-yellow-400"
                     />

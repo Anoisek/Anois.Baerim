@@ -9,6 +9,7 @@ import Modal from '../components/Modal'
 import MaterialTile from '../components/MaterialTile'
 import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
+import { formatItemName } from '../utils/itemName'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   computeItemPrice, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
@@ -63,9 +64,9 @@ export default function BuildCalculator() {
       supabase.from('items').select('id, name, image_url, image_urls, category_id').order('name'),
       supabase.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
       supabase.from('materials').select('id, craft_yang_cost'),
-      supabase.from('item_materials').select('item_id, material_id, quantity, step'),
-      supabase.from('item_items').select('item_id, component_item_id, quantity, step'),
-      supabase.from('item_step_yang').select('item_id, step, yang_cost, max_pity'),
+      supabase.from('item_materials').select('item_id, material_id, quantity, step, variant'),
+      supabase.from('item_items').select('item_id, component_item_id, quantity, step, variant'),
+      supabase.from('item_step_yang').select('item_id, step, yang_cost, max_pity, variant'),
       supabase.from('materials').select('id, name, image_url').eq('is_upgrade_scroll', true).order('name'),
       supabase.from('materials').select('id, name, image_url, is_craftable'),
       fetchGlobalPrices(),
@@ -110,7 +111,7 @@ export default function BuildCalculator() {
       const key = `${kind}-${material.id}`
       const existing = map.get(key)
       if (existing) existing.quantity += qty
-      else map.set(key, { material, kind, quantity: qty })
+      else map.set(key, { material: kind === 'item' ? { ...material, name: formatItemName(material) } : material, kind, quantity: qty })
     }
 
     for (const item of selectedItems) {
@@ -130,15 +131,17 @@ export default function BuildCalculator() {
       for (const step of steps) {
         if (step === 0 && !includeCraft) continue
 
+        const variant = choices?.variantByStep?.[step] ?? 1
+
         let pity = choices ? Math.max(1, parseInt(choices.pity?.[step]) || 1) : 1
-        const maxPity = maxPityMap[step]
+        const maxPity = maxPityMap[step]?.[variant]
         if (maxPity) pity = Math.min(pity, maxPity)
 
-        for (const row of matSteps[step] ?? []) {
+        for (const row of (matSteps[step] ?? []).filter(r => (r.variant ?? 1) === variant)) {
           const mat = materialsById[row.material_id]
           if (mat) addRow(mat, 'material', row.quantity * pity)
         }
-        for (const row of itemSteps[step] ?? []) {
+        for (const row of (itemSteps[step] ?? []).filter(r => (r.variant ?? 1) === variant)) {
           const comp = allItems.find(i => i.id === row.component_item_id)
           if (comp) addRow(comp, 'item', row.quantity * pity)
         }
@@ -191,7 +194,9 @@ export default function BuildCalculator() {
       const maxMap = allItemMaxPity[id] ?? {}
       const nextPity = { ...choices.pity }
       for (let s = 0; s <= 9; s++) {
-        if (maxMap[s]) nextPity[s] = maxMap[s]
+        const variant = choices.variantByStep?.[s] ?? 1
+        const max = maxMap[s]?.[variant]
+        if (max) nextPity[s] = max
       }
       choices.pity = nextPity
       localStorage.setItem(`item_choices_${id}`, JSON.stringify(choices))
@@ -241,7 +246,7 @@ export default function BuildCalculator() {
                   {itemImages(it).length > 0
                     ? <img src={itemImages(it)[0]} alt={it.name} className="w-7 h-7 object-contain" />
                     : <span className="w-7 text-center text-lg">⚔️</span>}
-                  <span className="text-sm text-white flex-1">{it.name}</span>
+                  <span className="text-sm text-white flex-1">{formatItemName(it)}</span>
                   <span className="text-xs text-yellow-400 shrink-0">{t('buildCalculator.addItem')}</span>
                 </button>
               ))}
@@ -286,7 +291,7 @@ export default function BuildCalculator() {
                         : <span className="text-lg">⚔️</span>}
                     </div>
                     <Link to={`/chapter/${item.category_id}/item/${item.id}`} className="flex-1 text-sm text-gray-200 hover:text-yellow-400 transition-colors truncate">
-                      {item.name}
+                      {formatItemName(item)}
                     </Link>
                     <span className="text-yellow-400 text-sm font-mono shrink-0">{formatYang(price)}</span>
                     <button

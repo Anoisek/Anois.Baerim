@@ -11,6 +11,7 @@ import ItemImage from '../components/ItemImage'
 import ReorderButtons from '../components/ReorderButtons'
 import Spinner from '../components/Spinner'
 import { itemImages } from '../utils/itemImages'
+import { formatItemName } from '../utils/itemName'
 
 export default function Subcategory() {
   const { categoryId, subcategoryId } = useParams()
@@ -127,7 +128,7 @@ export default function Subcategory() {
                     : <span className="text-4xl">⚔️</span>}
                 </div>
                 <span className="text-sm font-semibold text-gray-100 text-center leading-tight group-hover:text-yellow-400 transition-colors">
-                  {item.name}
+                  {formatItemName(item)}
                 </span>
                 {item.maintenance && (
                   <span className="absolute inset-0 flex items-center justify-center bg-gray-950/70 rounded-2xl pointer-events-none">

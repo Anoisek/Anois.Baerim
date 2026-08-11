@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
+import { formatItemName } from '../utils/itemName'
 
 function ResultGroup({ label, children }) {
   return (
@@ -135,7 +136,7 @@ export default function GlobalSearch() {
                 {results.items.length > 0 && (
                   <ResultGroup label={t('globalSearch.items')}>
                     {results.items.map(i => (
-                      <ResultRow key={i.id} image={i.image_url} emoji="⚔️" name={i.name} onClick={() => go(`/chapter/${i.category_id}/item/${i.id}`)} />
+                      <ResultRow key={i.id} image={i.image_url} emoji="⚔️" name={formatItemName(i)} onClick={() => go(`/chapter/${i.category_id}/item/${i.id}`)} />
                     ))}
                   </ResultGroup>
                 )}

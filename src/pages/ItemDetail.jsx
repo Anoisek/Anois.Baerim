@@ -12,6 +12,7 @@ import { itemImages } from '../utils/itemImages'
 import ItemImage from '../components/ItemImage'
 import MatRow from '../components/MatRow'
 import MaterialTile from '../components/MaterialTile'
+import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   computeItemPrice, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
@@ -33,9 +34,10 @@ export default function ItemDetail() {
   const { t } = useTranslation()
   const { itemId } = useParams()
   const [item, setItem] = useState(null)
-  const [grouped, setGrouped] = useState({})
-  const [yangCosts, setYangCosts] = useState({})
-  const [maxPityByStep, setMaxPityByStep] = useState({})
+  const [groupedByVariant, setGroupedByVariant] = useState({}) // { step: { variant: [{material, quantity, kind}] } }
+  const [yangByVariant, setYangByVariant] = useState({}) // { step: { variant: yang_cost } }
+  const [maxPityByVariant, setMaxPityByVariant] = useState({}) // { step: { variant: max_pity } }
+  const [selectedVariant, setSelectedVariant] = useState({}) // { step: variant }
   const [scrolls, setScrolls] = useState([])
   const [seals, setSeals] = useState([])
   const [recipes, setRecipes] = useState({})
@@ -60,39 +62,48 @@ export default function ItemDetail() {
   useEffect(() => {
     Promise.all([
       supabase.from('items').select('*').eq('id', itemId).single(),
-      supabase.from('item_materials').select('quantity, step, material:materials(id, name, image_url, is_craftable)').eq('item_id', itemId).order('step'),
-      supabase.from('item_items').select('quantity, step, component:items!item_items_component_item_id_fkey(id, name, image_url)').eq('item_id', itemId).order('step'),
-      supabase.from('item_step_yang').select('step, yang_cost, max_pity').eq('item_id', itemId),
+      supabase.from('item_materials').select('quantity, step, variant, material:materials(id, name, image_url, is_craftable)').eq('item_id', itemId).order('step'),
+      supabase.from('item_items').select('quantity, step, variant, component:items!item_items_component_item_id_fkey(id, name, image_url, category_id)').eq('item_id', itemId).order('step'),
+      supabase.from('item_step_yang').select('step, variant, yang_cost, max_pity').eq('item_id', itemId),
       supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_upgrade_scroll', true).order('name'),
       supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_seal', true).order('name'),
       supabase.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
       supabase.from('materials').select('id, craft_yang_cost'),
-      supabase.from('item_materials').select('item_id, material_id, quantity, step'),
-      supabase.from('item_items').select('item_id, component_item_id, quantity, step'),
-      supabase.from('item_step_yang').select('item_id, step, yang_cost, max_pity'),
+      supabase.from('item_materials').select('item_id, material_id, quantity, step, variant'),
+      supabase.from('item_items').select('item_id, component_item_id, quantity, step, variant'),
+      supabase.from('item_step_yang').select('item_id, step, yang_cost, max_pity, variant'),
       fetchGlobalPrices(),
     ]).then(([itemRes, matsRes, itemIngRes, yangRes, scrollsRes, sealsRes, recipeRes, allMatsRes, allItemMatsRes, allItemItemsRes, allItemYangRes, globalPricesMap]) => {
       setItem(itemRes.data)
 
       const g = {}
       for (const row of matsRes.data ?? []) {
-        if (!g[row.step]) g[row.step] = []
-        g[row.step].push({ material: row.material, quantity: row.quantity, kind: 'material' })
+        const v = row.variant ?? 1
+        if (!g[row.step]) g[row.step] = {}
+        if (!g[row.step][v]) g[row.step][v] = []
+        g[row.step][v].push({ material: row.material, quantity: row.quantity, kind: 'material' })
       }
       for (const row of itemIngRes.data ?? []) {
-        if (!g[row.step]) g[row.step] = []
-        g[row.step].push({ material: row.component, quantity: row.quantity, kind: 'item' })
+        const v = row.variant ?? 1
+        if (!g[row.step]) g[row.step] = {}
+        if (!g[row.step][v]) g[row.step][v] = []
+        g[row.step][v].push({ material: row.component, quantity: row.quantity, kind: 'item' })
       }
-      setGrouped(g)
+      setGroupedByVariant(g)
 
       const yc = {}
       const mp = {}
       for (const row of yangRes.data ?? []) {
-        yc[row.step] = row.yang_cost
-        if (row.max_pity) mp[row.step] = row.max_pity
+        const v = row.variant ?? 1
+        if (!yc[row.step]) yc[row.step] = {}
+        yc[row.step][v] = row.yang_cost
+        if (row.max_pity) {
+          if (!mp[row.step]) mp[row.step] = {}
+          mp[row.step][v] = row.max_pity
+        }
       }
-      setYangCosts(yc)
-      setMaxPityByStep(mp)
+      setYangByVariant(yc)
+      setMaxPityByVariant(mp)
 
       const sorted = (scrollsRes.data ?? []).sort((a, b) => {
         const ai = SCROLL_ORDER.findIndex(n => a.name.toLowerCase().includes(n.toLowerCase()))
@@ -120,7 +131,9 @@ export default function ItemDetail() {
         setSelectedSeals(savedChoices.selectedSeals ?? {})
         setPity(savedChoices.pity ?? {})
         setIncludeCraft(savedChoices.includeCraft ?? true)
+        setSelectedVariant(savedChoices.variantByStep ?? {})
       } else {
+        setSelectedVariant({})
         const war = sorted.find(s => s.name.toLowerCase().includes('scroll of war'))
         const magic = sorted.find(s => s.name.toLowerCase().includes('magic stone'))
         if (war || magic) {
@@ -148,8 +161,8 @@ export default function ItemDetail() {
 
   useEffect(() => {
     if (loading) return
-    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll, selectedSeals, pity, includeCraft }))
-  }, [itemId, loading, selectedScroll, selectedSeals, pity, includeCraft])
+    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll, selectedSeals, pity, includeCraft, variantByStep: selectedVariant }))
+  }, [itemId, loading, selectedScroll, selectedSeals, pity, includeCraft, selectedVariant])
 
   function clearAllScrolls() {
     setSelectedScroll(prev => {
@@ -197,6 +210,29 @@ export default function ItemDetail() {
     return priceFn(materialId)
   }
 
+  const isPvpItem = item?.category_id === PVP_CATEGORY_ID
+
+  function variantCountForStep(step) {
+    const fromGroups = Object.keys(groupedByVariant[step] ?? {}).map(Number)
+    const fromYang = Object.keys(yangByVariant[step] ?? {}).map(Number)
+    const all = [...fromGroups, ...fromYang]
+    return all.length > 0 ? Math.max(...all) : 1
+  }
+
+  function getStepVariant(step) {
+    return isPvpItem ? (selectedVariant[step] ?? 1) : 1
+  }
+
+  const grouped = {}
+  const yangCosts = {}
+  const maxPityByStep = {}
+  for (const step of new Set([...Object.keys(groupedByVariant).map(Number), ...Object.keys(yangByVariant).map(Number)])) {
+    const v = getStepVariant(step)
+    grouped[step] = groupedByVariant[step]?.[v] ?? []
+    yangCosts[step] = yangByVariant[step]?.[v] ?? 0
+    if (maxPityByVariant[step]?.[v]) maxPityByStep[step] = maxPityByVariant[step][v]
+  }
+
   function itemIngredientCtx() {
     return {
       materialPriceFn: priceFn,
@@ -223,6 +259,18 @@ export default function ItemDetail() {
   function stepTotal(step) { return (matCost(grouped[step] ?? []) + (yangCosts[step] ?? 0) + scrollCost(step) + sealsCost(step)) * getPity(step) }
 
   const allSteps = [...new Set([...Object.keys(grouped).map(Number), ...Object.keys(yangCosts).map(Number)])].sort((a, b) => a - b)
+  const maxVariantCount = allSteps.length > 0 ? Math.max(1, ...allSteps.map(variantCountForStep)) : 1
+  const currentGlobalVariant = allSteps.length > 0 ? getStepVariant(allSteps[0]) : 1
+
+  function cycleGlobalVariant() {
+    const next = currentGlobalVariant >= maxVariantCount ? 1 : currentGlobalVariant + 1
+    setSelectedVariant(() => {
+      const next2 = {}
+      for (const step of allSteps) next2[step] = next
+      return next2
+    })
+  }
+
   function isStepIncluded(step) { return !(step === 0 && !includeCraft) && !excludedSteps[step] }
   const total = allSteps.reduce((s, step) => isStepIncluded(step) ? s + stepTotal(step) : s, 0)
 
@@ -233,7 +281,7 @@ export default function ItemDetail() {
       const key = `${kind}-${material.id}`
       const existing = map.get(key)
       if (existing) existing.quantity += qty
-      else map.set(key, { material, kind, quantity: qty })
+      else map.set(key, { material: kind === 'item' ? { ...material, name: formatItemName(material) } : material, kind, quantity: qty })
     }
 
     for (const step of allSteps) {
@@ -269,7 +317,7 @@ export default function ItemDetail() {
               ...(item.subcategory_id
                 ? [{ label: categoryName ?? t('common.category'), to: `/chapter/${item.category_id}/sub/${item.subcategory_id}` }]
                 : []),
-              { label: item?.name ?? t('common.item') },
+              { label: item ? formatItemName(item) : t('common.item') },
             ]} />
 
             {/* Item header */}
@@ -279,7 +327,7 @@ export default function ItemDetail() {
                   ? <ItemImage images={itemImages(item)} alt={item.name} className="w-full h-full object-contain drop-shadow-lg" />
                   : <span className="text-5xl">⚔️</span>}
               </div>
-              <h1 className="text-2xl font-bold text-yellow-400">{item?.name}</h1>
+              <h1 className="text-2xl font-bold text-yellow-400">{item ? formatItemName(item) : ''}</h1>
               {mode === 'global' && (
                 <span className="ml-auto text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-full shrink-0">
                   {t('materials.globalPrices')}
@@ -315,6 +363,15 @@ export default function ItemDetail() {
                       {t('itemDetail.maxPityAllSteps')}
                     </button>
                   </>
+                )}
+                {isPvpItem && maxVariantCount > 1 && (
+                  <button
+                    type="button"
+                    onClick={cycleGlobalVariant}
+                    className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    {t('itemDetail.variant', { current: currentGlobalVariant, count: maxVariantCount })}
+                  </button>
                 )}
               </div>
             )}
@@ -410,7 +467,16 @@ export default function ItemDetail() {
                         )}
 
                         {(grouped[step] ?? []).map(row => (
-                          <MatRow key={`${row.kind}-${row.material.id}`} mat={row.material} quantity={row.quantity} unitPrice={rowPrice(row)} rawValue={rawInputs[row.material.id]} onPriceChange={setPrice} kind={row.kind} globalMode={mode === 'global'} />
+                          <MatRow
+                            key={`${row.kind}-${row.material.id}`}
+                            mat={row.kind === 'item' ? { ...row.material, name: formatItemName(row.material) } : row.material}
+                            quantity={row.quantity}
+                            unitPrice={rowPrice(row)}
+                            rawValue={rawInputs[row.material.id]}
+                            onPriceChange={setPrice}
+                            kind={row.kind}
+                            globalMode={mode === 'global'}
+                          />
                         ))}
 
                         {hasExtras && (
