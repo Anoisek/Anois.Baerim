@@ -47,8 +47,8 @@ export default function CraftOverviewPanel({ allSteps, grouped, yangCosts }) {
           <div className="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-2">{t('itemDetail.overviewUpgrade')}</div>
           <div className="overflow-x-auto rounded-xl border border-gray-700">
             <div
-              className="grid bg-gray-900 min-w-full"
-              style={{ gridTemplateColumns: `minmax(3.4rem,4rem) repeat(${upgradeSteps.length}, minmax(2.3rem, 1fr))` }}
+              className="grid bg-gray-900"
+              style={{ gridTemplateColumns: `minmax(3.4rem,4rem) repeat(${upgradeSteps.length}, 4.5rem)` }}
             >
               <div className="bg-gray-800/80 text-[0.6rem] font-bold uppercase text-gray-500 border-b border-r border-gray-800 flex items-center justify-center px-1 py-1.5">
                 {t('common.material')}
@@ -93,6 +93,11 @@ export default function CraftOverviewPanel({ allSteps, grouped, yangCosts }) {
             <div className="flex flex-wrap gap-2 bg-gray-900 border border-gray-700 rounded-xl p-2.5">
               {craftMats.map(row => (
                 <OverviewIcon key={`${row.kind}-${row.material.id}`} row={row} large />
+              ))}
+              {[0, 1].map(i => (
+                <div key={`empty-${i}`} className="relative w-10 h-10 shrink-0 bg-black/40 border border-gray-700 rounded-md flex items-center justify-center">
+                  <span className="text-gray-600 text-sm">–</span>
+                </div>
               ))}
             </div>
             <div className="inline-flex items-center gap-2 self-start bg-yellow-600/15 border border-yellow-500/30 rounded-lg px-3 py-1.5">
