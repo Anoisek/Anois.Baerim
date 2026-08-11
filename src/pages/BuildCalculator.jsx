@@ -9,7 +9,7 @@ import Modal from '../components/Modal'
 import MaterialTile from '../components/MaterialTile'
 import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
-import { formatItemName } from '../utils/itemName'
+import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   computeItemPrice, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
@@ -177,6 +177,43 @@ export default function BuildCalculator() {
     saveList(next)
   }
 
+  function getItemSteps(itemId) {
+    const matSteps = allItemMaterials[itemId] ?? {}
+    const itemSteps = allItemItems[itemId] ?? {}
+    const yangSteps = allItemYang[itemId] ?? {}
+    return new Set([
+      ...Object.keys(matSteps).map(Number),
+      ...Object.keys(itemSteps).map(Number),
+      ...Object.keys(yangSteps).map(Number),
+    ])
+  }
+
+  function maxVariantCountForItem(itemId) {
+    const matSteps = allItemMaterials[itemId] ?? {}
+    const itemSteps = allItemItems[itemId] ?? {}
+    const yangSteps = allItemYang[itemId] ?? {}
+    let max = 1
+    for (const rows of Object.values(matSteps)) for (const r of rows) max = Math.max(max, r.variant ?? 1)
+    for (const rows of Object.values(itemSteps)) for (const r of rows) max = Math.max(max, r.variant ?? 1)
+    for (const variants of Object.values(yangSteps)) for (const v of Object.keys(variants)) max = Math.max(max, Number(v))
+    return max
+  }
+
+  function getItemVariant(itemId) {
+    return loadItemChoices(itemId)?.variantByStep?.[0] ?? 1
+  }
+
+  function cycleItemVariant(itemId) {
+    const maxCount = maxVariantCountForItem(itemId)
+    const next = getItemVariant(itemId) >= maxCount ? 1 : getItemVariant(itemId) + 1
+    const choices = loadItemChoices(itemId) ?? { selectedScroll: {}, selectedSeals: {}, pity: {}, includeCraft: true, variantByStep: {} }
+    const nextVariantByStep = {}
+    for (const step of getItemSteps(itemId)) nextVariantByStep[step] = next
+    choices.variantByStep = nextVariantByStep
+    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify(choices))
+    setRefreshTick(t => t + 1)
+  }
+
   function resetPityToOne() {
     for (const id of selectedIds) {
       const choices = loadItemChoices(id) ?? { selectedScroll: {}, selectedSeals: {}, pity: {}, includeCraft: true }
@@ -283,6 +320,8 @@ export default function BuildCalculator() {
             <div className="flex flex-col gap-2">
               {selectedItems.map(item => {
                 const price = computeItemPrice(item.id, ctx)
+                const maxVariantCount = maxVariantCountForItem(item.id)
+                const showVariantButton = item.category_id === PVP_CATEGORY_ID && maxVariantCount > 1
                 return (
                   <div key={item.id} className="flex items-center gap-3 p-3 rounded-xl bg-gray-900 border border-gray-700">
                     <div className="w-8 h-8 shrink-0 flex items-center justify-center">
@@ -293,6 +332,15 @@ export default function BuildCalculator() {
                     <Link to={`/chapter/${item.category_id}/item/${item.id}`} className="flex-1 text-sm text-gray-200 hover:text-yellow-400 transition-colors truncate">
                       {formatItemName(item)}
                     </Link>
+                    {showVariantButton && (
+                      <button
+                        type="button"
+                        onClick={() => cycleItemVariant(item.id)}
+                        className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-xs font-semibold px-2 py-1 rounded-lg transition-colors shrink-0"
+                      >
+                        {t('itemDetail.variant', { current: getItemVariant(item.id), count: maxVariantCount })}
+                      </button>
+                    )}
                     <span className="text-yellow-400 text-sm font-mono shrink-0">{formatYang(price)}</span>
                     <button
                       type="button"
