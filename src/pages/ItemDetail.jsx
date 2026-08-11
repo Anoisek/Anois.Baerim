@@ -383,17 +383,12 @@ export default function ItemDetail() {
               )}
             </div>
 
-            <CraftOverviewPanel allSteps={allSteps} grouped={grouped} yangCosts={yangCosts} />
-
-            {isRangedUpgradeItem && allSteps.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setShowSummary(true)}
-                className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors mb-6"
-              >
-                {t('itemDetail.materialsSummary')}
-              </button>
-            )}
+            <CraftOverviewPanel
+              allSteps={allSteps}
+              grouped={grouped}
+              yangCosts={yangCosts}
+              onShowSummary={isRangedUpgradeItem ? () => setShowSummary(true) : undefined}
+            />
 
             {!isRangedUpgradeItem && (
             <>

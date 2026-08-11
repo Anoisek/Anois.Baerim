@@ -31,7 +31,7 @@ function OverviewIcon({ row, large }) {
 // Compact "at a glance" summary of an item's craft + upgrade path, shown above
 // the interactive calculator. Reads the same grouped/yangCosts data the
 // calculator itself uses, so the two are always in sync.
-export default function CraftOverviewPanel({ allSteps, grouped, yangCosts }) {
+export default function CraftOverviewPanel({ allSteps, grouped, yangCosts, onShowSummary }) {
   const { t } = useTranslation()
   const upgradeSteps = allSteps.filter(s => s !== 0)
   const craftMats = grouped[0] ?? []
@@ -95,9 +95,20 @@ export default function CraftOverviewPanel({ allSteps, grouped, yangCosts }) {
                 <OverviewIcon key={`${row.kind}-${row.material.id}`} row={row} large />
               ))}
             </div>
-            <div className="inline-flex items-center gap-2 self-start bg-yellow-600/15 border border-yellow-500/30 rounded-lg px-3 py-1.5">
-              <span className="text-base leading-none">💰</span>
-              <span className="text-yellow-400 font-bold text-sm font-mono">{formatYang(yangCosts[0] ?? 0)}</span>
+            <div className="flex items-center gap-2">
+              <div className="inline-flex items-center gap-2 bg-yellow-600/15 border border-yellow-500/30 rounded-lg px-3 py-1.5">
+                <span className="text-base leading-none">💰</span>
+                <span className="text-yellow-400 font-bold text-sm font-mono">{formatYang(yangCosts[0] ?? 0)}</span>
+              </div>
+              {onShowSummary && (
+                <button
+                  type="button"
+                  onClick={onShowSummary}
+                  className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  {t('itemDetail.materialsSummary')}
+                </button>
+              )}
             </div>
           </div>
         </div>
