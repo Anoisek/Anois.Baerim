@@ -129,7 +129,9 @@ export default function ItemDetail() {
       const savedChoices = saved ? JSON.parse(saved) : null
 
       if (savedChoices) {
-        setSelectedScroll(savedChoices.selectedScroll ?? {})
+        // Items in NO_DEFAULT_SCROLL_ITEM_IDS never use scrolls — ignore any scroll
+        // selection a browser saved before this item was added to that list.
+        setSelectedScroll(NO_DEFAULT_SCROLL_ITEM_IDS.has(itemId) ? {} : (savedChoices.selectedScroll ?? {}))
         setSelectedSeals(savedChoices.selectedSeals ?? {})
         setPity(savedChoices.pity ?? {})
         setIncludeCraft(savedChoices.includeCraft ?? true)
