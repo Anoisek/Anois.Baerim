@@ -91,7 +91,9 @@
     "positionHint": "Percentagem a partir do canto superior esquerdo da imagem do mapa.",
     "levelNotFound": "Nível não encontrado.",
     "levelShort": "Nível {{level}}",
-    "noDescriptionYet": "Ainda sem descrição."
+    "noDescriptionYet": "Ainda sem descrição.",
+    "repositionHint": "Clica em qualquer sítio do mapa para mover esta bandeira para lá. Prime Esc para cancelar.",
+    "editLevelHint": "Clica numa bandeira para a editar, ou mantém premido para a mover."
   },
   "materials": {
     "title": "Materiais",

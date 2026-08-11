@@ -91,7 +91,9 @@
     "positionHint": "Harita görselinin sol üst köşesinden itibaren yüzde.",
     "levelNotFound": "Seviye bulunamadı.",
     "levelShort": "Seviye {{level}}",
-    "noDescriptionYet": "Henüz açıklama yok."
+    "noDescriptionYet": "Henüz açıklama yok.",
+    "repositionHint": "Bu bayrağı taşımak için haritada herhangi bir yere tıkla. İptal için Esc tuşuna bas.",
+    "editLevelHint": "Düzenlemek için bir bayrağa tıkla, taşımak için basılı tut."
   },
   "materials": {
     "title": "Malzemeler",

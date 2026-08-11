@@ -91,7 +91,9 @@
     "positionHint": "Procenta od levého horního rohu obrázku mapy.",
     "levelNotFound": "Úroveň nenalezena.",
     "levelShort": "Úroveň {{level}}",
-    "noDescriptionYet": "Zatím žádný popis."
+    "noDescriptionYet": "Zatím žádný popis.",
+    "repositionHint": "Klikni kamkoli na mapu, kam chceš tuto vlajku přesunout. Esc pro zrušení.",
+    "editLevelHint": "Klikni na vlajku pro úpravu, nebo ji podrž pro přesunutí."
   },
   "materials": {
     "title": "Materiály",

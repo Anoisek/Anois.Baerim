@@ -91,7 +91,9 @@
     "positionHint": "Procent din colțul din stânga sus al imaginii hărții.",
     "levelNotFound": "Nivelul nu a fost găsit.",
     "levelShort": "Nivelul {{level}}",
-    "noDescriptionYet": "Nicio descriere încă."
+    "noDescriptionYet": "Nicio descriere încă.",
+    "repositionHint": "Fă clic oriunde pe hartă pentru a muta acest steag acolo. Apasă Esc pentru a anula.",
+    "editLevelHint": "Fă clic pe un steag pentru a-l edita, sau ține apăsat pentru a-l muta."
   },
   "materials": {
     "title": "Materiale",

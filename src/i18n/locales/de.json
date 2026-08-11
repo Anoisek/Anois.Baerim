@@ -91,7 +91,9 @@
     "positionHint": "Prozent von der oberen linken Ecke des Kartenbilds.",
     "levelNotFound": "Level nicht gefunden.",
     "levelShort": "Level {{level}}",
-    "noDescriptionYet": "Noch keine Beschreibung."
+    "noDescriptionYet": "Noch keine Beschreibung.",
+    "repositionHint": "Klicke irgendwo auf die Karte, um diese Flagge dorthin zu verschieben. Esc zum Abbrechen.",
+    "editLevelHint": "Klicke eine Flagge zum Bearbeiten an, oder halte sie gedrückt, um sie zu verschieben."
   },
   "materials": {
     "title": "Materialien",

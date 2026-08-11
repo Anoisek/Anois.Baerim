@@ -91,7 +91,9 @@
     "positionHint": "Percentage from the top-left corner of the map image.",
     "levelNotFound": "Level not found.",
     "levelShort": "Level {{level}}",
-    "noDescriptionYet": "No description yet."
+    "noDescriptionYet": "No description yet.",
+    "repositionHint": "Click anywhere on the map to move this flag there. Press Esc to cancel.",
+    "editLevelHint": "Click a flag to edit it, or press and hold to move it."
   },
   "materials": {
     "title": "Materials",

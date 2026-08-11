@@ -91,7 +91,9 @@
     "positionHint": "Pourcentage depuis le coin supérieur gauche de l'image de la carte.",
     "levelNotFound": "Niveau introuvable.",
     "levelShort": "Niveau {{level}}",
-    "noDescriptionYet": "Pas encore de description."
+    "noDescriptionYet": "Pas encore de description.",
+    "repositionHint": "Clique n'importe où sur la carte pour y déplacer ce drapeau. Appuie sur Échap pour annuler.",
+    "editLevelHint": "Clique sur un drapeau pour le modifier, ou maintiens-le appuyé pour le déplacer."
   },
   "materials": {
     "title": "Matériaux",

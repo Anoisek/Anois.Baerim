@@ -91,7 +91,9 @@
     "positionHint": "Procent od lewego górnego rogu obrazka mapy.",
     "levelNotFound": "Nie znaleziono poziomu.",
     "levelShort": "Poziom {{level}}",
-    "noDescriptionYet": "Brak opisu."
+    "noDescriptionYet": "Brak opisu.",
+    "repositionHint": "Kliknij nowe miejsce na mapie, aby przenieść tam tę flagę. Esc, aby anulować.",
+    "editLevelHint": "Kliknij flagę, aby ją edytować, albo przytrzymaj, aby ją przesunąć."
   },
   "materials": {
     "title": "Materiały",

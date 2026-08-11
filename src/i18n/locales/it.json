@@ -91,7 +91,9 @@
     "positionHint": "Percentuale dall'angolo in alto a sinistra dell'immagine della mappa.",
     "levelNotFound": "Livello non trovato.",
     "levelShort": "Livello {{level}}",
-    "noDescriptionYet": "Nessuna descrizione ancora."
+    "noDescriptionYet": "Nessuna descrizione ancora.",
+    "repositionHint": "Clicca ovunque sulla mappa per spostare qui questa bandiera. Premi Esc per annullare.",
+    "editLevelHint": "Clicca su una bandiera per modificarla, oppure tienila premuta per spostarla."
   },
   "materials": {
     "title": "Materiali",
