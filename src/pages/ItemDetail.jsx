@@ -13,7 +13,7 @@ import ItemImage from '../components/ItemImage'
 import MatRow from '../components/MatRow'
 import MaterialTile from '../components/MaterialTile'
 import CraftOverviewPanel from '../components/CraftOverviewPanel'
-import { formatItemName, PVP_CATEGORY_ID, ENIGMA_POTION_ID } from '../utils/itemName'
+import { formatItemName, PVP_CATEGORY_ID, ENIGMA_POTION_ID, NO_DEFAULT_SCROLL_ITEM_IDS } from '../utils/itemName'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   computeItemPrice, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
@@ -136,7 +136,7 @@ export default function ItemDetail() {
         setSelectedVariant(savedChoices.variantByStep ?? {})
       } else {
         setSelectedVariant({})
-        if (itemId !== ENIGMA_POTION_ID) {
+        if (!NO_DEFAULT_SCROLL_ITEM_IDS.has(itemId)) {
           const war = sorted.find(s => s.name.toLowerCase().includes('scroll of war'))
           const magic = sorted.find(s => s.name.toLowerCase().includes('magic stone'))
           if (war || magic) {
