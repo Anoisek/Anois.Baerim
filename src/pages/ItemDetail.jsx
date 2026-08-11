@@ -13,7 +13,7 @@ import ItemImage from '../components/ItemImage'
 import MatRow from '../components/MatRow'
 import MaterialTile from '../components/MaterialTile'
 import CraftOverviewPanel from '../components/CraftOverviewPanel'
-import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
+import { formatItemName, PVP_CATEGORY_ID, ENIGMA_POTION_ID } from '../utils/itemName'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   computeItemPrice, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
@@ -218,6 +218,8 @@ export default function ItemDetail() {
   }
 
   const isPvpItem = item?.category_id === PVP_CATEGORY_ID
+  const isRangedUpgradeItem = itemId === ENIGMA_POTION_ID
+  const rangedStepLabels = { 1: '+1 → +50', 2: '+51 → +100', 3: '+101 → +200' }
 
   const siblingIndex = siblingItems.findIndex(i => i.id === itemId)
   const prevItem = siblingIndex > 0 ? siblingItems[siblingIndex - 1] : null
@@ -380,8 +382,15 @@ export default function ItemDetail() {
               )}
             </div>
 
-            <CraftOverviewPanel allSteps={allSteps} grouped={grouped} yangCosts={yangCosts} />
+            <CraftOverviewPanel
+              allSteps={allSteps}
+              grouped={grouped}
+              yangCosts={yangCosts}
+              stepLabels={isRangedUpgradeItem ? rangedStepLabels : undefined}
+            />
 
+            {!isRangedUpgradeItem && (
+            <>
             {allSteps.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
                 {scrolls.length > 0 && (
@@ -566,6 +575,8 @@ export default function ItemDetail() {
                   </div>
                 </div>
               </div>
+            )}
+            </>
             )}
           </>
         )}
