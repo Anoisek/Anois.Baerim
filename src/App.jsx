@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext'
 import { NightModeProvider } from './context/NightModeContext'
 import { UiScaleProvider } from './context/UiScaleContext'
 import { ModalQueueProvider } from './context/ModalQueueContext'
+import ScrollToTop from './components/ScrollToTop'
 import NicknamePrompt from './components/NicknamePrompt'
 import Footer from './components/Footer'
 import CookieConsent from './components/CookieConsent'
@@ -32,6 +33,7 @@ export default function App() {
         <NightModeProvider>
         <UiScaleProvider>
         <ModalQueueProvider>
+          <ScrollToTop />
           <NicknamePrompt />
           <MokokoAnnouncement />
           <DomainChangeNotice />
