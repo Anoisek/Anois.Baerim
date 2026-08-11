@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { formatYang } from '../utils/formatYang'
 import { formatItemName } from '../utils/itemName'
@@ -10,15 +11,20 @@ function OverviewIcon({ row, large }) {
   const name = row.kind === 'item' ? formatItemName(row.material) : row.material.name
   const box = large ? 'w-10 h-10' : 'w-9 h-9'
   const img = large ? 'w-7 h-7' : 'w-6 h-6'
+  const to = row.kind === 'item' ? `/chapter/${row.material.category_id}/item/${row.material.id}` : `/materials/${row.material.id}`
   return (
-    <div className={`relative ${box} shrink-0 bg-black/40 border border-gray-700 rounded-md flex items-center justify-center`} title={name}>
+    <Link
+      to={to}
+      className={`relative ${box} shrink-0 bg-black/40 border border-gray-700 rounded-md flex items-center justify-center hover:border-yellow-400/50 transition-colors`}
+      title={name}
+    >
       {row.material.image_url
         ? <img src={row.material.image_url} alt={name} className={`${img} object-contain`} />
         : <span className="text-base">{row.kind === 'item' ? '⚔️' : '🧪'}</span>}
       <span className="absolute right-0 bottom-0 text-[0.6rem] leading-tight font-bold text-amber-100 bg-black/80 rounded px-0.5">
         ×{row.quantity}
       </span>
-    </div>
+    </Link>
   )
 }
 

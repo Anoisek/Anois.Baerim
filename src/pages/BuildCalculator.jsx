@@ -324,11 +324,11 @@ export default function BuildCalculator() {
                 const showVariantButton = item.category_id === PVP_CATEGORY_ID && maxVariantCount > 1
                 return (
                   <div key={item.id} className="flex items-center gap-3 p-3 rounded-xl bg-gray-900 border border-gray-700">
-                    <div className="w-8 h-8 shrink-0 flex items-center justify-center">
+                    <Link to={`/chapter/${item.category_id}/item/${item.id}`} className="w-8 h-8 shrink-0 flex items-center justify-center hover:opacity-75 transition-opacity">
                       {itemImages(item).length > 0
                         ? <img src={itemImages(item)[0]} alt={item.name} className="w-full h-full object-contain" />
                         : <span className="text-lg">⚔️</span>}
-                    </div>
+                    </Link>
                     <Link to={`/chapter/${item.category_id}/item/${item.id}`} className="flex-1 text-sm text-gray-200 hover:text-yellow-400 transition-colors truncate">
                       {formatItemName(item)}
                     </Link>

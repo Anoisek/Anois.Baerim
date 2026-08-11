@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { formatYang } from '../utils/formatYang'
 import MaterialPriceCell from './MaterialPriceCell'
@@ -7,13 +8,14 @@ export default function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChan
   const lineTotal = unitPrice * quantity
   const manualOverride = manualOverrides?.has(mat.id) ?? false
   const canOverride = kind !== 'item' && mat.is_craftable && !globalMode && onToggleManualOverride
+  const to = kind === 'item' ? `/chapter/${mat.category_id}/item/${mat.id}` : `/materials/${mat.id}`
   return (
     <div className="flex items-center gap-3 min-w-0">
-      <div className="w-8 h-8 shrink-0 flex items-center justify-center">
+      <Link to={to} className="w-8 h-8 shrink-0 flex items-center justify-center hover:opacity-75 transition-opacity" title={mat.name}>
         {mat.image_url
           ? <img src={mat.image_url} alt={mat.name} className="w-full h-full object-contain" />
           : <span className="text-lg">{kind === 'item' ? '⚔️' : '🧪'}</span>}
-      </div>
+      </Link>
       <span className="flex-1 text-sm text-gray-200 truncate">{mat.name}</span>
       {canOverride && (
         <input

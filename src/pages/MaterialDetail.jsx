@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import Navbar from '../components/Navbar'
@@ -193,11 +193,15 @@ export default function MaterialDetail() {
                       const lineTotal = unitPrice * row.quantity
                       return (
                         <div key={row.component.id} className="flex items-center gap-3 min-w-0">
-                          <div className="w-8 h-8 shrink-0 flex items-center justify-center">
+                          <Link
+                            to={`/materials/${row.component.id}`}
+                            className="w-8 h-8 shrink-0 flex items-center justify-center hover:opacity-75 transition-opacity"
+                            title={row.component.name}
+                          >
                             {row.component.image_url
                               ? <img src={row.component.image_url} alt={row.component.name} className="w-full h-full object-contain" />
                               : <span className="text-lg">🧪</span>}
-                          </div>
+                          </Link>
                           <span className="flex-1 text-sm text-gray-200 truncate">{row.component.name}</span>
                           <span className="text-gray-500 text-xs shrink-0">×{row.quantity}</span>
                           <MaterialPriceCell material={row.component} rawValue={rawInputs[row.component.id]} computedValue={unitPrice} onPriceChange={setPrice} computed={mode === 'global' ? true : undefined} />
