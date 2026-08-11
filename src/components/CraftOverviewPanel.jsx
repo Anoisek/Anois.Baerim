@@ -95,7 +95,7 @@ export default function CraftOverviewPanel({ allSteps, grouped, yangCosts, onSho
                 <OverviewIcon key={`${row.kind}-${row.material.id}`} row={row} large />
               ))}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-2">
               <div className="inline-flex items-center gap-2 bg-yellow-600/15 border border-yellow-500/30 rounded-lg px-3 py-1.5">
                 <span className="text-base leading-none">💰</span>
                 <span className="text-yellow-400 font-bold text-sm font-mono">{formatYang(yangCosts[0] ?? 0)}</span>
