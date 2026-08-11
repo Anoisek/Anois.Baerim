@@ -58,7 +58,7 @@ export default function ItemDetail() {
   const [chapterName, setChapterName] = useState(null)
   const [categoryName, setCategoryName] = useState(null)
   const [loading, setLoading] = useState(true)
-  const { rawInputs, setPrice, mode, manualOverrides } = usePriceBook()
+  const { rawInputs, setPrice, mode, manualOverrides, toggleManualOverride } = usePriceBook()
 
   useEffect(() => {
     Promise.all([
@@ -479,13 +479,15 @@ export default function ItemDetail() {
                             onPriceChange={setPrice}
                             kind={row.kind}
                             globalMode={mode === 'global'}
+                            manualOverrides={manualOverrides}
+                            onToggleManualOverride={toggleManualOverride}
                           />
                         ))}
 
                         {hasExtras && (
                           <div className="border-t border-gray-700/60 pt-3 flex flex-col gap-3">
-                            {scrollMat && <MatRow mat={scrollMat} quantity={1} unitPrice={priceOf(scrollMat.id)} rawValue={rawInputs[scrollMat.id]} onPriceChange={setPrice} globalMode={mode === 'global'} />}
-                            {stepSealMats.map(s => <MatRow key={s.id} mat={s} quantity={1} unitPrice={priceOf(s.id)} rawValue={rawInputs[s.id]} onPriceChange={setPrice} globalMode={mode === 'global'} />)}
+                            {scrollMat && <MatRow mat={scrollMat} quantity={1} unitPrice={priceOf(scrollMat.id)} rawValue={rawInputs[scrollMat.id]} onPriceChange={setPrice} globalMode={mode === 'global'} manualOverrides={manualOverrides} onToggleManualOverride={toggleManualOverride} />}
+                            {stepSealMats.map(s => <MatRow key={s.id} mat={s} quantity={1} unitPrice={priceOf(s.id)} rawValue={rawInputs[s.id]} onPriceChange={setPrice} globalMode={mode === 'global'} manualOverrides={manualOverrides} onToggleManualOverride={toggleManualOverride} />)}
                           </div>
                         )}
                       </div>

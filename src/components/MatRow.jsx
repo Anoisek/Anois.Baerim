@@ -1,8 +1,12 @@
+import { useTranslation } from 'react-i18next'
 import { formatYang } from '../utils/formatYang'
 import MaterialPriceCell from './MaterialPriceCell'
 
-export default function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChange, kind, globalMode }) {
+export default function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChange, kind, globalMode, manualOverrides, onToggleManualOverride }) {
+  const { t } = useTranslation()
   const lineTotal = unitPrice * quantity
+  const manualOverride = manualOverrides?.has(mat.id) ?? false
+  const canOverride = kind !== 'item' && mat.is_craftable && !globalMode && onToggleManualOverride
   return (
     <div className="flex items-center gap-3 min-w-0">
       <div className="w-8 h-8 shrink-0 flex items-center justify-center">
@@ -11,8 +15,17 @@ export default function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChan
           : <span className="text-lg">{kind === 'item' ? '⚔️' : '🧪'}</span>}
       </div>
       <span className="flex-1 text-sm text-gray-200 truncate">{mat.name}</span>
+      {canOverride && (
+        <input
+          type="checkbox"
+          checked={manualOverride}
+          onChange={() => onToggleManualOverride(mat.id)}
+          title={t('materials.manualPrice')}
+          className="accent-yellow-400 w-3.5 h-3.5 shrink-0"
+        />
+      )}
       <span className="text-gray-500 text-xs shrink-0">×{quantity}</span>
-      <MaterialPriceCell material={mat} rawValue={rawValue} computedValue={unitPrice} onPriceChange={onPriceChange} computed={kind === 'item' || globalMode ? true : undefined} />
+      <MaterialPriceCell material={mat} rawValue={rawValue} computedValue={unitPrice} onPriceChange={onPriceChange} computed={kind === 'item' || globalMode ? true : undefined} manualOverride={manualOverride} />
       <span className="text-yellow-400 text-sm w-24 text-right font-mono shrink-0">{formatYang(lineTotal)}</span>
     </div>
   )
