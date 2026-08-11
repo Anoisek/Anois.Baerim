@@ -164,7 +164,7 @@ export default function Exploration() {
                       key={lvl.level}
                       to={`/systems/exploration/${lvl.level}`}
                       title={lvl.title || t('systems.levelTitlePlaceholder', { level: lvl.level })}
-                      className={`${hotspotCls} hover:bg-yellow-400/25 hover:ring-2 hover:ring-yellow-400/70`}
+                      className={`${hotspotCls} ${isAdmin ? 'hover:bg-yellow-400/25 hover:ring-2 hover:ring-yellow-400/70' : ''}`}
                       style={style}
                     />
                   )
