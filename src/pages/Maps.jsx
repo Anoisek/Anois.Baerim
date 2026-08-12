@@ -50,6 +50,7 @@ export default function Maps() {
   const [markers, setMarkers] = useState([])
   const [markersLoading, setMarkersLoading] = useState(true)
   const [allMarkers, setAllMarkers] = useState([])
+  const [markerCounts, setMarkerCounts] = useState({})
 
   const [editMode, setEditMode] = useState(false)
   const [addingAt, setAddingAt] = useState(null)
@@ -74,6 +75,11 @@ export default function Maps() {
     supabase.from('map_markers').select('id, map_id, copied_from').then(({ data }) => {
       setAllMarkers(data ?? [])
     })
+    supabase.rpc('map_marker_counts').then(({ data }) => {
+      const next = {}
+      for (const row of data ?? []) next[row.map_id] = Number(row.total)
+      setMarkerCounts(next)
+    })
   }, [])
 
   async function persistMapOrder(id, newOrder) {
@@ -93,14 +99,16 @@ export default function Maps() {
   function mapStats(id) {
     const markersOfMap = allMarkers.filter(mk => mk.map_id === id)
     const done = markersOfMap.filter(mk => isMarkerCollected(mk, collected)).length
-    return { total: markersOfMap.length, done }
+    return { total: markerCounts[id] ?? markersOfMap.length, done }
   }
 
   const visibleMaps = maps.filter(m => isAdmin || !m.admin_only)
 
   const redWoodV2 = maps.find(m => m.name === 'Red Wood v2')
   const eligibleMarkers = allMarkers.filter(mk => mk.map_id !== redWoodV2?.id)
-  const allMokokoCollected = eligibleMarkers.length > 0 && eligibleMarkers.every(mk => isMarkerCollected(mk, collected))
+  const eligibleTotal = maps.reduce((sum, m) => m.id === redWoodV2?.id ? sum : sum + (markerCounts[m.id] ?? 0), 0)
+  const eligibleDone = eligibleMarkers.filter(mk => isMarkerCollected(mk, collected)).length
+  const allMokokoCollected = eligibleTotal > 0 && eligibleDone === eligibleTotal
 
   useEffect(() => {
     if (mapsLoading || visibleMaps.length === 0) return
@@ -375,7 +383,7 @@ export default function Maps() {
                   <h2 className="text-lg font-bold text-gray-100">{selectedMap?.name}</h2>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-400">
-                      <strong className="text-gray-200">{markers.filter(m => isMarkerCollected(m, collected)).length}</strong>/{markers.length} {t('maps.collected')}
+                      <strong className="text-gray-200">{markers.filter(m => isMarkerCollected(m, collected)).length}</strong>/{selectedMap ? (markerCounts[selectedMap.id] ?? markers.length) : markers.length} {t('maps.collected')}
                     </span>
                     <button
                       onClick={() => setShowCollected(v => !v)}
@@ -398,7 +406,7 @@ export default function Maps() {
                         collected={collected}
                         onToggleCollected={toggleCollected}
                         doneCount={markers.filter(m => isMarkerCollected(m, collected)).length}
-                        totalCount={markers.length}
+                        totalCount={markerCounts[selectedMap.id] ?? markers.length}
                         t={t}
                       />
                     )}
@@ -486,6 +494,7 @@ export default function Maps() {
           onAdded={marker => {
             setMarkers(prev => [...prev, marker])
             setAllMarkers(prev => [...prev, { id: marker.id, map_id: marker.map_id }])
+            setMarkerCounts(prev => ({ ...prev, [marker.map_id]: (prev[marker.map_id] ?? 0) + 1 }))
           }}
         />
       )}
@@ -498,6 +507,9 @@ export default function Maps() {
           onDeleted={id => {
             setMarkers(prev => prev.filter(m => m.id !== id))
             setAllMarkers(prev => prev.filter(mk => mk.id !== id))
+            if (editingMarker) {
+              setMarkerCounts(prev => ({ ...prev, [editingMarker.map_id]: Math.max(0, (prev[editingMarker.map_id] ?? 1) - 1) }))
+            }
           }}
         />
       )}
