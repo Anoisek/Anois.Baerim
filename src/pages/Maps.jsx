@@ -14,6 +14,7 @@ import AddMapModal from '../components/AddMapModal'
 import EditMapModal from '../components/EditMapModal'
 import ReorderButtons from '../components/ReorderButtons'
 import MapPipButton from '../components/MapPipButton'
+import MokokoRevealCountdown from '../components/MokokoRevealCountdown'
 import MokokoCompletionModal from '../components/MokokoCompletionModal'
 import ConfirmBulkMarkModal from '../components/ConfirmBulkMarkModal'
 import { isMarkerCollected } from '../utils/markerCollected'
@@ -51,6 +52,7 @@ export default function Maps() {
   const [markersLoading, setMarkersLoading] = useState(true)
   const [allMarkers, setAllMarkers] = useState([])
   const [markerCounts, setMarkerCounts] = useState({})
+  const [pendingReveal, setPendingReveal] = useState({})
 
   const [editMode, setEditMode] = useState(false)
   const [addingAt, setAddingAt] = useState(null)
@@ -80,7 +82,16 @@ export default function Maps() {
       for (const row of data ?? []) next[row.map_id] = Number(row.total)
       setMarkerCounts(next)
     })
+    refreshPendingReveal()
   }, [])
+
+  function refreshPendingReveal() {
+    supabase.rpc('map_pending_reveal').then(({ data }) => {
+      const next = {}
+      for (const row of data ?? []) next[row.map_id] = row.reveal_at
+      setPendingReveal(next)
+    })
+  }
 
   async function persistMapOrder(id, newOrder) {
     setMaps(prev => prev.map(m => m.id === id ? { ...m, sort_order: newOrder } : m).sort((a, b) => a.sort_order - b.sort_order))
@@ -476,6 +487,9 @@ export default function Maps() {
                     ) : canAddMarkers && editMode && (
                       <p className="text-xs text-gray-500 mt-3">{t('maps.clickToAddMarker')}</p>
                     )}
+                    {pendingReveal[selectedMap.id] && (
+                      <MokokoRevealCountdown revealAt={pendingReveal[selectedMap.id]} />
+                    )}
                   </>
                 )}
               </div>
@@ -495,6 +509,7 @@ export default function Maps() {
             setMarkers(prev => [...prev, marker])
             setAllMarkers(prev => [...prev, { id: marker.id, map_id: marker.map_id }])
             setMarkerCounts(prev => ({ ...prev, [marker.map_id]: (prev[marker.map_id] ?? 0) + 1 }))
+            refreshPendingReveal()
           }}
         />
       )}
@@ -503,13 +518,17 @@ export default function Maps() {
         <EditMarkerModal
           marker={editingMarker}
           onClose={() => setEditingMarker(null)}
-          onUpdated={marker => setMarkers(prev => prev.map(m => m.id === marker.id ? marker : m))}
+          onUpdated={marker => {
+            setMarkers(prev => prev.map(m => m.id === marker.id ? marker : m))
+            refreshPendingReveal()
+          }}
           onDeleted={id => {
             setMarkers(prev => prev.filter(m => m.id !== id))
             setAllMarkers(prev => prev.filter(mk => mk.id !== id))
             if (editingMarker) {
               setMarkerCounts(prev => ({ ...prev, [editingMarker.map_id]: Math.max(0, (prev[editingMarker.map_id] ?? 1) - 1) }))
             }
+            refreshPendingReveal()
           }}
         />
       )}
