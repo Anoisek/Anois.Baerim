@@ -31,6 +31,11 @@
     "label": "Page size",
     "reset": "Reset"
   },
+  "donate": {
+    "title": "Support me",
+    "description": "If you feel like supporting me, it'd help me move faster and get new systems up on the site sooner!",
+    "nickLabel": "My in-game nick:"
+  },
   "globalSearch": {
     "searchTooltip": "Search",
     "placeholder": "Search chapters, categories, materials, items...",
@@ -89,6 +94,7 @@
     "positionX": "Position X (%)",
     "positionY": "Position Y (%)",
     "positionHint": "Percentage from the top-left corner of the map image.",
+    "levelImagesLabel": "Images",
     "levelNotFound": "Level not found.",
     "levelShort": "Level {{level}}",
     "noDescriptionYet": "No description yet.",

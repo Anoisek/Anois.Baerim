@@ -6,6 +6,7 @@ import GlobalSearch from './GlobalSearch'
 import LanguageSwitcher from './LanguageSwitcher'
 import NightModeToggle from './NightModeToggle'
 import UiScaleToggle from './UiScaleToggle'
+import DonateButton from './DonateButton'
 
 export default function Navbar() {
   const { isAdmin } = useAuth()
@@ -27,6 +28,7 @@ export default function Navbar() {
         <LanguageSwitcher />
         <NightModeToggle />
         <UiScaleToggle />
+        <DonateButton />
       </div>
       <div className="flex items-center gap-4">
         <GlobalSearch />

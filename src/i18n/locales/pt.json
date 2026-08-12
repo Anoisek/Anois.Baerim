@@ -31,6 +31,11 @@
     "label": "Tamanho da página",
     "reset": "Redefinir"
   },
+  "donate": {
+    "title": "Apoia-me",
+    "description": "Se te apetecer apoiar-me, isso ajudava-me a avançar mais depressa e a trazer os novos sistemas para o site mais cedo!",
+    "nickLabel": "O meu nick no jogo:"
+  },
   "globalSearch": {
     "searchTooltip": "Pesquisar",
     "placeholder": "Pesquisar capítulos, categorias, materiais, itens...",
@@ -89,6 +94,7 @@
     "positionX": "Posição X (%)",
     "positionY": "Posição Y (%)",
     "positionHint": "Percentagem a partir do canto superior esquerdo da imagem do mapa.",
+    "levelImagesLabel": "Imagens",
     "levelNotFound": "Nível não encontrado.",
     "levelShort": "Nível {{level}}",
     "noDescriptionYet": "Ainda sem descrição.",

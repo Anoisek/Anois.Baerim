@@ -31,6 +31,11 @@
     "label": "Sayfa boyutu",
     "reset": "Sıfırla"
   },
+  "donate": {
+    "title": "Beni destekle",
+    "description": "Beni desteklemek istersen, daha hızlı ilerlememe ve yeni sistemleri siteye daha erken eklememe yardımcı olur!",
+    "nickLabel": "Oyundaki takma adım:"
+  },
   "globalSearch": {
     "searchTooltip": "Ara",
     "placeholder": "Bölüm, kategori, malzeme, eşya ara...",
@@ -89,6 +94,7 @@
     "positionX": "Konum X (%)",
     "positionY": "Konum Y (%)",
     "positionHint": "Harita görselinin sol üst köşesinden itibaren yüzde.",
+    "levelImagesLabel": "Görseller",
     "levelNotFound": "Seviye bulunamadı.",
     "levelShort": "Seviye {{level}}",
     "noDescriptionYet": "Henüz açıklama yok.",

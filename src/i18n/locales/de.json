@@ -31,6 +31,11 @@
     "label": "Seitengröße",
     "reset": "Zurücksetzen"
   },
+  "donate": {
+    "title": "Unterstütze mich",
+    "description": "Wenn du Lust hast, mich zu unterstützen, hilft mir das, schneller voranzukommen und neue Systeme früher auf die Seite zu bringen!",
+    "nickLabel": "Mein Nickname im Spiel:"
+  },
   "globalSearch": {
     "searchTooltip": "Suchen",
     "placeholder": "Kapitel, Kategorien, Materialien, Gegenstände suchen...",
@@ -89,6 +94,7 @@
     "positionX": "Position X (%)",
     "positionY": "Position Y (%)",
     "positionHint": "Prozent von der oberen linken Ecke des Kartenbilds.",
+    "levelImagesLabel": "Bilder",
     "levelNotFound": "Level nicht gefunden.",
     "levelShort": "Level {{level}}",
     "noDescriptionYet": "Noch keine Beschreibung.",

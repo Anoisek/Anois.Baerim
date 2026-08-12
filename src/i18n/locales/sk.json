@@ -31,6 +31,11 @@
     "label": "Veľkosť stránky",
     "reset": "Obnoviť"
   },
+  "donate": {
+    "title": "Podpor ma",
+    "description": "Ak máš chuť ma podporiť, pomôže mi to ísť rýchlejšie dopredu a pridávať nové systémy na stránku skôr!",
+    "nickLabel": "Moja prezývka v hre:"
+  },
   "globalSearch": {
     "searchTooltip": "Hľadať",
     "placeholder": "Hľadať kapitoly, kategórie, materiály, predmety...",
@@ -89,6 +94,7 @@
     "positionX": "Pozícia X (%)",
     "positionY": "Pozícia Y (%)",
     "positionHint": "Percento od ľavého horného rohu obrázka mapy.",
+    "levelImagesLabel": "Obrázky",
     "levelNotFound": "Úroveň sa nenašla.",
     "levelShort": "Úroveň {{level}}",
     "noDescriptionYet": "Zatiaľ žiadny popis.",

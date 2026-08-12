@@ -31,6 +31,11 @@
     "label": "Dimensiune pagină",
     "reset": "Resetează"
   },
+  "donate": {
+    "title": "Susține-mă",
+    "description": "Dacă ai chef să mă susții, m-ar ajuta să avansez mai repede și să aduc sistemele noi pe site mai devreme!",
+    "nickLabel": "Nickname-ul meu în joc:"
+  },
   "globalSearch": {
     "searchTooltip": "Caută",
     "placeholder": "Caută capitole, categorii, materiale, obiecte...",
@@ -89,6 +94,7 @@
     "positionX": "Poziția X (%)",
     "positionY": "Poziția Y (%)",
     "positionHint": "Procent din colțul din stânga sus al imaginii hărții.",
+    "levelImagesLabel": "Imagini",
     "levelNotFound": "Nivelul nu a fost găsit.",
     "levelShort": "Nivelul {{level}}",
     "noDescriptionYet": "Nicio descriere încă.",
