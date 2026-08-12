@@ -224,6 +224,7 @@
     "clickToAddMarker": "Dă clic oriunde pe hartă pentru a adăuga un marcaj.",
     "editMapTooltip": "Editează harta",
     "maxReachedTooltip": "Toate mokoko de pe această hartă au fost deja adăugate",
+    "pendingVisibilityTooltip": "Încă ascuns pentru ceilalți jucători",
     "addMap": "+ Adaugă hartă",
     "pipButton": "Scoate harta",
     "pipTooltip": "Ține harta plutitoare deasupra altor ferestre",
@@ -268,7 +269,10 @@
     "title": "Marcaj nou",
     "photoOptional": "Fotografie (opțional)",
     "addMarker": "Adaugă marcaj",
-    "saving": "Se salvează..."
+    "saving": "Se salvează...",
+    "delayLabel": "Întârziere înainte să fie vizibil pentru ceilalți",
+    "delayDays": "zile",
+    "delayHint": "Lasă 0 ca să fie vizibil imediat. Adminul îl vede oricum mereu pe loc."
   },
   "imageUpload": {
     "uploadError": "Eroare la încărcare: {{message}}",

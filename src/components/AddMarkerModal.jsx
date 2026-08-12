@@ -20,14 +20,17 @@ export default function AddMarkerModal({ mapId, x, y, nextNumber, onClose, onAdd
   const { nickname } = useAuth()
   const { t } = useTranslation()
   const [imageUrl, setImageUrl] = useState('')
+  const [delayDays, setDelayDays] = useState('0')
   const [saving, setSaving] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
     setSaving(true)
+    const days = Number(delayDays) || 0
+    const visibleAt = days > 0 ? new Date(Date.now() + days * 86400000).toISOString() : null
     const { data, error } = await supabase
       .from('map_markers')
-      .insert({ map_id: mapId, x, y, icon: MARKER_ICON, title: `Mokoko #${nextNumber}` })
+      .insert({ map_id: mapId, x, y, icon: MARKER_ICON, title: `Mokoko #${nextNumber}`, visible_at: visibleAt })
       .select()
       .single()
     if (error) {
@@ -55,6 +58,20 @@ export default function AddMarkerModal({ mapId, x, y, nextNumber, onClose, onAdd
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-400">{t('addMarkerModal.photoOptional')}</label>
           <ImageUpload bucket="map-notes" onUploaded={setImageUrl} />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-400">{t('addMarkerModal.delayLabel')}</label>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min="0"
+              value={delayDays}
+              onChange={e => setDelayDays(e.target.value)}
+              className="w-20 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
+            />
+            <span className="text-sm text-gray-400">{t('addMarkerModal.delayDays')}</span>
+          </div>
+          <p className="text-xs text-gray-500">{t('addMarkerModal.delayHint')}</p>
         </div>
         <button
           type="submit"

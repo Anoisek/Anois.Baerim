@@ -429,6 +429,7 @@ export default function Maps() {
                       {visibleMarkers.map(marker => {
                         const isCollected = isMarkerCollected(marker, collected)
                         const isRepositioning = repositioningMarker?.id === marker.id
+                        const isPending = isAdmin && editMode && marker.visible_at && new Date(marker.visible_at) > new Date()
                         return (
                           <div
                             key={marker.id}
@@ -442,13 +443,21 @@ export default function Maps() {
                               onPointerLeave={cancelLongPress}
                               onPointerCancel={cancelLongPress}
                               title={marker.title || undefined}
-                              className={`block hover:scale-125 transition-transform ${isCollected ? 'opacity-40' : ''} ${
+                              className={`relative block hover:scale-125 transition-transform ${isCollected ? 'opacity-40' : ''} ${
                                 isRepositioning ? 'animate-pulse ring-4 ring-yellow-400 rounded-full' : ''
                               }`}
                             >
                               {marker.icon?.startsWith('/')
                                 ? <img src={marker.icon} alt="" draggable="false" className="w-8 h-8 object-contain drop-shadow select-none" />
                                 : <span className="text-2xl leading-none drop-shadow">{marker.icon}</span>}
+                              {isPending && (
+                                <span
+                                  className="absolute -top-1 -right-1 text-xs drop-shadow"
+                                  title={t('maps.pendingVisibilityTooltip')}
+                                >
+                                  ⏳
+                                </span>
+                              )}
                             </button>
                           </div>
                         )

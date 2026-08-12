@@ -9,8 +9,15 @@ function extractStoragePath(url) {
   return idx !== -1 ? url.slice(idx + marker.length) : null
 }
 
+function daysUntil(isoDate) {
+  if (!isoDate) return 0
+  const ms = new Date(isoDate).getTime() - Date.now()
+  return ms > 0 ? Math.ceil(ms / 86400000) : 0
+}
+
 export default function EditMarkerModal({ marker, onClose, onUpdated, onDeleted }) {
   const [title, setTitle] = useState(marker.title ?? '')
+  const [delayDays, setDelayDays] = useState(String(daysUntil(marker.visible_at)))
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -18,9 +25,11 @@ export default function EditMarkerModal({ marker, onClose, onUpdated, onDeleted 
   async function handleSave(e) {
     e.preventDefault()
     setSaving(true)
+    const days = Number(delayDays) || 0
+    const visibleAt = days > 0 ? new Date(Date.now() + days * 86400000).toISOString() : null
     const { data, error } = await supabase
       .from('map_markers')
-      .update({ title: title.trim() || null })
+      .update({ title: title.trim() || null, visible_at: visibleAt })
       .eq('id', marker.id)
       .select()
       .single()
@@ -58,6 +67,24 @@ export default function EditMarkerModal({ marker, onClose, onUpdated, onDeleted 
             onChange={e => setTitle(e.target.value)}
             className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
           />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-400">Delay before it's visible to others</label>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min="0"
+              value={delayDays}
+              onChange={e => setDelayDays(e.target.value)}
+              className="w-20 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
+            />
+            <span className="text-sm text-gray-400">days</span>
+          </div>
+          <p className="text-xs text-gray-500">
+            {daysUntil(marker.visible_at) > 0
+              ? `Currently hidden from everyone except you for ${daysUntil(marker.visible_at)} more day(s).`
+              : '0 = visible to everyone right away. You always see it either way.'}
+          </p>
         </div>
 
         <button

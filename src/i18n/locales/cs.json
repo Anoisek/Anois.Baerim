@@ -224,6 +224,7 @@
     "clickToAddMarker": "Klikni kamkoli na mapu pro přidání značky.",
     "editMapTooltip": "Upravit mapu",
     "maxReachedTooltip": "Všechna mokoko na této mapě již byla přidána",
+    "pendingVisibilityTooltip": "Zatím skryté před ostatními hráči",
     "addMap": "+ Přidat mapu",
     "pipButton": "Vysunout mapu",
     "pipTooltip": "Udrž mapu plovoucí nad ostatními okny",
@@ -268,7 +269,10 @@
     "title": "Nová značka",
     "photoOptional": "Fotka (volitelné)",
     "addMarker": "Přidat značku",
-    "saving": "Ukládání..."
+    "saving": "Ukládání...",
+    "delayLabel": "Zpoždění viditelnosti pro ostatní",
+    "delayDays": "dní",
+    "delayHint": "Nech 0, pokud má být vidět hned. Admin ho vidí vždy okamžitě."
   },
   "imageUpload": {
     "uploadError": "Chyba nahrávání: {{message}}",

@@ -224,6 +224,7 @@
     "clickToAddMarker": "Kliknij w dowolne miejsce na mapie, aby dodać znacznik.",
     "editMapTooltip": "Edytuj mapę",
     "maxReachedTooltip": "Wszystkie mokoko na tej mapie zostały już dodane",
+    "pendingVisibilityTooltip": "Wciąż niewidoczne dla innych graczy",
     "addMap": "+ Dodaj mapę",
     "pipButton": "Wysuń mapę",
     "pipTooltip": "Trzymaj mapę na wierzchu innych okien",
@@ -268,7 +269,10 @@
     "title": "Nowy znacznik",
     "photoOptional": "Zdjęcie (opcjonalnie)",
     "addMarker": "Dodaj znacznik",
-    "saving": "Zapisywanie..."
+    "saving": "Zapisywanie...",
+    "delayLabel": "Opóźnienie widoczności dla innych",
+    "delayDays": "dni",
+    "delayHint": "Zostaw 0, żeby był widoczny od razu. Admin i tak zawsze go widzi."
   },
   "imageUpload": {
     "uploadError": "Błąd uploadu: {{message}}",

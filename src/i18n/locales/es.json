@@ -224,6 +224,7 @@
     "clickToAddMarker": "Haz clic en cualquier parte del mapa para añadir un marcador.",
     "editMapTooltip": "Editar mapa",
     "maxReachedTooltip": "Ya se añadieron todos los mokoko de este mapa",
+    "pendingVisibilityTooltip": "Todavía oculto para los demás jugadores",
     "addMap": "+ Añadir mapa",
     "pipButton": "Flotar mapa",
     "pipTooltip": "Mantén el mapa flotando sobre otras ventanas",
@@ -268,7 +269,10 @@
     "title": "Nuevo marcador",
     "photoOptional": "Foto (opcional)",
     "addMarker": "Añadir marcador",
-    "saving": "Guardando..."
+    "saving": "Guardando...",
+    "delayLabel": "Retraso antes de que sea visible para los demás",
+    "delayDays": "días",
+    "delayHint": "Déjalo en 0 para que se vea al instante. El admin siempre lo ve enseguida."
   },
   "imageUpload": {
     "uploadError": "Error al subir: {{message}}",
