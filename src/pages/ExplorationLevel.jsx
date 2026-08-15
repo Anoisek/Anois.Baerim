@@ -89,6 +89,19 @@ export default function ExplorationLevel() {
                 )}
               </div>
 
+              {row.image_urls?.length > 0 && (
+                <div className="flex gap-3 overflow-x-auto mb-4 pb-1">
+                  {row.image_urls.map(url => (
+                    <img
+                      key={url}
+                      src={url}
+                      alt=""
+                      className="h-40 w-auto object-contain rounded-xl border border-gray-700 shrink-0 bg-gray-900"
+                    />
+                  ))}
+                </div>
+              )}
+
               {row.description ? (
                 <p className="text-sm text-gray-200 whitespace-pre-wrap leading-relaxed bg-gray-900 border border-gray-700 rounded-2xl p-5">
                   {row.description}

@@ -2,6 +2,14 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import Modal from './Modal'
+import ImageUpload from './ImageUpload'
+
+function extractStoragePath(url) {
+  if (!url) return null
+  const marker = '/object/public/images/'
+  const idx = url.indexOf(marker)
+  return idx !== -1 ? url.slice(idx + marker.length) : null
+}
 
 export default function EditExplorationLevelModal({ level, onClose, onSaved }) {
   const { t } = useTranslation()
@@ -9,7 +17,14 @@ export default function EditExplorationLevelModal({ level, onClose, onSaved }) {
   const [description, setDescription] = useState(level.description ?? '')
   const [xPercent, setXPercent] = useState(String(level.x_percent))
   const [yPercent, setYPercent] = useState(String(level.y_percent))
+  const [imageUrls, setImageUrls] = useState(level.image_urls ?? [])
   const [saving, setSaving] = useState(false)
+
+  async function removeImageAt(i) {
+    const path = extractStoragePath(imageUrls[i])
+    if (path) await supabase.storage.from('images').remove([path])
+    setImageUrls(prev => prev.filter((_, idx) => idx !== i))
+  }
 
   async function handleSave() {
     setSaving(true)
@@ -17,7 +32,7 @@ export default function EditExplorationLevelModal({ level, onClose, onSaved }) {
     const y = Math.min(100, Math.max(0, parseFloat(yPercent) || 0))
     const { data, error } = await supabase
       .from('exploration_levels')
-      .update({ title: title.trim() || null, description: description.trim() || null, x_percent: x, y_percent: y })
+      .update({ title: title.trim() || null, description: description.trim() || null, x_percent: x, y_percent: y, image_urls: imageUrls })
       .eq('level', level.level)
       .select()
       .single()
@@ -77,6 +92,28 @@ export default function EditExplorationLevelModal({ level, onClose, onSaved }) {
           </div>
         </div>
         <p className="text-xs text-gray-500">{t('systems.positionHint')}</p>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-sm text-gray-400">{t('systems.levelImagesLabel')}</label>
+          {imageUrls.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {imageUrls.map((url, i) => (
+                <div key={url} className="relative">
+                  <img src={url} alt="" className="w-20 h-20 object-cover rounded-lg border border-gray-600" />
+                  <button
+                    type="button"
+                    onClick={() => removeImageAt(i)}
+                    className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-500 text-white rounded-full w-5 h-5 text-xs leading-none flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <ImageUpload onUploaded={url => setImageUrls(prev => [...prev, url])} />
+        </div>
+
         <button
           onClick={handleSave}
           disabled={saving}
