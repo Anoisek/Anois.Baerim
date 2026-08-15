@@ -1,10 +1,9 @@
-import { supabase } from '../supabaseClient'
+import { getToken } from '../authClient'
 
 const WORKER_URL = import.meta.env.VITE_IMAGES_WORKER_URL
 
-async function authHeader() {
-  const { data } = await supabase.auth.getSession()
-  const token = data.session?.access_token
+function authHeader() {
+  const token = getToken()
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 

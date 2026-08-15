@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
-
-const LOGIN_DOMAIN = '@baerim.local'
+import { login } from '../authClient'
+import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const [login, setLogin] = useState('')
+  const { refresh } = useAuth()
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -17,10 +17,13 @@ export default function Login() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const email = login.includes('@') ? login.trim() : login.trim() + LOGIN_DOMAIN
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) setError(t('login.invalidCredentials'))
-    else navigate('/')
+    try {
+      await login(username.trim(), password)
+      await refresh()
+      navigate('/')
+    } catch {
+      setError(t('login.invalidCredentials'))
+    }
     setLoading(false)
   }
 
@@ -45,8 +48,8 @@ export default function Login() {
             <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('login.loginLabel')}</label>
             <input
               type="text"
-              value={login}
-              onChange={e => setLogin(e.target.value)}
+              value={username}
+              onChange={e => setUsername(e.target.value)}
               required
               autoComplete="username"
               className="bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-yellow-400 transition-colors"
@@ -59,6 +62,7 @@ export default function Login() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
+              autoComplete="current-password"
               className="bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-yellow-400 transition-colors"
             />
           </div>

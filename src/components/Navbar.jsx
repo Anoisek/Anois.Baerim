@@ -1,7 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
-import { supabase } from '../supabaseClient'
 import GlobalSearch from './GlobalSearch'
 import LanguageSwitcher from './LanguageSwitcher'
 import NightModeToggle from './NightModeToggle'
@@ -9,12 +8,12 @@ import UiScaleToggle from './UiScaleToggle'
 import DonateButton from './DonateButton'
 
 export default function Navbar() {
-  const { isAdmin } = useAuth()
+  const { isAdmin, logout } = useAuth()
   const navigate = useNavigate()
   const { t } = useTranslation()
 
-  async function handleLogout() {
-    await supabase.auth.signOut()
+  function handleLogout() {
+    logout()
     navigate('/')
   }
 

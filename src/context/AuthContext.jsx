@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '../supabaseClient'
+import { getToken, logout as authLogout, me as authMe } from '../authClient'
 
 const AuthContext = createContext(null)
 const NICKNAME_KEY = 'metin_nickname'
@@ -16,32 +16,38 @@ export function AuthProvider({ children }) {
     setNicknameState(trimmed)
   }
 
+  async function refresh() {
+    if (!getToken()) {
+      setSession(null)
+      setIsAdmin(false)
+      setCanAddMarkers(false)
+      return
+    }
+    const flags = await authMe()
+    if (!flags) {
+      setSession(null)
+      setIsAdmin(false)
+      setCanAddMarkers(false)
+      return
+    }
+    setSession(true)
+    setIsAdmin(flags.isAdmin)
+    setCanAddMarkers(flags.isAdmin || flags.isEditor)
+  }
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      checkAdmin(data.session)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      checkAdmin(session)
-    })
-
-    return () => subscription.unsubscribe()
+    refresh()
   }, [])
 
-  async function checkAdmin(session) {
-    if (!session?.user?.id) { setIsAdmin(false); setCanAddMarkers(false); return }
-    const [{ data: adminRow }, { data: editorRow }] = await Promise.all([
-      supabase.from('admins').select('user_id').eq('user_id', session.user.id).maybeSingle(),
-      supabase.from('map_editors').select('user_id').eq('user_id', session.user.id).maybeSingle(),
-    ])
-    setIsAdmin(!!adminRow)
-    setCanAddMarkers(!!adminRow || !!editorRow)
+  function logout() {
+    authLogout()
+    setSession(null)
+    setIsAdmin(false)
+    setCanAddMarkers(false)
   }
 
   return (
-    <AuthContext.Provider value={{ session, isAdmin, canAddMarkers, nickname, setNickname }}>
+    <AuthContext.Provider value={{ session, isAdmin, canAddMarkers, nickname, setNickname, refresh, logout }}>
       {session !== undefined && children}
     </AuthContext.Provider>
   )

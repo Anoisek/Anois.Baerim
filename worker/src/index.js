@@ -1,5 +1,6 @@
 import { handleDbRequest } from './db.js'
 import { handleRpcRequest } from './rpc.js'
+import { handleAuthRequest, verifyToken, roleFlags } from './auth.js'
 
 const BUCKETS = new Set(['images', 'map-notes'])
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
@@ -23,48 +24,25 @@ function json(data, status, headers) {
   })
 }
 
+// Phase 3: own login system. Bearer token is now our own HMAC-signed session token
+// (worker/src/auth.js), verified locally + checked against D1 admins/map_editors —
+// no more network round trip to Supabase.
 async function isAdmin(request, env) {
   const authHeader = request.headers.get('Authorization') || ''
   const token = authHeader.replace(/^Bearer\s+/i, '')
-  if (!token) return false
-
-  const userRes = await fetch(env.SUPABASE_URL + '/auth/v1/user', {
-    headers: { Authorization: 'Bearer ' + token, apikey: env.SUPABASE_ANON_KEY },
-  })
-  if (!userRes.ok) return false
-  const user = await userRes.json()
-  if (!user || !user.id) return false
-
-  const adminRes = await fetch(
-    env.SUPABASE_URL + '/rest/v1/admins?user_id=eq.' + user.id + '&select=user_id',
-    { headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY, Authorization: 'Bearer ' + env.SUPABASE_SERVICE_ROLE_KEY } }
-  )
-  if (!adminRes.ok) return false
-  const rows = await adminRes.json()
-  return rows.length > 0
+  const userId = await verifyToken(env, token)
+  if (!userId) return false
+  const flags = await roleFlags(env, userId)
+  return flags.isAdmin
 }
 
-// Mirrors isAdmin() exactly, checking map_editors instead of admins. map_editors is a
-// non-admin role that can add map markers/helpers but not edit/delete them (Phase 2.3).
 async function isEditor(request, env) {
   const authHeader = request.headers.get('Authorization') || ''
   const token = authHeader.replace(/^Bearer\s+/i, '')
-  if (!token) return false
-
-  const userRes = await fetch(env.SUPABASE_URL + '/auth/v1/user', {
-    headers: { Authorization: 'Bearer ' + token, apikey: env.SUPABASE_ANON_KEY },
-  })
-  if (!userRes.ok) return false
-  const user = await userRes.json()
-  if (!user || !user.id) return false
-
-  const editorRes = await fetch(
-    env.SUPABASE_URL + '/rest/v1/map_editors?user_id=eq.' + user.id + '&select=user_id',
-    { headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY, Authorization: 'Bearer ' + env.SUPABASE_SERVICE_ROLE_KEY } }
-  )
-  if (!editorRes.ok) return false
-  const rows = await editorRes.json()
-  return rows.length > 0
+  const userId = await verifyToken(env, token)
+  if (!userId) return false
+  const flags = await roleFlags(env, userId)
+  return flags.isEditor
 }
 
 function extFromType(type) {
@@ -120,6 +98,7 @@ export default {
       if (request.method === 'POST' && url.pathname === '/delete') return await handleDelete(request, env, headers)
       if (url.pathname.indexOf('/db/') === 0) return await handleDbRequest(request, env, url, headers, isAdmin, isEditor)
       if (request.method === 'POST' && url.pathname.indexOf('/rpc/') === 0) return await handleRpcRequest(request, env, url, headers)
+      if (url.pathname.indexOf('/auth/') === 0) return await handleAuthRequest(request, env, url, headers)
     } catch (err) {
       return json({ error: (err && err.message) || 'internal error' }, 500, headers)
     }
