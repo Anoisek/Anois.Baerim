@@ -1,13 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import Modal from './Modal'
-
-function extractStoragePath(url) {
-  if (!url) return null
-  const marker = '/object/public/map-notes/'
-  const idx = url.indexOf(marker)
-  return idx !== -1 ? url.slice(idx + marker.length) : null
-}
+import { deleteImages } from '../utils/imageStorage'
 
 function daysUntil(isoDate) {
   if (!isoDate) return 0
@@ -45,8 +39,7 @@ export default function EditMarkerModal({ marker, onClose, onUpdated, onDeleted 
   async function handleDelete() {
     setDeleting(true)
     const { data: notes } = await supabase.from('map_marker_notes').select('image_url').eq('marker_id', marker.id)
-    const paths = (notes ?? []).map(n => extractStoragePath(n.image_url)).filter(Boolean)
-    if (paths.length > 0) await supabase.storage.from('map-notes').remove(paths)
+    await deleteImages((notes ?? []).map(n => n.image_url), 'map-notes')
     const { error } = await supabase.from('map_markers').delete().eq('id', marker.id)
     if (error) { alert('Error: ' + error.message); setDeleting(false); return }
     onDeleted(marker.id)

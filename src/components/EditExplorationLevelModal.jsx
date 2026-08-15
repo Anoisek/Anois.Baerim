@@ -3,13 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../supabaseClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
-
-function extractStoragePath(url) {
-  if (!url) return null
-  const marker = '/object/public/images/'
-  const idx = url.indexOf(marker)
-  return idx !== -1 ? url.slice(idx + marker.length) : null
-}
+import { deleteImages } from '../utils/imageStorage'
 
 export default function EditExplorationLevelModal({ level, onClose, onSaved }) {
   const { t } = useTranslation()
@@ -21,8 +15,7 @@ export default function EditExplorationLevelModal({ level, onClose, onSaved }) {
   const [saving, setSaving] = useState(false)
 
   async function removeImageAt(i) {
-    const path = extractStoragePath(imageUrls[i])
-    if (path) await supabase.storage.from('images').remove([path])
+    await deleteImages(imageUrls[i])
     setImageUrls(prev => prev.filter((_, idx) => idx !== i))
   }
 

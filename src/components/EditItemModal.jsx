@@ -5,6 +5,7 @@ import { parseYang } from '../utils/formatYang'
 import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
+import { deleteImages } from '../utils/imageStorage'
 
 const STEPS = [
   { step: 0, label: 'Craft' },
@@ -12,13 +13,6 @@ const STEPS = [
   { step: 4, label: '+3 → +4' }, { step: 5, label: '+4 → +5' }, { step: 6, label: '+5 → +6' },
   { step: 7, label: '+6 → +7' }, { step: 8, label: '+7 → +8' }, { step: 9, label: '+8 → +9' },
 ]
-
-function extractStoragePath(url) {
-  if (!url) return null
-  const marker = '/object/public/images/'
-  const idx = url.indexOf(marker)
-  return idx !== -1 ? url.slice(idx + marker.length) : null
-}
 
 export default function EditItemModal({ item, categoryId, onClose, onUpdated, onDeleted }) {
   const [name, setName] = useState(item.name)
@@ -307,8 +301,7 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
   }
 
   async function removeImageAt(i) {
-    const path = extractStoragePath(imageUrls[i])
-    if (path) await supabase.storage.from('images').remove([path])
+    await deleteImages(imageUrls[i])
     setImageUrls(prev => prev.filter((_, idx) => idx !== i))
   }
 
@@ -408,8 +401,7 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
 
   async function handleDelete() {
     setDeleting(true)
-    const paths = imageUrls.map(extractStoragePath).filter(Boolean)
-    if (paths.length > 0) await supabase.storage.from('images').remove(paths)
+    await deleteImages(imageUrls)
     const { error } = await supabase.from('items').delete().eq('id', item.id)
     if (error) { alert('Error: ' + error.message); setDeleting(false); return }
     onDeleted(item.id)

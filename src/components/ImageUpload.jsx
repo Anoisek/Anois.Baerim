@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { uploadImage } from '../utils/imageStorage'
 
 export default function ImageUpload({ onUploaded, bucket = 'images' }) {
   const { t } = useTranslation()
@@ -14,18 +14,12 @@ export default function ImageUpload({ onUploaded, bucket = 'images' }) {
     setPreview(URL.createObjectURL(file))
     setUploading(true)
 
-    const ext = file.name.split('.').pop()
-    const path = `${Date.now()}.${ext}`
-
-    const { error } = await supabase.storage.from(bucket).upload(path, file)
-    if (error) {
+    try {
+      const url = await uploadImage(file, bucket)
+      onUploaded(url)
+    } catch (error) {
       alert(t('imageUpload.uploadError', { message: error.message }))
-      setUploading(false)
-      return
     }
-
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path)
-    onUploaded(data.publicUrl)
     setUploading(false)
   }
 

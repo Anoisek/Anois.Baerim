@@ -6,13 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import ImageUpload from './ImageUpload'
 import Spinner from './Spinner'
 import { censorText, containsBannedWord, getCooldownUntil, startCooldown } from '../utils/profanityFilter'
-
-function extractStoragePath(url) {
-  if (!url) return null
-  const marker = '/object/public/map-notes/'
-  const idx = url.indexOf(marker)
-  return idx !== -1 ? url.slice(idx + marker.length) : null
-}
+import { deleteImages } from '../utils/imageStorage'
 
 function formatRemaining(ms) {
   const totalMinutes = Math.max(1, Math.ceil(ms / 60000))
@@ -125,8 +119,7 @@ export default function MarkerPanel({ marker, onClose }) {
   }
 
   async function handleDeleteNote(note) {
-    const path = extractStoragePath(note.image_url)
-    if (path) await supabase.storage.from('map-notes').remove([path])
+    await deleteImages(note.image_url, 'map-notes')
     const { error } = await supabase.from('map_marker_notes').delete().eq('id', note.id)
     if (error) { alert('Error: ' + error.message); return }
     setNotes(prev => prev.filter(n => n.id !== note.id))

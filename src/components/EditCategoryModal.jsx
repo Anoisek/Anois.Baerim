@@ -2,13 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
-
-function extractStoragePath(url) {
-  if (!url) return null
-  const marker = '/object/public/images/'
-  const idx = url.indexOf(marker)
-  return idx !== -1 ? url.slice(idx + marker.length) : null
-}
+import { deleteImages } from '../utils/imageStorage'
 
 export default function EditCategoryModal({ category, onClose, onUpdated }) {
   const [name, setName] = useState(category.name)
@@ -37,14 +31,12 @@ export default function EditCategoryModal({ category, onClose, onUpdated }) {
   }
 
   async function handleRemoveImage() {
-    const path = extractStoragePath(imageUrl)
-    if (path) await supabase.storage.from('images').remove([path])
+    await deleteImages(imageUrl)
     setImageUrl('')
   }
 
   async function handleNewImage(url) {
-    const path = extractStoragePath(imageUrl)
-    if (path) await supabase.storage.from('images').remove([path])
+    await deleteImages(imageUrl)
     setImageUrl(url)
   }
 

@@ -5,13 +5,7 @@ import { CATEGORY_TAGS } from '../utils/materialCategoryTags'
 import { itemImages as materialImages } from '../utils/itemImages'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
-
-function extractStoragePath(url) {
-  if (!url) return null
-  const marker = '/object/public/images/'
-  const idx = url.indexOf(marker)
-  return idx !== -1 ? url.slice(idx + marker.length) : null
-}
+import { deleteImages } from '../utils/imageStorage'
 
 export default function EditMaterialModal({ material, onClose, onUpdated, onDeleted }) {
   const [name, setName] = useState(material.name)
@@ -99,8 +93,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
   const activeComponents = activeVariant === 1 ? components : (variantComponents[activeVariant] ?? {})
 
   async function removeImageAt(i) {
-    const path = extractStoragePath(imageUrls[i])
-    if (path) await supabase.storage.from('images').remove([path])
+    await deleteImages(imageUrls[i])
     setImageUrls(prev => prev.filter((_, idx) => idx !== i))
   }
 
@@ -187,8 +180,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
       return
     }
 
-    const paths = imageUrls.map(extractStoragePath).filter(Boolean)
-    if (paths.length > 0) await supabase.storage.from('images').remove(paths)
+    await deleteImages(imageUrls)
 
     const { error } = await supabase.from('materials').delete().eq('id', material.id)
     if (error) {

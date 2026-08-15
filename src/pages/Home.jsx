@@ -9,13 +9,7 @@ import Modal from '../components/Modal'
 import ImageUpload from '../components/ImageUpload'
 import Spinner from '../components/Spinner'
 import Tile from '../components/Tile'
-
-function extractStoragePath(url) {
-  if (!url) return null
-  const marker = '/object/public/images/'
-  const idx = url.indexOf(marker)
-  return idx !== -1 ? url.slice(idx + marker.length) : null
-}
+import { deleteImages } from '../utils/imageStorage'
 
 function EditTileImageModal({ title, settingKey, currentUrl, onClose, onSaved }) {
   const { t } = useTranslation()
@@ -23,14 +17,12 @@ function EditTileImageModal({ title, settingKey, currentUrl, onClose, onSaved })
   const [imageUrl, setImageUrl] = useState(currentUrl ?? '')
 
   async function handleNewImage(url) {
-    const path = extractStoragePath(imageUrl)
-    if (path) await supabase.storage.from('images').remove([path])
+    await deleteImages(imageUrl)
     setImageUrl(url)
   }
 
   async function handleRemove() {
-    const path = extractStoragePath(imageUrl)
-    if (path) await supabase.storage.from('images').remove([path])
+    await deleteImages(imageUrl)
     setImageUrl('')
   }
 

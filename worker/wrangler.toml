@@ -1,0 +1,16 @@
+name = "baerim-images-worker"
+main = "src/index.js"
+compatibility_date = "2026-08-15"
+
+[[r2_buckets]]
+binding = "IMAGES_BUCKET"
+bucket_name = "baerim-images"
+
+# Secrets (set via `wrangler secret put <NAME>`, not stored here):
+#   SUPABASE_URL
+#   SUPABASE_ANON_KEY
+#   SUPABASE_SERVICE_ROLE_KEY
+
+[vars]
+PUBLIC_R2_URL = "https://pub-ca333e738137481fa823decac7e5d3f8.r2.dev"
+ALLOWED_ORIGIN = "https://anois-baerim.pages.dev"

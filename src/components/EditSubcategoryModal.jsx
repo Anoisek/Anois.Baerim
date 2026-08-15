@@ -2,13 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
-
-function extractStoragePath(url) {
-  if (!url) return null
-  const marker = '/object/public/images/'
-  const idx = url.indexOf(marker)
-  return idx !== -1 ? url.slice(idx + marker.length) : null
-}
+import { deleteImages } from '../utils/imageStorage'
 
 export default function EditSubcategoryModal({ subcategory, onClose, onUpdated, onDeleted }) {
   const [name, setName] = useState(subcategory.name)
@@ -39,21 +33,18 @@ export default function EditSubcategoryModal({ subcategory, onClose, onUpdated, 
   }
 
   async function handleRemoveImage() {
-    const path = extractStoragePath(imageUrl)
-    if (path) await supabase.storage.from('images').remove([path])
+    await deleteImages(imageUrl)
     setImageUrl('')
   }
 
   async function handleNewImage(url) {
-    const path = extractStoragePath(imageUrl)
-    if (path) await supabase.storage.from('images').remove([path])
+    await deleteImages(imageUrl)
     setImageUrl(url)
   }
 
   async function handleDelete() {
     setDeleting(true)
-    const path = extractStoragePath(subcategory.image_url)
-    if (path) await supabase.storage.from('images').remove([path])
+    await deleteImages(subcategory.image_url)
     const { error } = await supabase.from('subcategories').delete().eq('id', subcategory.id)
     if (error) { alert('Error: ' + error.message); setDeleting(false); return }
     onDeleted(subcategory.id)
