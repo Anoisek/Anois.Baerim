@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { parseYang } from '../utils/formatYang'
 import { CATEGORY_TAGS } from '../utils/materialCategoryTags'
 import { itemImages as materialImages } from '../utils/itemImages'
@@ -29,9 +29,9 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
 
   useEffect(() => {
     Promise.all([
-      supabase.from('materials').select('*').order('name'),
-      supabase.from('material_materials').select('component_id, quantity, variant').eq('material_id', material.id),
-      supabase.from('material_craft_variant_yield').select('variant, yield').eq('material_id', material.id),
+      db.from('materials').select('*').order('name'),
+      db.from('material_materials').select('component_id, quantity, variant').eq('material_id', material.id),
+      db.from('material_craft_variant_yield').select('variant, yield').eq('material_id', material.id),
     ]).then(([matsRes, compRes, yieldRes]) => {
       setAllMaterials((matsRes.data ?? []).filter(m => m.id !== material.id))
       const c = {}
@@ -102,7 +102,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
     if (!name.trim()) return
     setSaving(true)
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('materials')
       .update({
         name: name.trim(),
@@ -127,7 +127,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
       return
     }
 
-    await supabase.from('material_materials').delete().eq('material_id', material.id)
+    await db.from('material_materials').delete().eq('material_id', material.id)
     if (isCraftable) {
       const rows = Object.entries(components)
         .filter(([, qty]) => Number(qty) > 0)
@@ -141,17 +141,17 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
         }
       }
 
-      if (rows.length > 0) await supabase.from('material_materials').insert(rows)
+      if (rows.length > 0) await db.from('material_materials').insert(rows)
     }
 
-    await supabase.from('material_craft_variant_yield').delete().eq('material_id', material.id)
+    await db.from('material_craft_variant_yield').delete().eq('material_id', material.id)
     if (isCraftable && isPvp) {
       const yieldRows = []
       for (let v = 1; v <= variantCount; v++) {
         const y = Math.max(1, parseInt(variantYield[v]) || 1)
         yieldRows.push({ material_id: material.id, variant: v, yield: y })
       }
-      await supabase.from('material_craft_variant_yield').insert(yieldRows)
+      await db.from('material_craft_variant_yield').insert(yieldRows)
     }
 
     onUpdated(data)
@@ -163,8 +163,8 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
     setDeleting(true)
 
     const [{ count: usedInItems }, { count: usedInMaterials }] = await Promise.all([
-      supabase.from('item_materials').select('item_id', { count: 'exact', head: true }).eq('material_id', material.id),
-      supabase.from('material_materials').select('material_id', { count: 'exact', head: true }).eq('component_id', material.id),
+      db.from('item_materials').select('item_id', { count: 'exact', head: true }).eq('material_id', material.id),
+      db.from('material_materials').select('material_id', { count: 'exact', head: true }).eq('component_id', material.id),
     ])
 
     if (usedInItems > 0) {
@@ -182,7 +182,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
 
     await deleteImages(imageUrls)
 
-    const { error } = await supabase.from('materials').delete().eq('id', material.id)
+    const { error } = await db.from('materials').delete().eq('id', material.id)
     if (error) {
       alert('Error: ' + error.message)
       setDeleting(false)

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
@@ -61,14 +61,14 @@ export default function BuildCalculator() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('items').select('id, name, image_url, image_urls, category_id').order('name'),
-      supabase.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
-      supabase.from('materials').select('id, craft_yang_cost'),
-      supabase.from('item_materials').select('item_id, material_id, quantity, step, variant'),
-      supabase.from('item_items').select('item_id, component_item_id, quantity, step, variant'),
-      supabase.from('item_step_yang').select('item_id, step, yang_cost, max_pity, variant'),
-      supabase.from('materials').select('id, name, image_url').eq('is_upgrade_scroll', true).order('name'),
-      supabase.from('materials').select('id, name, image_url, is_craftable'),
+      db.from('items').select('id, name, image_url, image_urls, category_id').order('name'),
+      db.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
+      db.from('materials').select('id, craft_yang_cost'),
+      db.from('item_materials').select('item_id, material_id, quantity, step, variant'),
+      db.from('item_items').select('item_id, component_item_id, quantity, step, variant'),
+      db.from('item_step_yang').select('item_id, step, yang_cost, max_pity, variant'),
+      db.from('materials').select('id, name, image_url').eq('is_upgrade_scroll', true).order('name'),
+      db.from('materials').select('id, name, image_url, is_craftable'),
       fetchGlobalPrices(),
     ]).then(([itemsRes, recipeRes, allMatsRes, allItemMatsRes, allItemItemsRes, allItemYangRes, scrollsRes, allMaterialsRes, globalPricesMap]) => {
       setAllItems(itemsRes.data ?? [])

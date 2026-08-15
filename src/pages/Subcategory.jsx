@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -29,16 +29,16 @@ export default function Subcategory() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    let itemsQuery = supabase.from('items').select('*').eq('category_id', categoryId).order('sort_order')
+    let itemsQuery = db.from('items').select('*').eq('category_id', categoryId).order('sort_order')
     itemsQuery = isUncategorized ? itemsQuery.is('subcategory_id', null) : itemsQuery.eq('subcategory_id', subcategoryId)
 
     Promise.all([
-      supabase.from('categories').select('id, name').eq('id', categoryId).single(),
+      db.from('categories').select('id, name').eq('id', categoryId).single(),
       isUncategorized
         ? Promise.resolve({ data: null })
-        : supabase.from('subcategories').select('*').eq('id', subcategoryId).single(),
+        : db.from('subcategories').select('*').eq('id', subcategoryId).single(),
       itemsQuery,
-      supabase.from('item_items').select('component_item_id'),
+      db.from('item_items').select('component_item_id'),
     ]).then(([catRes, subRes, itemsRes, itemItemsRes]) => {
       setCategory(catRes.data)
       setSubcategory(subRes.data)
@@ -50,7 +50,7 @@ export default function Subcategory() {
 
   async function persistItemOrder(id, newOrder) {
     setItems(prev => prev.map(i => i.id === id ? { ...i, sort_order: newOrder } : i).sort((a, b) => a.sort_order - b.sort_order))
-    await supabase.from('items').update({ sort_order: newOrder }).eq('id', id)
+    await db.from('items').update({ sort_order: newOrder }).eq('id', id)
   }
 
   function moveItem(index, delta) {
@@ -65,7 +65,7 @@ export default function Subcategory() {
   async function toggleMaintenance(item) {
     const next = !item.maintenance
     setItems(prev => prev.map(i => i.id === item.id ? { ...i, maintenance: next } : i))
-    await supabase.from('items').update({ maintenance: next }).eq('id', item.id)
+    await db.from('items').update({ maintenance: next }).eq('id', item.id)
   }
 
   return (

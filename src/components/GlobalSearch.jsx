@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { formatItemName } from '../utils/itemName'
 
 function ResultGroup({ label, children }) {
@@ -58,10 +58,10 @@ export default function GlobalSearch() {
     setLoading(true)
     const timeout = setTimeout(() => {
       Promise.all([
-        supabase.from('categories').select('id, name, image_url').ilike('name', `%${q}%`).limit(5),
-        supabase.from('subcategories').select('id, name, image_url, category_id').ilike('name', `%${q}%`).limit(5),
-        supabase.from('materials').select('id, name, image_url').ilike('name', `%${q}%`).limit(5),
-        supabase.from('items').select('id, name, image_url, category_id').ilike('name', `%${q}%`).limit(5),
+        db.from('categories').select('id, name, image_url').ilike('name', `%${q}%`).limit(5),
+        db.from('subcategories').select('id, name, image_url, category_id').ilike('name', `%${q}%`).limit(5),
+        db.from('materials').select('id, name, image_url').ilike('name', `%${q}%`).limit(5),
+        db.from('items').select('id, name, image_url, category_id').ilike('name', `%${q}%`).limit(5),
       ]).then(([chaptersRes, categoriesRes, materialsRes, itemsRes]) => {
         setResults({
           chapters: chaptersRes.data ?? [],

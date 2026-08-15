@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
@@ -33,14 +33,16 @@ export default function ItemUsage() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('items').select('id, name, image_url, image_urls, category_id').eq('id', itemId).single(),
-      supabase.from('item_items').select('item:items!item_items_item_id_fkey(id, name, image_url, category_id)').eq('component_item_id', itemId),
-    ]).then(([itemRes, rows]) => {
+      db.from('items').select('id, name, image_url, image_urls, category_id').eq('id', itemId).single(),
+      db.from('item_items').select('item_id').eq('component_item_id', itemId),
+      db.from('items').select('id, name, image_url, category_id'),
+    ]).then(([itemRes, rows, allItemsRes]) => {
       setItem(itemRes.data)
-      setUsedInItems(dedupeById((rows.data ?? []).map(r => r.item).filter(Boolean)))
+      const itemsById = Object.fromEntries((allItemsRes.data ?? []).map(i => [i.id, i]))
+      setUsedInItems(dedupeById((rows.data ?? []).map(r => itemsById[r.item_id]).filter(Boolean)))
       setLoading(false)
       if (itemRes.data?.category_id) {
-        supabase.from('categories').select('name').eq('id', itemRes.data.category_id).single()
+        db.from('categories').select('name').eq('id', itemRes.data.category_id).single()
           .then(({ data }) => setChapterName(data?.name ?? null))
       }
     })

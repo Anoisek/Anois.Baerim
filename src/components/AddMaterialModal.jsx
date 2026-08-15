@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { parseYang } from '../utils/formatYang'
 import { CATEGORY_TAGS } from '../utils/materialCategoryTags'
 import Modal from './Modal'
@@ -24,7 +24,7 @@ export default function AddMaterialModal({ onClose, onAdded }) {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    supabase.from('materials').select('*').order('name').then(({ data }) => {
+    db.from('materials').select('*').order('name').then(({ data }) => {
       setAllMaterials(data ?? [])
     })
   }, [])
@@ -68,7 +68,7 @@ export default function AddMaterialModal({ onClose, onAdded }) {
     e.preventDefault()
     if (!name.trim()) return
     setSaving(true)
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('materials')
       .insert({
         name: name.trim(),
@@ -106,7 +106,7 @@ export default function AddMaterialModal({ onClose, onAdded }) {
       }
 
       if (rows.length > 0) {
-        const { error: err } = await supabase.from('material_materials').insert(rows)
+        const { error: err } = await db.from('material_materials').insert(rows)
         if (err) { alert('Error saving recipe: ' + err.message); setSaving(false); return }
       }
 
@@ -116,7 +116,7 @@ export default function AddMaterialModal({ onClose, onAdded }) {
           const y = Math.max(1, parseInt(variantYield[v]) || 1)
           yieldRows.push({ material_id: data.id, variant: v, yield: y })
         }
-        await supabase.from('material_craft_variant_yield').insert(yieldRows)
+        await db.from('material_craft_variant_yield').insert(yieldRows)
       }
     }
 

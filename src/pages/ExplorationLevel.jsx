@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -20,8 +20,8 @@ export default function ExplorationLevel() {
   useEffect(() => {
     setLoading(true)
     Promise.all([
-      supabase.from('exploration_levels').select('*').eq('level', Number(level)).maybeSingle(),
-      supabase.from('exploration_levels').select('level').order('level', { ascending: false }).limit(1).maybeSingle(),
+      db.from('exploration_levels').select('*').eq('level', Number(level)).maybeSingle(),
+      db.from('exploration_levels').select('level').order('level', { ascending: false }).limit(1).maybeSingle(),
     ]).then(([rowRes, maxRes]) => {
       setRow(rowRes.data)
       setMaxLevel(maxRes.data?.level ?? null)

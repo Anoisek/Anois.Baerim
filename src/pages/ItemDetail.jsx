@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import SealPicker from '../components/SealPicker'
@@ -63,33 +63,37 @@ export default function ItemDetail() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('items').select('*').eq('id', itemId).single(),
-      supabase.from('item_materials').select('quantity, step, variant, material:materials(id, name, image_url, is_craftable)').eq('item_id', itemId).order('step'),
-      supabase.from('item_items').select('quantity, step, variant, component:items!item_items_component_item_id_fkey(id, name, image_url, category_id)').eq('item_id', itemId).order('step'),
-      supabase.from('item_step_yang').select('step, variant, yang_cost, max_pity').eq('item_id', itemId),
-      supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_upgrade_scroll', true).order('name'),
-      supabase.from('materials').select('id, name, image_url, is_craftable').eq('is_seal', true).order('name'),
-      supabase.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
-      supabase.from('materials').select('id, craft_yang_cost'),
-      supabase.from('item_materials').select('item_id, material_id, quantity, step, variant'),
-      supabase.from('item_items').select('item_id, component_item_id, quantity, step, variant'),
-      supabase.from('item_step_yang').select('item_id, step, yang_cost, max_pity, variant'),
+      db.from('items').select('*').eq('id', itemId).single(),
+      db.from('item_materials').select('quantity, step, variant, material_id').eq('item_id', itemId).order('step'),
+      db.from('item_items').select('quantity, step, variant, component_item_id').eq('item_id', itemId).order('step'),
+      db.from('item_step_yang').select('step, variant, yang_cost, max_pity').eq('item_id', itemId),
+      db.from('materials').select('id, name, image_url, is_craftable').eq('is_upgrade_scroll', true).order('name'),
+      db.from('materials').select('id, name, image_url, is_craftable').eq('is_seal', true).order('name'),
+      db.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
+      db.from('materials').select('id, name, image_url, is_craftable, craft_yang_cost'),
+      db.from('items').select('id, name, image_url, category_id'),
+      db.from('item_materials').select('item_id, material_id, quantity, step, variant'),
+      db.from('item_items').select('item_id, component_item_id, quantity, step, variant'),
+      db.from('item_step_yang').select('item_id, step, yang_cost, max_pity, variant'),
       fetchGlobalPrices(),
-    ]).then(([itemRes, matsRes, itemIngRes, yangRes, scrollsRes, sealsRes, recipeRes, allMatsRes, allItemMatsRes, allItemItemsRes, allItemYangRes, globalPricesMap]) => {
+    ]).then(([itemRes, matsRes, itemIngRes, yangRes, scrollsRes, sealsRes, recipeRes, allMatsRes, allItemsRes, allItemMatsRes, allItemItemsRes, allItemYangRes, globalPricesMap]) => {
       setItem(itemRes.data)
+
+      const materialsById = Object.fromEntries((allMatsRes.data ?? []).map(m => [m.id, m]))
+      const itemsById = Object.fromEntries((allItemsRes.data ?? []).map(i => [i.id, i]))
 
       const g = {}
       for (const row of matsRes.data ?? []) {
         const v = row.variant ?? 1
         if (!g[row.step]) g[row.step] = {}
         if (!g[row.step][v]) g[row.step][v] = []
-        g[row.step][v].push({ material: row.material, quantity: row.quantity, kind: 'material' })
+        g[row.step][v].push({ material: materialsById[row.material_id], quantity: row.quantity, kind: 'material' })
       }
       for (const row of itemIngRes.data ?? []) {
         const v = row.variant ?? 1
         if (!g[row.step]) g[row.step] = {}
         if (!g[row.step][v]) g[row.step][v] = []
-        g[row.step][v].push({ material: row.component, quantity: row.quantity, kind: 'item' })
+        g[row.step][v].push({ material: itemsById[row.component_item_id], quantity: row.quantity, kind: 'item' })
       }
       setGroupedByVariant(g)
 
@@ -159,12 +163,12 @@ export default function ItemDetail() {
 
   useEffect(() => {
     if (!item) return
-    let siblingsQuery = supabase.from('items').select('id, name, image_url, image_urls, category_id').eq('category_id', item.category_id).order('sort_order')
+    let siblingsQuery = db.from('items').select('id, name, image_url, image_urls, category_id').eq('category_id', item.category_id).order('sort_order')
     siblingsQuery = item.subcategory_id ? siblingsQuery.eq('subcategory_id', item.subcategory_id) : siblingsQuery.is('subcategory_id', null)
 
     Promise.all([
-      supabase.from('categories').select('name').eq('id', item.category_id).single(),
-      item.subcategory_id ? supabase.from('subcategories').select('name').eq('id', item.subcategory_id).single() : Promise.resolve({ data: null }),
+      db.from('categories').select('name').eq('id', item.category_id).single(),
+      item.subcategory_id ? db.from('subcategories').select('name').eq('id', item.subcategory_id).single() : Promise.resolve({ data: null }),
       siblingsQuery,
     ]).then(([catRes, subRes, siblingsRes]) => {
       setChapterName(catRes.data?.name ?? null)

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 import { deleteImages } from '../utils/imageStorage'
@@ -14,7 +14,7 @@ export default function EditCategoryModal({ category, onClose, onUpdated }) {
     if (!name.trim()) return
     setSaving(true)
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('categories')
       .update({ name: name.trim(), image_url: imageUrl || null })
       .eq('id', category.id)

@@ -9,7 +9,7 @@ import EditMaterialModal from '../components/EditMaterialModal'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import Spinner from '../components/Spinner'
 import ItemImage from '../components/ItemImage'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   fetchGlobalPrices, submitPricesToGlobal, makeMaterialPriceFn,
@@ -58,10 +58,10 @@ export default function Materials() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('materials').select('*').order('name'),
-      supabase.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
+      db.from('materials').select('*').order('name'),
+      db.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
       fetchGlobalPrices(),
-      supabase.from('item_materials').select('material_id'),
+      db.from('item_materials').select('material_id'),
     ]).then(([matsRes, recipeRes, globalPricesMap, itemMatsRes]) => {
       setMaterials(matsRes.data ?? [])
       setRecipes(buildRecipeMap(recipeRes.data))

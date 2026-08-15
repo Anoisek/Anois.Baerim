@@ -1,3 +1,5 @@
+import { handleDbRequest } from './db.js'
+
 const BUCKETS = new Set(['images', 'map-notes'])
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
 const MAX_SIZE = 8 * 1024 * 1024
@@ -8,7 +10,7 @@ function corsHeaders(request, env) {
   const allowed = (origin === env.ALLOWED_ORIGIN || DEV_ORIGINS.has(origin)) ? origin : env.ALLOWED_ORIGIN
   return {
     'Access-Control-Allow-Origin': allowed,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Authorization, Content-Type',
   }
 }
@@ -92,6 +94,7 @@ export default {
     try {
       if (request.method === 'POST' && url.pathname === '/upload') return await handleUpload(request, env, headers)
       if (request.method === 'POST' && url.pathname === '/delete') return await handleDelete(request, env, headers)
+      if (url.pathname.indexOf('/db/') === 0) return await handleDbRequest(request, env, url, headers, isAdmin)
     } catch (err) {
       return json({ error: (err && err.message) || 'internal error' }, 500, headers)
     }

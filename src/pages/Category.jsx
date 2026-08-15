@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -24,9 +24,9 @@ export default function Category() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('categories').select('*').eq('id', categoryId).single(),
-      supabase.from('subcategories').select('*').eq('category_id', categoryId).order('sort_order'),
-      supabase.from('items').select('id').eq('category_id', categoryId).is('subcategory_id', null),
+      db.from('categories').select('*').eq('id', categoryId).single(),
+      db.from('subcategories').select('*').eq('category_id', categoryId).order('sort_order'),
+      db.from('items').select('id').eq('category_id', categoryId).is('subcategory_id', null),
     ]).then(([catRes, subRes, uncatRes]) => {
       setCategory(catRes.data)
       setSubcategories(subRes.data ?? [])
@@ -37,7 +37,7 @@ export default function Category() {
 
   async function persistSubOrder(id, newOrder) {
     setSubcategories(prev => prev.map(s => s.id === id ? { ...s, sort_order: newOrder } : s).sort((a, b) => a.sort_order - b.sort_order))
-    await supabase.from('subcategories').update({ sort_order: newOrder }).eq('id', id)
+    await db.from('subcategories').update({ sort_order: newOrder }).eq('id', id)
   }
 
   function moveSubcategory(index, delta) {
@@ -52,7 +52,7 @@ export default function Category() {
   async function toggleMaintenance(sub) {
     const next = !sub.maintenance
     setSubcategories(prev => prev.map(s => s.id === sub.id ? { ...s, maintenance: next } : s))
-    await supabase.from('subcategories').update({ maintenance: next }).eq('id', sub.id)
+    await db.from('subcategories').update({ maintenance: next }).eq('id', sub.id)
   }
 
   return (

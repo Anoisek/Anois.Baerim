@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -25,9 +25,9 @@ export default function Exploration() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('settings').select('value').eq('key', 'exploration_map_url').maybeSingle(),
-      supabase.from('settings').select('value').eq('key', 'system_exploration_maintenance').maybeSingle(),
-      supabase.from('exploration_levels').select('*').order('level'),
+      db.from('settings').select('value').eq('key', 'exploration_map_url').maybeSingle(),
+      db.from('settings').select('value').eq('key', 'system_exploration_maintenance').maybeSingle(),
+      db.from('exploration_levels').select('*').order('level'),
     ]).then(([mapRes, maintRes, levelsRes]) => {
       setMapUrl(mapRes.data?.value ?? null)
       setMaintenance(maintRes.data?.value === 'true')
@@ -53,7 +53,7 @@ export default function Exploration() {
 
   async function moveLevelTo(lvl, xPercent, yPercent) {
     setRepositioningLevel(null)
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('exploration_levels')
       .update({ x_percent: xPercent, y_percent: yPercent })
       .eq('level', lvl.level)

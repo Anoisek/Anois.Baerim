@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 import { deleteImages } from '../utils/imageStorage'
@@ -16,7 +16,7 @@ export default function EditSubcategoryModal({ subcategory, onClose, onUpdated, 
     if (!name.trim()) return
     setSaving(true)
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('subcategories')
       .update({ name: name.trim(), image_url: imageUrl || null })
       .eq('id', subcategory.id)
@@ -45,7 +45,7 @@ export default function EditSubcategoryModal({ subcategory, onClose, onUpdated, 
   async function handleDelete() {
     setDeleting(true)
     await deleteImages(subcategory.image_url)
-    const { error } = await supabase.from('subcategories').delete().eq('id', subcategory.id)
+    const { error } = await db.from('subcategories').delete().eq('id', subcategory.id)
     if (error) { alert('Error: ' + error.message); setDeleting(false); return }
     onDeleted(subcategory.id)
     onClose()

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { itemImages } from '../utils/itemImages'
 import { parseYang } from '../utils/formatYang'
 import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
@@ -47,12 +47,12 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
 
   useEffect(() => {
     Promise.all([
-      supabase.from('materials').select('*').order('name'),
-      supabase.from('items').select('id, name, image_url, category_id').neq('id', item.id).order('name'),
-      supabase.from('item_materials').select('material_id, quantity, step, variant').eq('item_id', item.id),
-      supabase.from('item_items').select('component_item_id, quantity, step, variant').eq('item_id', item.id),
-      supabase.from('item_step_yang').select('step, yang_cost, max_pity, variant').eq('item_id', item.id),
-      categoryId ? supabase.from('subcategories').select('*').eq('category_id', categoryId).order('created_at') : Promise.resolve({ data: [] }),
+      db.from('materials').select('*').order('name'),
+      db.from('items').select('id, name, image_url, category_id').neq('id', item.id).order('name'),
+      db.from('item_materials').select('material_id, quantity, step, variant').eq('item_id', item.id),
+      db.from('item_items').select('component_item_id, quantity, step, variant').eq('item_id', item.id),
+      db.from('item_step_yang').select('step, yang_cost, max_pity, variant').eq('item_id', item.id),
+      categoryId ? db.from('subcategories').select('*').eq('category_id', categoryId).order('created_at') : Promise.resolve({ data: [] }),
     ]).then(([matsRes, itemsRes, imRes, iiRes, yangRes, subRes]) => {
       setAllMaterials(matsRes.data ?? [])
       setAllItems(itemsRes.data ?? [])
@@ -256,9 +256,9 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
     const toV = Math.max(1, parseInt(copyToVariant) || 1)
 
     const [matRes, itemRes, yangRes] = await Promise.all([
-      supabase.from('item_materials').select('material_id, quantity, step').eq('item_id', sourceItemId).eq('variant', fromV),
-      supabase.from('item_items').select('component_item_id, quantity, step').eq('item_id', sourceItemId).eq('variant', fromV),
-      supabase.from('item_step_yang').select('step, yang_cost, max_pity').eq('item_id', sourceItemId).eq('variant', fromV),
+      db.from('item_materials').select('material_id, quantity, step').eq('item_id', sourceItemId).eq('variant', fromV),
+      db.from('item_items').select('component_item_id, quantity, step').eq('item_id', sourceItemId).eq('variant', fromV),
+      db.from('item_step_yang').select('step, yang_cost, max_pity').eq('item_id', sourceItemId).eq('variant', fromV),
     ])
 
     const matsByStep = {}
@@ -310,7 +310,7 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
     if (!name.trim()) return
     setSaving(true)
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('items')
       .update({ name: name.trim(), image_urls: imageUrls, image_url: imageUrls[0] ?? null, subcategory_id: subcategoryId || null })
       .eq('id', item.id)
@@ -320,7 +320,7 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
     if (error) { alert('Error: ' + error.message); setSaving(false); return }
 
     // Replace all item_materials (variant 1 + PVP extra variants)
-    await supabase.from('item_materials').delete().eq('item_id', item.id)
+    await db.from('item_materials').delete().eq('item_id', item.id)
     const matRows = []
     for (const [step, mats] of Object.entries(stepMaterials)) {
       for (const [material_id, quantity] of Object.entries(mats)) {
@@ -336,10 +336,10 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
         }
       }
     }
-    if (matRows.length > 0) await supabase.from('item_materials').insert(matRows)
+    if (matRows.length > 0) await db.from('item_materials').insert(matRows)
 
     // Replace all item_items (variant 1 + PVP extra variants)
-    await supabase.from('item_items').delete().eq('item_id', item.id)
+    await db.from('item_items').delete().eq('item_id', item.id)
     const itemRows = []
     for (const [step, its] of Object.entries(stepItems)) {
       for (const [component_item_id, quantity] of Object.entries(its)) {
@@ -355,10 +355,10 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
         }
       }
     }
-    if (itemRows.length > 0) await supabase.from('item_items').insert(itemRows)
+    if (itemRows.length > 0) await db.from('item_items').insert(itemRows)
 
     // Replace all yang costs / max pity (variant 1 + PVP extra variants)
-    await supabase.from('item_step_yang').delete().eq('item_id', item.id)
+    await db.from('item_step_yang').delete().eq('item_id', item.id)
     const yangRows = []
     const yangSteps = new Set([...Object.keys(stepYang), ...Object.keys(stepMaxPity)])
     for (const step of yangSteps) {
@@ -392,7 +392,7 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
         }
       }
     }
-    if (yangRows.length > 0) await supabase.from('item_step_yang').insert(yangRows)
+    if (yangRows.length > 0) await db.from('item_step_yang').insert(yangRows)
 
     onUpdated(data)
     onClose()
@@ -402,7 +402,7 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
   async function handleDelete() {
     setDeleting(true)
     await deleteImages(imageUrls)
-    const { error } = await supabase.from('items').delete().eq('id', item.id)
+    const { error } = await db.from('items').delete().eq('id', item.id)
     if (error) { alert('Error: ' + error.message); setDeleting(false); return }
     onDeleted(item.id)
     onClose()

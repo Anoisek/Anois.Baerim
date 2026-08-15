@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -17,8 +17,8 @@ export default function Systems() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('settings').select('value').eq('key', 'system_interactivemap_maintenance').maybeSingle(),
-      supabase.from('settings').select('value').eq('key', 'system_exploration_maintenance').maybeSingle(),
+      db.from('settings').select('value').eq('key', 'system_interactivemap_maintenance').maybeSingle(),
+      db.from('settings').select('value').eq('key', 'system_exploration_maintenance').maybeSingle(),
     ]).then(([mapRes, explorationRes]) => {
       setInteractiveMapMaintenance(mapRes.data?.value === 'true')
       setExplorationMaintenance(explorationRes.data?.value === 'true')
@@ -34,7 +34,7 @@ export default function Systems() {
   async function toggleMaintenance(tile) {
     const next = !tile.maintenance
     tile.setMaintenance(next)
-    await supabase.from('settings').upsert({ key: tile.settingKey, value: String(next) })
+    await db.from('settings').upsert({ key: tile.settingKey, value: String(next) })
   }
 
   return (

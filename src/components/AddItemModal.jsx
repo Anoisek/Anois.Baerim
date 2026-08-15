@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { parseYang } from '../utils/formatYang'
 import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
 import Modal from './Modal'
@@ -46,10 +46,10 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
   const isPvpCategory = categoryId === PVP_CATEGORY_ID
 
   useEffect(() => {
-    supabase.from('materials').select('*').order('name').then(({ data }) => {
+    db.from('materials').select('*').order('name').then(({ data }) => {
       setAllMaterials(data ?? [])
     })
-    supabase.from('items').select('id, name, image_url, category_id').order('name').then(({ data }) => {
+    db.from('items').select('id, name, image_url, category_id').order('name').then(({ data }) => {
       setAllItems(data ?? [])
     })
   }, [])
@@ -195,9 +195,9 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
     const toV = Math.max(1, parseInt(copyToVariant) || 1)
 
     const [matRes, itemRes, yangRes] = await Promise.all([
-      supabase.from('item_materials').select('material_id, quantity, step').eq('item_id', sourceItemId).eq('variant', fromV),
-      supabase.from('item_items').select('component_item_id, quantity, step').eq('item_id', sourceItemId).eq('variant', fromV),
-      supabase.from('item_step_yang').select('step, yang_cost, max_pity').eq('item_id', sourceItemId).eq('variant', fromV),
+      db.from('item_materials').select('material_id, quantity, step').eq('item_id', sourceItemId).eq('variant', fromV),
+      db.from('item_items').select('component_item_id, quantity, step').eq('item_id', sourceItemId).eq('variant', fromV),
+      db.from('item_step_yang').select('step, yang_cost, max_pity').eq('item_id', sourceItemId).eq('variant', fromV),
     ])
 
     const matsByStep = {}
@@ -252,7 +252,7 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
     if (!name.trim()) return
     setSaving(true)
 
-    const { data: item, error } = await supabase
+    const { data: item, error } = await db
       .from('items')
       .insert({ name: name.trim(), category_id: categoryId, subcategory_id: subcategoryId || null, image_urls: imageUrls, image_url: imageUrls[0] ?? null, sort_order: nextSortOrder ?? 0 })
       .select()
@@ -281,7 +281,7 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
       }
     }
     if (matRows.length > 0) {
-      const { error: err } = await supabase.from('item_materials').insert(matRows)
+      const { error: err } = await db.from('item_materials').insert(matRows)
       if (err) { alert('Error saving materials: ' + err.message); setSaving(false); return }
     }
 
@@ -302,7 +302,7 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
       }
     }
     if (itemRows.length > 0) {
-      const { error: err } = await supabase.from('item_items').insert(itemRows)
+      const { error: err } = await db.from('item_items').insert(itemRows)
       if (err) { alert('Error saving item ingredients: ' + err.message); setSaving(false); return }
     }
 
@@ -346,7 +346,7 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
       }
     }
     if (yangRows.length > 0) {
-      const { error: err } = await supabase.from('item_step_yang').insert(yangRows)
+      const { error: err } = await db.from('item_step_yang').insert(yangRows)
       if (err) { alert('Error saving yang costs: ' + err.message); setSaving(false); return }
     }
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
@@ -32,13 +32,17 @@ export default function MaterialUsage() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('materials').select('id, name, image_url').eq('id', materialId).single(),
-      supabase.from('item_materials').select('item:items(id, name, image_url, category_id)').eq('material_id', materialId),
-      supabase.from('material_materials').select('material:materials!material_materials_material_id_fkey(id, name, image_url)').eq('component_id', materialId),
-    ]).then(([matRes, itemRows, matRows]) => {
+      db.from('materials').select('id, name, image_url').eq('id', materialId).single(),
+      db.from('item_materials').select('item_id').eq('material_id', materialId),
+      db.from('material_materials').select('material_id').eq('component_id', materialId),
+      db.from('items').select('id, name, image_url, category_id'),
+      db.from('materials').select('id, name, image_url'),
+    ]).then(([matRes, itemRows, matRows, allItemsRes, allMaterialsRes]) => {
       setMaterial(matRes.data)
-      setUsedInItems(dedupeById((itemRows.data ?? []).map(r => r.item).filter(Boolean)))
-      setUsedInMaterials(dedupeById((matRows.data ?? []).map(r => r.material).filter(Boolean)))
+      const itemsById = Object.fromEntries((allItemsRes.data ?? []).map(i => [i.id, i]))
+      const materialsById = Object.fromEntries((allMaterialsRes.data ?? []).map(m => [m.id, m]))
+      setUsedInItems(dedupeById((itemRows.data ?? []).map(r => itemsById[r.item_id]).filter(Boolean)))
+      setUsedInMaterials(dedupeById((matRows.data ?? []).map(r => materialsById[r.material_id]).filter(Boolean)))
       setLoading(false)
     })
   }, [materialId])

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 import { deleteImages } from '../utils/imageStorage'
@@ -23,7 +23,7 @@ export default function EditExplorationLevelModal({ level, onClose, onSaved }) {
     setSaving(true)
     const x = Math.min(100, Math.max(0, parseFloat(xPercent) || 0))
     const y = Math.min(100, Math.max(0, parseFloat(yPercent) || 0))
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('exploration_levels')
       .update({ title: title.trim() || null, description: description.trim() || null, x_percent: x, y_percent: y, image_urls: imageUrls })
       .eq('level', level.level)

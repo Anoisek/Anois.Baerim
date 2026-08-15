@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 
@@ -12,7 +12,7 @@ export default function AddCategoryModal({ nextSortOrder, onClose, onAdded }) {
     e.preventDefault()
     if (!name.trim()) return
     setSaving(true)
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('categories')
       .insert({ name: name.trim(), image_url: imageUrl || null, sort_order: nextSortOrder ?? 0 })
       .select()

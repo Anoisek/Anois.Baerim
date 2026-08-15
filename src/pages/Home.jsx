@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import AddCategoryModal from '../components/AddCategoryModal'
@@ -28,7 +28,7 @@ function EditTileImageModal({ title, settingKey, currentUrl, onClose, onSaved })
 
   async function handleSave() {
     setSaving(true)
-    await supabase.from('settings').upsert({ key: settingKey, value: imageUrl || null })
+    await db.from('settings').upsert({ key: settingKey, value: imageUrl || null })
     onSaved(imageUrl || null)
     onClose()
     setSaving(false)
@@ -91,16 +91,16 @@ export default function Home() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('categories').select('*').order('sort_order'),
-      supabase.from('settings').select('value').eq('key', 'materials_image_url').maybeSingle(),
-      supabase.from('settings').select('value').eq('key', 'systems_image_url').maybeSingle(),
-      supabase.from('settings').select('value').eq('key', 'materials_sort_order').maybeSingle(),
-      supabase.from('settings').select('value').eq('key', 'systems_sort_order').maybeSingle(),
-      supabase.from('settings').select('value').eq('key', 'materials_maintenance').maybeSingle(),
-      supabase.from('settings').select('value').eq('key', 'systems_maintenance').maybeSingle(),
-      supabase.from('settings').select('value').eq('key', 'buildcalculator_image_url').maybeSingle(),
-      supabase.from('settings').select('value').eq('key', 'buildcalculator_sort_order').maybeSingle(),
-      supabase.from('settings').select('value').eq('key', 'buildcalculator_maintenance').maybeSingle(),
+      db.from('categories').select('*').order('sort_order'),
+      db.from('settings').select('value').eq('key', 'materials_image_url').maybeSingle(),
+      db.from('settings').select('value').eq('key', 'systems_image_url').maybeSingle(),
+      db.from('settings').select('value').eq('key', 'materials_sort_order').maybeSingle(),
+      db.from('settings').select('value').eq('key', 'systems_sort_order').maybeSingle(),
+      db.from('settings').select('value').eq('key', 'materials_maintenance').maybeSingle(),
+      db.from('settings').select('value').eq('key', 'systems_maintenance').maybeSingle(),
+      db.from('settings').select('value').eq('key', 'buildcalculator_image_url').maybeSingle(),
+      db.from('settings').select('value').eq('key', 'buildcalculator_sort_order').maybeSingle(),
+      db.from('settings').select('value').eq('key', 'buildcalculator_maintenance').maybeSingle(),
     ]).then(([catRes, materialsRes, systemsRes, materialsOrderRes, systemsOrderRes, materialsMaintRes, systemsMaintRes, buildCalculatorRes, buildCalculatorOrderRes, buildCalculatorMaintRes]) => {
       setCategories(catRes.data ?? [])
       setMaterialsImage(materialsRes.data?.value ?? null)
@@ -127,32 +127,32 @@ export default function Home() {
     const next = !tile.maintenance
     if (tile.kind === 'materials') {
       setMaterialsMaintenance(next)
-      await supabase.from('settings').upsert({ key: 'materials_maintenance', value: String(next) })
+      await db.from('settings').upsert({ key: 'materials_maintenance', value: String(next) })
     } else if (tile.kind === 'systems') {
       setSystemsMaintenance(next)
-      await supabase.from('settings').upsert({ key: 'systems_maintenance', value: String(next) })
+      await db.from('settings').upsert({ key: 'systems_maintenance', value: String(next) })
     } else if (tile.kind === 'buildcalculator') {
       setBuildCalculatorMaintenance(next)
-      await supabase.from('settings').upsert({ key: 'buildcalculator_maintenance', value: String(next) })
+      await db.from('settings').upsert({ key: 'buildcalculator_maintenance', value: String(next) })
     } else {
       setCategories(prev => prev.map(c => c.id === tile.key ? { ...c, maintenance: next } : c))
-      await supabase.from('categories').update({ maintenance: next }).eq('id', tile.key)
+      await db.from('categories').update({ maintenance: next }).eq('id', tile.key)
     }
   }
 
   async function persistOrder(tile, newOrder) {
     if (tile.kind === 'materials') {
       setMaterialsOrder(newOrder)
-      await supabase.from('settings').upsert({ key: 'materials_sort_order', value: String(newOrder) })
+      await db.from('settings').upsert({ key: 'materials_sort_order', value: String(newOrder) })
     } else if (tile.kind === 'systems') {
       setSystemsOrder(newOrder)
-      await supabase.from('settings').upsert({ key: 'systems_sort_order', value: String(newOrder) })
+      await db.from('settings').upsert({ key: 'systems_sort_order', value: String(newOrder) })
     } else if (tile.kind === 'buildcalculator') {
       setBuildCalculatorOrder(newOrder)
-      await supabase.from('settings').upsert({ key: 'buildcalculator_sort_order', value: String(newOrder) })
+      await db.from('settings').upsert({ key: 'buildcalculator_sort_order', value: String(newOrder) })
     } else {
       setCategories(prev => prev.map(c => c.id === tile.key ? { ...c, sort_order: newOrder } : c))
-      await supabase.from('categories').update({ sort_order: newOrder }).eq('id', tile.key)
+      await db.from('categories').update({ sort_order: newOrder }).eq('id', tile.key)
     }
   }
 

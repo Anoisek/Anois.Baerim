@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
@@ -31,17 +31,19 @@ export default function MaterialDetail() {
   useEffect(() => {
     setActiveVariant(1)
     Promise.all([
-      supabase.from('materials').select('*').eq('id', materialId).single(),
-      supabase.from('material_materials').select('quantity, variant, component:materials!material_materials_component_id_fkey(id, name, image_url, is_craftable)').eq('material_id', materialId),
-      supabase.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
-      supabase.from('materials').select('id, craft_yang_cost'),
-      supabase.from('material_craft_variant_yield').select('variant, yield').eq('material_id', materialId),
+      db.from('materials').select('*').eq('id', materialId).single(),
+      db.from('material_materials').select('quantity, variant, component_id').eq('material_id', materialId),
+      db.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
+      db.from('materials').select('id, name, image_url, is_craftable, craft_yang_cost'),
+      db.from('material_craft_variant_yield').select('variant, yield').eq('material_id', materialId),
       fetchGlobalPrices(),
     ]).then(([matRes, compRes, recipeRes, allMatsRes, yieldRes, globalPricesMap]) => {
       setMaterial(matRes.data)
-      setComponents((compRes.data ?? []).filter(r => (r.variant ?? 1) === 1))
+      const materialsById = Object.fromEntries((allMatsRes.data ?? []).map(m => [m.id, m]))
+      const compRows = (compRes.data ?? []).map(r => ({ ...r, component: materialsById[r.component_id] }))
+      setComponents(compRows.filter(r => (r.variant ?? 1) === 1))
       const byVariant = {}
-      for (const row of compRes.data ?? []) {
+      for (const row of compRows) {
         const v = row.variant ?? 1
         if (!byVariant[v]) byVariant[v] = []
         byVariant[v].push({ material: row.component, quantity: row.quantity })
