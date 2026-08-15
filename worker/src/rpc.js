@@ -57,12 +57,57 @@ async function submitMaterialPrice(env, params, headers) {
   return json({ data: true, error: null }, 200, headers)
 }
 
+// Deliberately does NOT filter by visible_at — mirrors the Postgres function exactly.
+// Maps.jsx shows the total marker count per map including not-yet-revealed ones (⏳).
+async function mapMarkerCounts(env, headers) {
+  const res = await env.DB.prepare('SELECT map_id, COUNT(*) as total FROM map_markers GROUP BY map_id').all()
+  return json({ data: res.results, error: null }, 200, headers)
+}
+
+// Deliberately does NOT filter by visible_at either (same bypass as above) — only ever
+// exposes map_id + the reveal timestamp, never marker content. Mirrors Postgres's
+// `distinct on (map_id) ... order by map_id, created_at desc`.
+async function mapPendingReveal(env, headers) {
+  const nowIso = new Date().toISOString()
+  const res = await env.DB.prepare(
+    'SELECT map_id, visible_at, created_at FROM map_markers WHERE visible_at IS NOT NULL AND visible_at > ? ORDER BY map_id, created_at DESC'
+  ).bind(nowIso).all()
+
+  const seen = new Set()
+  const out = []
+  for (const row of res.results) {
+    if (seen.has(row.map_id)) continue
+    seen.add(row.map_id)
+    out.push({ map_id: row.map_id, reveal_at: row.visible_at })
+  }
+  return json({ data: out, error: null }, 200, headers)
+}
+
+// delta is clamped to {-1, +1} — the frontend only ever sends one or the other (like/unlike),
+// and without RLS as a backstop this closes off an anonymous like-count-inflation vector
+// that existed in the original Postgres RPC (it accepted any integer from anon).
+async function toggleNoteLike(env, params, headers) {
+  const noteId = params && params.note_id
+  const delta = params && params.delta
+  if (typeof noteId !== 'string' || !noteId || (delta !== 1 && delta !== -1)) {
+    return json({ data: null, error: { message: 'invalid params' } }, 400, headers)
+  }
+  const res = await env.DB.prepare(
+    'UPDATE map_marker_notes SET likes = MAX(0, likes + ?) WHERE id = ? RETURNING likes'
+  ).bind(delta, noteId).first()
+  if (!res) return json({ data: null, error: { message: 'note not found' } }, 404, headers)
+  return json({ data: res.likes, error: null }, 200, headers)
+}
+
 async function handleRpcRequest(request, env, url, headers) {
   const parts = url.pathname.split('/').filter(Boolean) // ['rpc', ':name']
   const name = parts[1]
   const params = await request.json().catch(function () { return {} })
 
   if (name === 'submit_material_price') return submitMaterialPrice(env, params, headers)
+  if (name === 'map_marker_counts') return mapMarkerCounts(env, headers)
+  if (name === 'map_pending_reveal') return mapPendingReveal(env, headers)
+  if (name === 'toggle_note_like') return toggleNoteLike(env, params, headers)
 
   return json({ data: null, error: { message: 'unknown rpc: ' + name } }, 404, headers)
 }

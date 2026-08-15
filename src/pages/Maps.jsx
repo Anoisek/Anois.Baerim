@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -70,14 +70,14 @@ export default function Maps() {
   const longPressFiredRef = useRef(false)
 
   useEffect(() => {
-    supabase.from('maps').select('*').order('sort_order').then(({ data }) => {
+    db.from('maps').select('*').order('sort_order').then(({ data }) => {
       setMaps(data ?? [])
       setMapsLoading(false)
     })
-    supabase.from('map_markers').select('id, map_id, copied_from').then(({ data }) => {
+    db.from('map_markers').select('id, map_id, copied_from').then(({ data }) => {
       setAllMarkers(data ?? [])
     })
-    supabase.rpc('map_marker_counts').then(({ data }) => {
+    db.rpc('map_marker_counts').then(({ data }) => {
       const next = {}
       for (const row of data ?? []) next[row.map_id] = Number(row.total)
       setMarkerCounts(next)
@@ -86,7 +86,7 @@ export default function Maps() {
   }, [])
 
   function refreshPendingReveal() {
-    supabase.rpc('map_pending_reveal').then(({ data }) => {
+    db.rpc('map_pending_reveal').then(({ data }) => {
       const next = {}
       for (const row of data ?? []) next[row.map_id] = row.reveal_at
       setPendingReveal(next)
@@ -95,7 +95,7 @@ export default function Maps() {
 
   async function persistMapOrder(id, newOrder) {
     setMaps(prev => prev.map(m => m.id === id ? { ...m, sort_order: newOrder } : m).sort((a, b) => a.sort_order - b.sort_order))
-    await supabase.from('maps').update({ sort_order: newOrder }).eq('id', id)
+    await db.from('maps').update({ sort_order: newOrder }).eq('id', id)
   }
 
   function moveMap(index, delta) {
@@ -137,7 +137,7 @@ export default function Maps() {
     setEditingMarker(null)
     setAddingAt(null)
     setRepositioningMarker(null)
-    supabase.from('map_markers').select('*').eq('map_id', selectedMap.id).then(({ data }) => {
+    db.from('map_markers').select('*').eq('map_id', selectedMap.id).then(({ data }) => {
       setMarkers(data ?? [])
       setMarkersLoading(false)
     })
@@ -228,7 +228,7 @@ export default function Maps() {
 
   async function moveMarkerTo(marker, x, y) {
     setRepositioningMarker(null)
-    const { data, error } = await supabase.from('map_markers').update({ x, y }).eq('id', marker.id).select().single()
+    const { data, error } = await db.from('map_markers').update({ x, y }).eq('id', marker.id).select().single()
     if (error) { alert('Error: ' + error.message); return }
     setMarkers(prev => prev.map(m => m.id === data.id ? data : m))
   }

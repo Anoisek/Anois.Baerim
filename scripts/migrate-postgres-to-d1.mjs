@@ -48,6 +48,10 @@ const TABLES = [
   { name: 'settings', columns: ['key', 'value'] },
   { name: 'global_prices', columns: ['material_id', 'price', 'submission_count', 'updated_at'] },
   { name: 'global_price_submissions', columns: ['id', 'material_id', 'price', 'created_at'] },
+  { name: 'maps', columns: ['id', 'name', 'region', 'mark', 'image_url', 'width', 'height', 'sort_order', 'created_at', 'max_mokoko', 'admin_only'], booleans: ['admin_only'] },
+  { name: 'map_markers', columns: ['id', 'map_id', 'x', 'y', 'icon', 'title', 'created_at', 'copied_from', 'visible_at'] },
+  { name: 'map_marker_notes', columns: ['id', 'marker_id', 'comment', 'image_url', 'created_at', 'likes'] },
+  { name: 'map_helpers', columns: ['id', 'name', 'sort_order', 'created_at'] },
 ]
 
 const PAGE_SIZE = 1000

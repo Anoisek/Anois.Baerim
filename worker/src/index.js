@@ -44,6 +44,29 @@ async function isAdmin(request, env) {
   return rows.length > 0
 }
 
+// Mirrors isAdmin() exactly, checking map_editors instead of admins. map_editors is a
+// non-admin role that can add map markers/helpers but not edit/delete them (Phase 2.3).
+async function isEditor(request, env) {
+  const authHeader = request.headers.get('Authorization') || ''
+  const token = authHeader.replace(/^Bearer\s+/i, '')
+  if (!token) return false
+
+  const userRes = await fetch(env.SUPABASE_URL + '/auth/v1/user', {
+    headers: { Authorization: 'Bearer ' + token, apikey: env.SUPABASE_ANON_KEY },
+  })
+  if (!userRes.ok) return false
+  const user = await userRes.json()
+  if (!user || !user.id) return false
+
+  const editorRes = await fetch(
+    env.SUPABASE_URL + '/rest/v1/map_editors?user_id=eq.' + user.id + '&select=user_id',
+    { headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY, Authorization: 'Bearer ' + env.SUPABASE_SERVICE_ROLE_KEY } }
+  )
+  if (!editorRes.ok) return false
+  const rows = await editorRes.json()
+  return rows.length > 0
+}
+
 function extFromType(type) {
   const map = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }
   return map[type] || 'bin'
@@ -95,7 +118,7 @@ export default {
     try {
       if (request.method === 'POST' && url.pathname === '/upload') return await handleUpload(request, env, headers)
       if (request.method === 'POST' && url.pathname === '/delete') return await handleDelete(request, env, headers)
-      if (url.pathname.indexOf('/db/') === 0) return await handleDbRequest(request, env, url, headers, isAdmin)
+      if (url.pathname.indexOf('/db/') === 0) return await handleDbRequest(request, env, url, headers, isAdmin, isEditor)
       if (request.method === 'POST' && url.pathname.indexOf('/rpc/') === 0) return await handleRpcRequest(request, env, url, headers)
     } catch (err) {
       return json({ error: (err && err.message) || 'internal error' }, 500, headers)

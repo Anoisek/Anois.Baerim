@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import Modal from './Modal'
 import { deleteImages } from '../utils/imageStorage'
 
@@ -21,7 +21,7 @@ export default function EditMarkerModal({ marker, onClose, onUpdated, onDeleted 
     setSaving(true)
     const days = Number(delayDays) || 0
     const visibleAt = days > 0 ? new Date(Date.now() + days * 86400000).toISOString() : null
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('map_markers')
       .update({ title: title.trim() || null, visible_at: visibleAt })
       .eq('id', marker.id)
@@ -38,9 +38,9 @@ export default function EditMarkerModal({ marker, onClose, onUpdated, onDeleted 
 
   async function handleDelete() {
     setDeleting(true)
-    const { data: notes } = await supabase.from('map_marker_notes').select('image_url').eq('marker_id', marker.id)
+    const { data: notes } = await db.from('map_marker_notes').select('image_url').eq('marker_id', marker.id)
     await deleteImages((notes ?? []).map(n => n.image_url), 'map-notes')
-    const { error } = await supabase.from('map_markers').delete().eq('id', marker.id)
+    const { error } = await db.from('map_markers').delete().eq('id', marker.id)
     if (error) { alert('Error: ' + error.message); setDeleting(false); return }
     onDeleted(marker.id)
     onClose()

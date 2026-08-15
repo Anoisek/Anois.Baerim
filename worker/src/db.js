@@ -1,9 +1,19 @@
-// Generic /db/:table CRUD layer over D1, scoped to Phase 2.1 (catalog tables) + 2.2
-// (community pricing). D1 has no RLS, so this file is the entire authorization boundary:
-// only tables and columns listed in TABLES are reachable, and only through the operations
-// enabled below. Tables default to public GET / admin-only writes; set publicRead: false
-// to require admin for GET too (mirrors global_price_submissions never having a Postgres
-// "public read" RLS policy).
+// Generic /db/:table CRUD layer over D1, scoped to Phase 2.1 (catalog tables), 2.2
+// (community pricing) and 2.3 (interactive map). D1 has no RLS, so this file is the
+// entire authorization boundary: only tables and columns listed in TABLES are reachable,
+// and only through the operations enabled below.
+//
+// Per-table config:
+//   publicRead: false        -> GET also requires admin (default true = public GET)
+//   insertAuth: 'editor'     -> POST allowed for admin OR map editor (default 'admin' = admin only)
+//   insertAuth: 'public'     -> POST allowed with no auth at all
+//   visibilityFilter: true   -> GET hides rows with a future visible_at unless caller is admin
+//   beforeInsert: fn(row)    -> return { row } (possibly transformed) or { error } to reject
+//
+// PATCH/DELETE are always admin-only regardless of insertAuth (mirrors the Postgres RLS,
+// where map editors could only INSERT, never UPDATE/DELETE).
+
+import { censorComment } from './profanity.js'
 
 const TABLES = {
   categories: {
@@ -47,6 +57,38 @@ const TABLES = {
     columns: ['id', 'material_id', 'price', 'created_at'],
     pk: ['id'],
     publicRead: false,
+  },
+  maps: {
+    columns: ['id', 'name', 'region', 'mark', 'image_url', 'width', 'height', 'sort_order', 'created_at', 'max_mokoko', 'admin_only'],
+    booleans: ['admin_only'],
+    pk: ['id'],
+  },
+  map_markers: {
+    columns: ['id', 'map_id', 'x', 'y', 'icon', 'title', 'created_at', 'copied_from', 'visible_at'],
+    pk: ['id'],
+    insertAuth: 'editor',
+    visibilityFilter: true,
+  },
+  map_marker_notes: {
+    columns: ['id', 'marker_id', 'comment', 'image_url', 'created_at', 'likes'],
+    pk: ['id'],
+    insertAuth: 'public',
+    beforeInsert: function (row) {
+      const comment = typeof row.comment === 'string' ? row.comment.trim() : null
+      const hasComment = !!comment && comment.length >= 1 && comment.length <= 1000
+      const hasImage = !!row.image_url
+      if (!hasComment && !hasImage) {
+        return { error: 'comment must be 1-1000 characters, or image_url must be provided' }
+      }
+      const clean = Object.assign({}, row)
+      clean.comment = comment ? censorComment(comment) : null
+      return { row: clean }
+    },
+  },
+  map_helpers: {
+    columns: ['id', 'name', 'sort_order', 'created_at'],
+    pk: ['id'],
+    insertAuth: 'editor',
   },
 }
 
@@ -120,7 +162,7 @@ function parseOrder(searchParams, cfg) {
   return { clause: ' ORDER BY ' + col + ' ' + dir.toUpperCase() }
 }
 
-async function handleGet(env, table, cfg, searchParams, headers) {
+async function handleGet(env, table, cfg, searchParams, headers, callerIsAdmin) {
   const filters = parseFilters(searchParams, cfg)
   if (filters.error) return errorResponse(filters.error, 400, headers)
 
@@ -142,6 +184,12 @@ async function handleGet(env, table, cfg, searchParams, headers) {
   const res = await env.DB.prepare(sql).bind(...filters.params).all()
 
   let rows = res.results.map(function (r) { return rowToClient(cfg, r) })
+
+  if (cfg.visibilityFilter && !callerIsAdmin) {
+    const nowIso = new Date().toISOString()
+    rows = rows.filter(function (r) { return !r.visible_at || r.visible_at <= nowIso })
+  }
+
   const selectParam = searchParams.get('select')
   if (selectParam && selectParam !== '*') {
     const cols = selectParam.split(',').map(function (s) { return s.trim() })
@@ -163,7 +211,12 @@ async function handlePost(env, table, cfg, request, searchParams, headers) {
   const isUpsert = searchParams.get('upsert') === '1'
 
   const inserted = []
-  for (const row of rows) {
+  for (let row of rows) {
+    if (cfg.beforeInsert) {
+      const result = cfg.beforeInsert(row)
+      if (result.error) return errorResponse(result.error, 400, headers)
+      row = result.row
+    }
     const clean = rowToDb(cfg, row)
     if (cfg.columns.indexOf('id') !== -1 && !clean.id) clean.id = crypto.randomUUID()
     if (cfg.columns.indexOf('created_at') !== -1 && !clean.created_at) clean.created_at = nowIso
@@ -222,10 +275,9 @@ async function handleDelete(env, table, cfg, searchParams, headers) {
   return json({ data: res.results.map(function (r) { return rowToClient(cfg, r) }), error: null }, 200, headers)
 }
 
-// Every write (POST/PATCH/DELETE) on every table currently routed here requires admin —
-// none of the Phase 2.1 catalog tables have a public-write exception (unlike map_marker_notes,
-// which is out of scope until Phase 2.3).
-async function handleDbRequest(request, env, url, headers, isAdmin) {
+// PATCH/DELETE always require admin. POST authorization depends on cfg.insertAuth:
+// 'admin' (default) -> admin only, 'editor' -> admin or map editor, 'public' -> no auth.
+async function handleDbRequest(request, env, url, headers, isAdmin, isEditor) {
   const parts = url.pathname.split('/').filter(Boolean) // ['db', ':table']
   const table = parts[1]
   if (!table || !TABLES[table]) return errorResponse('unknown table', 404, headers)
@@ -233,12 +285,23 @@ async function handleDbRequest(request, env, url, headers, isAdmin) {
 
   if (request.method === 'GET') {
     if (cfg.publicRead === false && !(await isAdmin(request, env))) return errorResponse('forbidden', 403, headers)
-    return handleGet(env, table, cfg, url.searchParams, headers)
+    const callerIsAdmin = cfg.visibilityFilter ? await isAdmin(request, env) : false
+    return handleGet(env, table, cfg, url.searchParams, headers, callerIsAdmin)
+  }
+
+  if (request.method === 'POST') {
+    const insertAuth = cfg.insertAuth || 'admin'
+    if (insertAuth === 'editor') {
+      if (!(await isAdmin(request, env)) && !(await isEditor(request, env))) return errorResponse('forbidden', 403, headers)
+    } else if (insertAuth === 'admin') {
+      if (!(await isAdmin(request, env))) return errorResponse('forbidden', 403, headers)
+    }
+    // insertAuth === 'public' -> no check
+    return handlePost(env, table, cfg, request, url.searchParams, headers)
   }
 
   if (!(await isAdmin(request, env))) return errorResponse('forbidden', 403, headers)
 
-  if (request.method === 'POST') return handlePost(env, table, cfg, request, url.searchParams, headers)
   if (request.method === 'PATCH') return handlePatch(env, table, cfg, request, url.searchParams, headers)
   if (request.method === 'DELETE') return handleDelete(env, table, cfg, url.searchParams, headers)
 

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
@@ -9,11 +9,11 @@ const MARKER_ICON = '/mokoko.png'
 
 async function ensureInHallOfFame(nickname) {
   if (!nickname) return
-  const { data: helpers } = await supabase.from('map_helpers').select('name, sort_order')
+  const { data: helpers } = await db.from('map_helpers').select('name, sort_order')
   const already = (helpers ?? []).some(h => h.name.trim().toLowerCase() === nickname.trim().toLowerCase())
   if (already) return
   const nextOrder = Math.max(0, ...(helpers ?? []).map(h => h.sort_order)) + 10
-  await supabase.from('map_helpers').insert({ name: nickname.trim(), sort_order: nextOrder })
+  await db.from('map_helpers').insert({ name: nickname.trim(), sort_order: nextOrder })
 }
 
 export default function AddMarkerModal({ mapId, x, y, nextNumber, onClose, onAdded }) {
@@ -28,7 +28,7 @@ export default function AddMarkerModal({ mapId, x, y, nextNumber, onClose, onAdd
     setSaving(true)
     const days = Number(delayDays) || 0
     const visibleAt = days > 0 ? new Date(Date.now() + days * 86400000).toISOString() : null
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('map_markers')
       .insert({ map_id: mapId, x, y, icon: MARKER_ICON, title: `Mokoko #${nextNumber}`, visible_at: visibleAt })
       .select()
@@ -39,7 +39,7 @@ export default function AddMarkerModal({ mapId, x, y, nextNumber, onClose, onAdd
       return
     }
     if (imageUrl) {
-      const { error: noteError } = await supabase.from('map_marker_notes').insert({ marker_id: data.id, image_url: imageUrl })
+      const { error: noteError } = await db.from('map_marker_notes').insert({ marker_id: data.id, image_url: imageUrl })
       if (noteError) alert('Marker added, but photo failed to attach: ' + noteError.message)
     }
     await ensureInHallOfFame(nickname)

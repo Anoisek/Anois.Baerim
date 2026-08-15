@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import ImageUpload from './ImageUpload'
 import Spinner from './Spinner'
@@ -64,7 +64,7 @@ export default function MarkerPanel({ marker, onClose }) {
 
   useEffect(() => {
     setLoading(true)
-    supabase
+    db
       .from('map_marker_notes')
       .select('*')
       .eq('marker_id', marker.id)
@@ -88,7 +88,7 @@ export default function MarkerPanel({ marker, onClose }) {
     }
     const trimmed = censorText(rawTrimmed)
     setSubmitting(true)
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('map_marker_notes')
       .insert({ marker_id: marker.id, comment: trimmed || null, image_url: imageUrl || null })
       .select()
@@ -106,7 +106,7 @@ export default function MarkerPanel({ marker, onClose }) {
   async function toggleLike(note) {
     const alreadyLiked = !!likedNotes[note.id]
     const delta = alreadyLiked ? -1 : 1
-    const { data, error } = await supabase.rpc('toggle_note_like', { note_id: note.id, delta })
+    const { data, error } = await db.rpc('toggle_note_like', { note_id: note.id, delta })
     if (error) return
     setNotes(prev => prev.map(n => n.id === note.id ? { ...n, likes: data } : n))
     setLikedNotes(prev => {
@@ -120,7 +120,7 @@ export default function MarkerPanel({ marker, onClose }) {
 
   async function handleDeleteNote(note) {
     await deleteImages(note.image_url, 'map-notes')
-    const { error } = await supabase.from('map_marker_notes').delete().eq('id', note.id)
+    const { error } = await db.from('map_marker_notes').delete().eq('id', note.id)
     if (error) { alert('Error: ' + error.message); return }
     setNotes(prev => prev.filter(n => n.id !== note.id))
   }

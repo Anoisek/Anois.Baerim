@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 
@@ -24,7 +24,7 @@ export default function AddMapModal({ nextSortOrder, onClose, onAdded }) {
     e.preventDefault()
     if (!name.trim() || !region.trim() || !mark.trim() || !imageUrl || !dimensions) return
     setSaving(true)
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('maps')
       .insert({
         name: name.trim(),

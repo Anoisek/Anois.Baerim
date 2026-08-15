@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import Modal from './Modal'
 import Spinner from './Spinner'
@@ -14,7 +14,7 @@ export default function HallOfFameModal({ onClose }) {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    supabase.from('map_helpers').select('*').order('sort_order').then(({ data }) => {
+    db.from('map_helpers').select('*').order('sort_order').then(({ data }) => {
       setHelpers(data ?? [])
       setLoading(false)
     })
@@ -25,7 +25,7 @@ export default function HallOfFameModal({ onClose }) {
     if (!name.trim()) return
     setSaving(true)
     const nextOrder = Math.max(0, ...helpers.map(h => h.sort_order)) + 10
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('map_helpers')
       .insert({ name: name.trim(), sort_order: nextOrder })
       .select()
@@ -40,7 +40,7 @@ export default function HallOfFameModal({ onClose }) {
   }
 
   async function handleRemove(id) {
-    const { error } = await supabase.from('map_helpers').delete().eq('id', id)
+    const { error } = await db.from('map_helpers').delete().eq('id', id)
     if (error) { alert('Error: ' + error.message); return }
     setHelpers(prev => prev.filter(h => h.id !== id))
   }

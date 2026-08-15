@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 
@@ -27,7 +27,7 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
     setSaving(true)
     const oldWidth = map.width
     const oldHeight = map.height
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('maps')
       .update({
         name: name.trim(),
@@ -48,12 +48,12 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
       return
     }
     if (oldWidth && oldHeight && (dimensions.width !== oldWidth || dimensions.height !== oldHeight)) {
-      const { data: markers } = await supabase.from('map_markers').select('id, x, y').eq('map_id', map.id)
+      const { data: markers } = await db.from('map_markers').select('id, x, y').eq('map_id', map.id)
       if (markers?.length) {
         const scaleX = dimensions.width / oldWidth
         const scaleY = dimensions.height / oldHeight
         await Promise.all(markers.map(mk =>
-          supabase.from('map_markers').update({
+          db.from('map_markers').update({
             x: Math.round(mk.x * scaleX),
             y: Math.round(mk.y * scaleY),
           }).eq('id', mk.id)
