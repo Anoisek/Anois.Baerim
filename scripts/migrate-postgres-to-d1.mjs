@@ -1,7 +1,9 @@
-// One-time script (Phase 2.1) to pull the catalog tables out of Supabase Postgres via
-// PostgREST and print D1-ready SQL INSERT statements. Does NOT touch Postgres (read-only)
-// and does NOT write to D1 itself — it only generates SQL, which is then applied via the
-// D1 HTTP API. Run: node scripts/migrate-postgres-to-d1.mjs > out.sql
+// One-time script (Phase 2.x) to pull tables out of Supabase Postgres via PostgREST and
+// print D1-ready SQL INSERT statements. Does NOT touch Postgres (read-only) and does NOT
+// write to D1 itself — it only generates SQL, which is then applied via the D1 HTTP API.
+// Run: node scripts/migrate-postgres-to-d1.mjs > out.sql
+// Optionally restrict to specific tables (e.g. when migrating a later phase's tables
+// without re-inserting ones already migrated): node scripts/migrate-postgres-to-d1.mjs global_prices global_price_submissions > out.sql
 //
 // Reads VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY from the repo's .env file.
 
@@ -44,6 +46,8 @@ const TABLES = [
   { name: 'material_craft_variant_yield', columns: ['material_id', 'variant', 'yield'] },
   { name: 'exploration_levels', columns: ['level', 'title', 'description', 'x_percent', 'y_percent', 'image_urls'], jsonArrays: ['image_urls'] },
   { name: 'settings', columns: ['key', 'value'] },
+  { name: 'global_prices', columns: ['material_id', 'price', 'submission_count', 'updated_at'] },
+  { name: 'global_price_submissions', columns: ['id', 'material_id', 'price', 'created_at'] },
 ]
 
 const PAGE_SIZE = 1000
@@ -73,10 +77,13 @@ function sqlVal(v) {
 }
 
 async function main() {
+  const only = process.argv.slice(2).filter(a => !a.startsWith('--'))
+  const tables = only.length > 0 ? TABLES.filter(t => only.includes(t.name)) : TABLES
+
   const lines = []
   let totalRows = 0
 
-  for (const table of TABLES) {
+  for (const table of tables) {
     const rows = await fetchAll(table.name, table.columns)
     console.error(`${table.name}: ${rows.length} rows`)
     totalRows += rows.length
@@ -92,7 +99,7 @@ async function main() {
     }
   }
 
-  console.error(`\nTotal: ${totalRows} rows across ${TABLES.length} tables.`)
+  console.error(`\nTotal: ${totalRows} rows across ${tables.length} tables.`)
   console.log(lines.join('\n'))
 }
 

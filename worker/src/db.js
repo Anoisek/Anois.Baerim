@@ -1,6 +1,9 @@
-// Generic /db/:table CRUD layer over D1, scoped to Phase 2.1 (catalog tables only).
-// D1 has no RLS, so this file is the entire authorization boundary: only tables and
-// columns listed in TABLES are reachable, and only through the operations enabled below.
+// Generic /db/:table CRUD layer over D1, scoped to Phase 2.1 (catalog tables) + 2.2
+// (community pricing). D1 has no RLS, so this file is the entire authorization boundary:
+// only tables and columns listed in TABLES are reachable, and only through the operations
+// enabled below. Tables default to public GET / admin-only writes; set publicRead: false
+// to require admin for GET too (mirrors global_price_submissions never having a Postgres
+// "public read" RLS policy).
 
 const TABLES = {
   categories: {
@@ -36,6 +39,15 @@ const TABLES = {
     pk: ['level'],
   },
   settings: { columns: ['key', 'value'], pk: ['key'] },
+  global_prices: {
+    columns: ['material_id', 'price', 'submission_count', 'updated_at'],
+    pk: ['material_id'],
+  },
+  global_price_submissions: {
+    columns: ['id', 'material_id', 'price', 'created_at'],
+    pk: ['id'],
+    publicRead: false,
+  },
 }
 
 const MODIFIER_KEYS = new Set(['select', 'order', 'limit', 'count', 'head'])
@@ -220,6 +232,7 @@ async function handleDbRequest(request, env, url, headers, isAdmin) {
   const cfg = TABLES[table]
 
   if (request.method === 'GET') {
+    if (cfg.publicRead === false && !(await isAdmin(request, env))) return errorResponse('forbidden', 403, headers)
     return handleGet(env, table, cfg, url.searchParams, headers)
   }
 

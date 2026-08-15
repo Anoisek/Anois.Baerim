@@ -1,4 +1,5 @@
 import { handleDbRequest } from './db.js'
+import { handleRpcRequest } from './rpc.js'
 
 const BUCKETS = new Set(['images', 'map-notes'])
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
@@ -95,6 +96,7 @@ export default {
       if (request.method === 'POST' && url.pathname === '/upload') return await handleUpload(request, env, headers)
       if (request.method === 'POST' && url.pathname === '/delete') return await handleDelete(request, env, headers)
       if (url.pathname.indexOf('/db/') === 0) return await handleDbRequest(request, env, url, headers, isAdmin)
+      if (request.method === 'POST' && url.pathname.indexOf('/rpc/') === 0) return await handleRpcRequest(request, env, url, headers)
     } catch (err) {
       return json({ error: (err && err.message) || 'internal error' }, 500, headers)
     }

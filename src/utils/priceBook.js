@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { parseYang } from './formatYang'
-import { supabase } from '../supabaseClient'
+import { db } from '../dbClient'
 
 const KEY = 'material_prices'
 const MODE_KEY = 'price_mode'
@@ -105,7 +105,7 @@ export function makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, ya
 }
 
 export async function fetchGlobalPrices() {
-  const { data } = await supabase.from('global_prices').select('material_id, price')
+  const { data } = await db.from('global_prices').select('material_id, price')
   const map = {}
   for (const row of data ?? []) map[row.material_id] = Number(row.price)
   return map
@@ -142,7 +142,7 @@ export async function submitPricesToGlobal(rawInputs) {
       continue
     }
 
-    const { data, error } = await supabase.rpc('submit_material_price', { p_material_id: materialId, p_price: price })
+    const { data, error } = await db.rpc('submit_material_price', { p_material_id: materialId, p_price: price })
     if (error) continue
     cooldowns[materialId] = Date.now()
     if (data) accepted++
