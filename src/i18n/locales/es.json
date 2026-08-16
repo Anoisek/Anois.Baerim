@@ -84,6 +84,7 @@
     "title": "Sistemas",
     "interactiveMap": "Mapa interactivo de Mokoko",
     "exploration": "Exploración",
+    "metinCalculator": "Calculadora de Metin",
     "blockedMessage": "Esta página aún no está disponible.",
     "noMapYet": "Todavía no se ha subido ningún mapa.",
     "editLevel": "Editar nivel {{level}}",

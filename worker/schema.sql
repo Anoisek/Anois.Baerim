@@ -182,3 +182,18 @@ CREATE TABLE map_helpers (
   sort_order INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL
 );
+
+CREATE TABLE metins (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  image_url TEXT,
+  image_urls TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE metin_drops (
+  metin_id TEXT NOT NULL REFERENCES metins(id),
+  material_id TEXT NOT NULL REFERENCES materials(id),
+  quantity REAL NOT NULL DEFAULT 1,
+  PRIMARY KEY (metin_id, material_id)
+);

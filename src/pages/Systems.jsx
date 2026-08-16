@@ -12,6 +12,7 @@ export default function Systems() {
   const { isAdmin } = useAuth()
   const [interactiveMapMaintenance, setInteractiveMapMaintenance] = useState(false)
   const [explorationMaintenance, setExplorationMaintenance] = useState(false)
+  const [metinCalculatorMaintenance, setMetinCalculatorMaintenance] = useState(false)
   const [loading, setLoading] = useState(true)
   const [editMode, setEditMode] = useState(false)
 
@@ -19,9 +20,11 @@ export default function Systems() {
     Promise.all([
       db.from('settings').select('value').eq('key', 'system_interactivemap_maintenance').maybeSingle(),
       db.from('settings').select('value').eq('key', 'system_exploration_maintenance').maybeSingle(),
-    ]).then(([mapRes, explorationRes]) => {
+      db.from('settings').select('value').eq('key', 'system_metincalculator_maintenance').maybeSingle(),
+    ]).then(([mapRes, explorationRes, metinCalculatorRes]) => {
       setInteractiveMapMaintenance(mapRes.data?.value === 'true')
       setExplorationMaintenance(explorationRes.data?.value === 'true')
+      setMetinCalculatorMaintenance(metinCalculatorRes.data?.value === 'true')
       setLoading(false)
     })
   }, [])
@@ -29,6 +32,7 @@ export default function Systems() {
   const tiles = [
     { key: 'interactivemap', settingKey: 'system_interactivemap_maintenance', to: '/systems/interactive-map', emoji: '🗺️', label: t('systems.interactiveMap'), maintenance: interactiveMapMaintenance, setMaintenance: setInteractiveMapMaintenance },
     { key: 'exploration', settingKey: 'system_exploration_maintenance', to: '/systems/exploration', emoji: '🧭', label: t('systems.exploration'), maintenance: explorationMaintenance, setMaintenance: setExplorationMaintenance },
+    { key: 'metincalculator', settingKey: 'system_metincalculator_maintenance', to: '/systems/metin-calculator', emoji: '🪨', label: t('systems.metinCalculator'), maintenance: metinCalculatorMaintenance, setMaintenance: setMetinCalculatorMaintenance },
   ]
 
   async function toggleMaintenance(tile) {

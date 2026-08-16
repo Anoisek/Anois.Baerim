@@ -84,6 +84,7 @@
     "title": "Sistemler",
     "interactiveMap": "Mokoko İnteraktif Haritası",
     "exploration": "Keşif",
+    "metinCalculator": "Metin Hesaplayıcı",
     "blockedMessage": "Bu sayfa henüz kullanılamıyor.",
     "noMapYet": "Henüz harita yüklenmedi.",
     "editLevel": "Seviye {{level}} düzenle",

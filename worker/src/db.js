@@ -90,6 +90,12 @@ const TABLES = {
     pk: ['id'],
     insertAuth: 'editor',
   },
+  metins: {
+    columns: ['id', 'name', 'image_url', 'created_at', 'image_urls'],
+    jsonArrays: ['image_urls'],
+    pk: ['id'],
+  },
+  metin_drops: { columns: ['metin_id', 'material_id', 'quantity'], pk: ['metin_id', 'material_id'] },
 }
 
 const MODIFIER_KEYS = new Set(['select', 'order', 'limit', 'count', 'head'])
