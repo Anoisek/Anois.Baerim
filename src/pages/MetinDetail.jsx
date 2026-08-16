@@ -36,6 +36,7 @@ export default function MetinDetail() {
   const [craftYangCosts, setCraftYangCosts] = useState({})
   const [globalPrices, setGlobalPrices] = useState({})
   const [quantities, setQuantities] = useState({}) // { materialId: rawQty }
+  const [groupSelection, setGroupSelection] = useState({}) // { altGroup: materialId }
   const [metinsDestroyed, setMetinsDestroyed] = useState('')
   const [minutesSpent, setMinutesSpent] = useState('')
   const [loading, setLoading] = useState(true)
@@ -67,6 +68,7 @@ export default function MetinDetail() {
 
       const saved = loadLoot(metinId)
       setQuantities(saved?.quantities ?? {})
+      setGroupSelection(saved?.groupSelection ?? {})
       setMetinsDestroyed(saved?.metinsDestroyed ?? '')
       setMinutesSpent(saved?.minutesSpent ?? '')
 
@@ -76,31 +78,65 @@ export default function MetinDetail() {
 
   useEffect(() => {
     if (loading) return
-    localStorage.setItem(`metin_loot_${metinId}`, JSON.stringify({ quantities, metinsDestroyed, minutesSpent }))
-  }, [metinId, loading, quantities, metinsDestroyed, minutesSpent])
+    localStorage.setItem(`metin_loot_${metinId}`, JSON.stringify({ quantities, groupSelection, metinsDestroyed, minutesSpent }))
+  }, [metinId, loading, quantities, groupSelection, metinsDestroyed, minutesSpent])
 
   const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides })
 
-  async function persistDropOrder(materialId, newOrder) {
-    setDrops(prev => prev.map(d => d.material_id === materialId ? { ...d, sort_order: newOrder } : d).sort((a, b) => a.sort_order - b.sort_order))
-    await db.from('metin_drops').update({ sort_order: newOrder }).eq('metin_id', metinId).eq('material_id', materialId)
-  }
-
-  function moveDrop(index, delta) {
-    const targetIndex = index + delta
-    if (targetIndex < 0 || targetIndex >= drops.length) return
-    const a = drops[index]
-    const b = drops[targetIndex]
-    persistDropOrder(a.material_id, b.sort_order)
-    persistDropOrder(b.material_id, a.sort_order)
-  }
-
+  // Materials sharing an alt_group drop as one row — only one of them can ever
+  // be looted per metin, so they collapse into a single row with a picker
+  // instead of showing every alternative as its own line.
   const rows = drops.map(d => ({ ...d, material: materialsById[d.material_id] })).filter(r => r.material)
-  const totalYang = rows.reduce((sum, r) => sum + priceFn(r.material_id) * (Number(quantities[r.material_id]) || 0), 0)
+  const displayRows = []
+  const seenGroups = new Set()
+  for (const row of rows) {
+    if (row.alt_group) {
+      if (seenGroups.has(row.alt_group)) continue
+      seenGroups.add(row.alt_group)
+      displayRows.push({ kind: 'group', altGroup: row.alt_group, options: rows.filter(r => r.alt_group === row.alt_group) })
+    } else {
+      displayRows.push({ kind: 'single', material_id: row.material_id, material: row.material })
+    }
+  }
+
+  function selectedMaterialId(display) {
+    return display.kind === 'group' ? (groupSelection[display.altGroup] ?? display.options[0].material_id) : display.material_id
+  }
+
+  const totalYang = displayRows.reduce((sum, d) => {
+    const matId = selectedMaterialId(d)
+    return sum + priceFn(matId) * (Number(quantities[matId]) || 0)
+  }, 0)
   const metinsDestroyedNum = Number(metinsDestroyed) || 0
   const minutesNum = Number(minutesSpent) || 0
   const yangPerMinute = minutesNum > 0 ? totalYang / minutesNum : 0
   const yangPerMetin = metinsDestroyedNum > 0 ? totalYang / metinsDestroyedNum : 0
+
+  // Reordering always reassigns fresh sequential sort_order values to every row
+  // (rather than swapping the two moved rows' existing values) — this self-heals
+  // legacy rows that all share sort_order 0, where a plain swap would be a no-op.
+  // A group moves as a single block: every material in it gets the same slot.
+  async function persistOrder(newDisplayRows) {
+    const updates = []
+    newDisplayRows.forEach((d, i) => {
+      if (d.kind === 'group') for (const opt of d.options) updates.push({ material_id: opt.material_id, sort_order: i })
+      else updates.push({ material_id: d.material_id, sort_order: i })
+    })
+    setDrops(prev => prev.map(r => {
+      const u = updates.find(x => x.material_id === r.material_id)
+      return u ? { ...r, sort_order: u.sort_order } : r
+    }))
+    await Promise.all(updates.map(u => db.from('metin_drops').update({ sort_order: u.sort_order }).eq('metin_id', metinId).eq('material_id', u.material_id)))
+  }
+
+  function moveDisplayRow(index, delta) {
+    const targetIndex = index + delta
+    if (targetIndex < 0 || targetIndex >= displayRows.length) return
+    const reordered = [...displayRows]
+    const [moved] = reordered.splice(index, 1)
+    reordered.splice(targetIndex, 0, moved)
+    persistOrder(reordered)
+  }
 
   return (
     <div className="min-h-screen text-white">
@@ -145,82 +181,105 @@ export default function MetinDetail() {
                 )}
               </div>
 
-              {rows.length === 0 ? (
+              {displayRows.length === 0 ? (
                 <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
                   <span className="text-5xl">📭</span>
                   <p className="text-sm">No drops defined for this metin yet.</p>
                 </div>
               ) : (
-                <div className="flex flex-col gap-3">
-                  {rows.map((row, index) => {
-                    const mat = row.material
-                    const unitPrice = priceFn(mat.id)
-                    const qty = Number(quantities[mat.id]) || 0
+                <div className="flex flex-col gap-4">
+                  {displayRows.map((d, index) => {
+                    const matId = selectedMaterialId(d)
+                    const mat = materialsById[matId]
+                    const unitPrice = priceFn(matId)
+                    const qty = Number(quantities[matId]) || 0
                     const lineTotal = unitPrice * qty
                     const canOverride = mat.is_craftable && mode !== 'global'
                     return (
-                      <div key={mat.id} className="flex items-center gap-3 p-3 rounded-xl bg-gray-900 border border-gray-700">
-                        {isAdmin && (
-                          <div className="flex flex-col gap-0.5 shrink-0">
-                            <button
-                              type="button"
-                              onClick={() => moveDrop(index, -1)}
-                              disabled={index === 0}
-                              title="Move up"
-                              className="w-5 h-5 flex items-center justify-center rounded bg-gray-800 border border-gray-600 text-gray-300 hover:text-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-xs leading-none transition-colors"
-                            >
-                              ▲
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => moveDrop(index, 1)}
-                              disabled={index === rows.length - 1}
-                              title="Move down"
-                              className="w-5 h-5 flex items-center justify-center rounded bg-gray-800 border border-gray-600 text-gray-300 hover:text-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-xs leading-none transition-colors"
-                            >
-                              ▼
-                            </button>
+                      <div key={d.kind === 'group' ? d.altGroup : d.material_id} className="bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden">
+                        <div className="flex items-center gap-3 px-4 py-3 bg-gray-800/60 border-b border-gray-700 flex-wrap">
+                          {isAdmin && (
+                            <div className="flex flex-col gap-1 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => moveDisplayRow(index, -1)}
+                                disabled={index === 0}
+                                title="Move up"
+                                className="w-6 h-6 flex items-center justify-center rounded bg-gray-800 border border-gray-600 text-gray-300 hover:text-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-xs leading-none transition-colors"
+                              >
+                                ▲
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => moveDisplayRow(index, 1)}
+                                disabled={index === displayRows.length - 1}
+                                title="Move down"
+                                className="w-6 h-6 flex items-center justify-center rounded bg-gray-800 border border-gray-600 text-gray-300 hover:text-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-xs leading-none transition-colors"
+                              >
+                                ▼
+                              </button>
+                            </div>
+                          )}
+                          <div className="w-10 h-10 shrink-0 flex items-center justify-center">
+                            {mat.image_url
+                              ? <img src={mat.image_url} alt={mat.name} className="w-full h-full object-contain" />
+                              : <span className="text-xl">🧪</span>}
                           </div>
-                        )}
-                        <Link to={`/materials/${mat.id}`} className="w-8 h-8 shrink-0 flex items-center justify-center hover:opacity-75 transition-opacity">
-                          {mat.image_url
-                            ? <img src={mat.image_url} alt={mat.name} className="w-full h-full object-contain" />
-                            : <span className="text-lg">🧪</span>}
-                        </Link>
-                        <Link to={`/materials/${mat.id}`} className="flex-1 min-w-0 text-sm text-gray-200 hover:text-yellow-400 transition-colors truncate">
-                          {mat.name}
-                        </Link>
-                        {row.alt_group && (
-                          <span title="Alternative drop group — only one material from this group drops per metin" className="text-[10px] text-gray-500 border border-gray-700 rounded px-1.5 py-0.5 shrink-0">
-                            grp {row.alt_group}
-                          </span>
-                        )}
-                        {canOverride && (
-                          <input
-                            type="checkbox"
-                            checked={manualOverrides?.has(mat.id) ?? false}
-                            onChange={() => toggleManualOverride(mat.id)}
-                            title={t('materials.manualPrice')}
-                            className="accent-yellow-400 w-3.5 h-3.5 shrink-0"
+                          <div className="flex-1 min-w-[10rem] flex flex-col gap-1">
+                            {d.kind === 'group' ? (
+                              <>
+                                <select
+                                  value={matId}
+                                  onChange={e => setGroupSelection(prev => ({ ...prev, [d.altGroup]: e.target.value }))}
+                                  className="bg-gray-800 border border-gray-600 rounded-lg px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-yellow-400"
+                                >
+                                  {d.options.map(opt => (
+                                    <option key={opt.material_id} value={opt.material_id}>{materialsById[opt.material_id]?.name}</option>
+                                  ))}
+                                </select>
+                                <span className="text-[11px] text-gray-500">Pick which one this metin drops</span>
+                              </>
+                            ) : (
+                              <Link to={`/materials/${mat.id}`} className="text-sm font-semibold text-gray-100 hover:text-yellow-400 transition-colors truncate">
+                                {mat.name}
+                              </Link>
+                            )}
+                          </div>
+                          <MaterialPriceCell
+                            material={mat}
+                            rawValue={rawInputs[mat.id]}
+                            computedValue={unitPrice}
+                            onPriceChange={setPrice}
+                            computed={mode === 'global' ? true : undefined}
+                            manualOverride={manualOverrides?.has(mat.id) ?? false}
                           />
-                        )}
-                        <input
-                          type="number"
-                          min="0"
-                          placeholder="Qty"
-                          value={quantities[mat.id] ?? ''}
-                          onChange={e => setQuantities(prev => ({ ...prev, [mat.id]: e.target.value }))}
-                          className="bg-gray-800 border border-gray-600 rounded-lg px-2 py-1.5 w-16 text-center text-sm focus:outline-none focus:border-yellow-400 shrink-0"
-                        />
-                        <MaterialPriceCell
-                          material={mat}
-                          rawValue={rawInputs[mat.id]}
-                          computedValue={unitPrice}
-                          onPriceChange={setPrice}
-                          computed={mode === 'global' ? true : undefined}
-                          manualOverride={manualOverrides?.has(mat.id) ?? false}
-                        />
-                        <span className="text-yellow-400 text-sm w-24 text-right font-mono shrink-0">{formatYang(lineTotal)}</span>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-3 px-4 py-3 flex-wrap">
+                          <label className="flex items-center gap-2 text-xs text-gray-400 cursor-pointer select-none">
+                            {canOverride && (
+                              <input
+                                type="checkbox"
+                                checked={manualOverrides?.has(mat.id) ?? false}
+                                onChange={() => toggleManualOverride(mat.id)}
+                                title={t('materials.manualPrice')}
+                                className="accent-yellow-400 w-3.5 h-3.5"
+                              />
+                            )}
+                            Quantity looted
+                          </label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="number"
+                              min="0"
+                              placeholder="0"
+                              value={quantities[matId] ?? ''}
+                              onChange={e => setQuantities(prev => ({ ...prev, [matId]: e.target.value }))}
+                              className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 w-20 text-center text-sm focus:outline-none focus:border-yellow-400"
+                            />
+                            <span className="text-yellow-400 text-sm w-24 text-right font-mono">{formatYang(lineTotal)}</span>
+                          </div>
+                        </div>
                       </div>
                     )
                   })}
