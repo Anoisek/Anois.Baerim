@@ -99,12 +99,43 @@ async function toggleNoteLike(env, params, headers) {
   return json({ data: res.likes, error: null }, 200, headers)
 }
 
+// Adds one user's session (kills + looted quantity per material) to the running
+// total for each material, so metin_drop_stats.total_quantity / total_kills is a
+// kills-weighted average probability across every submission ever made. Open to
+// any caller (no auth) — mirrors submit_material_price, which is public too.
+async function submitMetinDropStats(env, params, headers) {
+  const metinId = params && params.p_metin_id
+  const kills = Number(params && params.p_kills)
+  const quantities = params && params.p_quantities
+
+  if (typeof metinId !== 'string' || !metinId || !(kills > 0) || !(kills < 100000) ||
+      typeof quantities !== 'object' || quantities === null) {
+    return json({ data: false, error: null }, 200, headers)
+  }
+
+  const entries = Object.entries(quantities).filter(function (entry) {
+    const qty = Number(entry[1])
+    return typeof entry[0] === 'string' && entry[0] && Number.isFinite(qty) && qty >= 0
+  })
+  if (entries.length === 0) return json({ data: false, error: null }, 200, headers)
+
+  for (const [materialId, qty] of entries) {
+    await env.DB.prepare(
+      'INSERT INTO metin_drop_stats (metin_id, material_id, total_quantity, total_kills) VALUES (?, ?, ?, ?) ' +
+      'ON CONFLICT(metin_id, material_id) DO UPDATE SET total_quantity = total_quantity + excluded.total_quantity, total_kills = total_kills + excluded.total_kills'
+    ).bind(metinId, materialId, Number(qty), kills).run()
+  }
+
+  return json({ data: true, error: null }, 200, headers)
+}
+
 async function handleRpcRequest(request, env, url, headers) {
   const parts = url.pathname.split('/').filter(Boolean) // ['rpc', ':name']
   const name = parts[1]
   const params = await request.json().catch(function () { return {} })
 
   if (name === 'submit_material_price') return submitMaterialPrice(env, params, headers)
+  if (name === 'submit_metin_drop_stats') return submitMetinDropStats(env, params, headers)
   if (name === 'map_marker_counts') return mapMarkerCounts(env, headers)
   if (name === 'map_pending_reveal') return mapPendingReveal(env, headers)
   if (name === 'toggle_note_like') return toggleNoteLike(env, params, headers)

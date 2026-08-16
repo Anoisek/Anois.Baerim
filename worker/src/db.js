@@ -100,6 +100,13 @@ const TABLES = {
     booleans: ['is_guaranteed'],
     pk: ['metin_id', 'material_id'],
   },
+  // Aggregated across every submit_metin_drop_stats RPC call (see rpc.js) — kept
+  // admin-only for now since the drop-probability feature isn't public yet.
+  metin_drop_stats: {
+    columns: ['metin_id', 'material_id', 'total_quantity', 'total_kills'],
+    pk: ['metin_id', 'material_id'],
+    publicRead: false,
+  },
 }
 
 const MODIFIER_KEYS = new Set(['select', 'order', 'limit', 'count', 'head'])

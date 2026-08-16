@@ -9,6 +9,7 @@ import Spinner from '../components/Spinner'
 import ItemImage from '../components/ItemImage'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import EditMetinModal from '../components/EditMetinModal'
+import Modal from '../components/Modal'
 import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
 import {
@@ -42,6 +43,10 @@ export default function MetinDetail() {
   const [duration, setDuration] = useState('') // "HH:MM:SS"
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
+  const [showOwnProbability, setShowOwnProbability] = useState(false)
+  const [submittingProbability, setSubmittingProbability] = useState(false)
+  const [showGlobalProbability, setShowGlobalProbability] = useState(false)
+  const [globalStats, setGlobalStats] = useState(null) // [{ material_id, total_quantity, total_kills }] once loaded
   const { rawInputs, setPrice, mode, manualOverrides, toggleManualOverride } = usePriceBook()
 
   async function reloadDrops() {
@@ -154,6 +159,28 @@ export default function MetinDetail() {
     persistOrder(reordered)
   }
 
+  // Shows this session's own quantities as a % of "Metins destroyed", and submits
+  // that same data point to the shared metin_drop_stats total (see rpc.js) so it
+  // blends into the global average every other submitter contributes to.
+  async function handleCheckProbability() {
+    if (metinsDestroyedNum <= 0) {
+      alert('Enter "Metins destroyed" first.')
+      return
+    }
+    setShowOwnProbability(true)
+    setSubmittingProbability(true)
+    const quantitiesToSubmit = {}
+    for (const d of displayRows) quantitiesToSubmit[selectedMaterialId(d)] = Number(quantities[selectedMaterialId(d)]) || 0
+    await db.rpc('submit_metin_drop_stats', { p_metin_id: metinId, p_kills: metinsDestroyedNum, p_quantities: quantitiesToSubmit })
+    setSubmittingProbability(false)
+  }
+
+  async function handleShowGlobalProbability() {
+    const { data } = await db.from('metin_drop_stats').select('material_id, total_quantity, total_kills').eq('metin_id', metinId)
+    setGlobalStats(data ?? [])
+    setShowGlobalProbability(true)
+  }
+
   return (
     <div className="min-h-screen text-white">
       <Navbar />
@@ -187,6 +214,15 @@ export default function MetinDetail() {
                     : <span className="text-4xl">🪨</span>}
                 </div>
                 <h1 className="text-2xl font-bold text-yellow-400 flex-1">{metin.name}</h1>
+                {isAdmin && (
+                  <button
+                    onClick={handleShowGlobalProbability}
+                    title="Admin-only — aggregated drop % from every user's submitted data"
+                    className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shrink-0"
+                  >
+                    🔒 Global %
+                  </button>
+                )}
                 {isAdmin && (
                   <button
                     onClick={() => setEditing(true)}
@@ -347,6 +383,14 @@ export default function MetinDetail() {
                       <span className="text-yellow-400 font-mono">{formatYang(yangPerMetin)}</span>
                     </div>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={handleCheckProbability}
+                    className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+                  >
+                    🎲 Check drop probability
+                  </button>
                 </div>
               )}
             </>
@@ -361,6 +405,67 @@ export default function MetinDetail() {
           onUpdated={updated => { setMetin(updated); reloadDrops() }}
           onDeleted={() => setMetin(null)}
         />
+      )}
+
+      {showOwnProbability && (
+        <Modal title="Drop probability (this session)" onClose={() => setShowOwnProbability(false)}>
+          {submittingProbability && <p className="text-xs text-gray-500 text-center mb-3">Submitting to the global stats…</p>}
+          <p className="text-xs text-gray-500 text-center mb-3">Based on {metinsDestroyedNum} metins destroyed this session.</p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            {displayRows.map(d => {
+              const matId = selectedMaterialId(d)
+              const mat = materialsById[matId]
+              const pct = (Number(quantities[matId]) || 0) / metinsDestroyedNum * 100
+              return (
+                <div key={matId} className="flex flex-col items-center gap-1.5 p-3 bg-gray-800/60 border border-gray-700 rounded-xl">
+                  <div className="w-12 h-12 shrink-0 flex items-center justify-center">
+                    {mat.image_url
+                      ? <img src={mat.image_url} alt={mat.name} className="w-full h-full object-contain" />
+                      : <span className="text-2xl">🧪</span>}
+                  </div>
+                  <span className="text-xs text-gray-300 text-center leading-tight">{mat.name}</span>
+                  <span className="text-yellow-400 text-sm font-bold font-mono">{pct.toFixed(1)}%</span>
+                </div>
+              )
+            })}
+          </div>
+        </Modal>
+      )}
+
+      {showGlobalProbability && (
+        <Modal title="Global drop probability" onClose={() => setShowGlobalProbability(false)}>
+          <p className="text-xs text-gray-500 text-center mb-3">Aggregated from every user's submitted data.</p>
+          {globalStats === null ? (
+            <Spinner />
+          ) : rows.length === 0 ? (
+            <p className="text-sm text-gray-500 text-center py-6">No drops defined for this metin yet.</p>
+          ) : (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+              {rows.map(row => {
+                const stat = globalStats.find(s => s.material_id === row.material_id)
+                const pct = stat && stat.total_kills > 0 ? stat.total_quantity / stat.total_kills * 100 : null
+                return (
+                  <div key={row.material_id} className="flex flex-col items-center gap-1.5 p-3 bg-gray-800/60 border border-gray-700 rounded-xl">
+                    <div className="w-12 h-12 shrink-0 flex items-center justify-center">
+                      {row.material.image_url
+                        ? <img src={row.material.image_url} alt={row.material.name} className="w-full h-full object-contain" />
+                        : <span className="text-2xl">🧪</span>}
+                    </div>
+                    <span className="text-xs text-gray-300 text-center leading-tight">{row.material.name}</span>
+                    {pct === null ? (
+                      <span className="text-gray-600 text-xs">No data yet</span>
+                    ) : (
+                      <>
+                        <span className="text-yellow-400 text-sm font-bold font-mono">{pct.toFixed(1)}%</span>
+                        <span className="text-gray-600 text-[10px]">n={stat.total_kills}</span>
+                      </>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </Modal>
       )}
     </div>
   )

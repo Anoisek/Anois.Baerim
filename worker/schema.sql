@@ -200,3 +200,11 @@ CREATE TABLE metin_drops (
   is_guaranteed INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (metin_id, material_id)
 );
+
+CREATE TABLE metin_drop_stats (
+  metin_id TEXT NOT NULL REFERENCES metins(id),
+  material_id TEXT NOT NULL REFERENCES materials(id),
+  total_quantity REAL NOT NULL DEFAULT 0,
+  total_kills INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (metin_id, material_id)
+);
