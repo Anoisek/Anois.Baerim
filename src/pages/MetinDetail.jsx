@@ -141,7 +141,6 @@ export default function MetinDetail() {
   // uses this.
   const guaranteedRow = rows.find(r => r.is_guaranteed)
   const guaranteedKills = guaranteedRow ? Number(quantities[guaranteedRow.material_id]) || 0 : 0
-  const sessionKillsForStats = guaranteedKills > 0 ? guaranteedKills : metinsDestroyedNum
 
   function isGoldBar(materialId) {
     return !!materialsById[materialId]?.name?.toLowerCase().startsWith('gold bar')
@@ -162,6 +161,7 @@ export default function MetinDetail() {
     return sum + priceFn(matId) * (Number(quantities[matId]) || 0)
   }, 0)
   const metinsDestroyedNum = Number(metinsDestroyed) || 0
+  const sessionKillsForStats = guaranteedKills > 0 ? guaranteedKills : metinsDestroyedNum
   const [durH, durM, durS] = duration ? duration.split(':').map(Number) : [0, 0, 0]
   const minutesNum = (durH || 0) * 60 + (durM || 0) + (durS || 0) / 60
   const yangPerMinute = minutesNum > 0 ? totalYang / minutesNum : 0
