@@ -85,10 +85,11 @@ export default function MetinCalculator() {
               {metins.map(metin => (
                 <Tile
                   key={metin.id}
+                  to={`/systems/metin-calculator/${metin.id}`}
                   image={metin.image_url}
                   emoji="🪨"
                   label={metin.name}
-                  onClick={() => setEditing(metin)}
+                  onEdit={isAdmin ? () => setEditing(metin) : undefined}
                 />
               ))}
             </div>

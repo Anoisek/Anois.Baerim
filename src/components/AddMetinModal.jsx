@@ -53,8 +53,8 @@ export default function AddMetinModal({ onClose, onAdded }) {
       return
     }
 
-    const rows = Object.entries(drops).map(([material_id, altGroup]) => ({
-      metin_id: data.id, material_id, alt_group: altGroup.trim() || null,
+    const rows = Object.entries(drops).map(([material_id, altGroup], index) => ({
+      metin_id: data.id, material_id, alt_group: altGroup.trim() || null, sort_order: index,
     }))
 
     if (rows.length > 0) {

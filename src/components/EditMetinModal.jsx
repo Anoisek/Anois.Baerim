@@ -9,7 +9,7 @@ export default function EditMetinModal({ metin, onClose, onUpdated, onDeleted })
   const [name, setName] = useState(metin.name)
   const [imageUrls, setImageUrls] = useState(metinImages(metin))
   const [allMaterials, setAllMaterials] = useState([])
-  const [drops, setDrops] = useState({}) // { materialId: altGroup } — altGroup '' = independent drop
+  const [drops, setDrops] = useState({}) // { materialId: { altGroup, sortOrder } }
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -18,15 +18,18 @@ export default function EditMetinModal({ metin, onClose, onUpdated, onDeleted })
   useEffect(() => {
     Promise.all([
       db.from('materials').select('*').order('name'),
-      db.from('metin_drops').select('material_id, alt_group').eq('metin_id', metin.id),
+      db.from('metin_drops').select('material_id, alt_group, sort_order').eq('metin_id', metin.id),
     ]).then(([matsRes, dropsRes]) => {
       setAllMaterials(matsRes.data ?? [])
       const d = {}
-      for (const row of dropsRes.data ?? []) d[row.material_id] = row.alt_group ?? ''
+      for (const row of dropsRes.data ?? []) d[row.material_id] = { altGroup: row.alt_group ?? '', sortOrder: row.sort_order ?? 0 }
       setDrops(d)
     })
   }, [metin.id])
 
+  // New drops keep any order already saved for them (see the reorder controls on
+  // the metin's own detail page) — only a freshly checked material gets appended
+  // at the end, so editing name/drops here never scrambles a curated order.
   function toggleDrop(materialId) {
     setDrops(prev => {
       if (prev[materialId] !== undefined) {
@@ -34,12 +37,13 @@ export default function EditMetinModal({ metin, onClose, onUpdated, onDeleted })
         delete next[materialId]
         return next
       }
-      return { ...prev, [materialId]: '' }
+      const nextSortOrder = Object.values(prev).reduce((max, d) => Math.max(max, d.sortOrder), -1) + 1
+      return { ...prev, [materialId]: { altGroup: '', sortOrder: nextSortOrder } }
     })
   }
 
   function setAltGroup(materialId, value) {
-    setDrops(prev => ({ ...prev, [materialId]: value }))
+    setDrops(prev => ({ ...prev, [materialId]: { ...prev[materialId], altGroup: value } }))
   }
 
   async function removeImageAt(i) {
@@ -70,8 +74,8 @@ export default function EditMetinModal({ metin, onClose, onUpdated, onDeleted })
     }
 
     await db.from('metin_drops').delete().eq('metin_id', metin.id)
-    const rows = Object.entries(drops).map(([material_id, altGroup]) => ({
-      metin_id: metin.id, material_id, alt_group: altGroup.trim() || null,
+    const rows = Object.entries(drops).map(([material_id, d]) => ({
+      metin_id: metin.id, material_id, alt_group: d.altGroup.trim() || null, sort_order: d.sortOrder,
     }))
     if (rows.length > 0) await db.from('metin_drops').insert(rows)
 
@@ -168,7 +172,7 @@ export default function EditMetinModal({ metin, onClose, onUpdated, onDeleted })
                     type="text"
                     placeholder="Group"
                     list="metin-alt-groups"
-                    value={drops[mat.id]}
+                    value={drops[mat.id].altGroup}
                     onChange={e => setAltGroup(mat.id, e.target.value)}
                     onClick={e => e.stopPropagation()}
                     className="bg-gray-700 border border-gray-500 rounded px-2 py-1 w-20 text-sm focus:outline-none focus:border-yellow-400"
@@ -178,7 +182,7 @@ export default function EditMetinModal({ metin, onClose, onUpdated, onDeleted })
             ))}
           </div>
           <datalist id="metin-alt-groups">
-            {[...new Set(Object.values(drops).filter(Boolean))].map(g => <option key={g} value={g} />)}
+            {[...new Set(Object.values(drops).map(d => d.altGroup).filter(Boolean))].map(g => <option key={g} value={g} />)}
           </datalist>
         </div>
 

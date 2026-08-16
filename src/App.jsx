@@ -21,6 +21,7 @@ import Exploration from './pages/Exploration'
 import ExplorationLevel from './pages/ExplorationLevel'
 import Maps from './pages/Maps'
 import MetinCalculator from './pages/MetinCalculator'
+import MetinDetail from './pages/MetinDetail'
 import BuildCalculator from './pages/BuildCalculator'
 import Category from './pages/Category'
 import Subcategory from './pages/Subcategory'
@@ -54,6 +55,7 @@ export default function App() {
           <Route path="/systems/interactive-map" element={<Maps />} />
           <Route path="/systems/interactive-map/:mapId" element={<Maps />} />
           <Route path="/systems/metin-calculator" element={<MetinCalculator />} />
+          <Route path="/systems/metin-calculator/:metinId" element={<MetinDetail />} />
           <Route path="/buildcalculator" element={<BuildCalculator />} />
           <Route path="/chapter/:categoryId" element={<Category />} />
           <Route path="/chapter/:categoryId/sub/:subcategoryId" element={<Subcategory />} />
