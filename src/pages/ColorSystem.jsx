@@ -49,10 +49,11 @@ export default function ColorSystem() {
           ) : (
             <div className="flex flex-col gap-3">
               <div className="h-[520px]">
-                <ModelViewer3D modelUrl="/models/sura_novice.glb" />
+                <ModelViewer3D modelUrl="/models/sura_novice.glb" textureUrl="/models/sura_novice_red.png" />
               </div>
               <p className="text-xs text-gray-500 text-center">
-                Sura (novice) — real extracted mesh, no texture or skill animation yet. Drag to rotate, scroll to zoom.
+                Sura (novice), red variant — real extracted mesh + recovered texture, no skill animation yet.
+                UV mapping/face texture may still be off — drag to rotate, scroll to zoom.
               </p>
             </div>
           )}

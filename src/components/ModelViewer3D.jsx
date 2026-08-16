@@ -6,7 +6,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 // Live, rotatable glTF viewer (Three.js, client-side only — no server round trip).
 // Centers and scales whatever model is loaded to fit the view, since source
 // models come from very different pipelines with arbitrary units/pivots.
-export default function ModelViewer3D({ modelUrl }) {
+export default function ModelViewer3D({ modelUrl, textureUrl }) {
   const containerRef = useRef(null)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -55,6 +55,15 @@ export default function ModelViewer3D({ modelUrl }) {
     resizeObserver.observe(container)
     resize()
 
+    // Loaded once up front (not per-mesh) — recovered textures are recolored
+    // atlases shared across the whole body, not per-part maps.
+    let texture = null
+    if (textureUrl) {
+      texture = new THREE.TextureLoader().load(textureUrl)
+      texture.colorSpace = THREE.SRGBColorSpace
+      texture.flipY = false
+    }
+
     let model = null
     const loader = new GLTFLoader()
     loader.load(
@@ -64,7 +73,9 @@ export default function ModelViewer3D({ modelUrl }) {
         model = gltf.scene
         model.traverse(node => {
           if (node.isMesh) {
-            node.material = new THREE.MeshStandardMaterial({ color: 0xb7c3d6, roughness: 0.75, metalness: 0.05 })
+            node.material = texture
+              ? new THREE.MeshStandardMaterial({ map: texture, roughness: 0.8, metalness: 0.02 })
+              : new THREE.MeshStandardMaterial({ color: 0xb7c3d6, roughness: 0.75, metalness: 0.05 })
           }
         })
 
@@ -109,9 +120,10 @@ export default function ModelViewer3D({ modelUrl }) {
         }
       })
       renderer.dispose()
+      texture?.dispose()
       if (renderer.domElement.parentNode === container) container.removeChild(renderer.domElement)
     }
-  }, [modelUrl])
+  }, [modelUrl, textureUrl])
 
   return (
     <div ref={containerRef} className="relative w-full h-full min-h-[420px] rounded-2xl overflow-hidden border border-gray-700 bg-gray-950">
