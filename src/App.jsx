@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { NightModeProvider } from './context/NightModeContext'
@@ -22,7 +23,6 @@ import ExplorationLevel from './pages/ExplorationLevel'
 import Maps from './pages/Maps'
 import MetinCalculator from './pages/MetinCalculator'
 import MetinDetail from './pages/MetinDetail'
-import ColorSystem from './pages/ColorSystem'
 import BuildCalculator from './pages/BuildCalculator'
 import Category from './pages/Category'
 import Subcategory from './pages/Subcategory'
@@ -30,6 +30,11 @@ import ItemDetail from './pages/ItemDetail'
 import ItemUsage from './pages/ItemUsage'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import Suggestions from './pages/Suggestions'
+import Spinner from './components/Spinner'
+
+// Lazy-loaded: pulls in three.js, which is heavy enough that every other page
+// shouldn't pay for it in their initial bundle just because this one route exists.
+const ColorSystem = lazy(() => import('./pages/ColorSystem'))
 
 export default function App() {
   return (
@@ -57,7 +62,11 @@ export default function App() {
           <Route path="/systems/interactive-map/:mapId" element={<Maps />} />
           <Route path="/systems/metin-calculator" element={<MetinCalculator />} />
           <Route path="/systems/metin-calculator/:metinId" element={<MetinDetail />} />
-          <Route path="/systems/color-system" element={<ColorSystem />} />
+          <Route path="/systems/color-system" element={
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Spinner /></div>}>
+              <ColorSystem />
+            </Suspense>
+          } />
           <Route path="/buildcalculator" element={<BuildCalculator />} />
           <Route path="/chapter/:categoryId" element={<Category />} />
           <Route path="/chapter/:categoryId/sub/:subcategoryId" element={<Subcategory />} />

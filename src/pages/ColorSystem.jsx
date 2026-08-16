@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
+import ModelViewer3D from '../components/ModelViewer3D'
 
 export default function ColorSystem() {
   const { t } = useTranslation()
@@ -24,7 +25,7 @@ export default function ColorSystem() {
   return (
     <div className="min-h-screen text-white">
       <Navbar />
-      <div className="max-w-2xl mx-auto px-6 py-10">
+      <div className="max-w-4xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
           <Breadcrumbs items={[
             { label: t('common.home'), to: '/' },
@@ -46,9 +47,13 @@ export default function ColorSystem() {
               <p className="text-sm">{t('systems.blockedMessage')}</p>
             </div>
           ) : (
-            <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
-              <span className="text-5xl">🎨</span>
-              <p className="text-sm">Nothing here yet.</p>
+            <div className="flex flex-col gap-3">
+              <div className="h-[520px]">
+                <ModelViewer3D modelUrl="/models/sura_novice.glb" />
+              </div>
+              <p className="text-xs text-gray-500 text-center">
+                Sura (novice) — real extracted mesh, no texture or skill animation yet. Drag to rotate, scroll to zoom.
+              </p>
             </div>
           )}
         </div>
