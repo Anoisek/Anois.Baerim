@@ -38,7 +38,7 @@ export default function MetinDetail() {
   const [quantities, setQuantities] = useState({}) // { materialId: rawQty }
   const [groupSelection, setGroupSelection] = useState({}) // { altGroup: materialId }
   const [metinsDestroyed, setMetinsDestroyed] = useState('')
-  const [minutesSpent, setMinutesSpent] = useState('')
+  const [duration, setDuration] = useState('') // "HH:MM:SS"
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const { rawInputs, setPrice, mode, manualOverrides, toggleManualOverride } = usePriceBook()
@@ -70,7 +70,7 @@ export default function MetinDetail() {
       setQuantities(saved?.quantities ?? {})
       setGroupSelection(saved?.groupSelection ?? {})
       setMetinsDestroyed(saved?.metinsDestroyed ?? '')
-      setMinutesSpent(saved?.minutesSpent ?? '')
+      setDuration(saved?.duration ?? '')
 
       setLoading(false)
     })
@@ -78,8 +78,8 @@ export default function MetinDetail() {
 
   useEffect(() => {
     if (loading) return
-    localStorage.setItem(`metin_loot_${metinId}`, JSON.stringify({ quantities, groupSelection, metinsDestroyed, minutesSpent }))
-  }, [metinId, loading, quantities, groupSelection, metinsDestroyed, minutesSpent])
+    localStorage.setItem(`metin_loot_${metinId}`, JSON.stringify({ quantities, groupSelection, metinsDestroyed, duration }))
+  }, [metinId, loading, quantities, groupSelection, metinsDestroyed, duration])
 
   const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides })
 
@@ -108,7 +108,8 @@ export default function MetinDetail() {
     return sum + priceFn(matId) * (Number(quantities[matId]) || 0)
   }, 0)
   const metinsDestroyedNum = Number(metinsDestroyed) || 0
-  const minutesNum = Number(minutesSpent) || 0
+  const [durH, durM, durS] = duration ? duration.split(':').map(Number) : [0, 0, 0]
+  const minutesNum = (durH || 0) * 60 + (durM || 0) + (durS || 0) / 60
   const yangPerMinute = minutesNum > 0 ? totalYang / minutesNum : 0
   const yangPerMetin = metinsDestroyedNum > 0 ? totalYang / metinsDestroyedNum : 0
 
@@ -297,13 +298,12 @@ export default function MetinDetail() {
                         />
                       </label>
                       <label className="flex-1 min-w-[140px] flex flex-col gap-1">
-                        <span className="text-xs text-gray-400">Minutes spent</span>
+                        <span className="text-xs text-gray-400">Duration</span>
                         <input
-                          type="number"
-                          min="0"
-                          step="0.1"
-                          value={minutesSpent}
-                          onChange={e => setMinutesSpent(e.target.value)}
+                          type="time"
+                          step="1"
+                          value={duration}
+                          onChange={e => setDuration(e.target.value)}
                           className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
                         />
                       </label>
