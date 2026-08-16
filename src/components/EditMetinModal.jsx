@@ -9,7 +9,7 @@ export default function EditMetinModal({ metin, onClose, onUpdated, onDeleted })
   const [name, setName] = useState(metin.name)
   const [imageUrls, setImageUrls] = useState(metinImages(metin))
   const [allMaterials, setAllMaterials] = useState([])
-  const [drops, setDrops] = useState({}) // { materialId: { altGroup, sortOrder } }
+  const [drops, setDrops] = useState({}) // { materialId: { altGroup, sortOrder, guaranteed } }
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -18,11 +18,13 @@ export default function EditMetinModal({ metin, onClose, onUpdated, onDeleted })
   useEffect(() => {
     Promise.all([
       db.from('materials').select('*').order('name'),
-      db.from('metin_drops').select('material_id, alt_group, sort_order').eq('metin_id', metin.id),
+      db.from('metin_drops').select('material_id, alt_group, sort_order, is_guaranteed').eq('metin_id', metin.id),
     ]).then(([matsRes, dropsRes]) => {
       setAllMaterials(matsRes.data ?? [])
       const d = {}
-      for (const row of dropsRes.data ?? []) d[row.material_id] = { altGroup: row.alt_group ?? '', sortOrder: row.sort_order ?? 0 }
+      for (const row of dropsRes.data ?? []) {
+        d[row.material_id] = { altGroup: row.alt_group ?? '', sortOrder: row.sort_order ?? 0, guaranteed: !!row.is_guaranteed }
+      }
       setDrops(d)
     })
   }, [metin.id])
@@ -38,12 +40,16 @@ export default function EditMetinModal({ metin, onClose, onUpdated, onDeleted })
         return next
       }
       const nextSortOrder = Object.values(prev).reduce((max, d) => Math.max(max, d.sortOrder), -1) + 1
-      return { ...prev, [materialId]: { altGroup: '', sortOrder: nextSortOrder } }
+      return { ...prev, [materialId]: { altGroup: '', sortOrder: nextSortOrder, guaranteed: false } }
     })
   }
 
   function setAltGroup(materialId, value) {
     setDrops(prev => ({ ...prev, [materialId]: { ...prev[materialId], altGroup: value } }))
+  }
+
+  function toggleGuaranteed(materialId) {
+    setDrops(prev => ({ ...prev, [materialId]: { ...prev[materialId], guaranteed: !prev[materialId].guaranteed } }))
   }
 
   async function removeImageAt(i) {
@@ -75,7 +81,7 @@ export default function EditMetinModal({ metin, onClose, onUpdated, onDeleted })
 
     await db.from('metin_drops').delete().eq('metin_id', metin.id)
     const rows = Object.entries(drops).map(([material_id, d]) => ({
-      metin_id: metin.id, material_id, alt_group: d.altGroup.trim() || null, sort_order: d.sortOrder,
+      metin_id: metin.id, material_id, alt_group: d.altGroup.trim() || null, sort_order: d.sortOrder, is_guaranteed: d.guaranteed,
     }))
     if (rows.length > 0) await db.from('metin_drops').insert(rows)
 
@@ -143,7 +149,8 @@ export default function EditMetinModal({ metin, onClose, onUpdated, onDeleted })
           <p className="text-xs text-gray-500 -mt-1">
             Leave "Group" empty for a normal drop. Give two or more materials the same group label to mark
             them as alternatives — this metin drops only one of that group, not all of them (e.g. group "A"
-            on both Golden Clasp and Golden Fabric).
+            on both Golden Clasp and Golden Fabric). Check "1/kill" for a material that always drops exactly
+            once per metin — its quantity will auto-fill the "Metins destroyed" count on the calculator page.
           </p>
 
           <input
@@ -168,15 +175,26 @@ export default function EditMetinModal({ metin, onClose, onUpdated, onDeleted })
                   : <span className="w-7 text-center text-lg">🧪</span>}
                 <span className="text-sm text-white flex-1">{mat.name}</span>
                 {drops[mat.id] !== undefined && (
-                  <input
-                    type="text"
-                    placeholder="Group"
-                    list="metin-alt-groups"
-                    value={drops[mat.id].altGroup}
-                    onChange={e => setAltGroup(mat.id, e.target.value)}
-                    onClick={e => e.stopPropagation()}
-                    className="bg-gray-700 border border-gray-500 rounded px-2 py-1 w-20 text-sm focus:outline-none focus:border-yellow-400"
-                  />
+                  <>
+                    <label className="flex items-center gap-1 text-[11px] text-gray-400 shrink-0" onClick={e => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={drops[mat.id].guaranteed}
+                        onChange={() => toggleGuaranteed(mat.id)}
+                        className="accent-yellow-400 w-3.5 h-3.5"
+                      />
+                      1/kill
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Group"
+                      list="metin-alt-groups"
+                      value={drops[mat.id].altGroup}
+                      onChange={e => setAltGroup(mat.id, e.target.value)}
+                      onClick={e => e.stopPropagation()}
+                      className="bg-gray-700 border border-gray-500 rounded px-2 py-1 w-20 text-sm focus:outline-none focus:border-yellow-400"
+                    />
+                  </>
                 )}
               </div>
             ))}

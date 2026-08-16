@@ -7,7 +7,7 @@ export default function AddMetinModal({ onClose, onAdded }) {
   const [name, setName] = useState('')
   const [imageUrls, setImageUrls] = useState([])
   const [allMaterials, setAllMaterials] = useState([])
-  const [drops, setDrops] = useState({}) // { materialId: altGroup } — altGroup '' = independent drop
+  const [drops, setDrops] = useState({}) // { materialId: { altGroup, guaranteed } }
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -24,12 +24,16 @@ export default function AddMetinModal({ onClose, onAdded }) {
         delete next[materialId]
         return next
       }
-      return { ...prev, [materialId]: '' }
+      return { ...prev, [materialId]: { altGroup: '', guaranteed: false } }
     })
   }
 
   function setAltGroup(materialId, value) {
-    setDrops(prev => ({ ...prev, [materialId]: value }))
+    setDrops(prev => ({ ...prev, [materialId]: { ...prev[materialId], altGroup: value } }))
+  }
+
+  function toggleGuaranteed(materialId) {
+    setDrops(prev => ({ ...prev, [materialId]: { ...prev[materialId], guaranteed: !prev[materialId].guaranteed } }))
   }
 
   async function handleSubmit(e) {
@@ -53,8 +57,8 @@ export default function AddMetinModal({ onClose, onAdded }) {
       return
     }
 
-    const rows = Object.entries(drops).map(([material_id, altGroup], index) => ({
-      metin_id: data.id, material_id, alt_group: altGroup.trim() || null, sort_order: index,
+    const rows = Object.entries(drops).map(([material_id, d], index) => ({
+      metin_id: data.id, material_id, alt_group: d.altGroup.trim() || null, sort_order: index, is_guaranteed: d.guaranteed,
     }))
 
     if (rows.length > 0) {
@@ -109,7 +113,8 @@ export default function AddMetinModal({ onClose, onAdded }) {
           <p className="text-xs text-gray-500 -mt-1">
             Leave "Group" empty for a normal drop. Give two or more materials the same group label to mark
             them as alternatives — this metin drops only one of that group, not all of them (e.g. group "A"
-            on both Golden Clasp and Golden Fabric).
+            on both Golden Clasp and Golden Fabric). Check "1/kill" for a material that always drops exactly
+            once per metin — its quantity will auto-fill the "Metins destroyed" count on the calculator page.
           </p>
 
           <input
@@ -134,21 +139,32 @@ export default function AddMetinModal({ onClose, onAdded }) {
                   : <span className="w-7 text-center text-lg">🧪</span>}
                 <span className="text-sm text-white flex-1">{mat.name}</span>
                 {drops[mat.id] !== undefined && (
-                  <input
-                    type="text"
-                    placeholder="Group"
-                    list="metin-alt-groups"
-                    value={drops[mat.id]}
-                    onChange={e => setAltGroup(mat.id, e.target.value)}
-                    onClick={e => e.stopPropagation()}
-                    className="bg-gray-700 border border-gray-500 rounded px-2 py-1 w-20 text-sm focus:outline-none focus:border-yellow-400"
-                  />
+                  <>
+                    <label className="flex items-center gap-1 text-[11px] text-gray-400 shrink-0" onClick={e => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={drops[mat.id].guaranteed}
+                        onChange={() => toggleGuaranteed(mat.id)}
+                        className="accent-yellow-400 w-3.5 h-3.5"
+                      />
+                      1/kill
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Group"
+                      list="metin-alt-groups"
+                      value={drops[mat.id].altGroup}
+                      onChange={e => setAltGroup(mat.id, e.target.value)}
+                      onClick={e => e.stopPropagation()}
+                      className="bg-gray-700 border border-gray-500 rounded px-2 py-1 w-20 text-sm focus:outline-none focus:border-yellow-400"
+                    />
+                  </>
                 )}
               </div>
             ))}
           </div>
           <datalist id="metin-alt-groups">
-            {[...new Set(Object.values(drops).filter(Boolean))].map(g => <option key={g} value={g} />)}
+            {[...new Set(Object.values(drops).map(d => d.altGroup).filter(Boolean))].map(g => <option key={g} value={g} />)}
           </datalist>
         </div>
 

@@ -95,7 +95,11 @@ const TABLES = {
     jsonArrays: ['image_urls'],
     pk: ['id'],
   },
-  metin_drops: { columns: ['metin_id', 'material_id', 'quantity', 'alt_group', 'sort_order'], pk: ['metin_id', 'material_id'] },
+  metin_drops: {
+    columns: ['metin_id', 'material_id', 'quantity', 'alt_group', 'sort_order', 'is_guaranteed'],
+    booleans: ['is_guaranteed'],
+    pk: ['metin_id', 'material_id'],
+  },
 }
 
 const MODIFIER_KEYS = new Set(['select', 'order', 'limit', 'count', 'head'])

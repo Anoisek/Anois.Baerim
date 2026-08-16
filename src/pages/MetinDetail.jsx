@@ -38,13 +38,14 @@ export default function MetinDetail() {
   const [quantities, setQuantities] = useState({}) // { materialId: rawQty }
   const [groupSelection, setGroupSelection] = useState({}) // { altGroup: materialId }
   const [metinsDestroyed, setMetinsDestroyed] = useState('')
+  const [metinsAutoSynced, setMetinsAutoSynced] = useState(true)
   const [duration, setDuration] = useState('') // "HH:MM:SS"
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const { rawInputs, setPrice, mode, manualOverrides, toggleManualOverride } = usePriceBook()
 
   async function reloadDrops() {
-    const { data } = await db.from('metin_drops').select('material_id, alt_group, sort_order').eq('metin_id', metinId).order('sort_order')
+    const { data } = await db.from('metin_drops').select('material_id, alt_group, sort_order, is_guaranteed').eq('metin_id', metinId).order('sort_order')
     setDrops(data ?? [])
   }
 
@@ -52,7 +53,7 @@ export default function MetinDetail() {
     setLoading(true)
     Promise.all([
       db.from('metins').select('*').eq('id', metinId).maybeSingle(),
-      db.from('metin_drops').select('material_id, alt_group, sort_order').eq('metin_id', metinId).order('sort_order'),
+      db.from('metin_drops').select('material_id, alt_group, sort_order, is_guaranteed').eq('metin_id', metinId).order('sort_order'),
       db.from('materials').select('*'),
       db.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
       fetchGlobalPrices(),
@@ -70,6 +71,7 @@ export default function MetinDetail() {
       setQuantities(saved?.quantities ?? {})
       setGroupSelection(saved?.groupSelection ?? {})
       setMetinsDestroyed(saved?.metinsDestroyed ?? '')
+      setMetinsAutoSynced(saved?.metinsAutoSynced ?? true)
       setDuration(saved?.duration ?? '')
 
       setLoading(false)
@@ -78,8 +80,21 @@ export default function MetinDetail() {
 
   useEffect(() => {
     if (loading) return
-    localStorage.setItem(`metin_loot_${metinId}`, JSON.stringify({ quantities, groupSelection, metinsDestroyed, duration }))
-  }, [metinId, loading, quantities, groupSelection, metinsDestroyed, duration])
+    localStorage.setItem(`metin_loot_${metinId}`, JSON.stringify({ quantities, groupSelection, metinsDestroyed, metinsAutoSynced, duration }))
+  }, [metinId, loading, quantities, groupSelection, metinsDestroyed, metinsAutoSynced, duration])
+
+  // A material flagged "guaranteed" (1/kill) always drops exactly once per metin,
+  // so its looted quantity IS the metin kill count — auto-fill "Metins destroyed"
+  // from it. Once the user edits "Metins destroyed" by hand, stop overwriting it.
+  function handleQuantityChange(materialId, value, isGuaranteed) {
+    setQuantities(prev => ({ ...prev, [materialId]: value }))
+    if (isGuaranteed && metinsAutoSynced) setMetinsDestroyed(value)
+  }
+
+  function handleMetinsDestroyedChange(value) {
+    setMetinsDestroyed(value)
+    setMetinsAutoSynced(false)
+  }
 
   const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides })
 
@@ -95,7 +110,7 @@ export default function MetinDetail() {
       seenGroups.add(row.alt_group)
       displayRows.push({ kind: 'group', altGroup: row.alt_group, options: rows.filter(r => r.alt_group === row.alt_group) })
     } else {
-      displayRows.push({ kind: 'single', material_id: row.material_id, material: row.material })
+      displayRows.push({ kind: 'single', material_id: row.material_id, material: row.material, is_guaranteed: row.is_guaranteed })
     }
   }
 
@@ -192,6 +207,8 @@ export default function MetinDetail() {
                   {displayRows.map((d, index) => {
                     const matId = selectedMaterialId(d)
                     const mat = materialsById[matId]
+                    const selectedRow = d.kind === 'group' ? d.options.find(o => o.material_id === matId) : d
+                    const isGuaranteed = !!selectedRow?.is_guaranteed
                     const unitPrice = priceFn(matId)
                     const qty = Number(quantities[matId]) || 0
                     const lineTotal = unitPrice * qty
@@ -268,6 +285,11 @@ export default function MetinDetail() {
                               />
                             )}
                             Quantity looted
+                            {isGuaranteed && (
+                              <span title="Always drops once per metin — auto-fills Metins destroyed below" className="text-[10px] text-yellow-400 border border-yellow-400/40 rounded px-1 py-0.5">
+                                1/kill
+                              </span>
+                            )}
                           </label>
                           <div className="flex items-center gap-3">
                             <input
@@ -275,7 +297,7 @@ export default function MetinDetail() {
                               min="0"
                               placeholder="0"
                               value={quantities[matId] ?? ''}
-                              onChange={e => setQuantities(prev => ({ ...prev, [matId]: e.target.value }))}
+                              onChange={e => handleQuantityChange(matId, e.target.value, isGuaranteed)}
                               className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 w-20 text-center text-sm focus:outline-none focus:border-yellow-400"
                             />
                             <span className="text-yellow-400 text-sm w-24 text-right font-mono">{formatYang(lineTotal)}</span>
@@ -288,12 +310,15 @@ export default function MetinDetail() {
                   <div className="bg-gray-900 border border-yellow-400/20 rounded-2xl px-6 py-5 mt-1 flex flex-col gap-4">
                     <div className="flex flex-wrap gap-4">
                       <label className="flex-1 min-w-[140px] flex flex-col gap-1">
-                        <span className="text-xs text-gray-400">Metins destroyed</span>
+                        <span className="text-xs text-gray-400">
+                          Metins destroyed
+                          {metinsAutoSynced && <span className="text-gray-600"> (auto)</span>}
+                        </span>
                         <input
                           type="number"
                           min="0"
                           value={metinsDestroyed}
-                          onChange={e => setMetinsDestroyed(e.target.value)}
+                          onChange={e => handleMetinsDestroyedChange(e.target.value)}
                           className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
                         />
                       </label>
