@@ -129,6 +129,24 @@ export default function MetinDetail() {
     return display.kind === 'group' ? (groupSelection[display.altGroup] ?? display.options[0].material_id) : display.material_id
   }
 
+  function isFilled(materialId) {
+    return quantities[materialId] !== undefined && quantities[materialId] !== ''
+  }
+
+  function isGoldBar(materialId) {
+    return !!materialsById[materialId]?.name?.toLowerCase().startsWith('gold bar')
+  }
+
+  // Every material needs an explicit quantity (0 counts) before probability can
+  // be checked — except Gold Bars, where only one of the variants needs to be
+  // filled in, since a session can easily drop just one bar type. Gold Bars
+  // aren't grouped like alt_group though, since both types CAN drop together.
+  const goldBarDisplayRows = displayRows.filter(d => isGoldBar(selectedMaterialId(d)))
+  const requiredDisplayRows = displayRows.filter(d => !isGoldBar(selectedMaterialId(d)))
+  const missingRequired = requiredDisplayRows.some(d => !isFilled(selectedMaterialId(d)))
+  const missingGoldBar = goldBarDisplayRows.length > 0 && !goldBarDisplayRows.some(d => isFilled(selectedMaterialId(d)))
+  const canCheckProbability = displayRows.length > 0 && !missingRequired && !missingGoldBar
+
   const totalYang = displayRows.reduce((sum, d) => {
     const matId = selectedMaterialId(d)
     return sum + priceFn(matId) * (Number(quantities[matId]) || 0)
@@ -168,23 +186,21 @@ export default function MetinDetail() {
   // Shows this session's own quantities as a % of "Metins destroyed", and submits
   // that same data point to the shared metin_drop_stats total (see rpc.js) so it
   // blends into the global average every other submitter contributes to.
-  // Skipped entirely if every quantity is still 0 — a kill count with nothing
-  // filled in just pads total_kills for every material without any signal,
-  // dragging every percentage down for no real reason.
+  // Requires every material's quantity to be filled in first (canCheckProbability)
+  // so a submission can't quietly omit a material the user forgot about — that's
+  // what previously let an all-empty submission pad total_kills for nothing.
   async function handleCheckProbability() {
     if (metinsDestroyedNum <= 0) {
       alert('Enter "Metins destroyed" first.')
       return
     }
+    if (!canCheckProbability) return
     setShowOwnProbability(true)
     const quantitiesToSubmit = {}
     for (const d of displayRows) quantitiesToSubmit[selectedMaterialId(d)] = Number(quantities[selectedMaterialId(d)]) || 0
-    const hasAnyLoot = Object.values(quantitiesToSubmit).some(q => q > 0)
-    if (hasAnyLoot) {
-      setSubmittingProbability(true)
-      await db.rpc('submit_metin_drop_stats', { p_metin_id: metinId, p_kills: metinsDestroyedNum, p_quantities: quantitiesToSubmit })
-      setSubmittingProbability(false)
-    }
+    setSubmittingProbability(true)
+    await db.rpc('submit_metin_drop_stats', { p_metin_id: metinId, p_kills: metinsDestroyedNum, p_quantities: quantitiesToSubmit })
+    setSubmittingProbability(false)
   }
 
   async function handleShowGlobalProbability() {
@@ -459,10 +475,17 @@ export default function MetinDetail() {
                   <button
                     type="button"
                     onClick={handleCheckProbability}
-                    className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+                    disabled={!canCheckProbability}
+                    className="bg-yellow-600/20 hover:bg-yellow-600/30 disabled:hover:bg-yellow-600/20 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
                   >
                     🎲 Check drop probability
                   </button>
+                  {!canCheckProbability && (
+                    <p className="text-xs text-gray-500">
+                      Fill in a quantity for every material (0 if you got none) before checking probability
+                      {goldBarDisplayRows.length > 0 ? ' — for Gold Bars, only one type needs a value.' : '.'}
+                    </p>
+                  )}
                 </div>
               )}
             </>
