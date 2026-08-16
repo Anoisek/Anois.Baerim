@@ -192,6 +192,7 @@
     "yangFee": "Frais en yang",
     "subtotal": "Sous-total",
     "includeCraftCost": "Inclure le coût de fabrication",
+    "ownedLevelTooltip": "Niveau déjà possédé — masque le coût de fabrication et d'amélioration jusqu'à ce niveau",
     "totalCost": "Coût total",
     "overviewUpgrade": "Amélioration",
     "overviewPrice": "Prix"
@@ -210,7 +211,8 @@
     "setPityMaxAll": "⬆ Mettre le pity au max (tous les objets)",
     "noItemsYet": "Pas encore d'objets dans ton build — recherche ci-dessus pour en ajouter.",
     "removeTooltip": "Retirer",
-    "grandTotal": "Total général"
+    "grandTotal": "Total général",
+    "ownedLevelTooltip": "Niveau déjà possédé — masque le coût de fabrication et d'amélioration jusqu'à ce niveau"
   },
   "maps": {
     "title": "Carte interactive Mokoko",

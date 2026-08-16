@@ -192,6 +192,7 @@
     "yangFee": "Yang fee",
     "subtotal": "Subtotal",
     "includeCraftCost": "Include craft cost",
+    "ownedLevelTooltip": "Level you already own — hides craft & upgrade costs up to this level",
     "totalCost": "Total cost",
     "overviewUpgrade": "Upgrade",
     "overviewPrice": "Price"
@@ -210,7 +211,8 @@
     "setPityMaxAll": "⬆ Set pity to max (all items)",
     "noItemsYet": "No items in your build yet — search above to add some.",
     "removeTooltip": "Remove",
-    "grandTotal": "Grand total"
+    "grandTotal": "Grand total",
+    "ownedLevelTooltip": "Level you already own — hides craft & upgrade costs up to this level"
   },
   "maps": {
     "title": "Mokoko Interactive Map",

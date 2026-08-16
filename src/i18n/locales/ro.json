@@ -192,6 +192,7 @@
     "yangFee": "Taxă în yang",
     "subtotal": "Subtotal",
     "includeCraftCost": "Include costul de confecționare",
+    "ownedLevelTooltip": "Nivelul pe care îl deții deja — ascunde costul de crafting și upgrade până la acest nivel",
     "totalCost": "Cost total",
     "overviewUpgrade": "Îmbunătățire",
     "overviewPrice": "Preț"
@@ -210,7 +211,8 @@
     "setPityMaxAll": "⬆ Setează pity maxim (toate obiectele)",
     "noItemsYet": "Încă nu ai obiecte în build — caută mai sus pentru a adăuga unele.",
     "removeTooltip": "Elimină",
-    "grandTotal": "Total general"
+    "grandTotal": "Total general",
+    "ownedLevelTooltip": "Nivelul pe care îl deții deja — ascunde costul de crafting și upgrade până la acest nivel"
   },
   "maps": {
     "title": "Harta interactivă Mokoko",

@@ -192,6 +192,7 @@
     "yangFee": "Yang ücreti",
     "subtotal": "Ara toplam",
     "includeCraftCost": "Üretim maliyetini dahil et",
+    "ownedLevelTooltip": "Zaten sahip olduğun seviye — bu seviyeye kadar üretim ve geliştirme maliyetini gizler",
     "totalCost": "Toplam maliyet",
     "overviewUpgrade": "Yükseltme",
     "overviewPrice": "Fiyat"
@@ -210,7 +211,8 @@
     "setPityMaxAll": "⬆ Pity'yi maks. yap (tüm eşyalar)",
     "noItemsYet": "Build'inde henüz eşya yok — eklemek için yukarıdan ara.",
     "removeTooltip": "Kaldır",
-    "grandTotal": "Genel toplam"
+    "grandTotal": "Genel toplam",
+    "ownedLevelTooltip": "Zaten sahip olduğun seviye — bu seviyeye kadar üretim ve geliştirme maliyetini gizler"
   },
   "maps": {
     "title": "Mokoko İnteraktif Haritası",

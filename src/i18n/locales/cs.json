@@ -192,6 +192,7 @@
     "yangFee": "Poplatek v yang",
     "subtotal": "Mezisoučet",
     "includeCraftCost": "Zahrnout náklady na výrobu",
+    "ownedLevelTooltip": "Úroveň, kterou už vlastníš — skryje náklady na craft a vylepšení do této úrovně",
     "totalCost": "Celková cena",
     "overviewUpgrade": "Vylepšení",
     "overviewPrice": "Cena"
@@ -210,7 +211,8 @@
     "setPityMaxAll": "⬆ Nastavit max. pity (všechny předměty)",
     "noItemsYet": "V tvém buildu zatím nejsou žádné předměty — vyhledej výše a nějaké přidej.",
     "removeTooltip": "Odebrat",
-    "grandTotal": "Celkový součet"
+    "grandTotal": "Celkový součet",
+    "ownedLevelTooltip": "Úroveň, kterou už vlastníš — skryje náklady na craft a vylepšení do této úrovně"
   },
   "maps": {
     "title": "Interaktivní mapa Mokoko",

@@ -192,6 +192,7 @@
     "yangFee": "Opłata w yang",
     "subtotal": "Suma częściowa",
     "includeCraftCost": "Uwzględnij koszt stworzenia",
+    "ownedLevelTooltip": "Poziom, który już posiadasz — ukrywa koszt craftu i ulepszeń do tego poziomu",
     "totalCost": "Koszt całkowity",
     "overviewUpgrade": "Ulepszanie",
     "overviewPrice": "Cena"
@@ -210,7 +211,8 @@
     "setPityMaxAll": "⬆ Ustaw maks. pity (wszystkie przedmioty)",
     "noItemsYet": "Brak przedmiotów w Twoim buildzie — wyszukaj powyżej, aby dodać.",
     "removeTooltip": "Usuń",
-    "grandTotal": "Suma całkowita"
+    "grandTotal": "Suma całkowita",
+    "ownedLevelTooltip": "Poziom, który już posiadasz — ukrywa koszt craftu i ulepszeń do tego poziomu"
   },
   "maps": {
     "title": "Interaktywna mapa Mokoko",

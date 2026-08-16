@@ -250,10 +250,12 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
 
   const choices = loadItemChoices(itemId)
   const includeCraft = choices?.includeCraft ?? true
+  const excludedSteps = choices?.excludedSteps ?? {}
 
   let total = 0
   for (const step of steps) {
     if (step === 0 && !includeCraft) continue
+    if (excludedSteps[step]) continue
 
     const variant = choices?.variantByStep?.[step] ?? 1
 

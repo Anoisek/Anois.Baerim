@@ -192,6 +192,7 @@
     "yangFee": "Yang-Gebühr",
     "subtotal": "Zwischensumme",
     "includeCraftCost": "Herstellungskosten einbeziehen",
+    "ownedLevelTooltip": "Stufe, die du bereits besitzt — blendet Craft- und Verbesserungskosten bis zu dieser Stufe aus",
     "totalCost": "Gesamtkosten",
     "overviewUpgrade": "Verbesserung",
     "overviewPrice": "Preis"
@@ -210,7 +211,8 @@
     "setPityMaxAll": "⬆ Pity auf Max. setzen (alle Gegenstände)",
     "noItemsYet": "Noch keine Gegenstände in deinem Build — oben suchen, um welche hinzuzufügen.",
     "removeTooltip": "Entfernen",
-    "grandTotal": "Gesamtsumme"
+    "grandTotal": "Gesamtsumme",
+    "ownedLevelTooltip": "Stufe, die du bereits besitzt — blendet Craft- und Verbesserungskosten bis zu dieser Stufe aus"
   },
   "maps": {
     "title": "Interaktive Mokoko-Karte",

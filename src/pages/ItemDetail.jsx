@@ -31,6 +31,16 @@ const SCROLL_ORDER = [
   'Blacksmith Handbook', 'Scroll of War', 'Magic Stone',
 ]
 
+// ownedLevel: '-' = player has nothing yet (craft + every upgrade counts),
+// or 0-9 = player already owns that +level (craft and upgrades up to and
+// including that level are free — only the remaining upgrades count).
+function excludedStepsForOwnedLevel(level) {
+  if (level === '-') return {}
+  const excluded = {}
+  for (let s = 0; s <= Number(level); s++) excluded[s] = true
+  return excluded
+}
+
 export default function ItemDetail() {
   const { t } = useTranslation()
   const { itemId } = useParams()
@@ -51,8 +61,7 @@ export default function ItemDetail() {
   const [selectedScroll, setSelectedScroll] = useState({})
   const [selectedSeals, setSelectedSeals] = useState({})
   const [pity, setPity] = useState({})
-  const [includeCraft, setIncludeCraft] = useState(true)
-  const [excludedSteps, setExcludedSteps] = useState({})
+  const [ownedLevel, setOwnedLevel] = useState('-')
   const [showSummary, setShowSummary] = useState(false)
   const [globalPrices, setGlobalPrices] = useState({})
   const [chapterName, setChapterName] = useState(null)
@@ -130,7 +139,7 @@ export default function ItemDetail() {
       setDefaultScrollByStep(buildDefaultScrollMap(sorted))
       setGlobalPrices(globalPricesMap)
 
-      setExcludedSteps({})
+      setOwnedLevel('-')
 
       const saved = localStorage.getItem(`item_choices_${itemId}`)
       const savedChoices = saved ? JSON.parse(saved) : null
@@ -141,7 +150,9 @@ export default function ItemDetail() {
         setSelectedScroll(NO_DEFAULT_SCROLL_ITEM_IDS.has(itemId) ? {} : (savedChoices.selectedScroll ?? {}))
         setSelectedSeals(savedChoices.selectedSeals ?? {})
         setPity(savedChoices.pity ?? {})
-        setIncludeCraft(savedChoices.includeCraft ?? true)
+        // Legacy choices saved before this selector existed only had the craft
+        // checkbox — map "craft unchecked" to owning +0.
+        setOwnedLevel(savedChoices.ownedLevel ?? (savedChoices.includeCraft === false ? '0' : '-'))
         setSelectedVariant(savedChoices.variantByStep ?? {})
       } else {
         setSelectedVariant({})
@@ -179,8 +190,10 @@ export default function ItemDetail() {
 
   useEffect(() => {
     if (loading) return
-    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll, selectedSeals, pity, includeCraft, variantByStep: selectedVariant }))
-  }, [itemId, loading, selectedScroll, selectedSeals, pity, includeCraft, selectedVariant])
+    const includeCraft = ownedLevel === '-'
+    const excludedSteps = excludedStepsForOwnedLevel(ownedLevel)
+    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll, selectedSeals, pity, includeCraft, excludedSteps, ownedLevel, variantByStep: selectedVariant }))
+  }, [itemId, loading, selectedScroll, selectedSeals, pity, ownedLevel, selectedVariant])
 
   function clearAllScrolls() {
     setSelectedScroll(prev => {
@@ -203,20 +216,6 @@ export default function ItemDetail() {
       const next = { ...prev }
       for (let s = 0; s <= 9; s++) {
         if (maxPityByStep[s] != null) next[s] = maxPityByStep[s]
-      }
-      return next
-    })
-  }
-
-  function toggleStepIncluded(step) {
-    setExcludedSteps(prev => {
-      const next = { ...prev }
-      if (prev[step]) {
-        // including this step implies every lower step must be reached too
-        for (let s = 1; s <= step; s++) next[s] = false
-      } else {
-        // excluding this step means every higher step is unreachable too
-        for (let s = step; s <= 9; s++) next[s] = true
       }
       return next
     })
@@ -301,7 +300,8 @@ export default function ItemDetail() {
     })
   }
 
-  function isStepIncluded(step) { return !(step === 0 && !includeCraft) && !excludedSteps[step] }
+  const excludedSteps = excludedStepsForOwnedLevel(ownedLevel)
+  function isStepIncluded(step) { return !excludedSteps[step] }
   const total = allSteps.reduce((s, step) => isStepIncluded(step) ? s + stepTotal(step) : s, 0)
 
   function buildMaterialsSummary() {
@@ -382,7 +382,22 @@ export default function ItemDetail() {
                   ? <ItemImage images={itemImages(item)} alt={item.name} className="w-full h-full object-contain drop-shadow-lg" />
                   : <span className="text-5xl">⚔️</span>}
               </div>
-              <h1 className="text-2xl font-bold text-yellow-400 flex-1">{item ? formatItemName(item) : ''}</h1>
+              <div className="flex-1 min-w-0 flex items-center gap-3 flex-wrap">
+                <h1 className="text-2xl font-bold text-yellow-400">{item ? formatItemName(item) : ''}</h1>
+                {allSteps.length > 0 && (
+                  <select
+                    value={ownedLevel}
+                    onChange={e => setOwnedLevel(e.target.value)}
+                    title={t('itemDetail.ownedLevelTooltip')}
+                    className="bg-gray-800 border border-gray-600 rounded-lg px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-yellow-400 shrink-0"
+                  >
+                    <option value="-">-</option>
+                    {Array.from({ length: 10 }, (_, n) => (
+                      <option key={n} value={String(n)}>+{n}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
               {isPvpItem && maxVariantCount > 1 && (
                 <button
                   type="button"
@@ -453,7 +468,7 @@ export default function ItemDetail() {
                   const stepSealMats = (selectedSeals[step] ?? []).map(id => seals.find(s => s.id === id)).filter(Boolean)
                   const hasExtras = scrollMat || stepSealMats.length > 0
 
-                  const stepExcluded = step !== 0 && !!excludedSteps[step]
+                  const stepExcluded = !!excludedSteps[step]
 
                   return (
                     <div key={step} className={`bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden${stepExcluded ? ' opacity-50' : ''}`}>
@@ -463,20 +478,6 @@ export default function ItemDetail() {
                           {t(STEP_LABEL_KEYS[step])}
                         </h2>
                         <div className="flex items-center gap-2 flex-wrap">
-                          {step !== 0 && (
-                            <label
-                              className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer select-none"
-                              title={t('itemDetail.includeStepTooltip')}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={!stepExcluded}
-                                onChange={() => toggleStepIncluded(step)}
-                                className="accent-yellow-400 w-3.5 h-3.5"
-                              />
-                              {t('itemDetail.includeStep')}
-                            </label>
-                          )}
                           {step !== 0 && scrolls.length > 0 && (
                             <select
                               value={scrollId}
@@ -575,17 +576,6 @@ export default function ItemDetail() {
 
                 {/* Total card */}
                 <div className="bg-gray-900 border border-yellow-400/20 rounded-2xl px-6 py-5 mt-1">
-                  {allSteps.includes(0) && (
-                    <label className="flex items-center gap-2 text-sm text-gray-400 mb-4 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={includeCraft}
-                        onChange={e => setIncludeCraft(e.target.checked)}
-                        className="accent-yellow-400 w-4 h-4"
-                      />
-                      {t('itemDetail.includeCraftCost')}
-                    </label>
-                  )}
                   <div className="flex justify-between items-center">
                     <span className="text-gray-300 font-semibold">{t('itemDetail.totalCost')}</span>
                     <span className="text-3xl font-bold text-yellow-400 font-mono">{formatYang(total)}</span>

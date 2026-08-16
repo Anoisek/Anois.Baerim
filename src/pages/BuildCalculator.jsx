@@ -117,6 +117,7 @@ export default function BuildCalculator() {
     for (const item of selectedItems) {
       const choices = loadItemChoices(item.id)
       const includeCraft = choices?.includeCraft ?? true
+      const excludedSteps = choices?.excludedSteps ?? {}
       const matSteps = allItemMaterials[item.id] ?? {}
       const itemSteps = allItemItems[item.id] ?? {}
       const yangSteps = allItemYang[item.id] ?? {}
@@ -130,6 +131,7 @@ export default function BuildCalculator() {
 
       for (const step of steps) {
         if (step === 0 && !includeCraft) continue
+        if (excludedSteps[step]) continue
 
         const variant = choices?.variantByStep?.[step] ?? 1
 
@@ -202,6 +204,34 @@ export default function BuildCalculator() {
 
   function getItemVariant(itemId) {
     return loadItemChoices(itemId)?.variantByStep?.[0] ?? 1
+  }
+
+  // ownedLevel: '-' = player has nothing yet (craft + every upgrade counts),
+  // or 0-9 = player already owns that +level (craft and upgrades up to and
+  // including that level are free — only the remaining upgrades count).
+  function getOwnedLevel(itemId) {
+    const choices = loadItemChoices(itemId)
+    if (choices?.ownedLevel != null) return choices.ownedLevel
+    // Legacy choices saved before this selector existed only had the craft
+    // checkbox — map "craft unchecked" to owning +0 so the shown level matches
+    // the price actually being computed.
+    return choices?.includeCraft === false ? '0' : '-'
+  }
+
+  function setOwnedLevel(itemId, level) {
+    const choices = loadItemChoices(itemId) ?? { selectedScroll: {}, selectedSeals: {}, pity: {}, includeCraft: true, variantByStep: {} }
+    choices.ownedLevel = level
+    if (level === '-') {
+      choices.includeCraft = true
+      choices.excludedSteps = {}
+    } else {
+      choices.includeCraft = false
+      const excludedSteps = {}
+      for (let s = 0; s <= Number(level); s++) excludedSteps[s] = true
+      choices.excludedSteps = excludedSteps
+    }
+    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify(choices))
+    setRefreshTick(t => t + 1)
   }
 
   function cycleItemVariant(itemId) {
@@ -330,9 +360,22 @@ export default function BuildCalculator() {
                         ? <img src={itemImages(item)[0]} alt={item.name} className="w-full h-full object-contain" />
                         : <span className="text-lg">⚔️</span>}
                     </Link>
-                    <Link to={`/chapter/${item.category_id}/item/${item.id}`} className="flex-1 text-sm text-gray-200 hover:text-yellow-400 transition-colors truncate">
-                      {formatItemName(item)}
-                    </Link>
+                    <div className="flex-1 min-w-0 flex items-center gap-2">
+                      <Link to={`/chapter/${item.category_id}/item/${item.id}`} className="text-sm text-gray-200 hover:text-yellow-400 transition-colors truncate">
+                        {formatItemName(item)}
+                      </Link>
+                      <select
+                        value={getOwnedLevel(item.id)}
+                        onChange={e => setOwnedLevel(item.id, e.target.value)}
+                        title={t('buildCalculator.ownedLevelTooltip')}
+                        className="bg-gray-800 border border-gray-600 rounded-lg px-1.5 py-1 text-xs text-gray-200 focus:outline-none focus:border-yellow-400 shrink-0"
+                      >
+                        <option value="-">-</option>
+                        {Array.from({ length: 10 }, (_, n) => (
+                          <option key={n} value={String(n)}>+{n}</option>
+                        ))}
+                      </select>
+                    </div>
                     {showVariantButton && (
                       <button
                         type="button"
