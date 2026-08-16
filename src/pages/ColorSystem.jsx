@@ -13,10 +13,14 @@ import ModelViewer3D from '../components/ModelViewer3D'
 // composed with "point blade straight down"), not hand-guessed — the hand
 // bone's rest orientation isn't axis-aligned, so a simple Euler guess only
 // looks right from some camera angles and swings out from others.
+// Position is offset from the wrist joint (where Bip01 R Hand actually sits)
+// out to the first knuckle of the middle finger, so the grip lands inside the
+// curled fist instead of floating at the wrist.
 const FMS_WEAPON = {
   url: '/models/fms/scene.gltf',
   boneMatch: 'R_Hand',
   scale: 100,
+  position: [11.492, -0.255, 4.705],
   rotation: [86.81, 21.92, -90.91],
 }
 
