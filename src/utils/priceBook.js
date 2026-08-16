@@ -122,6 +122,27 @@ function loadCooldowns() {
   }
 }
 
+// Submits one material's locally-entered price to the global price pool.
+// Server-side accept/reject is independent of this (see submit_material_price SQL
+// function) — this only enforces the per-browser 6h cooldown before even trying.
+// Used both by the bulk "Submit to global prices" button and by the automatic
+// submit-on-blur in MaterialPriceCell (most users never click that button).
+export async function submitPriceToGlobal(materialId, raw) {
+  const price = parseYang(raw)
+  if (price === '' || !(price > 0)) return { accepted: false, skipped: true }
+
+  const cooldowns = loadCooldowns()
+  const last = cooldowns[materialId]
+  if (last && Date.now() - last < COOLDOWN_MS) return { accepted: false, skipped: true }
+
+  const { data, error } = await db.rpc('submit_material_price', { p_material_id: materialId, p_price: price })
+  if (error) return { accepted: false, skipped: false }
+
+  cooldowns[materialId] = Date.now()
+  localStorage.setItem(COOLDOWN_KEY, JSON.stringify(cooldowns))
+  return { accepted: !!data, skipped: false }
+}
+
 // Submits every locally-entered price to the global price pool. Each submission is
 // independently accepted/rejected server-side (see submit_material_price SQL function).
 // A material already submitted from this browser within the last 6h is skipped —
@@ -130,26 +151,14 @@ export async function submitPricesToGlobal(rawInputs) {
   let accepted = 0
   let rejected = 0
   let skipped = 0
-  const cooldowns = loadCooldowns()
 
   for (const [materialId, raw] of Object.entries(rawInputs)) {
-    const price = parseYang(raw)
-    if (price === '' || !(price > 0)) continue
-
-    const last = cooldowns[materialId]
-    if (last && Date.now() - last < COOLDOWN_MS) {
-      skipped++
-      continue
-    }
-
-    const { data, error } = await db.rpc('submit_material_price', { p_material_id: materialId, p_price: price })
-    if (error) continue
-    cooldowns[materialId] = Date.now()
-    if (data) accepted++
+    const result = await submitPriceToGlobal(materialId, raw)
+    if (result.skipped) { if (parseYang(raw) > 0) skipped++; continue }
+    if (result.accepted) accepted++
     else rejected++
   }
 
-  localStorage.setItem(COOLDOWN_KEY, JSON.stringify(cooldowns))
   return { accepted, rejected, skipped }
 }
 
