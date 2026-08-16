@@ -13,6 +13,7 @@ import ItemImage from '../components/ItemImage'
 import MatRow from '../components/MatRow'
 import MaterialTile from '../components/MaterialTile'
 import CraftOverviewPanel from '../components/CraftOverviewPanel'
+import PriceModeToggle from '../components/PriceModeToggle'
 import { formatItemName, PVP_CATEGORY_ID, ENIGMA_POTION_ID, NO_DEFAULT_SCROLL_ITEM_IDS } from '../utils/itemName'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
@@ -68,7 +69,7 @@ export default function ItemDetail() {
   const [categoryName, setCategoryName] = useState(null)
   const [siblingItems, setSiblingItems] = useState([])
   const [loading, setLoading] = useState(true)
-  const { rawInputs, setPrice, mode, manualOverrides, toggleManualOverride } = usePriceBook()
+  const { rawInputs, setPrice, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
 
   useEffect(() => {
     Promise.all([
@@ -407,11 +408,7 @@ export default function ItemDetail() {
                   {t('itemDetail.variant', { current: currentGlobalVariant, count: maxVariantCount })}
                 </button>
               )}
-              {mode === 'global' && (
-                <span className="text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-full shrink-0">
-                  {t('materials.globalPrices')}
-                </span>
-              )}
+              <PriceModeToggle mode={mode} setMode={setMode} />
             </div>
 
             <CraftOverviewPanel

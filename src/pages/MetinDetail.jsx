@@ -10,6 +10,7 @@ import ItemImage from '../components/ItemImage'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import EditMetinModal from '../components/EditMetinModal'
 import Modal from '../components/Modal'
+import PriceModeToggle from '../components/PriceModeToggle'
 import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
 import {
@@ -47,7 +48,7 @@ export default function MetinDetail() {
   const [submittingProbability, setSubmittingProbability] = useState(false)
   const [showGlobalProbability, setShowGlobalProbability] = useState(false)
   const [globalStats, setGlobalStats] = useState(null) // [{ material_id, total_quantity, total_kills }] once loaded
-  const { rawInputs, setPrice, mode, manualOverrides, toggleManualOverride } = usePriceBook()
+  const { rawInputs, setPrice, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
 
   async function reloadDrops() {
     const { data } = await db.from('metin_drops').select('material_id, alt_group, sort_order, is_guaranteed').eq('metin_id', metinId).order('sort_order')
@@ -214,6 +215,7 @@ export default function MetinDetail() {
                     : <span className="text-4xl">🪨</span>}
                 </div>
                 <h1 className="text-2xl font-bold text-yellow-400 flex-1">{metin.name}</h1>
+                <PriceModeToggle mode={mode} setMode={setMode} />
                 {isAdmin && (
                   <button
                     onClick={handleShowGlobalProbability}

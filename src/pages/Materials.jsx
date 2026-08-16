@@ -7,6 +7,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import AddMaterialModal from '../components/AddMaterialModal'
 import EditMaterialModal from '../components/EditMaterialModal'
 import MaterialPriceCell from '../components/MaterialPriceCell'
+import PriceModeToggle from '../components/PriceModeToggle'
 import Spinner from '../components/Spinner'
 import ItemImage from '../components/ItemImage'
 import { db } from '../dbClient'
@@ -134,20 +135,7 @@ export default function Materials() {
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <h1 className="text-2xl font-bold text-gray-100">{t('materials.title')}</h1>
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-xl p-1">
-              <button
-                onClick={() => setMode('own')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${mode === 'own' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
-              >
-                {t('materials.myOwnPrices')}
-              </button>
-              <button
-                onClick={() => setMode('global')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${mode === 'global' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
-              >
-                {t('materials.globalPrices')}
-              </button>
-            </div>
+            <PriceModeToggle mode={mode} setMode={setMode} />
             <button
               onClick={handleSubmitToGlobal}
               disabled={submitting}

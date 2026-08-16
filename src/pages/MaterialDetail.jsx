@@ -7,6 +7,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import MaterialTile from '../components/MaterialTile'
+import PriceModeToggle from '../components/PriceModeToggle'
 import ItemImage from '../components/ItemImage'
 import { formatYang } from '../utils/formatYang'
 import { usePriceBook, buildRecipeMap, buildYangCostMap, fetchGlobalPrices, makeMaterialPriceFn } from '../utils/priceBook'
@@ -25,7 +26,7 @@ export default function MaterialDetail() {
   const [globalPrices, setGlobalPrices] = useState({})
   const [pity, setPity] = useState(1)
   const [loading, setLoading] = useState(true)
-  const { rawInputs, setPrice, mode, manualOverrides } = usePriceBook()
+  const { rawInputs, setPrice, mode, setMode, manualOverrides } = usePriceBook()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -100,11 +101,7 @@ export default function MaterialDetail() {
                 )}
               </div>
               <div className="ml-auto flex items-center gap-2 shrink-0">
-                {mode === 'global' && (
-                  <span className="text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-full">
-                    {t('materials.globalPrices')}
-                  </span>
-                )}
+                <PriceModeToggle mode={mode} setMode={setMode} />
                 <button
                   onClick={() => navigate(`/materials/${materialId}/usage`)}
                   className="text-xs bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 px-2.5 py-1.5 rounded-full transition-colors"

@@ -7,6 +7,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import Modal from '../components/Modal'
 import MaterialTile from '../components/MaterialTile'
+import PriceModeToggle from '../components/PriceModeToggle'
 import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
 import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
@@ -57,7 +58,7 @@ export default function BuildCalculator() {
   const [loading, setLoading] = useState(true)
   const [refreshTick, setRefreshTick] = useState(0)
   const [showSummary, setShowSummary] = useState(false)
-  const { rawInputs, mode, manualOverrides } = usePriceBook()
+  const { rawInputs, mode, setMode, manualOverrides } = usePriceBook()
 
   useEffect(() => {
     Promise.all([
@@ -284,11 +285,7 @@ export default function BuildCalculator() {
         <Breadcrumbs items={[{ label: t('common.home'), to: '/' }, { label: t('buildCalculator.title') }]} />
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <h1 className="text-2xl font-bold text-gray-100">{t('buildCalculator.title')}</h1>
-          {mode === 'global' && (
-            <span className="text-xs bg-blue-900/60 text-blue-300 border border-blue-700/50 px-2 py-1 rounded-full">
-              {t('materials.globalPrices')}
-            </span>
-          )}
+          <PriceModeToggle mode={mode} setMode={setMode} />
         </div>
 
         <div className="flex flex-col gap-2 mb-4 relative">
