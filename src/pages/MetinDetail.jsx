@@ -488,7 +488,12 @@ export default function MetinDetail() {
 
       {showGlobalProbability && (
         <Modal title="Global drop probability" onClose={() => setShowGlobalProbability(false)}>
-          <p className="text-xs text-gray-500 text-center mb-3">Aggregated from every user's submitted data.</p>
+          <p className="text-xs text-gray-500 text-center mb-1">Aggregated from every user's submitted data.</p>
+          {globalStats !== null && globalStats.length > 0 && (
+            <p className="text-xs text-gray-400 text-center mb-3">
+              Based on <span className="text-yellow-400 font-mono">{Math.max(0, ...globalStats.map(s => s.total_kills))}</span> metins destroyed in total.
+            </p>
+          )}
           {globalStats === null ? (
             <Spinner />
           ) : rows.length === 0 ? (
