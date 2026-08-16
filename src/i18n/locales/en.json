@@ -85,6 +85,7 @@
     "interactiveMap": "Mokoko Interactive Map",
     "exploration": "Exploration",
     "metinCalculator": "Metin Calculator",
+    "colorSystem": "Color System",
     "blockedMessage": "This page isn't available yet.",
     "noMapYet": "No map uploaded yet.",
     "editLevel": "Edit level {{level}}",
