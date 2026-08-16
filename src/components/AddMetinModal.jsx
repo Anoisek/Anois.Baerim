@@ -7,7 +7,7 @@ export default function AddMetinModal({ onClose, onAdded }) {
   const [name, setName] = useState('')
   const [imageUrls, setImageUrls] = useState([])
   const [allMaterials, setAllMaterials] = useState([])
-  const [drops, setDrops] = useState({}) // { materialId: qty }
+  const [drops, setDrops] = useState(new Set()) // Set<materialId>
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -19,17 +19,11 @@ export default function AddMetinModal({ onClose, onAdded }) {
 
   function toggleDrop(materialId) {
     setDrops(prev => {
-      if (prev[materialId] !== undefined) {
-        const next = { ...prev }
-        delete next[materialId]
-        return next
-      }
-      return { ...prev, [materialId]: 1 }
+      const next = new Set(prev)
+      if (next.has(materialId)) next.delete(materialId)
+      else next.add(materialId)
+      return next
     })
-  }
-
-  function setQty(materialId, val) {
-    setDrops(prev => ({ ...prev, [materialId]: val }))
   }
 
   async function handleSubmit(e) {
@@ -53,9 +47,7 @@ export default function AddMetinModal({ onClose, onAdded }) {
       return
     }
 
-    const rows = Object.entries(drops)
-      .filter(([, qty]) => Number(qty) > 0)
-      .map(([material_id, quantity]) => ({ metin_id: data.id, material_id, quantity: Number(quantity) }))
+    const rows = [...drops].map(material_id => ({ metin_id: data.id, material_id }))
 
     if (rows.length > 0) {
       const { error: err } = await db.from('metin_drops').insert(rows)
@@ -105,7 +97,7 @@ export default function AddMetinModal({ onClose, onAdded }) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm text-gray-400">Drops (material + quantity per single drop)</label>
+          <label className="text-sm text-gray-400">Drops (which materials this metin can drop)</label>
 
           <input
             type="text"
@@ -117,10 +109,10 @@ export default function AddMetinModal({ onClose, onAdded }) {
           <div className="max-h-48 overflow-y-auto flex flex-col gap-1 bg-gray-800 rounded-lg p-2">
             {filtered.length === 0 && <p className="text-gray-500 text-sm p-2">No materials found.</p>}
             {filtered.map(mat => (
-              <div key={mat.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-700">
+              <label key={mat.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-700 cursor-pointer select-none">
                 <input
                   type="checkbox"
-                  checked={drops[mat.id] !== undefined}
+                  checked={drops.has(mat.id)}
                   onChange={() => toggleDrop(mat.id)}
                   className="accent-yellow-400"
                 />
@@ -128,17 +120,7 @@ export default function AddMetinModal({ onClose, onAdded }) {
                   ? <img src={mat.image_url} alt={mat.name} className="w-7 h-7 object-contain" />
                   : <span className="w-7 text-center text-lg">🧪</span>}
                 <span className="text-sm text-white flex-1">{mat.name}</span>
-                {drops[mat.id] !== undefined && (
-                  <input
-                    type="number"
-                    min="1"
-                    value={drops[mat.id]}
-                    onChange={e => setQty(mat.id, e.target.value)}
-                    onClick={e => e.stopPropagation()}
-                    className="bg-gray-700 border border-gray-500 rounded px-2 py-1 w-16 text-right text-sm focus:outline-none focus:border-yellow-400"
-                  />
-                )}
-              </div>
+              </label>
             ))}
           </div>
         </div>
