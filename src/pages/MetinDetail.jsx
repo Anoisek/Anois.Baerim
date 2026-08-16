@@ -50,9 +50,10 @@ export default function MetinDetail() {
   const [submittingProbability, setSubmittingProbability] = useState(false)
   const [showGlobalProbability, setShowGlobalProbability] = useState(false)
   const [globalStats, setGlobalStats] = useState(null) // [{ material_id, total_quantity, total_kills }] once loaded
+  const [showImportModal, setShowImportModal] = useState(false)
   const [ocrBusy, setOcrBusy] = useState(false)
   const [ocrProgress, setOcrProgress] = useState(null) // { fileIndex, fileCount, pct }
-  const [ocrPreview, setOcrPreview] = useState(null) // { duration, kills, matched, unmatched }
+  const [parsedSessions, setParsedSessions] = useState([]) // accumulates across every screenshot processed so far
   const { rawInputs, setPrice, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
 
   async function reloadDrops() {
@@ -223,10 +224,13 @@ export default function MetinDetail() {
 
   // OCR runs entirely in the browser (tesseract.js) against the native "Farm
   // Session" game panel — no screenshot ever leaves the user's machine. Each
-  // dropped file is a scrolled snapshot of the same session, so results are
-  // merged (see mergeFarmSessions) rather than summed. Matching is restricted
-  // to this metin's own drop-list materials, which is what makes fuzzy-matching
-  // noisy OCR text workable at all.
+  // dropped file is a scrolled snapshot of the same session (players scroll
+  // through the panel to capture the full list), so parsed results accumulate
+  // in parsedSessions and are merged (see mergeFarmSessions) rather than
+  // summed — the dropzone stays available inside the same modal so someone can
+  // keep feeding in screenshots (5, 6, however many) before applying anything.
+  // Matching is restricted to this metin's own drop-list materials, which is
+  // what makes fuzzy-matching noisy OCR text workable at all.
   async function handleScreenshotFiles(files) {
     setOcrBusy(true)
     const parsedList = []
@@ -237,26 +241,30 @@ export default function MetinDetail() {
     }
     setOcrProgress(null)
     setOcrBusy(false)
+    setParsedSessions(prev => [...prev, ...parsedList])
+  }
 
-    const merged = mergeFarmSessions(parsedList)
-    const materialOptions = rows.map(r => ({ id: r.material_id, name: r.material.name }))
-    const { matched, unmatched } = matchRowsToMaterials(merged.rows, materialOptions)
-    setOcrPreview({ duration: merged.duration, kills: merged.kills, matched, unmatched })
+  const materialOptions = rows.map(r => ({ id: r.material_id, name: r.material.name }))
+  const ocrMerged = mergeFarmSessions(parsedSessions)
+  const ocrMatch = matchRowsToMaterials(ocrMerged.rows, materialOptions)
+
+  function closeImportModal() {
+    setShowImportModal(false)
+    setParsedSessions([])
   }
 
   function applyOcrPreview() {
-    if (!ocrPreview) return
-    if (ocrPreview.duration) setDuration(ocrPreview.duration)
-    if (ocrPreview.kills != null) {
-      setMetinsDestroyed(String(ocrPreview.kills))
+    if (ocrMerged.duration) setDuration(ocrMerged.duration)
+    if (ocrMerged.kills != null) {
+      setMetinsDestroyed(String(ocrMerged.kills))
       setMetinsAutoSynced(false)
     }
     setQuantities(prev => {
       const next = { ...prev }
-      for (const [materialId, qty] of Object.entries(ocrPreview.matched)) next[materialId] = String(qty)
+      for (const [materialId, qty] of Object.entries(ocrMatch.matched)) next[materialId] = String(qty)
       return next
     })
-    setOcrPreview(null)
+    closeImportModal()
   }
 
   return (
@@ -422,14 +430,13 @@ export default function MetinDetail() {
                     )
                   })}
 
-                  <div className="flex flex-col gap-2">
-                    <ScreenshotDropzone onFiles={handleScreenshotFiles} disabled={ocrBusy} />
-                    {ocrBusy && ocrProgress && (
-                      <p className="text-xs text-gray-500 text-center">
-                        Reading screenshot {ocrProgress.fileIndex + 1} / {ocrProgress.fileCount}… {Math.round(ocrProgress.pct * 100)}%
-                      </p>
-                    )}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowImportModal(true)}
+                    className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+                  >
+                    📸 Import from screenshots
+                  </button>
 
                   <div className="bg-gray-900 border border-yellow-400/20 rounded-2xl px-6 py-5 mt-1 flex flex-col gap-4">
                     <div className="flex flex-wrap gap-4">
@@ -588,61 +595,78 @@ export default function MetinDetail() {
         </Modal>
       )}
 
-      {ocrPreview && (
-        <Modal title="Detected from screenshot" onClose={() => setOcrPreview(null)}>
+      {showImportModal && (
+        <Modal title="Import from screenshots" onClose={closeImportModal}>
           <p className="text-xs text-gray-500 text-center mb-3">
-            Review before applying — OCR can misread a name or a digit.
+            Drop as many "Farm Session" screenshots as you have — scrolled snapshots of the same
+            session merge automatically. Process a batch, then keep dropping more before applying.
           </p>
-          <div className="flex justify-center gap-6 mb-4 text-sm">
-            <span className="text-gray-300">Duration: <span className="text-yellow-400 font-mono">{ocrPreview.duration ?? '—'}</span></span>
-            <span className="text-gray-300">Metins destroyed: <span className="text-yellow-400 font-mono">{ocrPreview.kills ?? '—'}</span></span>
-          </div>
 
-          {Object.keys(ocrPreview.matched).length > 0 && (
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
-              {Object.entries(ocrPreview.matched).map(([materialId, qty]) => {
-                const mat = materialsById[materialId]
-                if (!mat) return null
-                return (
-                  <div key={materialId} className="flex flex-col items-center gap-1.5 p-3 bg-gray-800/60 border border-gray-700 rounded-xl">
-                    <div className="w-10 h-10 shrink-0 flex items-center justify-center">
-                      {mat.image_url
-                        ? <img src={mat.image_url} alt={mat.name} className="w-full h-full object-contain" />
-                        : <span className="text-xl">🧪</span>}
-                    </div>
-                    <span className="text-xs text-gray-300 text-center leading-tight">{mat.name}</span>
-                    <span className="text-yellow-400 text-sm font-bold font-mono">×{qty}</span>
-                  </div>
-                )
-              })}
-            </div>
+          <ScreenshotDropzone onFiles={handleScreenshotFiles} disabled={ocrBusy} />
+          {ocrBusy && ocrProgress && (
+            <p className="text-xs text-gray-500 text-center mt-2">
+              Reading screenshot {ocrProgress.fileIndex + 1} / {ocrProgress.fileCount}… {Math.round(ocrProgress.pct * 100)}%
+            </p>
           )}
 
-          {ocrPreview.unmatched.length > 0 && (
-            <div className="mb-4">
-              <p className="text-xs text-gray-500 mb-1.5">Couldn't match these to a drop on this metin (ignored):</p>
-              <div className="flex flex-wrap gap-1.5">
-                {ocrPreview.unmatched.map((row, i) => (
-                  <span key={i} className="text-[11px] text-gray-500 bg-gray-800/60 border border-gray-700 rounded px-2 py-1">
-                    {row.name} ×{row.quantity}
-                  </span>
-                ))}
+          {parsedSessions.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-gray-700/60">
+              <p className="text-xs text-gray-500 text-center mb-3">
+                From {parsedSessions.length} screenshot{parsedSessions.length > 1 ? 's' : ''} so far — review before applying.
+              </p>
+              <div className="flex justify-center gap-6 mb-4 text-sm">
+                <span className="text-gray-300">Duration: <span className="text-yellow-400 font-mono">{ocrMerged.duration ?? '—'}</span></span>
+                <span className="text-gray-300">Metins destroyed: <span className="text-yellow-400 font-mono">{ocrMerged.kills ?? '—'}</span></span>
               </div>
+
+              {Object.keys(ocrMatch.matched).length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
+                  {Object.entries(ocrMatch.matched).map(([materialId, qty]) => {
+                    const mat = materialsById[materialId]
+                    if (!mat) return null
+                    return (
+                      <div key={materialId} className="flex flex-col items-center gap-1.5 p-3 bg-gray-800/60 border border-gray-700 rounded-xl">
+                        <div className="w-10 h-10 shrink-0 flex items-center justify-center">
+                          {mat.image_url
+                            ? <img src={mat.image_url} alt={mat.name} className="w-full h-full object-contain" />
+                            : <span className="text-xl">🧪</span>}
+                        </div>
+                        <span className="text-xs text-gray-300 text-center leading-tight">{mat.name}</span>
+                        <span className="text-yellow-400 text-sm font-bold font-mono">×{qty}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
+              {ocrMatch.unmatched.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-xs text-gray-500 mb-1.5">Couldn't match these to a drop on this metin (ignored):</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {ocrMatch.unmatched.map((row, i) => (
+                      <span key={i} className="text-[11px] text-gray-500 bg-gray-800/60 border border-gray-700 rounded px-2 py-1">
+                        {row.name} ×{row.quantity}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-2">
             <button
               type="button"
-              onClick={() => setOcrPreview(null)}
+              onClick={closeImportModal}
               className="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg py-2 transition-colors"
             >
-              Discard
+              {parsedSessions.length > 0 ? 'Discard' : 'Close'}
             </button>
             <button
               type="button"
               onClick={applyOcrPreview}
-              className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-gray-950 text-sm font-bold rounded-lg py-2 transition-colors"
+              disabled={parsedSessions.length === 0}
+              className="flex-1 bg-yellow-400 hover:bg-yellow-300 disabled:opacity-40 disabled:cursor-not-allowed text-gray-950 text-sm font-bold rounded-lg py-2 transition-colors"
             >
               Apply to calculator
             </button>
