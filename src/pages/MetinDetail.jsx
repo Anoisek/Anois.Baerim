@@ -168,23 +168,41 @@ export default function MetinDetail() {
   // Shows this session's own quantities as a % of "Metins destroyed", and submits
   // that same data point to the shared metin_drop_stats total (see rpc.js) so it
   // blends into the global average every other submitter contributes to.
+  // Skipped entirely if every quantity is still 0 — a kill count with nothing
+  // filled in just pads total_kills for every material without any signal,
+  // dragging every percentage down for no real reason.
   async function handleCheckProbability() {
     if (metinsDestroyedNum <= 0) {
       alert('Enter "Metins destroyed" first.')
       return
     }
     setShowOwnProbability(true)
-    setSubmittingProbability(true)
     const quantitiesToSubmit = {}
     for (const d of displayRows) quantitiesToSubmit[selectedMaterialId(d)] = Number(quantities[selectedMaterialId(d)]) || 0
-    await db.rpc('submit_metin_drop_stats', { p_metin_id: metinId, p_kills: metinsDestroyedNum, p_quantities: quantitiesToSubmit })
-    setSubmittingProbability(false)
+    const hasAnyLoot = Object.values(quantitiesToSubmit).some(q => q > 0)
+    if (hasAnyLoot) {
+      setSubmittingProbability(true)
+      await db.rpc('submit_metin_drop_stats', { p_metin_id: metinId, p_kills: metinsDestroyedNum, p_quantities: quantitiesToSubmit })
+      setSubmittingProbability(false)
+    }
   }
 
   async function handleShowGlobalProbability() {
     const { data } = await db.from('metin_drop_stats').select('material_id, total_quantity, total_kills').eq('metin_id', metinId)
     setGlobalStats(data ?? [])
     setShowGlobalProbability(true)
+  }
+
+  async function handleResetGlobalStats() {
+    if (!confirm('Reset all global drop stats for this metin? This deletes every submission ever made — cannot be undone.')) return
+    await db.from('metin_drop_stats').delete().eq('metin_id', metinId)
+    setGlobalStats([])
+  }
+
+  async function handleResetMaterialStats(materialId) {
+    if (!confirm('Reset global drop stats for this material only?')) return
+    await db.from('metin_drop_stats').delete().eq('metin_id', metinId).eq('material_id', materialId)
+    setGlobalStats(prev => prev.filter(s => s.material_id !== materialId))
   }
 
   // OCR runs entirely in the browser (tesseract.js) against the native "Farm
@@ -490,9 +508,19 @@ export default function MetinDetail() {
         <Modal title="Global drop probability" onClose={() => setShowGlobalProbability(false)}>
           <p className="text-xs text-gray-500 text-center mb-1">Aggregated from every user's submitted data.</p>
           {globalStats !== null && globalStats.length > 0 && (
-            <p className="text-xs text-gray-400 text-center mb-3">
-              Based on <span className="text-yellow-400 font-mono">{Math.max(0, ...globalStats.map(s => s.total_kills))}</span> metins destroyed in total.
-            </p>
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <p className="text-xs text-gray-400">
+                Based on <span className="text-yellow-400 font-mono">{Math.max(0, ...globalStats.map(s => s.total_kills))}</span> metins destroyed in total.
+              </p>
+              <button
+                type="button"
+                onClick={handleResetGlobalStats}
+                title="Delete every submission ever made for this metin"
+                className="text-[11px] text-red-400 hover:text-red-300 border border-red-900/60 hover:border-red-700 rounded-full px-2 py-0.5 transition-colors shrink-0"
+              >
+                🗑 Reset all
+              </button>
+            </div>
           )}
           {globalStats === null ? (
             <Spinner />
@@ -504,7 +532,17 @@ export default function MetinDetail() {
                 const stat = globalStats.find(s => s.material_id === row.material_id)
                 const pct = stat && stat.total_kills > 0 ? stat.total_quantity / stat.total_kills * 100 : null
                 return (
-                  <div key={row.material_id} className="flex flex-col items-center gap-1.5 p-3 bg-gray-800/60 border border-gray-700 rounded-xl">
+                  <div key={row.material_id} className="relative flex flex-col items-center gap-1.5 p-3 bg-gray-800/60 border border-gray-700 rounded-xl">
+                    {stat && (
+                      <button
+                        type="button"
+                        onClick={() => handleResetMaterialStats(row.material_id)}
+                        title="Reset stats for this material only"
+                        className="absolute top-1 right-1 text-gray-600 hover:text-red-400 text-xs leading-none transition-colors"
+                      >
+                        🗑
+                      </button>
+                    )}
                     <div className="w-12 h-12 shrink-0 flex items-center justify-center">
                       {row.material.image_url
                         ? <img src={row.material.image_url} alt={row.material.name} className="w-full h-full object-contain" />
