@@ -1,18 +1,40 @@
 import { createWorker, PSM } from 'tesseract.js'
 
-// Runs OCR on a single screenshot and returns the raw recognized text.
-// SINGLE_COLUMN page segmentation (rather than Tesseract's default automatic
-// layout detection) measurably improves accuracy on this game panel — it's a
-// single vertical list of icon+name+number rows, not prose, and the default
-// mode frequently drops or scrambles the number that trails each row.
+// Upscaling small game-UI text measurably improves OCR accuracy over feeding
+// Tesseract the screenshot at its native size. Two passes at different target
+// widths are merged (see ocrImage) because neither resolution alone reliably
+// catches every row — one tends to read the bottom rows' numbers better, the
+// other reads the row names better nearer the panel's rounded edges.
+async function upscale(file, targetWidth) {
+  const bitmap = await createImageBitmap(file)
+  const scale = targetWidth / bitmap.width
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.round(bitmap.width * scale)
+  canvas.height = Math.round(bitmap.height * scale)
+  const ctx = canvas.getContext('2d')
+  ctx.imageSmoothingEnabled = true
+  ctx.imageSmoothingQuality = 'high'
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+  bitmap.close()
+  return await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
+}
+
+// Runs OCR on a single screenshot twice (at two upscaled resolutions) and
+// returns both raw recognized texts — parseFarmSessionText + mergeFarmSessions
+// combine whatever each pass caught, the same way multiple screenshots merge.
 export async function ocrImage(file, onProgress) {
   const worker = await createWorker('eng', 1, {
     logger: onProgress ? m => { if (m.status === 'recognizing text') onProgress(m.progress) } : undefined,
   })
   try {
     await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_COLUMN })
-    const { data } = await worker.recognize(file)
-    return data.text
+    const texts = []
+    for (const width of [1200, 1600]) {
+      const upscaled = await upscale(file, width)
+      const { data } = await worker.recognize(upscaled)
+      texts.push(data.text)
+    }
+    return texts
   } finally {
     await worker.terminate()
   }
@@ -30,55 +52,29 @@ function secondsToDuration(total) {
   return [h, m, s].map(n => String(n).padStart(2, '0')).join(':')
 }
 
-// Parses the raw OCR text of a "Farm Session" game panel screenshot. The panel
-// always has a "Duration HH:MM:SS ... Stones N" header (N is the metin kill
-// counter, not a material — a distinct "Stones +0 - +4" material row can also
-// exist further down) followed by "Material Name    xQTY" rows.
-export function parseFarmSessionText(text) {
-  const durationMatch = text.match(/Duration\D{0,10}(\d{1,2}:\d{2}:\d{2})/i)
-  const killsMatch = text.match(/Duration[\s\S]{0,60}?Stones\s+(\d+)(?!\s*[+x×])/i)
-
-  // Row-per-line: "<icon-glyph-noise> Name ... [x]QTY". The "x" separator is
-  // frequently dropped by OCR, so a bare trailing number is accepted too —
-  // requiring it to end the line (not just appear anywhere) keeps this from
-  // matching stray numbers inside a name.
-  const rows = []
-  for (const rawLine of text.split('\n')) {
-    const line = rawLine.trim()
-    if (!line || /^duration\b/i.test(line) || /^farm session\b/i.test(line)) continue
-    const rowMatch = line.match(/^(.*?)\s*[x×]?\s*([\d,]{2,7})$/)
-    if (!rowMatch) continue
-    const name = rowMatch[1].trim().replace(/^[^A-Za-z]+/, '').replace(/\s+/g, ' ')
-    const quantity = Number(rowMatch[2].replace(/,/g, ''))
-    if (name.length < 3 || !Number.isFinite(quantity) || quantity <= 0) continue
-    rows.push({ name, quantity })
-  }
-
-  return {
-    duration: durationMatch ? durationMatch[1] : null,
-    kills: killsMatch ? Number(killsMatch[1]) : null,
-    rows,
-  }
+// A number token mangled by OCR right next to the "x"/"¥" separator this game
+// panel uses — only applied to tokens that are already almost all digits, so
+// this never touches real words.
+function cleanDigits(token) {
+  return token.replace(/[oOD]/g, '0').replace(/[lI\]]/g, '1').replace(/[Ss]/g, '5').replace(/[B]/g, '8').replace(/[Zz]/g, '2')
 }
 
-// Merges parsed data from several screenshots of the same (scrolled) session:
-// duration/kills only ever grow within a session, so the max across shots is
-// the latest true reading. A material row can appear in more than one shot if
-// the scroll position overlapped — again, max is the correct value.
-export function mergeFarmSessions(parsedList) {
-  let maxSeconds = 0
-  let maxKills = 0
-  const rows = []
-  for (const parsed of parsedList) {
-    if (parsed.duration) maxSeconds = Math.max(maxSeconds, durationToSeconds(parsed.duration))
-    if (parsed.kills != null) maxKills = Math.max(maxKills, parsed.kills)
-    rows.push(...parsed.rows)
+// Looks for a quantity anywhere in the line (not strictly at the end) —
+// Tesseract frequently renders the "x"/"¥" separator as noise, so the number
+// itself, wherever it is, is the more reliable signal.
+function extractQuantity(line) {
+  const candidates = [...line.matchAll(/(?:^|[^\d])([0-9oOlISsBZz]{1,7})(?:[^\d]|$)/g)]
+  for (let i = candidates.length - 1; i >= 0; i--) {
+    const raw = candidates[i][1]
+    // A lone letter-substitute (no genuine digit at all) is too risky to trust —
+    // single-digit quantities (e.g. "x9") only count when the digit itself is real.
+    if (raw.length === 1 && !/[0-9]/.test(raw)) continue
+    const digitLike = raw.replace(/[oOlISsBZz]/g, '')
+    if (digitLike.length / raw.length < 0.4) continue // mostly letters, not a real number
+    const cleaned = Number(cleanDigits(raw).replace(/,/g, ''))
+    if (Number.isFinite(cleaned) && cleaned > 0) return cleaned
   }
-  return {
-    duration: maxSeconds > 0 ? secondsToDuration(maxSeconds) : null,
-    kills: maxKills > 0 ? maxKills : null,
-    rows,
-  }
+  return null
 }
 
 function normalize(s) {
@@ -96,31 +92,74 @@ function levenshtein(a, b) {
   return dp[a.length][b.length]
 }
 
+// Best-effort substring-aware similarity (0..1) between two normalized strings.
 function similarity(a, b) {
   if (!a || !b) return 0
   if (a === b) return 1
-  if (a.includes(b) || b.includes(a)) return 0.9
+  if (a.length >= 4 && b.length >= 4 && (a.includes(b) || b.includes(a))) return 0.92
   return 1 - levenshtein(a, b) / Math.max(a.length, b.length)
 }
 
-// Matches OCR'd row names against a fixed, small set of candidates (a specific
-// metin's own drop list) rather than the whole materials table — restricting
-// the search space this way is what makes fuzzy-matching noisy OCR text usable.
-export function matchRowsToMaterials(rows, materialOptions) {
+// Parses one screenshot's raw OCR text (name-anchored — see module intro).
+// Each candidate material is checked against every line for the best match;
+// a hit is recorded even when no usable quantity could be read on that line,
+// so a recognized-but-unreadable-number row still surfaces to the user instead
+// of silently vanishing (matchedUnknownQty).
+export function parseFarmSessionText(text, materialOptions) {
+  const durationMatch = text.match(/Duration\D{0,10}(\d{1,2}:\d{2}:\d{2})/i)
+  const killsMatch = text.match(/Duration[\s\S]{0,60}?Stones\s+(\d+)(?!\s*[+x×¥])/i)
+
+  const lines = text.split('\n')
+    .map(l => l.trim())
+    .filter(l => l && !/^duration\b/i.test(l) && !/^farm session\b/i.test(l) && !/^lv\s*\d/i.test(l))
+
   const matched = {} // materialId -> quantity
-  const unmatched = []
-  for (const row of rows) {
+  const matchedUnknownQty = new Set() // materialId — name recognized, no usable quantity
+
+  for (const opt of materialOptions) {
+    const target = normalize(opt.name)
     let best = null
     let bestScore = 0
-    for (const opt of materialOptions) {
-      const score = similarity(normalize(row.name), normalize(opt.name))
-      if (score > bestScore) { bestScore = score; best = opt }
+    for (const line of lines) {
+      const stripped = line.replace(/^[^A-Za-z]{0,3}/, '')
+      const score = similarity(target, normalize(stripped))
+      if (score > bestScore) { bestScore = score; best = line }
     }
-    if (best && bestScore >= 0.75) {
-      matched[best.id] = Math.max(matched[best.id] ?? 0, row.quantity)
-    } else {
-      unmatched.push(row)
-    }
+    if (bestScore < 0.72 || !best) continue
+    const qty = extractQuantity(best)
+    if (qty != null) matched[opt.id] = Math.max(matched[opt.id] ?? 0, qty)
+    else matchedUnknownQty.add(opt.id)
   }
-  return { matched, unmatched }
+
+  return {
+    duration: durationMatch ? durationMatch[1] : null,
+    kills: killsMatch ? Number(killsMatch[1]) : null,
+    matched,
+    matchedUnknownQty,
+  }
+}
+
+// Merges parsed data from several OCR passes/screenshots of the same (scrolled)
+// session: duration/kills/quantities only ever grow within a session, so the
+// max across passes is the latest true reading. A material resolved with a
+// real quantity in ANY pass "wins" over an unknown-quantity finding for it.
+export function mergeFarmSessions(parsedList) {
+  let maxSeconds = 0
+  let maxKills = 0
+  const matched = {}
+  const matchedUnknownQty = new Set()
+  for (const parsed of parsedList) {
+    if (parsed.duration) maxSeconds = Math.max(maxSeconds, durationToSeconds(parsed.duration))
+    if (parsed.kills != null) maxKills = Math.max(maxKills, parsed.kills)
+    for (const [id, qty] of Object.entries(parsed.matched)) matched[id] = Math.max(matched[id] ?? 0, qty)
+    for (const id of parsed.matchedUnknownQty) matchedUnknownQty.add(id)
+  }
+  for (const id of Object.keys(matched)) matchedUnknownQty.delete(id)
+
+  return {
+    duration: maxSeconds > 0 ? secondsToDuration(maxSeconds) : null,
+    kills: maxKills > 0 ? maxKills : null,
+    matched,
+    matchedUnknownQty: [...matchedUnknownQty],
+  }
 }

@@ -18,7 +18,7 @@ import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   fetchGlobalPrices, makeMaterialPriceFn,
 } from '../utils/priceBook'
-import { ocrImage, parseFarmSessionText, mergeFarmSessions, matchRowsToMaterials } from '../utils/farmSessionOcr'
+import { ocrImage, parseFarmSessionText, mergeFarmSessions } from '../utils/farmSessionOcr'
 
 function loadLoot(metinId) {
   try {
@@ -222,31 +222,33 @@ export default function MetinDetail() {
     setGlobalStats(prev => prev.filter(s => s.material_id !== materialId))
   }
 
+  const materialOptions = rows.map(r => ({ id: r.material_id, name: r.material.name }))
+
   // OCR runs entirely in the browser (tesseract.js) against the native "Farm
   // Session" game panel — no screenshot ever leaves the user's machine. Each
-  // dropped file is a scrolled snapshot of the same session (players scroll
-  // through the panel to capture the full list), so parsed results accumulate
-  // in parsedSessions and are merged (see mergeFarmSessions) rather than
-  // summed — the dropzone stays available inside the same modal so someone can
-  // keep feeding in screenshots (5, 6, however many) before applying anything.
-  // Matching is restricted to this metin's own drop-list materials, which is
-  // what makes fuzzy-matching noisy OCR text workable at all.
+  // file is OCR'd twice (two upscaled resolutions / page-segmentation modes —
+  // see ocrImage) since neither pass alone reliably catches every row; both
+  // parses feed into parsedSessions and are merged (see mergeFarmSessions)
+  // rather than summed, the same way multiple scrolled screenshots of one
+  // session merge. The dropzone stays available inside the same modal so
+  // someone can keep feeding in screenshots (5, 6, however many) before
+  // applying anything. Matching is restricted to this metin's own drop-list
+  // materials and keyed by name (parseFarmSessionText), which is what makes
+  // this workable despite noisy OCR text.
   async function handleScreenshotFiles(files) {
     setOcrBusy(true)
     const parsedList = []
     for (let i = 0; i < files.length; i++) {
       setOcrProgress({ fileIndex: i, fileCount: files.length, pct: 0 })
-      const text = await ocrImage(files[i], pct => setOcrProgress({ fileIndex: i, fileCount: files.length, pct }))
-      parsedList.push(parseFarmSessionText(text))
+      const texts = await ocrImage(files[i], pct => setOcrProgress({ fileIndex: i, fileCount: files.length, pct }))
+      for (const text of texts) parsedList.push(parseFarmSessionText(text, materialOptions))
     }
     setOcrProgress(null)
     setOcrBusy(false)
     setParsedSessions(prev => [...prev, ...parsedList])
   }
 
-  const materialOptions = rows.map(r => ({ id: r.material_id, name: r.material.name }))
   const ocrMerged = mergeFarmSessions(parsedSessions)
-  const ocrMatch = matchRowsToMaterials(ocrMerged.rows, materialOptions)
 
   function closeImportModal() {
     setShowImportModal(false)
@@ -261,7 +263,7 @@ export default function MetinDetail() {
     }
     setQuantities(prev => {
       const next = { ...prev }
-      for (const [materialId, qty] of Object.entries(ocrMatch.matched)) next[materialId] = String(qty)
+      for (const [materialId, qty] of Object.entries(ocrMerged.matched)) next[materialId] = String(qty)
       return next
     })
     closeImportModal()
@@ -619,9 +621,9 @@ export default function MetinDetail() {
                 <span className="text-gray-300">Metins destroyed: <span className="text-yellow-400 font-mono">{ocrMerged.kills ?? '—'}</span></span>
               </div>
 
-              {Object.keys(ocrMatch.matched).length > 0 && (
+              {Object.keys(ocrMerged.matched).length > 0 && (
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
-                  {Object.entries(ocrMatch.matched).map(([materialId, qty]) => {
+                  {Object.entries(ocrMerged.matched).map(([materialId, qty]) => {
                     const mat = materialsById[materialId]
                     if (!mat) return null
                     return (
@@ -639,13 +641,13 @@ export default function MetinDetail() {
                 </div>
               )}
 
-              {ocrMatch.unmatched.length > 0 && (
+              {ocrMerged.matchedUnknownQty.length > 0 && (
                 <div className="mb-4">
-                  <p className="text-xs text-gray-500 mb-1.5">Couldn't match these to a drop on this metin (ignored):</p>
+                  <p className="text-xs text-gray-500 mb-1.5">Recognized these drops but couldn't read a quantity — fill them in manually:</p>
                   <div className="flex flex-wrap gap-1.5">
-                    {ocrMatch.unmatched.map((row, i) => (
-                      <span key={i} className="text-[11px] text-gray-500 bg-gray-800/60 border border-gray-700 rounded px-2 py-1">
-                        {row.name} ×{row.quantity}
+                    {ocrMerged.matchedUnknownQty.map(materialId => (
+                      <span key={materialId} className="text-[11px] text-gray-400 bg-gray-800/60 border border-gray-700 rounded px-2 py-1">
+                        {materialsById[materialId]?.name ?? materialId}
                       </span>
                     ))}
                   </div>
