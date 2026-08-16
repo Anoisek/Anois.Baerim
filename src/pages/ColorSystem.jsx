@@ -10,14 +10,15 @@ import ModelViewer3D from '../components/ModelViewer3D'
 // Module-level (not recreated per render) so ModelViewer3D's effect doesn't
 // reload the model on every ColorSystem re-render.
 // Rotation is solved via quaternion math (bone world orientation inverted,
-// composed with "point blade straight down"), not hand-guessed — the hand
+// composed with "point blade straight down" plus a 90° roll around that
+// down-axis so the blade faces the right way), not hand-guessed — the hand
 // bone's rest orientation isn't axis-aligned, so a simple Euler guess only
 // looks right from some camera angles and swings out from others.
 const FMS_WEAPON = {
   url: '/models/fms/scene.gltf',
   boneMatch: 'R_Hand',
   scale: 100,
-  rotation: [86.81, 21.92, -90.91],
+  rotation: [176.48, -0.84, -111.92],
 }
 
 export default function ColorSystem() {
