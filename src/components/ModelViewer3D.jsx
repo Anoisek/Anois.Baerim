@@ -10,6 +10,8 @@ export default function ModelViewer3D({
   modelUrl,
   textureUrl,
   useOwnMaterials = false,
+  zUp = false,
+  playAnimation = false,
   weapon, // { url, boneMatch, position: [x,y,z], rotation: [x,y,z] (deg), scale }
 }) {
   const containerRef = useRef(null)
@@ -76,6 +78,7 @@ export default function ModelViewer3D({
       gltf => {
         if (disposed) return
         model = gltf.scene
+        if (zUp) model.rotation.x = -Math.PI / 2
         if (!useOwnMaterials) {
           model.traverse(node => {
             if (node.isMesh) {
@@ -117,6 +120,11 @@ export default function ModelViewer3D({
           }
         }
 
+        if (playAnimation && gltf.animations?.length > 0) {
+          mixer = new THREE.AnimationMixer(model)
+          mixer.clipAction(gltf.animations[0]).play()
+        }
+
         setLoading(false)
       },
       undefined,
@@ -127,8 +135,12 @@ export default function ModelViewer3D({
       }
     )
 
+    let mixer = null
+    const clock = new THREE.Clock()
     function animate() {
       frameId = requestAnimationFrame(animate)
+      const delta = clock.getDelta()
+      mixer?.update(delta)
       controls.update()
       renderer.render(scene, camera)
     }
@@ -150,7 +162,7 @@ export default function ModelViewer3D({
       texture?.dispose()
       if (renderer.domElement.parentNode === container) container.removeChild(renderer.domElement)
     }
-  }, [modelUrl, textureUrl, useOwnMaterials, weapon])
+  }, [modelUrl, textureUrl, useOwnMaterials, zUp, playAnimation, weapon])
 
   return (
     <div ref={containerRef} className="relative w-full h-full min-h-[420px] rounded-2xl overflow-hidden border border-gray-700 bg-gray-950">

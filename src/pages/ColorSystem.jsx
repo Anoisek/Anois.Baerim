@@ -82,6 +82,20 @@ export default function ColorSystem() {
                   CC-BY-4.0
                 </a>.
               </p>
+
+              {isAdmin && (
+                <>
+                  <div className="mt-6 pt-6 border-t border-gray-700">
+                    <p className="text-xs text-yellow-400 mb-2 text-center">
+                      🧪 TEST (admin only) — real extracted female mesh + real Enchanted Blade skill animation,
+                      no texture yet. Checking whether this plays correctly in an actual browser.
+                    </p>
+                    <div className="h-[520px]">
+                      <ModelViewer3D modelUrl="/models/sura_female/gwigeom.gltf" useOwnMaterials zUp playAnimation />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
