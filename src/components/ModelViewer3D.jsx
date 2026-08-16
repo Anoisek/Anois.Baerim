@@ -6,7 +6,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 // Live, rotatable glTF viewer (Three.js, client-side only — no server round trip).
 // Centers and scales whatever model is loaded to fit the view, since source
 // models come from very different pipelines with arbitrary units/pivots.
-export default function ModelViewer3D({ modelUrl, textureUrl }) {
+export default function ModelViewer3D({ modelUrl, textureUrl, useOwnMaterials = false }) {
   const containerRef = useRef(null)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -71,13 +71,15 @@ export default function ModelViewer3D({ modelUrl, textureUrl }) {
       gltf => {
         if (disposed) return
         model = gltf.scene
-        model.traverse(node => {
-          if (node.isMesh) {
-            node.material = texture
-              ? new THREE.MeshStandardMaterial({ map: texture, roughness: 0.8, metalness: 0.02 })
-              : new THREE.MeshStandardMaterial({ color: 0xb7c3d6, roughness: 0.75, metalness: 0.05 })
-          }
-        })
+        if (!useOwnMaterials) {
+          model.traverse(node => {
+            if (node.isMesh) {
+              node.material = texture
+                ? new THREE.MeshStandardMaterial({ map: texture, roughness: 0.8, metalness: 0.02 })
+                : new THREE.MeshStandardMaterial({ color: 0xb7c3d6, roughness: 0.75, metalness: 0.05 })
+            }
+          })
+        }
 
         // Center on its own bounds and scale to a consistent on-screen size —
         // source models carry whatever units/pivot the extraction pipeline left them with.
@@ -123,7 +125,7 @@ export default function ModelViewer3D({ modelUrl, textureUrl }) {
       texture?.dispose()
       if (renderer.domElement.parentNode === container) container.removeChild(renderer.domElement)
     }
-  }, [modelUrl, textureUrl])
+  }, [modelUrl, textureUrl, useOwnMaterials])
 
   return (
     <div ref={containerRef} className="relative w-full h-full min-h-[420px] rounded-2xl overflow-hidden border border-gray-700 bg-gray-950">

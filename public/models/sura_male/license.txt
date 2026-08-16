@@ -1,0 +1,11 @@
+Model Information:
+* title:	Metin2 - Sura Novice Idle loop
+* source:	https://sketchfab.com/3d-models/metin2-sura-novice-idle-loop-4596c9c50aab49adbea7e6a2be2c033b
+* author:	Ytachi1000 (https://sketchfab.com/ytachi1000)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Metin2 - Sura Novice Idle loop" (https://sketchfab.com/3d-models/metin2-sura-novice-idle-loop-4596c9c50aab49adbea7e6a2be2c033b) by Ytachi1000 (https://sketchfab.com/ytachi1000) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

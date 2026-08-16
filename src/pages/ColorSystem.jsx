@@ -49,11 +49,21 @@ export default function ColorSystem() {
           ) : (
             <div className="flex flex-col gap-3">
               <div className="h-[520px]">
-                <ModelViewer3D modelUrl="/models/sura_novice.glb" textureUrl="/models/sura_novice_red.png" />
+                <ModelViewer3D modelUrl="/models/sura_male/scene.gltf" useOwnMaterials />
               </div>
               <p className="text-xs text-gray-500 text-center">
-                Sura (novice), red variant — real extracted mesh + recovered texture, no skill animation yet.
-                UV mapping/face texture may still be off — drag to rotate, scroll to zoom.
+                Sura (male novice) — placeholder reference model while the female mesh and other classes are still
+                being sourced. Drag to rotate, scroll to zoom.
+              </p>
+              <p className="text-[10px] text-gray-600 text-center">
+                Model: "Metin2 - Sura Novice Idle loop" by{' '}
+                <a href="https://sketchfab.com/ytachi1000" target="_blank" rel="noreferrer" className="underline hover:text-gray-400">
+                  Ytachi1000
+                </a>{' '}
+                on Sketchfab, licensed{' '}
+                <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer" className="underline hover:text-gray-400">
+                  CC-BY-4.0
+                </a>.
               </p>
             </div>
           )}
