@@ -188,7 +188,8 @@ CREATE TABLE metins (
   name TEXT NOT NULL,
   image_url TEXT,
   image_urls TEXT,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE metin_drops (

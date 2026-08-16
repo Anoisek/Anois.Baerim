@@ -3,7 +3,7 @@ import { db } from '../dbClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 
-export default function AddMetinModal({ onClose, onAdded }) {
+export default function AddMetinModal({ nextSortOrder, onClose, onAdded }) {
   const [name, setName] = useState('')
   const [imageUrls, setImageUrls] = useState([])
   const [allMaterials, setAllMaterials] = useState([])
@@ -47,6 +47,7 @@ export default function AddMetinModal({ onClose, onAdded }) {
         name: name.trim(),
         image_urls: imageUrls,
         image_url: imageUrls[0] ?? null,
+        sort_order: nextSortOrder ?? 0,
       })
       .select()
       .single()

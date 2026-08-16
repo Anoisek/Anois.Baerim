@@ -17,11 +17,12 @@ export default function MetinCalculator() {
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [editMode, setEditMode] = useState(false)
 
   useEffect(() => {
     Promise.all([
       db.from('settings').select('value').eq('key', 'system_metincalculator_maintenance').maybeSingle(),
-      db.from('metins').select('*').order('name'),
+      db.from('metins').select('*').order('sort_order'),
     ]).then(([maintRes, metinsRes]) => {
       setMaintenance(maintRes.data?.value === 'true')
       setMetins(metinsRes.data ?? [])
@@ -32,13 +33,30 @@ export default function MetinCalculator() {
   const blocked = maintenance && !isAdmin
 
   function handleAdded(metin) {
-    setMetins(prev => [...prev, metin].sort((a, b) => a.name.localeCompare(b.name)))
+    setMetins(prev => [...prev, metin].sort((a, b) => a.sort_order - b.sort_order))
   }
   function handleUpdated(metin) {
-    setMetins(prev => prev.map(m => m.id === metin.id ? metin : m).sort((a, b) => a.name.localeCompare(b.name)))
+    setMetins(prev => prev.map(m => m.id === metin.id ? metin : m).sort((a, b) => a.sort_order - b.sort_order))
   }
   function handleDeleted(id) {
     setMetins(prev => prev.filter(m => m.id !== id))
+  }
+
+  // Reassigns sequential sort_order to the whole list on every move (instead of
+  // swapping just the two moved rows' values) — pre-existing metins all share
+  // sort_order 0, and swapping two equal values would otherwise be a no-op.
+  async function persistMetinOrder(newMetins) {
+    setMetins(newMetins.map((m, i) => ({ ...m, sort_order: i })))
+    await Promise.all(newMetins.map((m, i) => db.from('metins').update({ sort_order: i }).eq('id', m.id)))
+  }
+
+  function moveMetin(index, delta) {
+    const targetIndex = index + delta
+    if (targetIndex < 0 || targetIndex >= metins.length) return
+    const reordered = [...metins]
+    const [moved] = reordered.splice(index, 1)
+    reordered.splice(targetIndex, 0, moved)
+    persistMetinOrder(reordered)
   }
 
   return (
@@ -61,12 +79,22 @@ export default function MetinCalculator() {
               )}
             </div>
             {isAdmin && !blocked && (
-              <button
-                onClick={() => setShowAdd(true)}
-                className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors"
-              >
-                + Add Metin
-              </button>
+              <div className="flex items-center gap-2">
+                {metins.length > 1 && (
+                  <button
+                    onClick={() => setEditMode(v => !v)}
+                    className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${editMode ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200'}`}
+                  >
+                    {editMode ? t('common.done') : t('common.editPanel')}
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowAdd(true)}
+                  className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-colors"
+                >
+                  + Add Metin
+                </button>
+              </div>
             )}
           </div>
 
@@ -82,7 +110,7 @@ export default function MetinCalculator() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {metins.map(metin => (
+              {metins.map((metin, index) => (
                 <Tile
                   key={metin.id}
                   to={`/systems/metin-calculator/${metin.id}`}
@@ -90,6 +118,12 @@ export default function MetinCalculator() {
                   emoji="🪨"
                   label={metin.name}
                   onEdit={isAdmin ? () => setEditing(metin) : undefined}
+                  reorder={isAdmin && editMode ? {
+                    onUp: () => moveMetin(index, -1),
+                    onDown: () => moveMetin(index, 1),
+                    disableUp: index === 0,
+                    disableDown: index === metins.length - 1,
+                  } : undefined}
                 />
               ))}
             </div>
@@ -98,7 +132,11 @@ export default function MetinCalculator() {
       </div>
 
       {showAdd && (
-        <AddMetinModal onClose={() => setShowAdd(false)} onAdded={handleAdded} />
+        <AddMetinModal
+          nextSortOrder={Math.max(0, ...metins.map(m => m.sort_order)) + 10}
+          onClose={() => setShowAdd(false)}
+          onAdded={handleAdded}
+        />
       )}
       {editing && (
         <EditMetinModal

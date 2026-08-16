@@ -91,7 +91,7 @@ const TABLES = {
     insertAuth: 'editor',
   },
   metins: {
-    columns: ['id', 'name', 'image_url', 'created_at', 'image_urls'],
+    columns: ['id', 'name', 'image_url', 'created_at', 'image_urls', 'sort_order'],
     jsonArrays: ['image_urls'],
     pk: ['id'],
   },
