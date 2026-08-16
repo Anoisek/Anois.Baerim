@@ -195,5 +195,6 @@ CREATE TABLE metin_drops (
   metin_id TEXT NOT NULL REFERENCES metins(id),
   material_id TEXT NOT NULL REFERENCES materials(id),
   quantity REAL NOT NULL DEFAULT 1,
+  alt_group TEXT,
   PRIMARY KEY (metin_id, material_id)
 );
