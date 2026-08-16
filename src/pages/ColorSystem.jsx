@@ -7,6 +7,15 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import ModelViewer3D from '../components/ModelViewer3D'
 
+// Module-level (not recreated per render) so ModelViewer3D's effect doesn't
+// reload the model on every ColorSystem re-render.
+const FMS_WEAPON = {
+  url: '/models/fms/scene.gltf',
+  boneMatch: 'R_Hand',
+  scale: 100,
+  rotation: [0, 0, -90],
+}
+
 export default function ColorSystem() {
   const { t } = useTranslation()
   const { isAdmin } = useAuth()
@@ -49,14 +58,14 @@ export default function ColorSystem() {
           ) : (
             <div className="flex flex-col gap-3">
               <div className="h-[520px]">
-                <ModelViewer3D modelUrl="/models/sura_male/scene.gltf" useOwnMaterials />
+                <ModelViewer3D modelUrl="/models/sura_male/scene.gltf" useOwnMaterials weapon={FMS_WEAPON} />
               </div>
               <p className="text-xs text-gray-500 text-center">
-                Sura (male novice) — placeholder reference model while the female mesh and other classes are still
-                being sourced. Drag to rotate, scroll to zoom.
+                Sura (male novice) + Full Moon Sword — placeholder reference model while the female mesh and other
+                classes are still being sourced. Drag to rotate, scroll to zoom.
               </p>
               <p className="text-[10px] text-gray-600 text-center">
-                Model: "Metin2 - Sura Novice Idle loop" by{' '}
+                Models: "Metin2 - Sura Novice Idle loop" and "Metin2 - Full Moon Sword" by{' '}
                 <a href="https://sketchfab.com/ytachi1000" target="_blank" rel="noreferrer" className="underline hover:text-gray-400">
                   Ytachi1000
                 </a>{' '}

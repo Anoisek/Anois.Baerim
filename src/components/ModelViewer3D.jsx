@@ -6,7 +6,12 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 // Live, rotatable glTF viewer (Three.js, client-side only — no server round trip).
 // Centers and scales whatever model is loaded to fit the view, since source
 // models come from very different pipelines with arbitrary units/pivots.
-export default function ModelViewer3D({ modelUrl, textureUrl, useOwnMaterials = false }) {
+export default function ModelViewer3D({
+  modelUrl,
+  textureUrl,
+  useOwnMaterials = false,
+  weapon, // { url, boneMatch, position: [x,y,z], rotation: [x,y,z] (deg), scale }
+}) {
   const containerRef = useRef(null)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -92,6 +97,26 @@ export default function ModelViewer3D({ modelUrl, textureUrl, useOwnMaterials = 
         model.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale)
 
         scene.add(model)
+
+        if (weapon?.url) {
+          let handBone = null
+          model.traverse(node => {
+            if (node.isBone && node.name.includes(weapon.boneMatch || 'R_Hand')) handBone = node
+          })
+          if (handBone) {
+            new GLTFLoader().load(weapon.url, wgltf => {
+              if (disposed) return
+              const weaponModel = wgltf.scene
+              const [wx, wy, wz] = weapon.position || [0, 0, 0]
+              const [rx, ry, rz] = weapon.rotation || [0, 0, 0]
+              weaponModel.position.set(wx, wy, wz)
+              weaponModel.rotation.set(rx * Math.PI / 180, ry * Math.PI / 180, rz * Math.PI / 180)
+              weaponModel.scale.setScalar(weapon.scale ?? 1)
+              handBone.add(weaponModel)
+            })
+          }
+        }
+
         setLoading(false)
       },
       undefined,
@@ -125,7 +150,7 @@ export default function ModelViewer3D({ modelUrl, textureUrl, useOwnMaterials = 
       texture?.dispose()
       if (renderer.domElement.parentNode === container) container.removeChild(renderer.domElement)
     }
-  }, [modelUrl, textureUrl, useOwnMaterials])
+  }, [modelUrl, textureUrl, useOwnMaterials, weapon])
 
   return (
     <div ref={containerRef} className="relative w-full h-full min-h-[420px] rounded-2xl overflow-hidden border border-gray-700 bg-gray-950">

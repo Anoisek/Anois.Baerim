@@ -1,0 +1,11 @@
+Model Information:
+* title:	Metin2 - Full Moon Sword
+* source:	https://sketchfab.com/3d-models/metin2-full-moon-sword-ba3220f236224b2aa1c7e957cb9b5bc8
+* author:	Ytachi1000 (https://sketchfab.com/ytachi1000)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Metin2 - Full Moon Sword" (https://sketchfab.com/3d-models/metin2-full-moon-sword-ba3220f236224b2aa1c7e957cb9b5bc8) by Ytachi1000 (https://sketchfab.com/ytachi1000) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
