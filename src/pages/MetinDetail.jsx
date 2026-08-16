@@ -134,6 +134,15 @@ export default function MetinDetail() {
     return quantities[materialId] !== undefined && quantities[materialId] !== ''
   }
 
+  // The "1/kill" material (e.g. Stones) is a hard count of metins killed —
+  // far more trustworthy for the *global* stats than the free-typed "Metins
+  // destroyed" field, which someone could leave stale or pad. Local yang/min
+  // and yang/metin stats still use the typed field; only the global submission
+  // uses this.
+  const guaranteedRow = rows.find(r => r.is_guaranteed)
+  const guaranteedKills = guaranteedRow ? Number(quantities[guaranteedRow.material_id]) || 0 : 0
+  const sessionKillsForStats = guaranteedKills > 0 ? guaranteedKills : metinsDestroyedNum
+
   function isGoldBar(materialId) {
     return !!materialsById[materialId]?.name?.toLowerCase().startsWith('gold bar')
   }
@@ -200,7 +209,7 @@ export default function MetinDetail() {
     const quantitiesToSubmit = {}
     for (const d of displayRows) quantitiesToSubmit[selectedMaterialId(d)] = Number(quantities[selectedMaterialId(d)]) || 0
     setSubmittingProbability(true)
-    await db.rpc('submit_metin_drop_stats', { p_metin_id: metinId, p_kills: metinsDestroyedNum, p_quantities: quantitiesToSubmit })
+    await db.rpc('submit_metin_drop_stats', { p_metin_id: metinId, p_kills: sessionKillsForStats, p_quantities: quantitiesToSubmit })
     setSubmittingProbability(false)
   }
 
@@ -514,12 +523,15 @@ export default function MetinDetail() {
       {showOwnProbability && (
         <Modal title="Drop probability (this session)" onClose={() => setShowOwnProbability(false)}>
           {submittingProbability && <p className="text-xs text-gray-500 text-center mb-3">Submitting to the global stats…</p>}
-          <p className="text-xs text-gray-500 text-center mb-3">Based on {metinsDestroyedNum} metins destroyed this session.</p>
+          <p className="text-xs text-gray-500 text-center mb-3">
+            Based on {sessionKillsForStats} metins destroyed this session
+            {guaranteedKills > 0 && <span className="text-gray-600"> (from {guaranteedRow.material.name} count, not the typed field)</span>}.
+          </p>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
             {displayRows.map(d => {
               const matId = selectedMaterialId(d)
               const mat = materialsById[matId]
-              const pct = (Number(quantities[matId]) || 0) / metinsDestroyedNum * 100
+              const pct = (Number(quantities[matId]) || 0) / sessionKillsForStats * 100
               return (
                 <div key={matId} className="flex flex-col items-center gap-1.5 p-3 bg-gray-800/60 border border-gray-700 rounded-xl">
                   <div className="w-12 h-12 shrink-0 flex items-center justify-center">
