@@ -11,12 +11,14 @@ import MaterialPriceCell from '../components/MaterialPriceCell'
 import EditMetinModal from '../components/EditMetinModal'
 import Modal from '../components/Modal'
 import PriceModeToggle from '../components/PriceModeToggle'
+import ScreenshotDropzone from '../components/ScreenshotDropzone'
 import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   fetchGlobalPrices, makeMaterialPriceFn,
 } from '../utils/priceBook'
+import { ocrImage, parseFarmSessionText, mergeFarmSessions, matchRowsToMaterials } from '../utils/farmSessionOcr'
 
 function loadLoot(metinId) {
   try {
@@ -48,6 +50,9 @@ export default function MetinDetail() {
   const [submittingProbability, setSubmittingProbability] = useState(false)
   const [showGlobalProbability, setShowGlobalProbability] = useState(false)
   const [globalStats, setGlobalStats] = useState(null) // [{ material_id, total_quantity, total_kills }] once loaded
+  const [ocrBusy, setOcrBusy] = useState(false)
+  const [ocrProgress, setOcrProgress] = useState(null) // { fileIndex, fileCount, pct }
+  const [ocrPreview, setOcrPreview] = useState(null) // { duration, kills, matched, unmatched }
   const { rawInputs, setPrice, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
 
   async function reloadDrops() {
@@ -180,6 +185,44 @@ export default function MetinDetail() {
     const { data } = await db.from('metin_drop_stats').select('material_id, total_quantity, total_kills').eq('metin_id', metinId)
     setGlobalStats(data ?? [])
     setShowGlobalProbability(true)
+  }
+
+  // OCR runs entirely in the browser (tesseract.js) against the native "Farm
+  // Session" game panel — no screenshot ever leaves the user's machine. Each
+  // dropped file is a scrolled snapshot of the same session, so results are
+  // merged (see mergeFarmSessions) rather than summed. Matching is restricted
+  // to this metin's own drop-list materials, which is what makes fuzzy-matching
+  // noisy OCR text workable at all.
+  async function handleScreenshotFiles(files) {
+    setOcrBusy(true)
+    const parsedList = []
+    for (let i = 0; i < files.length; i++) {
+      setOcrProgress({ fileIndex: i, fileCount: files.length, pct: 0 })
+      const text = await ocrImage(files[i], pct => setOcrProgress({ fileIndex: i, fileCount: files.length, pct }))
+      parsedList.push(parseFarmSessionText(text))
+    }
+    setOcrProgress(null)
+    setOcrBusy(false)
+
+    const merged = mergeFarmSessions(parsedList)
+    const materialOptions = rows.map(r => ({ id: r.material_id, name: r.material.name }))
+    const { matched, unmatched } = matchRowsToMaterials(merged.rows, materialOptions)
+    setOcrPreview({ duration: merged.duration, kills: merged.kills, matched, unmatched })
+  }
+
+  function applyOcrPreview() {
+    if (!ocrPreview) return
+    if (ocrPreview.duration) setDuration(ocrPreview.duration)
+    if (ocrPreview.kills != null) {
+      setMetinsDestroyed(String(ocrPreview.kills))
+      setMetinsAutoSynced(false)
+    }
+    setQuantities(prev => {
+      const next = { ...prev }
+      for (const [materialId, qty] of Object.entries(ocrPreview.matched)) next[materialId] = String(qty)
+      return next
+    })
+    setOcrPreview(null)
   }
 
   return (
@@ -345,6 +388,15 @@ export default function MetinDetail() {
                     )
                   })}
 
+                  <div className="flex flex-col gap-2">
+                    <ScreenshotDropzone onFiles={handleScreenshotFiles} disabled={ocrBusy} />
+                    {ocrBusy && ocrProgress && (
+                      <p className="text-xs text-gray-500 text-center">
+                        Reading screenshot {ocrProgress.fileIndex + 1} / {ocrProgress.fileCount}… {Math.round(ocrProgress.pct * 100)}%
+                      </p>
+                    )}
+                  </div>
+
                   <div className="bg-gray-900 border border-yellow-400/20 rounded-2xl px-6 py-5 mt-1 flex flex-col gap-4">
                     <div className="flex flex-wrap gap-4">
                       <label className="flex-1 min-w-[140px] flex flex-col gap-1">
@@ -467,6 +519,68 @@ export default function MetinDetail() {
               })}
             </div>
           )}
+        </Modal>
+      )}
+
+      {ocrPreview && (
+        <Modal title="Detected from screenshot" onClose={() => setOcrPreview(null)}>
+          <p className="text-xs text-gray-500 text-center mb-3">
+            Review before applying — OCR can misread a name or a digit.
+          </p>
+          <div className="flex justify-center gap-6 mb-4 text-sm">
+            <span className="text-gray-300">Duration: <span className="text-yellow-400 font-mono">{ocrPreview.duration ?? '—'}</span></span>
+            <span className="text-gray-300">Metins destroyed: <span className="text-yellow-400 font-mono">{ocrPreview.kills ?? '—'}</span></span>
+          </div>
+
+          {Object.keys(ocrPreview.matched).length > 0 && (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
+              {Object.entries(ocrPreview.matched).map(([materialId, qty]) => {
+                const mat = materialsById[materialId]
+                if (!mat) return null
+                return (
+                  <div key={materialId} className="flex flex-col items-center gap-1.5 p-3 bg-gray-800/60 border border-gray-700 rounded-xl">
+                    <div className="w-10 h-10 shrink-0 flex items-center justify-center">
+                      {mat.image_url
+                        ? <img src={mat.image_url} alt={mat.name} className="w-full h-full object-contain" />
+                        : <span className="text-xl">🧪</span>}
+                    </div>
+                    <span className="text-xs text-gray-300 text-center leading-tight">{mat.name}</span>
+                    <span className="text-yellow-400 text-sm font-bold font-mono">×{qty}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {ocrPreview.unmatched.length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 mb-1.5">Couldn't match these to a drop on this metin (ignored):</p>
+              <div className="flex flex-wrap gap-1.5">
+                {ocrPreview.unmatched.map((row, i) => (
+                  <span key={i} className="text-[11px] text-gray-500 bg-gray-800/60 border border-gray-700 rounded px-2 py-1">
+                    {row.name} ×{row.quantity}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setOcrPreview(null)}
+              className="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg py-2 transition-colors"
+            >
+              Discard
+            </button>
+            <button
+              type="button"
+              onClick={applyOcrPreview}
+              className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-gray-950 text-sm font-bold rounded-lg py-2 transition-colors"
+            >
+              Apply to calculator
+            </button>
+          </div>
         </Modal>
       )}
     </div>
