@@ -125,7 +125,7 @@ export default function MetinDetail() {
     setDrops(prev => prev.map(r => {
       const u = updates.find(x => x.material_id === r.material_id)
       return u ? { ...r, sort_order: u.sort_order } : r
-    }))
+    }).sort((a, b) => a.sort_order - b.sort_order))
     await Promise.all(updates.map(u => db.from('metin_drops').update({ sort_order: u.sort_order }).eq('metin_id', metinId).eq('material_id', u.material_id)))
   }
 
