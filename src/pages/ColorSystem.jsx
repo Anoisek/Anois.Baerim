@@ -10,9 +10,9 @@ import ModelViewer3D from '../components/ModelViewer3D'
 // Module-level (not recreated per render) so ModelViewer3D's effect doesn't
 // reload the model on every ColorSystem re-render.
 // Rotation is solved via quaternion math (bone world orientation inverted,
-// composed with "point blade straight down"), not hand-guessed — the hand
-// bone's rest orientation isn't axis-aligned, so a simple Euler guess only
-// looks right from some camera angles and swings out from others.
+// composed with "point blade straight forward, horizontal"), not hand-guessed
+// — the hand bone's rest orientation isn't axis-aligned, so a simple Euler
+// guess only looks right from some camera angles and swings out from others.
 // Position is offset from the wrist joint (where Bip01 R Hand actually sits)
 // out to the first knuckle of the middle finger, so the grip lands inside the
 // curled fist instead of floating at the wrist.
@@ -21,7 +21,7 @@ const FMS_WEAPON = {
   boneMatch: 'R_Hand',
   scale: 100,
   position: [11.492, -0.255, 4.705],
-  rotation: [86.81, 21.92, -90.91],
+  rotation: [86.81, 21.92, -0.91],
 }
 
 export default function ColorSystem() {
