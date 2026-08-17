@@ -39,27 +39,6 @@ const BUFF_SCENARIOS = [
   { key: 'both', label: 'Vote + Casual', vote: true, casual: true },
 ]
 
-// Named override for one specific alt_group's combined row in the Global drop
-// probability table — matched by its exact set of material ids so it can never
-// collide with an unrelated alt_group (letters like "A" are reused per-metin).
-const GROUP_LABEL_OVERRIDES = [
-  {
-    label: 'Beta Drop',
-    materialIds: new Set([
-      '1b6dc859-b9ba-4b13-a879-b85cdc916143', // Golden Clasp
-      '8b417b1f-c439-47a3-b358-9f1cbe82e200', // Red Dragon Steel
-      'a8e6676a-4c42-4a9b-aa37-2797ed2b2837', // Golden Fabric
-      'd5d6ce70-db6d-4901-b6aa-37a7d7ddbadd', // Golden Yarn
-    ]),
-  },
-]
-
-function groupLabel(memberIds, fallbackNames) {
-  const idSet = new Set(memberIds)
-  const override = GROUP_LABEL_OVERRIDES.find(g => g.materialIds.size === idSet.size && [...g.materialIds].every(id => idSet.has(id)))
-  return override ? override.label : fallbackNames.join(' / ')
-}
-
 export default function MetinDetail() {
   const { metinId } = useParams()
   const { t } = useTranslation()
@@ -718,7 +697,6 @@ export default function MetinDetail() {
                     const members = d.kind === 'group' ? d.options : [{ material_id: d.material_id, material: d.material }]
                     const memberIds = members.map(m => m.material_id)
                     const rowKey = d.kind === 'group' ? d.altGroup : d.material_id
-                    const label = d.kind === 'group' ? groupLabel(memberIds, members.map(m => m.material.name)) : d.material.name
                     return (
                       <tr key={rowKey} className="bg-gray-800/60">
                         <td className="rounded-l-lg py-2 pl-2">
@@ -732,7 +710,7 @@ export default function MetinDetail() {
                                 </div>
                               ))}
                             </div>
-                            <span className="text-gray-300 leading-tight">{label}</span>
+                            {d.kind !== 'group' && <span className="text-gray-300 leading-tight">{d.material.name}</span>}
                           </div>
                         </td>
                         {BUFF_SCENARIOS.map(sc => {
