@@ -568,7 +568,7 @@ export default function MetinDetail() {
             <img src="/switch_mokoko.png" alt="" className="w-24 h-24 object-contain" />
             <h2 className="text-xl font-bold text-yellow-400">Before you start</h2>
             <p className="text-sm text-gray-300 leading-relaxed">
-              Are you using any drop-rate buffs on this run? This splits the global % stats into accurate scenarios.
+              Are you using any drop-rate buffs on this run?
             </p>
             <div className="w-full flex flex-col gap-2 text-left">
               <label className="flex items-center gap-2 text-sm text-gray-200 bg-gray-800/60 border border-gray-700 rounded-xl px-3 py-2.5 cursor-pointer hover:border-yellow-400/50 transition-colors">
