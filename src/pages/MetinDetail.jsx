@@ -33,7 +33,7 @@ function loadLoot(metinId) {
 // and unbuffed sessions must never blend into one average, or the % would be
 // meaningless for someone deciding whether a buff is worth using.
 const BUFF_SCENARIOS = [
-  { key: 'none', label: 'Bez buffów', vote: false, casual: false },
+  { key: 'none', label: 'No buffs', vote: false, casual: false },
   { key: 'casual', label: 'Casual Buff', vote: false, casual: true },
   { key: 'vote', label: 'Vote Buff', vote: true, casual: false },
   { key: 'both', label: 'Vote + Casual', vote: true, casual: true },
