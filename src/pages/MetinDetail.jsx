@@ -39,6 +39,27 @@ const BUFF_SCENARIOS = [
   { key: 'both', label: 'Vote + Casual', vote: true, casual: true },
 ]
 
+// Named override for one specific alt_group's combined row in the Global drop
+// probability table — matched by its exact set of material ids so it can never
+// collide with an unrelated alt_group (letters like "A" are reused per-metin).
+const GROUP_LABEL_OVERRIDES = [
+  {
+    label: 'Beta Drop',
+    materialIds: new Set([
+      '1b6dc859-b9ba-4b13-a879-b85cdc916143', // Golden Clasp
+      '8b417b1f-c439-47a3-b358-9f1cbe82e200', // Red Dragon Steel
+      'a8e6676a-4c42-4a9b-aa37-2797ed2b2837', // Golden Fabric
+      'd5d6ce70-db6d-4901-b6aa-37a7d7ddbadd', // Golden Yarn
+    ]),
+  },
+]
+
+function groupLabel(memberIds, fallbackNames) {
+  const idSet = new Set(memberIds)
+  const override = GROUP_LABEL_OVERRIDES.find(g => g.materialIds.size === idSet.size && [...g.materialIds].every(id => idSet.has(id)))
+  return override ? override.label : fallbackNames.join(' / ')
+}
+
 export default function MetinDetail() {
   const { metinId } = useParams()
   const { t } = useTranslation()
@@ -280,10 +301,11 @@ export default function MetinDetail() {
     setGlobalStats([])
   }
 
-  async function handleResetMaterialStats(materialId) {
-    if (!confirm('Reset global drop stats for this material only?')) return
-    await db.from('metin_drop_stats').delete().eq('metin_id', metinId).eq('material_id', materialId)
-    setGlobalStats(prev => prev.filter(s => s.material_id !== materialId))
+  async function handleResetMaterialStats(materialIds) {
+    const ids = Array.isArray(materialIds) ? materialIds : [materialIds]
+    if (!confirm(ids.length > 1 ? 'Reset global drop stats for this group only?' : 'Reset global drop stats for this material only?')) return
+    await Promise.all(ids.map(id => db.from('metin_drop_stats').delete().eq('metin_id', metinId).eq('material_id', id)))
+    setGlobalStats(prev => prev.filter(s => !ids.includes(s.material_id)))
   }
 
   const materialOptions = rows.map(r => ({ id: r.material_id, name: r.material.name }))
@@ -672,7 +694,7 @@ export default function MetinDetail() {
           )}
           {globalStats === null ? (
             <Spinner />
-          ) : rows.length === 0 ? (
+          ) : displayRows.length === 0 ? (
             <p className="text-sm text-gray-500 text-center py-6">No drops defined for this metin yet.</p>
           ) : (
             <div className="overflow-x-auto -mx-2 px-2">
@@ -687,46 +709,63 @@ export default function MetinDetail() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map(row => (
-                    <tr key={row.material_id} className="bg-gray-800/60">
-                      <td className="rounded-l-lg py-2 pl-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 shrink-0 flex items-center justify-center">
-                            {row.material.image_url
-                              ? <img src={row.material.image_url} alt={row.material.name} className="w-full h-full object-contain" />
-                              : <span className="text-base">🧪</span>}
+                  {displayRows.map(d => {
+                    // Alt-group members (e.g. Beta Drop's 4 materials) never drop
+                    // together — only one is ever submitted per session — so their
+                    // stats are combined into one row instead of 4 misleadingly
+                    // separate percentages, matching how the calculator already
+                    // treats them as a single slot.
+                    const members = d.kind === 'group' ? d.options : [{ material_id: d.material_id, material: d.material }]
+                    const memberIds = members.map(m => m.material_id)
+                    const rowKey = d.kind === 'group' ? d.altGroup : d.material_id
+                    const label = d.kind === 'group' ? groupLabel(memberIds, members.map(m => m.material.name)) : d.material.name
+                    return (
+                      <tr key={rowKey} className="bg-gray-800/60">
+                        <td className="rounded-l-lg py-2 pl-2">
+                          <div className="flex items-center gap-2">
+                            <div className="flex -space-x-1.5 shrink-0">
+                              {members.map(m => (
+                                <div key={m.material_id} className="w-7 h-7 rounded-full bg-gray-900 border border-gray-700 flex items-center justify-center overflow-hidden">
+                                  {m.material.image_url
+                                    ? <img src={m.material.image_url} alt={m.material.name} className="w-full h-full object-contain" />
+                                    : <span className="text-base">🧪</span>}
+                                </div>
+                              ))}
+                            </div>
+                            <span className="text-gray-300 leading-tight">{label}</span>
                           </div>
-                          <span className="text-gray-300 leading-tight">{row.material.name}</span>
-                        </div>
-                      </td>
-                      {BUFF_SCENARIOS.map(sc => {
-                        const stat = globalStats.find(s => s.material_id === row.material_id && s.vote_buff === sc.vote && s.casual_buff === sc.casual)
-                        const pct = stat && stat.total_kills > 0 ? stat.total_quantity / stat.total_kills * 100 : null
-                        return (
-                          <td key={sc.key} className="text-center px-1">
-                            {pct === null ? (
-                              <span className="text-gray-600">—</span>
-                            ) : (
-                              <div className="flex flex-col items-center">
-                                <span className="text-yellow-400 font-bold font-mono">{pct.toFixed(1)}%</span>
-                                <span className="text-gray-600 text-[10px]">n={stat.total_kills}</span>
-                              </div>
-                            )}
-                          </td>
-                        )
-                      })}
-                      <td className="rounded-r-lg pr-1">
-                        <button
-                          type="button"
-                          onClick={() => handleResetMaterialStats(row.material_id)}
-                          title="Reset stats for this material only (all scenarios)"
-                          className="text-gray-600 hover:text-red-400 text-xs leading-none transition-colors"
-                        >
-                          🗑
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        {BUFF_SCENARIOS.map(sc => {
+                          const stats = globalStats.filter(s => memberIds.includes(s.material_id) && s.vote_buff === sc.vote && s.casual_buff === sc.casual)
+                          const totalQuantity = stats.reduce((sum, s) => sum + s.total_quantity, 0)
+                          const totalKills = stats.reduce((sum, s) => sum + s.total_kills, 0)
+                          const pct = totalKills > 0 ? totalQuantity / totalKills * 100 : null
+                          return (
+                            <td key={sc.key} className="text-center px-1">
+                              {pct === null ? (
+                                <span className="text-gray-600">—</span>
+                              ) : (
+                                <div className="flex flex-col items-center">
+                                  <span className="text-yellow-400 font-bold font-mono">{pct.toFixed(1)}%</span>
+                                  <span className="text-gray-600 text-[10px]">n={totalKills}</span>
+                                </div>
+                              )}
+                            </td>
+                          )
+                        })}
+                        <td className="rounded-r-lg pr-1">
+                          <button
+                            type="button"
+                            onClick={() => handleResetMaterialStats(memberIds)}
+                            title="Reset stats for this material only (all scenarios)"
+                            className="text-gray-600 hover:text-red-400 text-xs leading-none transition-colors"
+                          >
+                            🗑
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
