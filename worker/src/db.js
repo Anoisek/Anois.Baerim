@@ -102,9 +102,13 @@ const TABLES = {
   },
   // Aggregated across every submit_metin_drop_stats RPC call (see rpc.js) — kept
   // admin-only for now since the drop-probability feature isn't public yet.
+  // vote_buff/casual_buff split the running totals into the 4 buff scenarios
+  // (see MetinBuffModal) so global % can be reported per scenario instead of
+  // blending buffed and unbuffed sessions into one misleading average.
   metin_drop_stats: {
-    columns: ['metin_id', 'material_id', 'total_quantity', 'total_kills'],
-    pk: ['metin_id', 'material_id'],
+    columns: ['metin_id', 'material_id', 'vote_buff', 'casual_buff', 'total_quantity', 'total_kills'],
+    booleans: ['vote_buff', 'casual_buff'],
+    pk: ['metin_id', 'material_id', 'vote_buff', 'casual_buff'],
     publicRead: false,
   },
 }

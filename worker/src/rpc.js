@@ -103,10 +103,15 @@ async function toggleNoteLike(env, params, headers) {
 // total for each material, so metin_drop_stats.total_quantity / total_kills is a
 // kills-weighted average probability across every submission ever made. Open to
 // any caller (no auth) — mirrors submit_material_price, which is public too.
+// p_vote_buff/p_casual_buff (from MetinBuffModal, asked on every metin page visit)
+// route the submission into one of 4 running totals so buffed and unbuffed
+// sessions never blend into one misleading average.
 async function submitMetinDropStats(env, params, headers) {
   const metinId = params && params.p_metin_id
   const kills = Number(params && params.p_kills)
   const quantities = params && params.p_quantities
+  const voteBuff = params && params.p_vote_buff ? 1 : 0
+  const casualBuff = params && params.p_casual_buff ? 1 : 0
 
   if (typeof metinId !== 'string' || !metinId || !(kills > 0) || !(kills < 100000) ||
       typeof quantities !== 'object' || quantities === null) {
@@ -121,9 +126,9 @@ async function submitMetinDropStats(env, params, headers) {
 
   for (const [materialId, qty] of entries) {
     await env.DB.prepare(
-      'INSERT INTO metin_drop_stats (metin_id, material_id, total_quantity, total_kills) VALUES (?, ?, ?, ?) ' +
-      'ON CONFLICT(metin_id, material_id) DO UPDATE SET total_quantity = total_quantity + excluded.total_quantity, total_kills = total_kills + excluded.total_kills'
-    ).bind(metinId, materialId, Number(qty), kills).run()
+      'INSERT INTO metin_drop_stats (metin_id, material_id, vote_buff, casual_buff, total_quantity, total_kills) VALUES (?, ?, ?, ?, ?, ?) ' +
+      'ON CONFLICT(metin_id, material_id, vote_buff, casual_buff) DO UPDATE SET total_quantity = total_quantity + excluded.total_quantity, total_kills = total_kills + excluded.total_kills'
+    ).bind(metinId, materialId, voteBuff, casualBuff, Number(qty), kills).run()
   }
 
   return json({ data: true, error: null }, 200, headers)

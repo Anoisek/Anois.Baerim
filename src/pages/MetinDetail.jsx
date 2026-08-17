@@ -29,6 +29,16 @@ function loadLoot(metinId) {
   }
 }
 
+// The 4 buff combinations MetinBuffModal asks about on every metin visit — buffed
+// and unbuffed sessions must never blend into one average, or the % would be
+// meaningless for someone deciding whether a buff is worth using.
+const BUFF_SCENARIOS = [
+  { key: 'none', label: 'Bez buffów', vote: false, casual: false },
+  { key: 'casual', label: 'Casual Buff', vote: false, casual: true },
+  { key: 'vote', label: 'Vote Buff', vote: true, casual: false },
+  { key: 'both', label: 'Vote + Casual', vote: true, casual: true },
+]
+
 export default function MetinDetail() {
   const { metinId } = useParams()
   const { t } = useTranslation()
@@ -54,8 +64,19 @@ export default function MetinDetail() {
   const [ocrBusy, setOcrBusy] = useState(false)
   const [ocrProgress, setOcrProgress] = useState(null) // { fileIndex, fileCount, pct }
   const [parsedSessions, setParsedSessions] = useState([]) // accumulates across every screenshot processed so far
+  const [buffModalOpen, setBuffModalOpen] = useState(true)
+  const [voteBuff, setVoteBuff] = useState(false)
+  const [casualBuff, setCasualBuff] = useState(false)
   const { rawInputs, setPrice, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
   const autoSubmittedRef = useRef(false)
+
+  // Re-asks the buff question every time a metin is entered, including switching
+  // directly from one metin's page to another's without a full reload.
+  useEffect(() => {
+    setBuffModalOpen(true)
+    setVoteBuff(false)
+    setCasualBuff(false)
+  }, [metinId])
 
   async function reloadDrops() {
     const { data } = await db.from('metin_drops').select('material_id, alt_group, sort_order, is_guaranteed').eq('metin_id', metinId).order('sort_order')
@@ -204,7 +225,10 @@ export default function MetinDetail() {
     const quantitiesToSubmit = {}
     for (const d of displayRows) quantitiesToSubmit[selectedMaterialId(d)] = Number(quantities[selectedMaterialId(d)]) || 0
     setSubmittingProbability(true)
-    await db.rpc('submit_metin_drop_stats', { p_metin_id: metinId, p_kills: sessionKillsForStats, p_quantities: quantitiesToSubmit })
+    await db.rpc('submit_metin_drop_stats', {
+      p_metin_id: metinId, p_kills: sessionKillsForStats, p_quantities: quantitiesToSubmit,
+      p_vote_buff: voteBuff, p_casual_buff: casualBuff,
+    })
     setSubmittingProbability(false)
   }
 
@@ -213,7 +237,7 @@ export default function MetinDetail() {
   // of waiting for that button to be clicked — once per completion, not on
   // every edit made while the form is already complete.
   useEffect(() => {
-    if (loading) return
+    if (loading || buffModalOpen) return
     const ready = canCheckProbability && metinsDestroyedNum > 0
     if (ready && !autoSubmittedRef.current) {
       autoSubmittedRef.current = true
@@ -221,7 +245,7 @@ export default function MetinDetail() {
     } else if (!ready) {
       autoSubmittedRef.current = false
     }
-  }, [canCheckProbability, metinsDestroyedNum, loading])
+  }, [canCheckProbability, metinsDestroyedNum, loading, buffModalOpen])
 
   // Shows this session's own quantities as a % of "Metins destroyed". The
   // actual submission to global stats already happened automatically above —
@@ -241,7 +265,7 @@ export default function MetinDetail() {
   }
 
   async function handleShowGlobalProbability() {
-    const { data } = await db.from('metin_drop_stats').select('material_id, total_quantity, total_kills').eq('metin_id', metinId)
+    const { data } = await db.from('metin_drop_stats').select('material_id, vote_buff, casual_buff, total_quantity, total_kills').eq('metin_id', metinId)
     setGlobalStats(data ?? [])
     setShowGlobalProbability(true)
   }
@@ -538,6 +562,45 @@ export default function MetinDetail() {
         </div>
       </div>
 
+      {!loading && metin && buffModalOpen && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] p-4">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-sm p-6 flex flex-col items-center gap-4 text-center shadow-xl shadow-black/40">
+            <img src="/switch_mokoko.png" alt="" className="w-24 h-24 object-contain" />
+            <h2 className="text-xl font-bold text-yellow-400">Before you start</h2>
+            <p className="text-sm text-gray-300 leading-relaxed">
+              Are you using any drop-rate buffs on this run? This splits the global % stats into accurate scenarios.
+            </p>
+            <div className="w-full flex flex-col gap-2 text-left">
+              <label className="flex items-center gap-2 text-sm text-gray-200 bg-gray-800/60 border border-gray-700 rounded-xl px-3 py-2.5 cursor-pointer hover:border-yellow-400/50 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={voteBuff}
+                  onChange={e => setVoteBuff(e.target.checked)}
+                  className="accent-yellow-400 w-4 h-4"
+                />
+                Vote Buff
+              </label>
+              <label className="flex items-center gap-2 text-sm text-gray-200 bg-gray-800/60 border border-gray-700 rounded-xl px-3 py-2.5 cursor-pointer hover:border-yellow-400/50 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={casualBuff}
+                  onChange={e => setCasualBuff(e.target.checked)}
+                  className="accent-yellow-400 w-4 h-4"
+                />
+                Casual Buff
+              </label>
+            </div>
+            <button
+              type="button"
+              onClick={() => setBuffModalOpen(false)}
+              className="mt-2 w-full bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold rounded-xl px-8 py-2.5 transition-colors"
+            >
+              Start
+            </button>
+          </div>
+        </div>
+      )}
+
       {editing && metin && (
         <EditMetinModal
           metin={metin}
@@ -577,12 +640,15 @@ export default function MetinDetail() {
 
       {showGlobalProbability && (
         <Modal title="Global drop probability" onClose={() => setShowGlobalProbability(false)}>
-          <p className="text-xs text-gray-500 text-center mb-1">Aggregated from every user's submitted data.</p>
+          <p className="text-xs text-gray-500 text-center mb-1">Aggregated from every user's submitted data, split by buff scenario.</p>
           {globalStats !== null && globalStats.length > 0 && (
-            <div className="flex items-center justify-center gap-3 mb-3">
-              <p className="text-xs text-gray-400">
-                Based on <span className="text-yellow-400 font-mono">{Math.max(0, ...globalStats.map(s => s.total_kills))}</span> metins destroyed in total.
-              </p>
+            <div className="flex items-center justify-center gap-3 mb-3 flex-wrap">
+              <div className="flex items-center gap-3 text-[11px] text-gray-400">
+                {BUFF_SCENARIOS.map(sc => {
+                  const n = Math.max(0, ...globalStats.filter(s => s.vote_buff === sc.vote && s.casual_buff === sc.casual).map(s => s.total_kills))
+                  return <span key={sc.key}>{sc.label}: <span className="text-yellow-400 font-mono">{n}</span></span>
+                })}
+              </div>
               <button
                 type="button"
                 onClick={handleResetGlobalStats}
@@ -598,39 +664,60 @@ export default function MetinDetail() {
           ) : rows.length === 0 ? (
             <p className="text-sm text-gray-500 text-center py-6">No drops defined for this metin yet.</p>
           ) : (
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-              {rows.map(row => {
-                const stat = globalStats.find(s => s.material_id === row.material_id)
-                const pct = stat && stat.total_kills > 0 ? stat.total_quantity / stat.total_kills * 100 : null
-                return (
-                  <div key={row.material_id} className="relative flex flex-col items-center gap-1.5 p-3 bg-gray-800/60 border border-gray-700 rounded-xl">
-                    {stat && (
-                      <button
-                        type="button"
-                        onClick={() => handleResetMaterialStats(row.material_id)}
-                        title="Reset stats for this material only"
-                        className="absolute top-1 right-1 text-gray-600 hover:text-red-400 text-xs leading-none transition-colors"
-                      >
-                        🗑
-                      </button>
-                    )}
-                    <div className="w-12 h-12 shrink-0 flex items-center justify-center">
-                      {row.material.image_url
-                        ? <img src={row.material.image_url} alt={row.material.name} className="w-full h-full object-contain" />
-                        : <span className="text-2xl">🧪</span>}
-                    </div>
-                    <span className="text-xs text-gray-300 text-center leading-tight">{row.material.name}</span>
-                    {pct === null ? (
-                      <span className="text-gray-600 text-xs">No data yet</span>
-                    ) : (
-                      <>
-                        <span className="text-yellow-400 text-sm font-bold font-mono">{pct.toFixed(1)}%</span>
-                        <span className="text-gray-600 text-[10px]">n={stat.total_kills}</span>
-                      </>
-                    )}
-                  </div>
-                )
-              })}
+            <div className="overflow-x-auto -mx-2 px-2">
+              <table className="w-full text-xs border-separate border-spacing-y-1.5">
+                <thead>
+                  <tr className="text-gray-500">
+                    <th className="text-left font-medium pb-1">Material</th>
+                    {BUFF_SCENARIOS.map(sc => (
+                      <th key={sc.key} className="font-medium pb-1 px-1 whitespace-nowrap">{sc.label}</th>
+                    ))}
+                    <th className="w-6" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map(row => (
+                    <tr key={row.material_id} className="bg-gray-800/60">
+                      <td className="rounded-l-lg py-2 pl-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 shrink-0 flex items-center justify-center">
+                            {row.material.image_url
+                              ? <img src={row.material.image_url} alt={row.material.name} className="w-full h-full object-contain" />
+                              : <span className="text-base">🧪</span>}
+                          </div>
+                          <span className="text-gray-300 leading-tight">{row.material.name}</span>
+                        </div>
+                      </td>
+                      {BUFF_SCENARIOS.map(sc => {
+                        const stat = globalStats.find(s => s.material_id === row.material_id && s.vote_buff === sc.vote && s.casual_buff === sc.casual)
+                        const pct = stat && stat.total_kills > 0 ? stat.total_quantity / stat.total_kills * 100 : null
+                        return (
+                          <td key={sc.key} className="text-center px-1">
+                            {pct === null ? (
+                              <span className="text-gray-600">—</span>
+                            ) : (
+                              <div className="flex flex-col items-center">
+                                <span className="text-yellow-400 font-bold font-mono">{pct.toFixed(1)}%</span>
+                                <span className="text-gray-600 text-[10px]">n={stat.total_kills}</span>
+                              </div>
+                            )}
+                          </td>
+                        )
+                      })}
+                      <td className="rounded-r-lg pr-1">
+                        <button
+                          type="button"
+                          onClick={() => handleResetMaterialStats(row.material_id)}
+                          title="Reset stats for this material only (all scenarios)"
+                          className="text-gray-600 hover:text-red-400 text-xs leading-none transition-colors"
+                        >
+                          🗑
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </Modal>
