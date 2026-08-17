@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import { formatYang } from '../utils/formatYang'
-import { submitPriceToGlobal } from '../utils/priceBook'
+import { submitPriceToGlobal, FIXED_MATERIAL_PRICES } from '../utils/priceBook'
 
 export default function MaterialPriceCell({ material, rawValue, computedValue, onPriceChange, computed, manualOverride }) {
   const { t } = useTranslation()
-  if (computed ?? (material.is_craftable && !manualOverride)) {
+  const isFixed = FIXED_MATERIAL_PRICES[material.id] != null
+  if (isFixed || (computed ?? (material.is_craftable && !manualOverride))) {
     return (
       <span
         title={t('materialPriceCell.computedTooltip')}

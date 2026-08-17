@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
@@ -55,6 +55,7 @@ export default function MetinDetail() {
   const [ocrProgress, setOcrProgress] = useState(null) // { fileIndex, fileCount, pct }
   const [parsedSessions, setParsedSessions] = useState([]) // accumulates across every screenshot processed so far
   const { rawInputs, setPrice, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
+  const autoSubmittedRef = useRef(false)
 
   async function reloadDrops() {
     const { data } = await db.from('metin_drops').select('material_id, alt_group, sort_order, is_guaranteed').eq('metin_id', metinId).order('sort_order')
@@ -193,24 +194,50 @@ export default function MetinDetail() {
     persistOrder(reordered)
   }
 
-  // Shows this session's own quantities as a % of "Metins destroyed", and submits
-  // that same data point to the shared metin_drop_stats total (see rpc.js) so it
-  // blends into the global average every other submitter contributes to.
-  // Requires every material's quantity to be filled in first (canCheckProbability)
-  // so a submission can't quietly omit a material the user forgot about — that's
-  // what previously let an all-empty submission pad total_kills for nothing.
-  async function handleCheckProbability() {
+  // Submits this session's quantities to the shared metin_drop_stats total (see
+  // rpc.js) so it blends into the global average every other submitter
+  // contributes to. Requires every material's quantity to be filled in first
+  // (canCheckProbability) so a submission can't quietly omit a material the user
+  // forgot about — that's what previously let an all-empty submission pad
+  // total_kills for nothing.
+  async function submitDropStats() {
+    const quantitiesToSubmit = {}
+    for (const d of displayRows) quantitiesToSubmit[selectedMaterialId(d)] = Number(quantities[selectedMaterialId(d)]) || 0
+    setSubmittingProbability(true)
+    await db.rpc('submit_metin_drop_stats', { p_metin_id: metinId, p_kills: sessionKillsForStats, p_quantities: quantitiesToSubmit })
+    setSubmittingProbability(false)
+  }
+
+  // Fires the submission the moment every field becomes complete (same
+  // condition that unlocks the "Check drop probability" button below), instead
+  // of waiting for that button to be clicked — once per completion, not on
+  // every edit made while the form is already complete.
+  useEffect(() => {
+    if (loading) return
+    const ready = canCheckProbability && metinsDestroyedNum > 0
+    if (ready && !autoSubmittedRef.current) {
+      autoSubmittedRef.current = true
+      submitDropStats()
+    } else if (!ready) {
+      autoSubmittedRef.current = false
+    }
+  }, [canCheckProbability, metinsDestroyedNum, loading])
+
+  // Shows this session's own quantities as a % of "Metins destroyed". The
+  // actual submission to global stats already happened automatically above —
+  // this just opens the local-session view, with a fallback submit in case the
+  // effect above hasn't run yet.
+  function handleCheckProbability() {
     if (metinsDestroyedNum <= 0) {
       alert('Enter "Metins destroyed" first.')
       return
     }
     if (!canCheckProbability) return
     setShowOwnProbability(true)
-    const quantitiesToSubmit = {}
-    for (const d of displayRows) quantitiesToSubmit[selectedMaterialId(d)] = Number(quantities[selectedMaterialId(d)]) || 0
-    setSubmittingProbability(true)
-    await db.rpc('submit_metin_drop_stats', { p_metin_id: metinId, p_kills: sessionKillsForStats, p_quantities: quantitiesToSubmit })
-    setSubmittingProbability(false)
+    if (!autoSubmittedRef.current) {
+      autoSubmittedRef.current = true
+      submitDropStats()
+    }
   }
 
   async function handleShowGlobalProbability() {

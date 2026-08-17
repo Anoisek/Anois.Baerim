@@ -13,7 +13,7 @@ import ItemImage from '../components/ItemImage'
 import { db } from '../dbClient'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
-  fetchGlobalPrices, submitPricesToGlobal, makeMaterialPriceFn,
+  fetchGlobalPrices, submitPricesToGlobal, makeMaterialPriceFn, FIXED_MATERIAL_PRICES,
 } from '../utils/priceBook'
 import { sortByCategoryTag } from '../utils/materialCategoryTags'
 import { itemImages as materialImages } from '../utils/itemImages'
@@ -285,7 +285,7 @@ export default function Materials() {
                       <MaterialPriceCell
                         material={mat}
                         rawValue={rawInputs[mat.id]}
-                        computedValue={mode === 'global' || (mat.is_craftable && !manualOverrides.has(mat.id)) ? priceFn(mat.id) : undefined}
+                        computedValue={mode === 'global' || FIXED_MATERIAL_PRICES[mat.id] != null || (mat.is_craftable && !manualOverrides.has(mat.id)) ? priceFn(mat.id) : undefined}
                         onPriceChange={setPrice}
                         computed={mode === 'global' ? true : undefined}
                         manualOverride={manualOverrides.has(mat.id)}

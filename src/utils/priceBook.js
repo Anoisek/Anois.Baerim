@@ -68,11 +68,20 @@ export function usePriceBook() {
   return { rawInputs, setPrice, importPrices, mode, setMode, manualOverrides, toggleManualOverride }
 }
 
+// Gold Bars are a fixed-value currency item — a 100,000 bar is worth exactly
+// 100,000 yang by definition, so unlike every other material their price is
+// never user-editable, crowd-sourced, or overridable in any mode.
+export const FIXED_MATERIAL_PRICES = {
+  '57181b35-83ea-4a2e-ae4a-0c8a022b7c23': 100000, // Gold Bar (100,000)
+  '7688c2e4-93f9-4e15-95a5-3484a2a4e569': 120000, // Gold Bar (120,000)
+}
+
 // recipes: { [materialId]: [{ component_id, quantity }] }
 // yangCosts: { [materialId]: number } — craft yang fee, added on top of component cost
 // manualOverrides: Set<materialId> — materials whose price is typed in by hand even
 // though they have a recipe (see usePriceBook's toggleManualOverride)
 export function computePrice(materialId, rawInputs, recipes, yangCosts = {}, visited = new Set(), manualOverrides = null) {
+  if (FIXED_MATERIAL_PRICES[materialId] != null) return FIXED_MATERIAL_PRICES[materialId]
   if (visited.has(materialId)) return 0
   const recipe = recipes[materialId]
   if (recipe && recipe.length > 0 && !manualOverrides?.has(materialId)) {
@@ -86,6 +95,7 @@ export function computePrice(materialId, rawInputs, recipes, yangCosts = {}, vis
 // Global-prices mode: a directly submitted community price wins; the recipe is
 // only used as a fallback when no one has submitted a price for that material yet.
 export function computeGlobalPrice(materialId, globalPrices, recipes, yangCosts = {}, visited = new Set()) {
+  if (FIXED_MATERIAL_PRICES[materialId] != null) return FIXED_MATERIAL_PRICES[materialId]
   if (visited.has(materialId)) return 0
   const direct = Number(globalPrices[materialId] ?? 0)
   if (direct > 0) return direct
