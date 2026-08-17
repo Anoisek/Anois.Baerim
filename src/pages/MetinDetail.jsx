@@ -403,7 +403,7 @@ export default function MetinDetail() {
                   <button
                     type="button"
                     onClick={() => setShowImportModal(true)}
-                    className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors self-start"
+                    className="w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors text-center"
                   >
                     📸 Import from screenshots
                   </button>
