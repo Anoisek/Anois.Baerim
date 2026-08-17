@@ -130,6 +130,10 @@ export default function MetinDetail() {
     setMetinsAutoSynced(false)
   }
 
+  function handleClearQuantities() {
+    setQuantities({})
+  }
+
   const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides })
 
   // Materials sharing an alt_group drop as one row — only one of them can ever
@@ -363,6 +367,13 @@ export default function MetinDetail() {
                 </div>
                 <h1 className="text-2xl font-bold text-yellow-400 flex-1">{metin.name}</h1>
                 <PriceModeToggle mode={mode} setMode={setMode} />
+                <button
+                  type="button"
+                  onClick={handleClearQuantities}
+                  className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shrink-0"
+                >
+                  🧹 Clear quantity
+                </button>
                 {isAdmin && (
                   <button
                     onClick={handleShowGlobalProbability}
@@ -389,6 +400,14 @@ export default function MetinDetail() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowImportModal(true)}
+                    className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors self-start"
+                  >
+                    📸 Import from screenshots
+                  </button>
+
                   {displayRows.map((d, index) => {
                     const matId = selectedMaterialId(d)
                     const mat = materialsById[matId]
@@ -491,14 +510,6 @@ export default function MetinDetail() {
                       </div>
                     )
                   })}
-
-                  <button
-                    type="button"
-                    onClick={() => setShowImportModal(true)}
-                    className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
-                  >
-                    📸 Import from screenshots
-                  </button>
 
                   <div className="bg-gray-900 border border-yellow-400/20 rounded-2xl px-6 py-5 mt-1 flex flex-col gap-4">
                     <div className="flex flex-wrap gap-4">
