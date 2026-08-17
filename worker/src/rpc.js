@@ -103,9 +103,9 @@ async function toggleNoteLike(env, params, headers) {
 // total for each material, so metin_drop_stats.total_quantity / total_kills is a
 // kills-weighted average probability across every submission ever made. Open to
 // any caller (no auth) — mirrors submit_material_price, which is public too.
-// p_vote_buff/p_casual_buff/p_glove_buff (from MetinBuffModal, asked on every
-// metin page visit) route the submission into its own running total so
-// differently-buffed sessions never blend into one misleading average.
+// p_vote_buff/p_casual_buff/p_glove_buff/p_guild_buff (from MetinBuffModal,
+// asked on every metin page visit) route the submission into its own running
+// total so differently-buffed sessions never blend into one misleading average.
 async function submitMetinDropStats(env, params, headers) {
   const metinId = params && params.p_metin_id
   const kills = Number(params && params.p_kills)
@@ -113,6 +113,7 @@ async function submitMetinDropStats(env, params, headers) {
   const voteBuff = params && params.p_vote_buff ? 1 : 0
   const casualBuff = params && params.p_casual_buff ? 1 : 0
   const gloveBuff = params && params.p_glove_buff ? 1 : 0
+  const guildBuff = params && params.p_guild_buff ? 1 : 0
 
   if (typeof metinId !== 'string' || !metinId || !(kills > 0) || !(kills < 100000) ||
       typeof quantities !== 'object' || quantities === null) {
@@ -127,9 +128,9 @@ async function submitMetinDropStats(env, params, headers) {
 
   for (const [materialId, qty] of entries) {
     await env.DB.prepare(
-      'INSERT INTO metin_drop_stats (metin_id, material_id, vote_buff, casual_buff, glove_buff, total_quantity, total_kills) VALUES (?, ?, ?, ?, ?, ?, ?) ' +
-      'ON CONFLICT(metin_id, material_id, vote_buff, casual_buff, glove_buff) DO UPDATE SET total_quantity = total_quantity + excluded.total_quantity, total_kills = total_kills + excluded.total_kills'
-    ).bind(metinId, materialId, voteBuff, casualBuff, gloveBuff, Number(qty), kills).run()
+      'INSERT INTO metin_drop_stats (metin_id, material_id, vote_buff, casual_buff, glove_buff, guild_buff, total_quantity, total_kills) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ' +
+      'ON CONFLICT(metin_id, material_id, vote_buff, casual_buff, glove_buff, guild_buff) DO UPDATE SET total_quantity = total_quantity + excluded.total_quantity, total_kills = total_kills + excluded.total_kills'
+    ).bind(metinId, materialId, voteBuff, casualBuff, gloveBuff, guildBuff, Number(qty), kills).run()
   }
 
   return json({ data: true, error: null }, 200, headers)

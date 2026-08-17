@@ -29,15 +29,17 @@ function loadLoot(metinId) {
   }
 }
 
-// The 4 buff combinations MetinBuffModal asks about on every metin visit — buffed
-// and unbuffed sessions must never blend into one average, or the % would be
-// meaningless for someone deciding whether a buff is worth using.
-const BUFF_SCENARIOS = [
-  { key: 'none', label: 'No buffs', vote: false, casual: false },
-  { key: 'casual', label: 'Casual Buff', vote: false, casual: true },
-  { key: 'vote', label: 'Vote Buff', vote: true, casual: false },
-  { key: 'both', label: 'Vote + Casual', vote: true, casual: true },
+// Every buff MetinBuffModal asks about on every metin visit, and that Global
+// drop probability lets an admin filter by — differently-buffed sessions must
+// never blend into one average, or the % would be meaningless for someone
+// deciding whether a buff is worth using.
+const BUFF_TOGGLES = [
+  { key: 'vote', label: 'Vote Buff', field: 'vote_buff' },
+  { key: 'casual', label: 'Casual Buff', field: 'casual_buff' },
+  { key: 'glove', label: '100% Glove', field: 'glove_buff' },
+  { key: 'guildDrop', label: 'Guild Drop Blessing', field: 'guild_buff' },
 ]
+const NO_BUFFS = { vote: false, casual: false, glove: false, guildDrop: false }
 
 export default function MetinDetail() {
   const { metinId } = useParams()
@@ -65,9 +67,8 @@ export default function MetinDetail() {
   const [ocrProgress, setOcrProgress] = useState(null) // { fileIndex, fileCount, pct }
   const [parsedSessions, setParsedSessions] = useState([]) // accumulates across every screenshot processed so far
   const [buffModalOpen, setBuffModalOpen] = useState(true)
-  const [voteBuff, setVoteBuff] = useState(false)
-  const [casualBuff, setCasualBuff] = useState(false)
-  const [gloveBuff, setGloveBuff] = useState(false)
+  const [sessionBuffs, setSessionBuffs] = useState(NO_BUFFS)
+  const [globalFilterBuffs, setGlobalFilterBuffs] = useState(NO_BUFFS)
   const { rawInputs, setPrice, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
   const autoSubmittedRef = useRef(false)
 
@@ -75,9 +76,7 @@ export default function MetinDetail() {
   // directly from one metin's page to another's without a full reload.
   useEffect(() => {
     setBuffModalOpen(true)
-    setVoteBuff(false)
-    setCasualBuff(false)
-    setGloveBuff(false)
+    setSessionBuffs(NO_BUFFS)
   }, [metinId])
 
   async function reloadDrops() {
@@ -241,7 +240,8 @@ export default function MetinDetail() {
     setSubmittingProbability(true)
     await db.rpc('submit_metin_drop_stats', {
       p_metin_id: metinId, p_kills: sessionKillsForStats, p_quantities: quantitiesToSubmit,
-      p_vote_buff: voteBuff, p_casual_buff: casualBuff, p_glove_buff: gloveBuff,
+      p_vote_buff: sessionBuffs.vote, p_casual_buff: sessionBuffs.casual,
+      p_glove_buff: sessionBuffs.glove, p_guild_buff: sessionBuffs.guildDrop,
     })
     setSubmittingProbability(false)
   }
@@ -279,7 +279,8 @@ export default function MetinDetail() {
   }
 
   async function handleShowGlobalProbability() {
-    const { data } = await db.from('metin_drop_stats').select('material_id, vote_buff, casual_buff, glove_buff, total_quantity, total_kills').eq('metin_id', metinId)
+    setGlobalFilterBuffs(NO_BUFFS)
+    const { data } = await db.from('metin_drop_stats').select('material_id, vote_buff, casual_buff, glove_buff, guild_buff, total_quantity, total_kills').eq('metin_id', metinId)
     setGlobalStats(data ?? [])
     setShowGlobalProbability(true)
   }
@@ -593,33 +594,17 @@ export default function MetinDetail() {
               Are you using any drop-rate buffs on this run?
             </p>
             <div className="w-full flex flex-col gap-2 text-left">
-              <label className="flex items-center gap-2 text-sm text-gray-200 bg-gray-800/60 border border-gray-700 rounded-xl px-3 py-2.5 cursor-pointer hover:border-yellow-400/50 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={voteBuff}
-                  onChange={e => setVoteBuff(e.target.checked)}
-                  className="accent-yellow-400 w-4 h-4"
-                />
-                Vote Buff
-              </label>
-              <label className="flex items-center gap-2 text-sm text-gray-200 bg-gray-800/60 border border-gray-700 rounded-xl px-3 py-2.5 cursor-pointer hover:border-yellow-400/50 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={casualBuff}
-                  onChange={e => setCasualBuff(e.target.checked)}
-                  className="accent-yellow-400 w-4 h-4"
-                />
-                Casual Buff
-              </label>
-              <label className="flex items-center gap-2 text-sm text-gray-200 bg-gray-800/60 border border-gray-700 rounded-xl px-3 py-2.5 cursor-pointer hover:border-yellow-400/50 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={gloveBuff}
-                  onChange={e => setGloveBuff(e.target.checked)}
-                  className="accent-yellow-400 w-4 h-4"
-                />
-                100% Glove
-              </label>
+              {BUFF_TOGGLES.map(b => (
+                <label key={b.key} className="flex items-center gap-2 text-sm text-gray-200 bg-gray-800/60 border border-gray-700 rounded-xl px-3 py-2.5 cursor-pointer hover:border-yellow-400/50 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={sessionBuffs[b.key]}
+                    onChange={e => setSessionBuffs(prev => ({ ...prev, [b.key]: e.target.checked }))}
+                    className="accent-yellow-400 w-4 h-4"
+                  />
+                  {b.label}
+                </label>
+              ))}
             </div>
             <button
               type="button"
@@ -671,16 +656,30 @@ export default function MetinDetail() {
 
       {showGlobalProbability && (
         <Modal title="Global drop probability" onClose={() => setShowGlobalProbability(false)}>
-          <p className="text-xs text-gray-500 text-center mb-1">Aggregated from every user's submitted data, split by buff scenario (no glove/100% glove).</p>
+          <p className="text-xs text-gray-500 text-center mb-3">
+            Aggregated from every user's submitted data. Check the buffs you want to filter by —
+            percentages below update live to that exact combination.
+          </p>
+          <div className="flex items-center justify-center gap-1.5 mb-3 flex-wrap">
+            {BUFF_TOGGLES.map(b => (
+              <label
+                key={b.key}
+                className={`flex items-center gap-1.5 text-xs rounded-lg px-2.5 py-1.5 cursor-pointer border transition-colors ${
+                  globalFilterBuffs[b.key] ? 'bg-yellow-400/10 border-yellow-400/60 text-yellow-300' : 'bg-gray-800 border-gray-600 text-gray-300 hover:border-gray-500'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={globalFilterBuffs[b.key]}
+                  onChange={e => setGlobalFilterBuffs(prev => ({ ...prev, [b.key]: e.target.checked }))}
+                  className="accent-yellow-400 w-3.5 h-3.5"
+                />
+                {b.label}
+              </label>
+            ))}
+          </div>
           {globalStats !== null && globalStats.length > 0 && (
-            <div className="flex items-center justify-center gap-3 mb-3 flex-wrap">
-              <div className="flex items-center gap-3 text-[11px] text-gray-400">
-                {BUFF_SCENARIOS.map(sc => {
-                  const nNoGlove = Math.max(0, ...globalStats.filter(s => s.vote_buff === sc.vote && s.casual_buff === sc.casual && !s.glove_buff).map(s => s.total_kills), 0)
-                  const nGlove = Math.max(0, ...globalStats.filter(s => s.vote_buff === sc.vote && s.casual_buff === sc.casual && s.glove_buff).map(s => s.total_kills), 0)
-                  return <span key={sc.key}>{sc.label}: <span className="text-yellow-400 font-mono">{nNoGlove}/{nGlove}</span></span>
-                })}
-              </div>
+            <div className="flex items-center justify-center mb-3">
               <button
                 type="button"
                 onClick={handleResetGlobalStats}
@@ -696,82 +695,51 @@ export default function MetinDetail() {
           ) : displayRows.length === 0 ? (
             <p className="text-sm text-gray-500 text-center py-6">No drops defined for this metin yet.</p>
           ) : (
-            <div className="overflow-x-auto -mx-2 px-2">
-              <table className="w-full text-xs border-separate border-spacing-y-1.5">
-                <thead>
-                  <tr className="text-gray-500">
-                    <th className="text-left font-medium pb-1">Material</th>
-                    {BUFF_SCENARIOS.map(sc => (
-                      <th key={sc.key} className="font-medium pb-1 px-1 whitespace-nowrap">{sc.label}</th>
-                    ))}
-                    <th className="w-6" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {displayRows.map(d => {
-                    // Alt-group members (e.g. Beta Drop's 4 materials) never drop
-                    // together — only one is ever submitted per session — so their
-                    // stats are combined into one row instead of 4 misleadingly
-                    // separate percentages, matching how the calculator already
-                    // treats them as a single slot.
-                    const members = d.kind === 'group' ? d.options : [{ material_id: d.material_id, material: d.material }]
-                    const memberIds = members.map(m => m.material_id)
-                    const rowKey = d.kind === 'group' ? d.altGroup : d.material_id
-                    return (
-                      <tr key={rowKey} className="bg-gray-800/60">
-                        <td className="rounded-l-lg py-2 pl-2">
-                          <div className="flex items-center gap-2">
-                            <div className="flex -space-x-1.5 shrink-0">
-                              {members.map(m => (
-                                <div key={m.material_id} className="w-7 h-7 rounded-full bg-gray-900 border border-gray-700 flex items-center justify-center overflow-hidden">
-                                  {m.material.image_url
-                                    ? <img src={m.material.image_url} alt={m.material.name} className="w-full h-full object-contain" />
-                                    : <span className="text-base">🧪</span>}
-                                </div>
-                              ))}
-                            </div>
-                            {d.kind !== 'group' && <span className="text-gray-300 leading-tight">{d.material.name}</span>}
-                          </div>
-                        </td>
-                        {BUFF_SCENARIOS.map(sc => {
-                          // Split further by glove_buff — shown as "no glove%/100% glove%"
-                          // in one cell rather than doubling the number of columns.
-                          const pctFor = glove => {
-                            const stats = globalStats.filter(s =>
-                              memberIds.includes(s.material_id) && s.vote_buff === sc.vote && s.casual_buff === sc.casual && !!s.glove_buff === glove
-                            )
-                            const totalQuantity = stats.reduce((sum, s) => sum + s.total_quantity, 0)
-                            const totalKills = stats.reduce((sum, s) => sum + s.total_kills, 0)
-                            return { pct: totalKills > 0 ? totalQuantity / totalKills * 100 : null, totalKills }
-                          }
-                          const noGlove = pctFor(false)
-                          const glove = pctFor(true)
-                          return (
-                            <td key={sc.key} className="text-center px-1">
-                              <div className="flex flex-col items-center">
-                                <span className="text-yellow-400 font-bold font-mono">
-                                  {noGlove.pct === null ? '—' : noGlove.pct.toFixed(1) + '%'}/{glove.pct === null ? '—' : glove.pct.toFixed(1) + '%'}
-                                </span>
-                                <span className="text-gray-600 text-[10px]">n={noGlove.totalKills}/{glove.totalKills}</span>
-                              </div>
-                            </td>
-                          )
-                        })}
-                        <td className="rounded-r-lg pr-1">
-                          <button
-                            type="button"
-                            onClick={() => handleResetMaterialStats(memberIds)}
-                            title="Reset stats for this material only (all scenarios)"
-                            className="text-gray-600 hover:text-red-400 text-xs leading-none transition-colors"
-                          >
-                            🗑
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+            <div className="flex flex-col gap-1.5">
+              {displayRows.map(d => {
+                // Alt-group members (e.g. Beta Drop's 4 materials) never drop
+                // together — only one is ever submitted per session — so their
+                // stats are combined into one row instead of 4 misleadingly
+                // separate percentages, matching how the calculator already
+                // treats them as a single slot.
+                const members = d.kind === 'group' ? d.options : [{ material_id: d.material_id, material: d.material }]
+                const memberIds = members.map(m => m.material_id)
+                const rowKey = d.kind === 'group' ? d.altGroup : d.material_id
+                const stats = globalStats.filter(s =>
+                  memberIds.includes(s.material_id) &&
+                  BUFF_TOGGLES.every(b => !!s[b.field] === globalFilterBuffs[b.key])
+                )
+                const totalQuantity = stats.reduce((sum, s) => sum + s.total_quantity, 0)
+                const totalKills = stats.reduce((sum, s) => sum + s.total_kills, 0)
+                const pct = totalKills > 0 ? totalQuantity / totalKills * 100 : null
+                return (
+                  <div key={rowKey} className="flex items-center gap-3 bg-gray-800/60 border border-gray-700 rounded-xl px-3 py-2">
+                    <div className="flex -space-x-1.5 shrink-0">
+                      {members.map(m => (
+                        <div key={m.material_id} className="w-8 h-8 rounded-full bg-gray-900 border border-gray-700 flex items-center justify-center overflow-hidden">
+                          {m.material.image_url
+                            ? <img src={m.material.image_url} alt={m.material.name} className="w-full h-full object-contain" />
+                            : <span className="text-base">🧪</span>}
+                        </div>
+                      ))}
+                    </div>
+                    {d.kind !== 'group' && <span className="flex-1 text-sm text-gray-300 leading-tight">{d.material.name}</span>}
+                    {d.kind === 'group' && <span className="flex-1" />}
+                    <div className="flex flex-col items-end shrink-0">
+                      <span className="text-yellow-400 font-bold font-mono text-sm">{pct === null ? '—' : pct.toFixed(1) + '%'}</span>
+                      {pct !== null && <span className="text-gray-600 text-[10px]">n={totalKills}</span>}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleResetMaterialStats(memberIds)}
+                      title="Reset stats for this material only (every buff combination)"
+                      className="text-gray-600 hover:text-red-400 text-xs leading-none transition-colors shrink-0"
+                    >
+                      🗑
+                    </button>
+                  </div>
+                )
+              })}
             </div>
           )}
         </Modal>
