@@ -102,12 +102,16 @@ export default function MetinDetail() {
       setCraftYangCosts(buildYangCostMap(materialsRes.data))
       setGlobalPrices(globalPricesMap)
 
+      // Looted quantities are intentionally NOT restored — a page refresh already
+      // ran the auto-submit effect once for whatever was filled in, so bringing
+      // those numbers back would fill the form to "complete" again and silently
+      // resubmit the same kills/quantities a second time into the global total.
       const saved = loadLoot(metinId)
-      setQuantities(saved?.quantities ?? {})
+      setQuantities({})
       setGroupSelection(saved?.groupSelection ?? {})
-      setMetinsDestroyed(saved?.metinsDestroyed ?? '')
-      setMetinsAutoSynced(saved?.metinsAutoSynced ?? true)
-      setDuration(saved?.duration ?? '')
+      setMetinsDestroyed('')
+      setMetinsAutoSynced(true)
+      setDuration('')
 
       setLoading(false)
     })
@@ -115,8 +119,8 @@ export default function MetinDetail() {
 
   useEffect(() => {
     if (loading) return
-    localStorage.setItem(`metin_loot_${metinId}`, JSON.stringify({ quantities, groupSelection, metinsDestroyed, metinsAutoSynced, duration }))
-  }, [metinId, loading, quantities, groupSelection, metinsDestroyed, metinsAutoSynced, duration])
+    localStorage.setItem(`metin_loot_${metinId}`, JSON.stringify({ groupSelection }))
+  }, [metinId, loading, groupSelection])
 
   // A material flagged "guaranteed" (1/kill) always drops exactly once per metin,
   // so its looted quantity IS the metin kill count — auto-fill "Metins destroyed"
