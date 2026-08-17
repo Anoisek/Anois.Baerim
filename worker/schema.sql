@@ -207,7 +207,8 @@ CREATE TABLE metin_drop_stats (
   material_id TEXT NOT NULL REFERENCES materials(id),
   vote_buff INTEGER NOT NULL DEFAULT 0,
   casual_buff INTEGER NOT NULL DEFAULT 0,
+  glove_buff INTEGER NOT NULL DEFAULT 0,
   total_quantity REAL NOT NULL DEFAULT 0,
   total_kills INTEGER NOT NULL DEFAULT 0,
-  PRIMARY KEY (metin_id, material_id, vote_buff, casual_buff)
+  PRIMARY KEY (metin_id, material_id, vote_buff, casual_buff, glove_buff)
 );

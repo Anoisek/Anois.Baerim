@@ -67,6 +67,7 @@ export default function MetinDetail() {
   const [buffModalOpen, setBuffModalOpen] = useState(true)
   const [voteBuff, setVoteBuff] = useState(false)
   const [casualBuff, setCasualBuff] = useState(false)
+  const [gloveBuff, setGloveBuff] = useState(false)
   const { rawInputs, setPrice, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
   const autoSubmittedRef = useRef(false)
 
@@ -76,6 +77,7 @@ export default function MetinDetail() {
     setBuffModalOpen(true)
     setVoteBuff(false)
     setCasualBuff(false)
+    setGloveBuff(false)
   }, [metinId])
 
   async function reloadDrops() {
@@ -172,12 +174,20 @@ export default function MetinDetail() {
     return !!materialsById[materialId]?.name?.toLowerCase().startsWith('gold bar')
   }
 
+  // Materials that are always optional — unlike Gold Bars (below), there's no
+  // "at least one of them" requirement either: a session can end without ever
+  // looting one, so leaving the field blank (submitted as 0) must never block
+  // "Check probability" or the automatic global submission.
+  function isOptional(materialId) {
+    return materialsById[materialId]?.name?.toLowerCase() === 'blessing scroll'
+  }
+
   // Every material needs an explicit quantity (0 counts) before probability can
   // be checked — except Gold Bars, where only one of the variants needs to be
   // filled in, since a session can easily drop just one bar type. Gold Bars
   // aren't grouped like alt_group though, since both types CAN drop together.
   const goldBarDisplayRows = displayRows.filter(d => isGoldBar(selectedMaterialId(d)))
-  const requiredDisplayRows = displayRows.filter(d => !isGoldBar(selectedMaterialId(d)))
+  const requiredDisplayRows = displayRows.filter(d => !isGoldBar(selectedMaterialId(d)) && !isOptional(selectedMaterialId(d)))
   const missingRequired = requiredDisplayRows.some(d => !isFilled(selectedMaterialId(d)))
   const missingGoldBar = goldBarDisplayRows.length > 0 && !goldBarDisplayRows.some(d => isFilled(selectedMaterialId(d)))
   const canCheckProbability = displayRows.length > 0 && !missingRequired && !missingGoldBar
@@ -231,7 +241,7 @@ export default function MetinDetail() {
     setSubmittingProbability(true)
     await db.rpc('submit_metin_drop_stats', {
       p_metin_id: metinId, p_kills: sessionKillsForStats, p_quantities: quantitiesToSubmit,
-      p_vote_buff: voteBuff, p_casual_buff: casualBuff,
+      p_vote_buff: voteBuff, p_casual_buff: casualBuff, p_glove_buff: gloveBuff,
     })
     setSubmittingProbability(false)
   }
@@ -269,7 +279,7 @@ export default function MetinDetail() {
   }
 
   async function handleShowGlobalProbability() {
-    const { data } = await db.from('metin_drop_stats').select('material_id, vote_buff, casual_buff, total_quantity, total_kills').eq('metin_id', metinId)
+    const { data } = await db.from('metin_drop_stats').select('material_id, vote_buff, casual_buff, glove_buff, total_quantity, total_kills').eq('metin_id', metinId)
     setGlobalStats(data ?? [])
     setShowGlobalProbability(true)
   }
@@ -601,6 +611,15 @@ export default function MetinDetail() {
                 />
                 Casual Buff
               </label>
+              <label className="flex items-center gap-2 text-sm text-gray-200 bg-gray-800/60 border border-gray-700 rounded-xl px-3 py-2.5 cursor-pointer hover:border-yellow-400/50 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={gloveBuff}
+                  onChange={e => setGloveBuff(e.target.checked)}
+                  className="accent-yellow-400 w-4 h-4"
+                />
+                100% Glove
+              </label>
             </div>
             <button
               type="button"
@@ -652,13 +671,14 @@ export default function MetinDetail() {
 
       {showGlobalProbability && (
         <Modal title="Global drop probability" onClose={() => setShowGlobalProbability(false)}>
-          <p className="text-xs text-gray-500 text-center mb-1">Aggregated from every user's submitted data, split by buff scenario.</p>
+          <p className="text-xs text-gray-500 text-center mb-1">Aggregated from every user's submitted data, split by buff scenario (no glove/100% glove).</p>
           {globalStats !== null && globalStats.length > 0 && (
             <div className="flex items-center justify-center gap-3 mb-3 flex-wrap">
               <div className="flex items-center gap-3 text-[11px] text-gray-400">
                 {BUFF_SCENARIOS.map(sc => {
-                  const n = Math.max(0, ...globalStats.filter(s => s.vote_buff === sc.vote && s.casual_buff === sc.casual).map(s => s.total_kills))
-                  return <span key={sc.key}>{sc.label}: <span className="text-yellow-400 font-mono">{n}</span></span>
+                  const nNoGlove = Math.max(0, ...globalStats.filter(s => s.vote_buff === sc.vote && s.casual_buff === sc.casual && !s.glove_buff).map(s => s.total_kills), 0)
+                  const nGlove = Math.max(0, ...globalStats.filter(s => s.vote_buff === sc.vote && s.casual_buff === sc.casual && s.glove_buff).map(s => s.total_kills), 0)
+                  return <span key={sc.key}>{sc.label}: <span className="text-yellow-400 font-mono">{nNoGlove}/{nGlove}</span></span>
                 })}
               </div>
               <button
@@ -714,20 +734,26 @@ export default function MetinDetail() {
                           </div>
                         </td>
                         {BUFF_SCENARIOS.map(sc => {
-                          const stats = globalStats.filter(s => memberIds.includes(s.material_id) && s.vote_buff === sc.vote && s.casual_buff === sc.casual)
-                          const totalQuantity = stats.reduce((sum, s) => sum + s.total_quantity, 0)
-                          const totalKills = stats.reduce((sum, s) => sum + s.total_kills, 0)
-                          const pct = totalKills > 0 ? totalQuantity / totalKills * 100 : null
+                          // Split further by glove_buff — shown as "no glove%/100% glove%"
+                          // in one cell rather than doubling the number of columns.
+                          const pctFor = glove => {
+                            const stats = globalStats.filter(s =>
+                              memberIds.includes(s.material_id) && s.vote_buff === sc.vote && s.casual_buff === sc.casual && !!s.glove_buff === glove
+                            )
+                            const totalQuantity = stats.reduce((sum, s) => sum + s.total_quantity, 0)
+                            const totalKills = stats.reduce((sum, s) => sum + s.total_kills, 0)
+                            return { pct: totalKills > 0 ? totalQuantity / totalKills * 100 : null, totalKills }
+                          }
+                          const noGlove = pctFor(false)
+                          const glove = pctFor(true)
                           return (
                             <td key={sc.key} className="text-center px-1">
-                              {pct === null ? (
-                                <span className="text-gray-600">—</span>
-                              ) : (
-                                <div className="flex flex-col items-center">
-                                  <span className="text-yellow-400 font-bold font-mono">{pct.toFixed(1)}%</span>
-                                  <span className="text-gray-600 text-[10px]">n={totalKills}</span>
-                                </div>
-                              )}
+                              <div className="flex flex-col items-center">
+                                <span className="text-yellow-400 font-bold font-mono">
+                                  {noGlove.pct === null ? '—' : noGlove.pct.toFixed(1) + '%'}/{glove.pct === null ? '—' : glove.pct.toFixed(1) + '%'}
+                                </span>
+                                <span className="text-gray-600 text-[10px]">n={noGlove.totalKills}/{glove.totalKills}</span>
+                              </div>
                             </td>
                           )
                         })}
