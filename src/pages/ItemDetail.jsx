@@ -63,6 +63,7 @@ export default function ItemDetail() {
   const [selectedSeals, setSelectedSeals] = useState({})
   const [pity, setPity] = useState({})
   const [ownedLevel, setOwnedLevel] = useState('-')
+  const [manualExcludedSteps, setManualExcludedSteps] = useState({})
   const [showSummary, setShowSummary] = useState(false)
   const [globalPrices, setGlobalPrices] = useState({})
   const [chapterName, setChapterName] = useState(null)
@@ -141,6 +142,7 @@ export default function ItemDetail() {
       setGlobalPrices(globalPricesMap)
 
       setOwnedLevel('-')
+      setManualExcludedSteps({})
 
       const saved = localStorage.getItem(`item_choices_${itemId}`)
       const savedChoices = saved ? JSON.parse(saved) : null
@@ -217,6 +219,22 @@ export default function ItemDetail() {
       const next = { ...prev }
       for (let s = 0; s <= 9; s++) {
         if (maxPityByStep[s] != null) next[s] = maxPityByStep[s]
+      }
+      return next
+    })
+  }
+
+  // Cascades among steps not already excluded by ownedLevel: excluding a step also
+  // excludes every higher (not-yet-owned) step, including one includes every lower one.
+  function toggleStepIncluded(step) {
+    const ownedExcluded = excludedStepsForOwnedLevel(ownedLevel)
+    const reachableSteps = allSteps.filter(s => !ownedExcluded[s])
+    setManualExcludedSteps(prev => {
+      const next = { ...prev }
+      if (prev[step]) {
+        for (const s of reachableSteps) if (s <= step) next[s] = false
+      } else {
+        for (const s of reachableSteps) if (s >= step) next[s] = true
       }
       return next
     })
@@ -301,7 +319,7 @@ export default function ItemDetail() {
     })
   }
 
-  const excludedSteps = excludedStepsForOwnedLevel(ownedLevel)
+  const excludedSteps = { ...excludedStepsForOwnedLevel(ownedLevel), ...manualExcludedSteps }
   function isStepIncluded(step) { return !excludedSteps[step] }
   const total = allSteps.reduce((s, step) => isStepIncluded(step) ? s + stepTotal(step) : s, 0)
 
@@ -466,6 +484,7 @@ export default function ItemDetail() {
                   const hasExtras = scrollMat || stepSealMats.length > 0
 
                   const stepExcluded = !!excludedSteps[step]
+                  const stepOwned = !!excludedStepsForOwnedLevel(ownedLevel)[step]
 
                   return (
                     <div key={step} className={`bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden${stepExcluded ? ' opacity-50' : ''}`}>
@@ -475,6 +494,20 @@ export default function ItemDetail() {
                           {t(STEP_LABEL_KEYS[step])}
                         </h2>
                         <div className="flex items-center gap-2 flex-wrap">
+                          {step !== 0 && !stepOwned && (
+                            <label
+                              className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer select-none"
+                              title={t('itemDetail.includeStepTooltip')}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={!stepExcluded}
+                                onChange={() => toggleStepIncluded(step)}
+                                className="accent-yellow-400 w-3.5 h-3.5"
+                              />
+                              {t('itemDetail.includeStep')}
+                            </label>
+                          )}
                           {step !== 0 && scrolls.length > 0 && (
                             <select
                               value={scrollId}
