@@ -124,7 +124,8 @@ export default function Materials() {
   }
 
   const yangCosts = buildYangCostMap(materials)
-  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts, manualOverrides })
+  const noPriceIds = new Set(materials.filter(m => m.no_price).map(m => m.id))
+  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts, manualOverrides, noPriceIds })
 
   return (
     <div className="min-h-screen text-white">

@@ -58,7 +58,9 @@
   },
   "materialPriceCell": {
     "computedTooltip": "Tarife göre hesaplandı",
-    "pricePlaceholder": "örn. 50kk"
+    "pricePlaceholder": "örn. 50kk",
+    "noPrice": "Fiyatsız",
+    "noPriceTooltip": "Bu malzemenin fiyatı yok — her zaman ücretsiz sayılır"
   },
   "login": {
     "title": "Yönetici erişimi",

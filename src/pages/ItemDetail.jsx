@@ -54,6 +54,7 @@ export default function ItemDetail() {
   const [seals, setSeals] = useState([])
   const [recipes, setRecipes] = useState({})
   const [craftYangCosts, setCraftYangCosts] = useState({})
+  const [noPriceIds, setNoPriceIds] = useState(new Set())
   const [allItemMaterials, setAllItemMaterials] = useState({})
   const [allItemItems, setAllItemItems] = useState({})
   const [allItemYang, setAllItemYang] = useState({})
@@ -78,10 +79,10 @@ export default function ItemDetail() {
       db.from('item_materials').select('quantity, step, variant, material_id').eq('item_id', itemId).order('step'),
       db.from('item_items').select('quantity, step, variant, component_item_id').eq('item_id', itemId).order('step'),
       db.from('item_step_yang').select('step, variant, yang_cost, max_pity').eq('item_id', itemId),
-      db.from('materials').select('id, name, image_url, is_craftable').eq('is_upgrade_scroll', true).order('name'),
-      db.from('materials').select('id, name, image_url, is_craftable').eq('is_seal', true).order('name'),
+      db.from('materials').select('id, name, image_url, is_craftable, no_price').eq('is_upgrade_scroll', true).order('name'),
+      db.from('materials').select('id, name, image_url, is_craftable, no_price').eq('is_seal', true).order('name'),
       db.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
-      db.from('materials').select('id, name, image_url, is_craftable, craft_yang_cost'),
+      db.from('materials').select('id, name, image_url, is_craftable, craft_yang_cost, no_price'),
       db.from('items').select('id, name, image_url, category_id'),
       db.from('item_materials').select('item_id, material_id, quantity, step, variant'),
       db.from('item_items').select('item_id, component_item_id, quantity, step, variant'),
@@ -140,6 +141,7 @@ export default function ItemDetail() {
       setAllItemMaxPity(buildItemMaxPityMap(allItemYangRes.data))
       setDefaultScrollByStep(buildDefaultScrollMap(sorted))
       setGlobalPrices(globalPricesMap)
+      setNoPriceIds(new Set((allMatsRes.data ?? []).filter(m => m.no_price).map(m => m.id)))
 
       setOwnedLevel('-')
       setManualExcludedSteps({})
@@ -240,7 +242,7 @@ export default function ItemDetail() {
     })
   }
 
-  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides })
+  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides, noPriceIds })
 
   function priceOf(materialId) {
     return priceFn(materialId)

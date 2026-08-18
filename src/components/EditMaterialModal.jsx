@@ -15,6 +15,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
   const [isCraftable, setIsCraftable] = useState(material.is_craftable ?? false)
   const [isPvp, setIsPvp] = useState(material.is_pvp ?? false)
   const [isPvpOnly, setIsPvpOnly] = useState(material.is_pvp_only ?? false)
+  const [noPrice, setNoPrice] = useState(material.no_price ?? false)
   const [craftYangCost, setCraftYangCost] = useState(material.craft_yang_cost ? String(material.craft_yang_cost) : '')
   const [allMaterials, setAllMaterials] = useState([])
   const [components, setComponents] = useState({}) // variant 1: { materialId: qty }
@@ -116,6 +117,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
         craft_yang_cost: isCraftable && !isPvp ? (parseYang(craftYangCost) || null) : null,
         is_pvp: isPvp,
         is_pvp_only: isPvpOnly,
+        no_price: noPrice,
       })
       .eq('id', material.id)
       .select()
@@ -286,6 +288,16 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
             className="accent-red-400 w-4 h-4"
           />
           <span className="text-sm text-gray-200">PVP-only ingredient (hidden from item recipes — only pickable when crafting other PVP materials)</span>
+        </label>
+
+        <label className="flex items-center gap-3 cursor-pointer select-none bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
+          <input
+            type="checkbox"
+            checked={noPrice}
+            onChange={e => setNoPrice(e.target.checked)}
+            className="accent-gray-400 w-4 h-4"
+          />
+          <span className="text-sm text-gray-200">No price (always free — price cannot be entered or submitted)</span>
         </label>
 
         {isCraftable && (

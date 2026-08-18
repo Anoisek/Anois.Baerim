@@ -26,6 +26,11 @@ async function submitMaterialPrice(env, params, headers) {
     return json({ data: false, error: null }, 200, headers)
   }
 
+  const material = await env.DB.prepare('SELECT no_price FROM materials WHERE id = ?').bind(materialId).first()
+  if (material?.no_price) {
+    return json({ data: false, error: null }, 200, headers)
+  }
+
   const current = await env.DB.prepare('SELECT price FROM global_prices WHERE material_id = ?').bind(materialId).first()
 
   if (current) {

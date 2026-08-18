@@ -51,6 +51,7 @@ export default function MetinDetail() {
   const [recipes, setRecipes] = useState({})
   const [craftYangCosts, setCraftYangCosts] = useState({})
   const [globalPrices, setGlobalPrices] = useState({})
+  const [noPriceIds, setNoPriceIds] = useState(new Set())
   const [quantities, setQuantities] = useState({}) // { materialId: rawQty }
   const [groupSelection, setGroupSelection] = useState({}) // { altGroup: materialId }
   const [metinsDestroyed, setMetinsDestroyed] = useState('')
@@ -101,6 +102,7 @@ export default function MetinDetail() {
       setRecipes(buildRecipeMap(recipeRes.data))
       setCraftYangCosts(buildYangCostMap(materialsRes.data))
       setGlobalPrices(globalPricesMap)
+      setNoPriceIds(new Set((materialsRes.data ?? []).filter(m => m.no_price).map(m => m.id)))
 
       // Looted quantities are intentionally NOT restored — a page refresh already
       // ran the auto-submit effect once for whatever was filled in, so bringing
@@ -139,7 +141,7 @@ export default function MetinDetail() {
     setQuantities({})
   }
 
-  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides })
+  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides, noPriceIds })
 
   // Materials sharing an alt_group drop as one row — only one of them can ever
   // be looted per metin, so they collapse into a single row with a picker

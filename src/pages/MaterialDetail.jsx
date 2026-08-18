@@ -24,6 +24,7 @@ export default function MaterialDetail() {
   const [recipes, setRecipes] = useState({})
   const [craftYangCosts, setCraftYangCosts] = useState({})
   const [globalPrices, setGlobalPrices] = useState({})
+  const [noPriceIds, setNoPriceIds] = useState(new Set())
   const [pity, setPity] = useState(1)
   const [loading, setLoading] = useState(true)
   const { rawInputs, setPrice, mode, setMode, manualOverrides } = usePriceBook()
@@ -35,7 +36,7 @@ export default function MaterialDetail() {
       db.from('materials').select('*').eq('id', materialId).single(),
       db.from('material_materials').select('quantity, variant, component_id').eq('material_id', materialId),
       db.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
-      db.from('materials').select('id, name, image_url, is_craftable, craft_yang_cost'),
+      db.from('materials').select('id, name, image_url, is_craftable, craft_yang_cost, no_price'),
       db.from('material_craft_variant_yield').select('variant, yield').eq('material_id', materialId),
       fetchGlobalPrices(),
     ]).then(([matRes, compRes, recipeRes, allMatsRes, yieldRes, globalPricesMap]) => {
@@ -56,6 +57,7 @@ export default function MaterialDetail() {
       setRecipes(buildRecipeMap(recipeRes.data))
       setCraftYangCosts(buildYangCostMap(allMatsRes.data))
       setGlobalPrices(globalPricesMap)
+      setNoPriceIds(new Set((allMatsRes.data ?? []).filter(m => m.no_price).map(m => m.id)))
       setLoading(false)
     })
   }, [materialId])
@@ -63,7 +65,7 @@ export default function MaterialDetail() {
   const variantNumbers = Object.keys(variantRows).map(Number).sort((a, b) => a - b)
   const variantCount = variantNumbers.length > 0 ? Math.max(...variantNumbers) : 0
 
-  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides })
+  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides, noPriceIds })
 
   function priceOf(id) {
     return priceFn(id)

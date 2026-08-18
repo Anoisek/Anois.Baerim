@@ -58,7 +58,9 @@
   },
   "materialPriceCell": {
     "computedTooltip": "Obliczone z receptury",
-    "pricePlaceholder": "np. 50kk"
+    "pricePlaceholder": "np. 50kk",
+    "noPrice": "Brak ceny",
+    "noPriceTooltip": "Ten materiał nie ma ceny — zawsze liczony jako darmowy"
   },
   "login": {
     "title": "Dostęp administratora",

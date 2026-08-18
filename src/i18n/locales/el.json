@@ -58,7 +58,9 @@
   },
   "materialPriceCell": {
     "computedTooltip": "Υπολογίζεται από τη συνταγή",
-    "pricePlaceholder": "π.χ. 50kk"
+    "pricePlaceholder": "π.χ. 50kk",
+    "noPrice": "Χωρίς τιμή",
+    "noPriceTooltip": "Αυτό το υλικό δεν έχει τιμή — υπολογίζεται πάντα ως δωρεάν"
   },
   "login": {
     "title": "Πρόσβαση διαχειριστή",

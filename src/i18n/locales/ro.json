@@ -58,7 +58,9 @@
   },
   "materialPriceCell": {
     "computedTooltip": "Calculat din rețetă",
-    "pricePlaceholder": "ex. 50kk"
+    "pricePlaceholder": "ex. 50kk",
+    "noPrice": "Fără preț",
+    "noPriceTooltip": "Acest material nu are preț — este mereu considerat gratuit"
   },
   "login": {
     "title": "Acces administrator",

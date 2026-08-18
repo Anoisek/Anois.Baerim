@@ -80,13 +80,14 @@ export const FIXED_MATERIAL_PRICES = {
 // yangCosts: { [materialId]: number } — craft yang fee, added on top of component cost
 // manualOverrides: Set<materialId> — materials whose price is typed in by hand even
 // though they have a recipe (see usePriceBook's toggleManualOverride)
-export function computePrice(materialId, rawInputs, recipes, yangCosts = {}, visited = new Set(), manualOverrides = null) {
+export function computePrice(materialId, rawInputs, recipes, yangCosts = {}, visited = new Set(), manualOverrides = null, noPriceIds = null) {
   if (FIXED_MATERIAL_PRICES[materialId] != null) return FIXED_MATERIAL_PRICES[materialId]
+  if (noPriceIds?.has(materialId)) return 0
   if (visited.has(materialId)) return 0
   const recipe = recipes[materialId]
   if (recipe && recipe.length > 0 && !manualOverrides?.has(materialId)) {
     const nextVisited = new Set(visited).add(materialId)
-    const componentsCost = recipe.reduce((sum, row) => sum + computePrice(row.component_id, rawInputs, recipes, yangCosts, nextVisited, manualOverrides) * row.quantity, 0)
+    const componentsCost = recipe.reduce((sum, row) => sum + computePrice(row.component_id, rawInputs, recipes, yangCosts, nextVisited, manualOverrides, noPriceIds) * row.quantity, 0)
     return componentsCost + (yangCosts[materialId] || 0)
   }
   return parseYang(rawInputs[materialId] ?? '') || 0
@@ -94,24 +95,25 @@ export function computePrice(materialId, rawInputs, recipes, yangCosts = {}, vis
 
 // Global-prices mode: a directly submitted community price wins; the recipe is
 // only used as a fallback when no one has submitted a price for that material yet.
-export function computeGlobalPrice(materialId, globalPrices, recipes, yangCosts = {}, visited = new Set()) {
+export function computeGlobalPrice(materialId, globalPrices, recipes, yangCosts = {}, visited = new Set(), noPriceIds = null) {
   if (FIXED_MATERIAL_PRICES[materialId] != null) return FIXED_MATERIAL_PRICES[materialId]
+  if (noPriceIds?.has(materialId)) return 0
   if (visited.has(materialId)) return 0
   const direct = Number(globalPrices[materialId] ?? 0)
   if (direct > 0) return direct
   const recipe = recipes[materialId]
   if (recipe && recipe.length > 0) {
     const nextVisited = new Set(visited).add(materialId)
-    const componentsCost = recipe.reduce((sum, row) => sum + computeGlobalPrice(row.component_id, globalPrices, recipes, yangCosts, nextVisited) * row.quantity, 0)
+    const componentsCost = recipe.reduce((sum, row) => sum + computeGlobalPrice(row.component_id, globalPrices, recipes, yangCosts, nextVisited, noPriceIds) * row.quantity, 0)
     return componentsCost + (yangCosts[materialId] || 0)
   }
   return 0
 }
 
-export function makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts, manualOverrides }) {
+export function makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts, manualOverrides, noPriceIds }) {
   return mode === 'global'
-    ? id => computeGlobalPrice(id, globalPrices, recipes, yangCosts)
-    : id => computePrice(id, rawInputs, recipes, yangCosts, new Set(), manualOverrides)
+    ? id => computeGlobalPrice(id, globalPrices, recipes, yangCosts, new Set(), noPriceIds)
+    : id => computePrice(id, rawInputs, recipes, yangCosts, new Set(), manualOverrides, noPriceIds)
 }
 
 export async function fetchGlobalPrices() {

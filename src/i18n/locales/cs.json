@@ -58,7 +58,9 @@
   },
   "materialPriceCell": {
     "computedTooltip": "Vypočteno z receptu",
-    "pricePlaceholder": "např. 50kk"
+    "pricePlaceholder": "např. 50kk",
+    "noPrice": "Bez ceny",
+    "noPriceTooltip": "Tento materiál nemá cenu — vždy se počítá jako zdarma"
   },
   "login": {
     "title": "Přístup administrátora",

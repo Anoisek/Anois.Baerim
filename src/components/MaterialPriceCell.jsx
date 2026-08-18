@@ -5,6 +5,16 @@ import { submitPriceToGlobal, FIXED_MATERIAL_PRICES } from '../utils/priceBook'
 export default function MaterialPriceCell({ material, rawValue, computedValue, onPriceChange, computed, manualOverride }) {
   const { t } = useTranslation()
   const isFixed = FIXED_MATERIAL_PRICES[material.id] != null
+  if (material.no_price) {
+    return (
+      <span
+        title={t('materialPriceCell.noPriceTooltip')}
+        className="bg-gray-800/60 border border-gray-700 rounded-lg px-3 py-1.5 w-28 text-right text-sm text-gray-500 font-mono shrink-0"
+      >
+        {t('materialPriceCell.noPrice')}
+      </span>
+    )
+  }
   if (isFixed || (computed ?? (material.is_craftable && !manualOverride))) {
     return (
       <span

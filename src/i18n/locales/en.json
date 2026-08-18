@@ -58,7 +58,9 @@
   },
   "materialPriceCell": {
     "computedTooltip": "Computed from recipe",
-    "pricePlaceholder": "e.g. 50kk"
+    "pricePlaceholder": "e.g. 50kk",
+    "noPrice": "No price",
+    "noPriceTooltip": "This material has no price — always counted as free"
   },
   "login": {
     "title": "Admin access",

@@ -55,6 +55,7 @@ export default function BuildCalculator() {
   const [defaultScrollByStep, setDefaultScrollByStep] = useState({})
   const [globalPrices, setGlobalPrices] = useState({})
   const [materialsById, setMaterialsById] = useState({})
+  const [noPriceIds, setNoPriceIds] = useState(new Set())
   const [loading, setLoading] = useState(true)
   const [refreshTick, setRefreshTick] = useState(0)
   const [showSummary, setShowSummary] = useState(false)
@@ -68,8 +69,8 @@ export default function BuildCalculator() {
       db.from('item_materials').select('item_id, material_id, quantity, step, variant'),
       db.from('item_items').select('item_id, component_item_id, quantity, step, variant'),
       db.from('item_step_yang').select('item_id, step, yang_cost, max_pity, variant'),
-      db.from('materials').select('id, name, image_url').eq('is_upgrade_scroll', true).order('name'),
-      db.from('materials').select('id, name, image_url, is_craftable'),
+      db.from('materials').select('id, name, image_url, no_price').eq('is_upgrade_scroll', true).order('name'),
+      db.from('materials').select('id, name, image_url, is_craftable, no_price'),
       fetchGlobalPrices(),
     ]).then(([itemsRes, recipeRes, allMatsRes, allItemMatsRes, allItemItemsRes, allItemYangRes, scrollsRes, allMaterialsRes, globalPricesMap]) => {
       setAllItems(itemsRes.data ?? [])
@@ -84,11 +85,12 @@ export default function BuildCalculator() {
       for (const m of allMaterialsRes.data ?? []) byId[m.id] = m
       setMaterialsById(byId)
       setGlobalPrices(globalPricesMap)
+      setNoPriceIds(new Set((allMaterialsRes.data ?? []).filter(m => m.no_price).map(m => m.id)))
       setLoading(false)
     })
   }, [])
 
-  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides })
+  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides, noPriceIds })
 
   const ctx = {
     materialPriceFn: priceFn,
