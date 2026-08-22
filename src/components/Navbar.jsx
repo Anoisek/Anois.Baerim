@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
@@ -8,11 +9,37 @@ import UiScaleToggle from './UiScaleToggle'
 import DonateButton from './DonateButton'
 import PromoBanner from './PromoBanner'
 
+// Every page wraps its content in `max-w-Nxl mx-auto px-6 ...`, but N varies
+// per page (2xl/3xl/4xl/5xl) — that div is the next DOM sibling after this
+// component's own output. Measuring its real width (minus its own px-6
+// padding, 24px each side) instead of hardcoding a max-w-* class here keeps
+// the banner matching whatever "square" each page actually uses.
+function useContentWidth() {
+  const [width, setWidth] = useState(null)
+
+  useEffect(() => {
+    const nav = document.querySelector('nav')
+    let el = nav?.nextElementSibling
+    while (el?.hasAttribute('data-navbar-banner')) el = el.nextElementSibling
+    if (!el) return
+
+    const update = () => setWidth(el.getBoundingClientRect().width - 48)
+    update()
+
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  return width
+}
+
 export default function Navbar() {
   const { isAdmin, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useTranslation()
+  const contentWidth = useContentWidth()
 
   function handleLogout() {
     logout()
@@ -52,7 +79,7 @@ export default function Navbar() {
       </nav>
       {/* Home renders its own PromoBanner below the chapters box instead. */}
       {!isHome && (
-        <div className="max-w-5xl mx-auto px-6 pt-6">
+        <div data-navbar-banner className="max-w-5xl mx-auto pt-6" style={contentWidth ? { width: contentWidth, maxWidth: contentWidth } : undefined}>
           <PromoBanner />
         </div>
       )}
