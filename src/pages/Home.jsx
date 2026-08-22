@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import PromoBanner from '../components/PromoBanner'
 import AddCategoryModal from '../components/AddCategoryModal'
 import EditCategoryModal from '../components/EditCategoryModal'
 import Modal from '../components/Modal'
@@ -213,6 +214,10 @@ export default function Home() {
               )}
             </div>
           )}
+        </div>
+
+        <div className="mt-6">
+          <PromoBanner />
         </div>
       </div>
 
