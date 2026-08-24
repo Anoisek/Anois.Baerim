@@ -4,6 +4,7 @@ import { parseYang } from '../utils/formatYang'
 import { CATEGORY_TAGS } from '../utils/materialCategoryTags'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
+import IconDbPicker from './IconDbPicker'
 
 export default function AddMaterialModal({ onClose, onAdded }) {
   const [name, setName] = useState('')
@@ -160,7 +161,10 @@ export default function AddMaterialModal({ onClose, onAdded }) {
               ))}
             </div>
           )}
-          <ImageUpload onUploaded={url => setImageUrls(prev => [...prev, url])} />
+          <div className="flex flex-wrap gap-2">
+            <ImageUpload onUploaded={url => setImageUrls(prev => [...prev, url])} />
+            <IconDbPicker onUploaded={url => setImageUrls(prev => [...prev, url])} />
+          </div>
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-400">Tag</label>

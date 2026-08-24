@@ -5,6 +5,7 @@ import { parseYang } from '../utils/formatYang'
 import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
+import IconDbPicker from './IconDbPicker'
 import { deleteImages } from '../utils/imageStorage'
 
 const STEPS = [
@@ -447,7 +448,10 @@ export default function EditItemModal({ item, categoryId, onClose, onUpdated, on
               ))}
             </div>
           )}
-          <ImageUpload onUploaded={url => setImageUrls(prev => [...prev, url])} />
+          <div className="flex flex-wrap gap-2">
+            <ImageUpload onUploaded={url => setImageUrls(prev => [...prev, url])} />
+            <IconDbPicker onUploaded={url => setImageUrls(prev => [...prev, url])} />
+          </div>
         </div>
 
         {subcategories.length > 0 && (

@@ -1,6 +1,7 @@
 import { handleDbRequest } from './db.js'
 import { handleRpcRequest } from './rpc.js'
 import { handleAuthRequest, verifyToken, roleFlags } from './auth.js'
+import { handleIconDbSearch, handleIconDbIcon, handleIconDbImport } from './icondb.js'
 
 const BUCKETS = new Set(['images', 'map-notes'])
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
@@ -96,6 +97,9 @@ export default {
     try {
       if (request.method === 'POST' && url.pathname === '/upload') return await handleUpload(request, env, headers)
       if (request.method === 'POST' && url.pathname === '/delete') return await handleDelete(request, env, headers)
+      if (request.method === 'GET' && url.pathname === '/icondb/search') return await handleIconDbSearch(request, env, url, headers)
+      if (request.method === 'GET' && url.pathname.indexOf('/icondb/icon/') === 0) return await handleIconDbIcon(request, env, url.pathname.slice('/icondb/icon/'.length), headers)
+      if (request.method === 'POST' && url.pathname === '/icondb/import') return await handleIconDbImport(request, env, headers, isAdmin)
       if (url.pathname.indexOf('/db/') === 0) return await handleDbRequest(request, env, url, headers, isAdmin, isEditor)
       if (request.method === 'POST' && url.pathname.indexOf('/rpc/') === 0) return await handleRpcRequest(request, env, url, headers)
       if (url.pathname.indexOf('/auth/') === 0) return await handleAuthRequest(request, env, url, headers)

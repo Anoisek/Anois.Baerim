@@ -5,6 +5,7 @@ import { CATEGORY_TAGS } from '../utils/materialCategoryTags'
 import { itemImages as materialImages } from '../utils/itemImages'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
+import IconDbPicker from './IconDbPicker'
 import { deleteImages } from '../utils/imageStorage'
 
 export default function EditMaterialModal({ material, onClose, onUpdated, onDeleted }) {
@@ -229,7 +230,10 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
               ))}
             </div>
           )}
-          <ImageUpload onUploaded={url => setImageUrls(prev => [...prev, url])} />
+          <div className="flex flex-wrap gap-2">
+            <ImageUpload onUploaded={url => setImageUrls(prev => [...prev, url])} />
+            <IconDbPicker onUploaded={url => setImageUrls(prev => [...prev, url])} />
+          </div>
         </div>
 
         <div className="flex flex-col gap-1">

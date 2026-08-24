@@ -4,6 +4,7 @@ import { parseYang } from '../utils/formatYang'
 import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
+import IconDbPicker from './IconDbPicker'
 
 const STEPS = [
   { step: 0, label: 'Craft' },
@@ -394,7 +395,10 @@ export default function AddItemModal({ categoryId, subcategoryId, nextSortOrder,
               ))}
             </div>
           )}
-          <ImageUpload onUploaded={url => setImageUrls(prev => [...prev, url])} />
+          <div className="flex flex-wrap gap-2">
+            <ImageUpload onUploaded={url => setImageUrls(prev => [...prev, url])} />
+            <IconDbPicker onUploaded={url => setImageUrls(prev => [...prev, url])} />
+          </div>
         </div>
 
         <div className="flex flex-col gap-2">
