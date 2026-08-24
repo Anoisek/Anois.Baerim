@@ -18,9 +18,13 @@ function loadMode() {
   return localStorage.getItem(MODE_KEY) === 'global' ? 'global' : 'own'
 }
 
+// Manual overrides are session-only (sessionStorage, not localStorage): the override
+// itself resets to "off" every time the browser session ends, so a temporary price
+// tweak never lingers into a later visit. The typed number stays in rawInputs
+// (localStorage) as a convenience if the same override is re-enabled later.
 function loadManualOverrides() {
   try {
-    return new Set(JSON.parse(localStorage.getItem(MANUAL_OVERRIDE_KEY)) ?? [])
+    return new Set(JSON.parse(sessionStorage.getItem(MANUAL_OVERRIDE_KEY)) ?? [])
   } catch {
     return new Set()
   }
@@ -52,15 +56,16 @@ export function usePriceBook() {
     localStorage.setItem(MODE_KEY, next)
   }
 
-  // Lets a craftable material's price be typed in by hand instead of always
-  // being auto-computed from its recipe — some recipes don't reflect reality
-  // well enough (missing ingredients, NPC-only steps, etc).
+  // Lets a material or crafted item's price be typed in by hand instead of always
+  // being auto-computed from its recipe/global price — some recipes don't reflect
+  // reality well enough (missing ingredients, NPC-only steps, etc), or the user just
+  // wants to try a different number for this session without touching global prices.
   function toggleManualOverride(materialId) {
     setManualOverrides(prev => {
       const next = new Set(prev)
       if (next.has(materialId)) next.delete(materialId)
       else next.add(materialId)
-      localStorage.setItem(MANUAL_OVERRIDE_KEY, JSON.stringify([...next]))
+      sessionStorage.setItem(MANUAL_OVERRIDE_KEY, JSON.stringify([...next]))
       return next
     })
   }
@@ -95,16 +100,19 @@ export function computePrice(materialId, rawInputs, recipes, yangCosts = {}, vis
 
 // Global-prices mode: a directly submitted community price wins; the recipe is
 // only used as a fallback when no one has submitted a price for that material yet.
-export function computeGlobalPrice(materialId, globalPrices, recipes, yangCosts = {}, visited = new Set(), noPriceIds = null) {
+// manualOverrides/rawInputs let the user type a one-off number for this session even
+// while global mode is on, without touching the crowd-sourced global price itself.
+export function computeGlobalPrice(materialId, globalPrices, recipes, yangCosts = {}, visited = new Set(), noPriceIds = null, manualOverrides = null, rawInputs = null) {
   if (FIXED_MATERIAL_PRICES[materialId] != null) return FIXED_MATERIAL_PRICES[materialId]
   if (noPriceIds?.has(materialId)) return 0
   if (visited.has(materialId)) return 0
+  if (manualOverrides?.has(materialId)) return parseYang(rawInputs?.[materialId] ?? '') || 0
   const direct = Number(globalPrices[materialId] ?? 0)
   if (direct > 0) return direct
   const recipe = recipes[materialId]
   if (recipe && recipe.length > 0) {
     const nextVisited = new Set(visited).add(materialId)
-    const componentsCost = recipe.reduce((sum, row) => sum + computeGlobalPrice(row.component_id, globalPrices, recipes, yangCosts, nextVisited, noPriceIds) * row.quantity, 0)
+    const componentsCost = recipe.reduce((sum, row) => sum + computeGlobalPrice(row.component_id, globalPrices, recipes, yangCosts, nextVisited, noPriceIds, manualOverrides, rawInputs) * row.quantity, 0)
     return componentsCost + (yangCosts[materialId] || 0)
   }
   return 0
@@ -112,7 +120,7 @@ export function computeGlobalPrice(materialId, globalPrices, recipes, yangCosts 
 
 export function makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts, manualOverrides, noPriceIds }) {
   return mode === 'global'
-    ? id => computeGlobalPrice(id, globalPrices, recipes, yangCosts, new Set(), noPriceIds)
+    ? id => computeGlobalPrice(id, globalPrices, recipes, yangCosts, new Set(), noPriceIds, manualOverrides, rawInputs)
     : id => computePrice(id, rawInputs, recipes, yangCosts, new Set(), manualOverrides, noPriceIds)
 }
 
@@ -257,6 +265,7 @@ function loadItemChoices(itemId) {
 // ctx.materialPriceFn: (materialId) => number — supplied by the caller, own- or global-mode aware.
 export function computeItemPrice(itemId, ctx, visited = new Set()) {
   if (visited.has(itemId)) return 0
+  if (ctx.manualOverrides?.has(itemId)) return parseYang(ctx.rawInputs?.[itemId] ?? '') || 0
   const nextVisited = new Set(visited).add(itemId)
 
   const matSteps = ctx.itemMaterials[itemId] ?? {}

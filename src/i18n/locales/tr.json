@@ -134,7 +134,7 @@
     "submitResult": "Gönderildi: {{accepted}} kabul edildi{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} reddedildi (mevcut küresel fiyattan çok uzak)",
     "submitSkipped": ", {{count}} atlandı (bu tarayıcıdan son 6 saat içinde zaten gönderildi)",
-    "manualPrice": "Manuel fiyat"
+    "manualPrice": "Manuel fiyat (geçici, yalnızca bu oturum)"
   },
   "materialDetail": {
     "usedInTooltip": "Bu malzemenin nerede kullanıldığını gör",

@@ -134,7 +134,7 @@
     "submitResult": "Envoyés : {{accepted}} acceptés{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} rejetés (trop éloignés du prix global actuel)",
     "submitSkipped": ", {{count}} ignorés (déjà envoyés depuis ce navigateur au cours des 6 dernières heures)",
-    "manualPrice": "Prix manuel"
+    "manualPrice": "Prix manuel (temporaire, cette session uniquement)"
   },
   "materialDetail": {
     "usedInTooltip": "Voir où ce matériau est utilisé",

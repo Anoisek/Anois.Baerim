@@ -284,6 +284,8 @@ export default function ItemDetail() {
       itemYang: allItemYang,
       itemMaxPity: allItemMaxPity,
       defaultScrollByStep,
+      manualOverrides,
+      rawInputs,
     }
   }
 

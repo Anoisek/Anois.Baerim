@@ -134,7 +134,7 @@
     "submitResult": "Enviado: {{accepted}} aceites{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} rejeitados (demasiado longe do preço global atual)",
     "submitSkipped": ", {{count}} ignorados (já enviados a partir deste navegador nas últimas 6h)",
-    "manualPrice": "Preço manual"
+    "manualPrice": "Preço manual (temporário, apenas esta sessão)"
   },
   "materialDetail": {
     "usedInTooltip": "Ver onde este material é usado",

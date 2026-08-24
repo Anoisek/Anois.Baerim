@@ -99,6 +99,8 @@ export default function BuildCalculator() {
     itemYang: allItemYang,
     itemMaxPity: allItemMaxPity,
     defaultScrollByStep,
+    manualOverrides,
+    rawInputs,
   }
 
   const selectedItems = selectedIds.map(id => allItems.find(i => i.id === id)).filter(Boolean)

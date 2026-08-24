@@ -134,7 +134,7 @@
     "submitResult": "Υποβλήθηκαν: {{accepted}} αποδεκτά{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} απορρίφθηκαν (πολύ μακριά από την τρέχουσα παγκόσμια τιμή)",
     "submitSkipped": ", {{count}} παραλείφθηκαν (έχουν ήδη υποβληθεί από αυτόν τον browser τις τελευταίες 6 ώρες)",
-    "manualPrice": "Χειροκίνητη τιμή"
+    "manualPrice": "Χειροκίνητη τιμή (προσωρινά, μόνο για αυτήν τη συνεδρία)"
   },
   "materialDetail": {
     "usedInTooltip": "Δες πού χρησιμοποιείται αυτό το υλικό",
