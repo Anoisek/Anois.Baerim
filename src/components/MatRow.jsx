@@ -21,16 +21,18 @@ export default function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChan
           : <span className="text-lg">{kind === 'item' ? '⚔️' : '🧪'}</span>}
       </Link>
       <span className="flex-1 text-sm text-gray-200 truncate">{mat.name}</span>
-      {canOverride && (
-        <input
-          type="checkbox"
-          checked={manualOverride}
-          onChange={() => onToggleManualOverride(mat.id)}
-          title={t('materials.manualPrice')}
-          className="accent-yellow-400 w-3.5 h-3.5 shrink-0"
-        />
-      )}
-      <span className="text-gray-500 text-xs shrink-0">×{quantity}</span>
+      <div className="w-3.5 h-3.5 shrink-0 flex items-center justify-center">
+        {canOverride && (
+          <input
+            type="checkbox"
+            checked={manualOverride}
+            onChange={() => onToggleManualOverride(mat.id)}
+            title={t('materials.manualPrice')}
+            className="accent-yellow-400 w-3.5 h-3.5 shrink-0"
+          />
+        )}
+      </div>
+      <span className="text-gray-500 text-xs w-9 text-right shrink-0">×{quantity}</span>
       <MaterialPriceCell
         material={mat}
         rawValue={rawValue}
