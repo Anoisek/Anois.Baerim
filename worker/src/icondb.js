@@ -12,30 +12,81 @@ const ICON_HEADERS = {
   'Referer': 'https://m2icondb.com/',
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36',
 }
-const CODE_RE = /^[A-Za-z0-9_-]{1,24}$/
+const CODE_RE = /^[A-Za-z0-9_-]{1,32}$/
+// "Official" (searchable) index caps out at exactly 1000 icons total — verified by
+// paging past it and getting zero hits back, not just meilisearch's estimate.
+const OFFICIAL_TOTAL = 1000
 
 function json(data, status, headers) {
   return new Response(JSON.stringify(data), { status: status, headers: Object.assign({ 'Content-Type': 'application/json' }, headers) })
 }
 
-async function handleIconDbSearch(request, env, url, headers) {
-  const q = url.searchParams.get('q') || ''
-  const offset = Math.max(0, parseInt(url.searchParams.get('offset') || '0', 10) || 0)
-  const limit = Math.min(96, Math.max(1, parseInt(url.searchParams.get('limit') || '48', 10) || 48))
-
-  let res
-  try {
-    res = await fetch(MEILI_URL, {
-      method: 'POST',
-      headers: Object.assign({ 'Authorization': 'Bearer ' + MEILI_KEY, 'Content-Type': 'application/json' }, ICON_HEADERS),
-      body: JSON.stringify({ q: q, offset: offset, limit: limit }),
-    })
-  } catch {
-    return json({ error: 'icon database unreachable' }, 502, headers)
-  }
-  if (!res.ok) return json({ error: 'search failed' }, 502, headers)
+async function searchOfficial(q) {
+  const res = await fetch(MEILI_URL, {
+    method: 'POST',
+    headers: Object.assign({ 'Authorization': 'Bearer ' + MEILI_KEY, 'Content-Type': 'application/json' }, ICON_HEADERS),
+    body: JSON.stringify({ q: q, limit: OFFICIAL_TOTAL }),
+  })
+  if (!res.ok) throw new Error('meilisearch request failed')
   const data = await res.json()
-  return json({ codes: (data.hits || []).map(function (h) { return h.icon }), total: data.estimatedTotalHits ?? 0 }, 200, headers)
+  return (data.hits || []).map(function (h) { return h.icon })
+}
+
+// The "unofficial" icon set (fan/client-asset dump, no names — browse only) has no
+// search API. Its code list only exists baked into a hashed JS chunk on m2icondb's
+// own site, and that hash changes on their redeploys, so instead of hardcoding a
+// URL we resolve it fresh each time from their homepage: entry bundle -> chunk
+// reference -> the chunk's own flat array literal. Result is cached at the edge for
+// a day so normal picker use doesn't repeat this three-hop discovery every time.
+async function fetchUnofficialCodes() {
+  const homeRes = await fetch('https://m2icondb.com/', { headers: ICON_HEADERS })
+  if (!homeRes.ok) throw new Error('m2icondb homepage unreachable')
+  const home = await homeRes.text()
+  const mainMatch = home.match(/src="(\/assets\/index-[A-Za-z0-9_-]+\.js)"/)
+  if (!mainMatch) throw new Error('could not locate main bundle')
+
+  const mainRes = await fetch('https://m2icondb.com' + mainMatch[1], { headers: ICON_HEADERS })
+  if (!mainRes.ok) throw new Error('main bundle unreachable')
+  const mainJs = await mainRes.text()
+  const chunkMatch = mainJs.match(/assets\/unofficialIconsList-[A-Za-z0-9_-]+\.js/)
+  if (!chunkMatch) throw new Error('could not locate unofficial-icons chunk')
+
+  const chunkRes = await fetch('https://m2icondb.com/' + chunkMatch[0], { headers: ICON_HEADERS })
+  if (!chunkRes.ok) throw new Error('unofficial-icons chunk unreachable')
+  const chunkJs = await chunkRes.text()
+  const arrMatch = chunkJs.match(/\[(?:"[0-9A-Za-z_]+",?)+\]/)
+  if (!arrMatch) throw new Error('could not parse unofficial-icons list')
+
+  return JSON.parse(arrMatch[0])
+}
+
+async function getUnofficialCodes() {
+  const cache = caches.default
+  const cacheKey = new Request('https://internal.icondb-cache/unofficial-codes')
+  const cached = await cache.match(cacheKey)
+  if (cached) return await cached.json()
+
+  const codes = await fetchUnofficialCodes()
+  const resp = new Response(JSON.stringify(codes), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'max-age=86400' } })
+  await cache.put(cacheKey, resp.clone())
+  return codes
+}
+
+async function handleIconDbSearch(request, env, url, headers) {
+  const set = url.searchParams.get('set') === 'unofficial' ? 'unofficial' : 'official'
+  const q = (url.searchParams.get('q') || '').trim()
+
+  try {
+    if (set === 'unofficial') {
+      const all = await getUnofficialCodes()
+      const codes = q ? all.filter(function (c) { return c.toLowerCase().indexOf(q.toLowerCase()) !== -1 }) : all
+      return json({ codes: codes, total: codes.length }, 200, headers)
+    }
+    const codes = await searchOfficial(q)
+    return json({ codes: codes, total: codes.length }, 200, headers)
+  } catch (err) {
+    return json({ error: (err && err.message) || 'icon database unreachable' }, 502, headers)
+  }
 }
 
 async function handleIconDbIcon(request, env, code, headers) {
