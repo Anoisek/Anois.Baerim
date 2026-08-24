@@ -4,16 +4,18 @@ import { getToken } from '../authClient'
 
 const WORKER_URL = import.meta.env.VITE_IMAGES_WORKER_URL
 
-// The full "unofficial" code list (~4.5k entries, no per-item names) rarely changes
-// and is the same for every picker instance on the page — cache it once per session
-// instead of re-fetching every time an admin opens the modal.
+// Every picker instance on the page (one per item/material being edited) shares
+// these module-level caches, so the code lists — and, via the browser's own HTTP
+// cache on /icondb/icon (immutable, 7-day max-age), the actual icon images — are
+// only ever fetched once per browsing session instead of on every single open.
+const officialQueryCache = new Map() // query -> codes[]
 let unofficialCache = null
 
 export default function IconDbPicker({ onUploaded }) {
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState('official') // 'official' | 'unofficial'
   const [query, setQuery] = useState('')
-  const [officialCodes, setOfficialCodes] = useState([])
+  const [officialCodes, setOfficialCodes] = useState(officialQueryCache.get('') ?? [])
   const [unofficialCodes, setUnofficialCodes] = useState(unofficialCache ?? [])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -22,6 +24,9 @@ export default function IconDbPicker({ onUploaded }) {
   const requestIdRef = useRef(0)
 
   function loadOfficial(q) {
+    const cached = officialQueryCache.get(q)
+    if (cached) { setOfficialCodes(cached); setLoading(false); setError(''); return }
+
     const requestId = ++requestIdRef.current
     setLoading(true)
     setError('')
@@ -30,6 +35,7 @@ export default function IconDbPicker({ onUploaded }) {
       .then(data => {
         if (requestId !== requestIdRef.current) return
         if (data.error) { setError(data.error); return }
+        officialQueryCache.set(q, data.codes)
         setOfficialCodes(data.codes)
       })
       .catch(() => { if (requestId === requestIdRef.current) setError('Search failed.') })
