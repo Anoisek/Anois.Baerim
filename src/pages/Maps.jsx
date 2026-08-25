@@ -434,9 +434,10 @@ export default function Maps() {
 
                 {markersLoading || !selectedMap ? <Spinner /> : (
                   <>
+                    <div className="relative w-full overflow-auto rounded-xl border border-gray-700 bg-gray-950" style={{ maxHeight: '70vh' }}>
                     <div
-                      className={`relative w-full rounded-xl overflow-hidden border border-gray-700 bg-gray-950 ${editMode || repositioningMarker ? 'cursor-crosshair' : ''}`}
-                      style={{ aspectRatio: `${selectedMap.width} / ${selectedMap.height}` }}
+                      className={`relative ${editMode || repositioningMarker ? 'cursor-crosshair' : ''}`}
+                      style={{ aspectRatio: `${selectedMap.width} / ${selectedMap.height}`, width: '100%', minWidth: `${Math.min(selectedMap.width, 900)}px` }}
                       onClick={handleContainerClick}
                     >
                       <img
@@ -481,6 +482,7 @@ export default function Maps() {
                           </div>
                         )
                       })}
+                    </div>
                     </div>
                     {repositioningMarker ? (
                       <p className="text-xs text-yellow-400 mt-3">{t('maps.repositionHint')}</p>

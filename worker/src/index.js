@@ -71,6 +71,21 @@ async function handleUpload(request, env, headers) {
   return json({ url: env.PUBLIC_R2_URL + '/' + key }, 200, headers)
 }
 
+async function handleGetImage(request, env, pathname, headers) {
+  const key = pathname.slice(1)
+  const bucketName = key.split('/')[0]
+  if (!BUCKETS.has(bucketName)) return json({ error: 'not found' }, 404, headers)
+
+  const object = await env.IMAGES_BUCKET.get(key)
+  if (!object) return json({ error: 'not found' }, 404, headers)
+
+  const respHeaders = new Headers(headers)
+  respHeaders.set('Content-Type', (object.httpMetadata && object.httpMetadata.contentType) || 'application/octet-stream')
+  respHeaders.set('Cache-Control', 'public, max-age=31536000, immutable')
+  if (object.httpEtag) respHeaders.set('ETag', object.httpEtag)
+  return new Response(object.body, { headers: respHeaders })
+}
+
 async function handleDelete(request, env, headers) {
   if (!(await isAdmin(request, env))) return json({ error: 'forbidden' }, 403, headers)
 
@@ -79,10 +94,17 @@ async function handleDelete(request, env, headers) {
   const urls = (body && Array.isArray(body.urls)) ? body.urls : []
   if (!BUCKETS.has(bucket)) return json({ error: 'invalid bucket' }, 400, headers)
 
-  const prefix = env.PUBLIC_R2_URL + '/' + bucket + '/'
-  const keys = urls
-    .filter(function (u) { return typeof u === 'string' && u.indexOf(prefix) === 0 })
-    .map(function (u) { return u.slice(env.PUBLIC_R2_URL.length + 1) })
+  // Accept URLs under either the current public base or the legacy r2.dev one,
+  // since existing rows created before the switch to the worker-served base still use it.
+  const bases = [env.PUBLIC_R2_URL, env.OLD_PUBLIC_R2_URL].filter(Boolean)
+  const keys = []
+  for (const u of urls) {
+    if (typeof u !== 'string') continue
+    for (const base of bases) {
+      const prefix = base + '/' + bucket + '/'
+      if (u.indexOf(prefix) === 0) { keys.push(u.slice(base.length + 1)); break }
+    }
+  }
 
   await Promise.all(keys.map(function (key) { return env.IMAGES_BUCKET.delete(key) }))
   return json({ ok: true, deleted: keys.length }, 200, headers)
@@ -97,6 +119,7 @@ export default {
     try {
       if (request.method === 'POST' && url.pathname === '/upload') return await handleUpload(request, env, headers)
       if (request.method === 'POST' && url.pathname === '/delete') return await handleDelete(request, env, headers)
+      if (request.method === 'GET' && (url.pathname.indexOf('/images/') === 0 || url.pathname.indexOf('/map-notes/') === 0)) return await handleGetImage(request, env, url.pathname, headers)
       if (request.method === 'GET' && url.pathname === '/icondb/search') return await handleIconDbSearch(request, env, url, headers)
       if (request.method === 'GET' && url.pathname.indexOf('/icondb/icon/') === 0) return await handleIconDbIcon(request, env, url.pathname.slice('/icondb/icon/'.length), headers)
       if (request.method === 'POST' && url.pathname === '/icondb/import') return await handleIconDbImport(request, env, headers, isAdmin)
