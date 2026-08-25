@@ -582,7 +582,6 @@ export default function Maps() {
                       style={{
                         aspectRatio: `${selectedMap.width} / ${selectedMap.height}`,
                         width: '100%',
-                        minWidth: isTouchDevice ? `${Math.min(selectedMap.width, 900)}px` : undefined,
                         transform: isTouchDevice ? `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` : undefined,
                         transformOrigin: '0 0',
                       }}
