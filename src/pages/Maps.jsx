@@ -20,6 +20,8 @@ import ConfirmBulkMarkModal from '../components/ConfirmBulkMarkModal'
 import { isMarkerCollected } from '../utils/markerCollected'
 
 const COLLECTED_KEY = 'map_collected_markers'
+const MIN_ZOOM = 1
+const MAX_ZOOM = 4
 
 function getNextMokokoNumber(markers) {
   const used = new Set()
@@ -68,6 +70,14 @@ export default function Maps() {
   const importInputRef = useRef(null)
   const longPressTimerRef = useRef(null)
   const longPressFiredRef = useRef(false)
+  const mapViewportRef = useRef(null)
+  const mapContentRef = useRef(null)
+  const pointersRef = useRef(new Map())
+  const gestureRef = useRef(null)
+  const suppressClickRef = useRef(false)
+  const lastTapRef = useRef(null)
+  const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     db.from('maps').select('*').order('sort_order').then(({ data }) => {
@@ -137,6 +147,8 @@ export default function Maps() {
     setEditingMarker(null)
     setAddingAt(null)
     setRepositioningMarker(null)
+    setZoom(1)
+    setPan({ x: 0, y: 0 })
     db.from('map_markers').select('*').eq('map_id', selectedMap.id).then(({ data }) => {
       setMarkers(data ?? [])
       setMarkersLoading(false)
@@ -234,6 +246,7 @@ export default function Maps() {
   }
 
   function handleContainerClick(e) {
+    if (suppressClickRef.current) { suppressClickRef.current = false; return }
     if (!selectedMap) return
     const rect = e.currentTarget.getBoundingClientRect()
     const x = Math.round(((e.clientX - rect.left) / rect.width) * selectedMap.width)
@@ -244,6 +257,122 @@ export default function Maps() {
     }
     if (!canAddMarkers || !editMode) return
     setAddingAt({ x, y })
+  }
+
+  function contentOverflows(nextZoom) {
+    const content = mapContentRef.current
+    const viewport = mapViewportRef.current
+    if (!content || !viewport) return false
+    return content.offsetWidth * nextZoom > viewport.clientWidth + 1 || content.offsetHeight * nextZoom > viewport.clientHeight + 1
+  }
+
+  function clampPan(nextPan, nextZoom) {
+    const content = mapContentRef.current
+    const viewport = mapViewportRef.current
+    if (!content || !viewport) return nextPan
+    const w = content.offsetWidth * nextZoom
+    const h = content.offsetHeight * nextZoom
+    const vw = viewport.clientWidth
+    const vh = viewport.clientHeight
+    const minX = Math.min(0, vw - w)
+    const minY = Math.min(0, vh - h)
+    return {
+      x: Math.min(0, Math.max(minX, nextPan.x)),
+      y: Math.min(0, Math.max(minY, nextPan.y)),
+    }
+  }
+
+  function zoomTo(nextZoomRaw, anchor) {
+    const nextZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, nextZoomRaw))
+    const viewport = mapViewportRef.current
+    const anchorPoint = anchor || { x: (viewport?.clientWidth || 0) / 2, y: (viewport?.clientHeight || 0) / 2 }
+    const scaleRatio = nextZoom / zoom
+    const nextPan = {
+      x: anchorPoint.x - (anchorPoint.x - pan.x) * scaleRatio,
+      y: anchorPoint.y - (anchorPoint.y - pan.y) * scaleRatio,
+    }
+    setZoom(nextZoom)
+    setPan(clampPan(nextPan, nextZoom))
+  }
+
+  function resetZoom() {
+    setZoom(1)
+    setPan({ x: 0, y: 0 })
+  }
+
+  function handleMapPointerDown(e) {
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    if (pointersRef.current.size === 2) {
+      const pts = [...pointersRef.current.values()]
+      gestureRef.current = {
+        mode: 'pinch',
+        startDist: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y),
+        startZoom: zoom,
+        startPan: pan,
+      }
+    } else if (pointersRef.current.size === 1) {
+      gestureRef.current = { mode: 'pan', startX: e.clientX, startY: e.clientY, startPan: pan, moved: false }
+    }
+  }
+
+  function handleMapPointerMove(e) {
+    if (!pointersRef.current.has(e.pointerId)) return
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    const g = gestureRef.current
+    if (!g) return
+    if (g.mode === 'pinch' && pointersRef.current.size === 2) {
+      e.preventDefault()
+      const pts = [...pointersRef.current.values()]
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y)
+      const nextZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, g.startZoom * (dist / g.startDist)))
+      const rect = mapViewportRef.current.getBoundingClientRect()
+      const midX = (pts[0].x + pts[1].x) / 2 - rect.left
+      const midY = (pts[0].y + pts[1].y) / 2 - rect.top
+      const scaleRatio = nextZoom / g.startZoom
+      const nextPan = {
+        x: midX - (midX - g.startPan.x) * scaleRatio,
+        y: midY - (midY - g.startPan.y) * scaleRatio,
+      }
+      setZoom(nextZoom)
+      setPan(clampPan(nextPan, nextZoom))
+      suppressClickRef.current = true
+    } else if (g.mode === 'pan' && contentOverflows(zoom)) {
+      const dx = e.clientX - g.startX
+      const dy = e.clientY - g.startY
+      if (Math.abs(dx) > 6 || Math.abs(dy) > 6) g.moved = true
+      if (g.moved) {
+        e.preventDefault()
+        setPan(clampPan({ x: g.startPan.x + dx, y: g.startPan.y + dy }, zoom))
+        suppressClickRef.current = true
+      }
+    }
+  }
+
+  function handleMapPointerUp(e) {
+    const g = gestureRef.current
+    const wasTap = !!g && g.mode === 'pan' && !g.moved
+    pointersRef.current.delete(e.pointerId)
+    if (pointersRef.current.size === 0) {
+      const preciseTapMode = editMode || !!repositioningMarker
+      if (wasTap && !preciseTapMode) {
+        const now = Date.now()
+        const last = lastTapRef.current
+        if (last && now - last.time < 350 && Math.hypot(e.clientX - last.x, e.clientY - last.y) < 30) {
+          const rect = mapViewportRef.current.getBoundingClientRect()
+          const tapPoint = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+          if (zoom > 1) resetZoom()
+          else zoomTo(2.5, tapPoint)
+          suppressClickRef.current = true
+          lastTapRef.current = null
+        } else {
+          lastTapRef.current = { time: now, x: e.clientX, y: e.clientY }
+        }
+      }
+      gestureRef.current = null
+    } else if (pointersRef.current.size === 1) {
+      const [[, pt]] = pointersRef.current.entries()
+      gestureRef.current = { mode: 'pan', startX: pt.x, startY: pt.y, startPan: pan, moved: false }
+    }
   }
 
   function handleMarkerPointerDown(marker) {
@@ -261,6 +390,7 @@ export default function Maps() {
 
   function handleMarkerClick(e, marker) {
     e.stopPropagation()
+    if (suppressClickRef.current) { suppressClickRef.current = false; return }
     if (longPressFiredRef.current) {
       longPressFiredRef.current = false
       return
@@ -434,10 +564,25 @@ export default function Maps() {
 
                 {markersLoading || !selectedMap ? <Spinner /> : (
                   <>
-                    <div className="relative w-full overflow-auto rounded-xl border border-gray-700 bg-gray-950" style={{ maxHeight: '70vh' }}>
                     <div
+                      ref={mapViewportRef}
+                      className="relative w-full overflow-hidden touch-none rounded-xl border border-gray-700 bg-gray-950"
+                      style={{ maxHeight: '70vh' }}
+                      onPointerDown={handleMapPointerDown}
+                      onPointerMove={handleMapPointerMove}
+                      onPointerUp={handleMapPointerUp}
+                      onPointerCancel={handleMapPointerUp}
+                    >
+                    <div
+                      ref={mapContentRef}
                       className={`relative ${editMode || repositioningMarker ? 'cursor-crosshair' : ''}`}
-                      style={{ aspectRatio: `${selectedMap.width} / ${selectedMap.height}`, width: '100%', minWidth: `${Math.min(selectedMap.width, 900)}px` }}
+                      style={{
+                        aspectRatio: `${selectedMap.width} / ${selectedMap.height}`,
+                        width: '100%',
+                        minWidth: `${Math.min(selectedMap.width, 900)}px`,
+                        transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                        transformOrigin: '0 0',
+                      }}
                       onClick={handleContainerClick}
                     >
                       <img
@@ -482,6 +627,30 @@ export default function Maps() {
                           </div>
                         )
                       })}
+                    </div>
+                    {zoom > 1 && (
+                      <button
+                        onClick={resetZoom}
+                        className="absolute top-2 left-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-gray-900/80 hover:bg-gray-800 border border-gray-600 text-gray-200 backdrop-blur-sm"
+                      >
+                        {Math.round(zoom * 100)}% ⤾
+                      </button>
+                    )}
+                    <div className="absolute bottom-2 right-2 flex flex-col gap-1">
+                      <button
+                        onClick={() => zoomTo(zoom + 0.5)}
+                        disabled={zoom >= MAX_ZOOM}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-base font-bold bg-gray-900/80 hover:bg-gray-800 disabled:opacity-40 border border-gray-600 text-gray-200 backdrop-blur-sm"
+                      >
+                        +
+                      </button>
+                      <button
+                        onClick={() => zoomTo(zoom - 0.5)}
+                        disabled={zoom <= MIN_ZOOM}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-base font-bold bg-gray-900/80 hover:bg-gray-800 disabled:opacity-40 border border-gray-600 text-gray-200 backdrop-blur-sm"
+                      >
+                        −
+                      </button>
                     </div>
                     </div>
                     {repositioningMarker ? (
