@@ -21,7 +21,7 @@ import { isMarkerCollected } from '../utils/markerCollected'
 
 const COLLECTED_KEY = 'map_collected_markers'
 const MIN_ZOOM = 1
-const MAX_ZOOM = 4
+const MAX_ZOOM = 10
 
 function getNextMokokoNumber(markers) {
   const used = new Set()
@@ -363,8 +363,8 @@ export default function Maps() {
         if (last && now - last.time < 350 && Math.hypot(e.clientX - last.x, e.clientY - last.y) < 30) {
           const rect = mapViewportRef.current.getBoundingClientRect()
           const tapPoint = { x: e.clientX - rect.left, y: e.clientY - rect.top }
-          if (zoom > 1) resetZoom()
-          else zoomTo(2.5, tapPoint)
+          if (zoom >= MAX_ZOOM) resetZoom()
+          else zoomTo(zoom * 2, tapPoint)
           suppressClickRef.current = true
           lastTapRef.current = null
         } else {
@@ -603,6 +603,7 @@ export default function Maps() {
                             className="absolute -translate-x-1/2 -translate-y-1/2"
                             style={{ left: `${(marker.x / selectedMap.width) * 100}%`, top: `${(marker.y / selectedMap.height) * 100}%` }}
                           >
+                            <div style={{ transform: isTouchDevice ? `scale(${1 / Math.sqrt(zoom)})` : undefined }}>
                             <button
                               onClick={e => handleMarkerClick(e, marker)}
                               onPointerDown={() => handleMarkerPointerDown(marker)}
@@ -626,6 +627,7 @@ export default function Maps() {
                                 </span>
                               )}
                             </button>
+                            </div>
                           </div>
                         )
                       })}
@@ -633,22 +635,30 @@ export default function Maps() {
                     {isTouchDevice && zoom > 1 && (
                       <button
                         onClick={resetZoom}
+                        onPointerDown={e => e.stopPropagation()}
+                        onPointerUp={e => e.stopPropagation()}
+                        onPointerCancel={e => e.stopPropagation()}
                         className="absolute top-2 left-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-gray-900/80 hover:bg-gray-800 border border-gray-600 text-gray-200 backdrop-blur-sm"
                       >
                         {Math.round(zoom * 100)}% ⤾
                       </button>
                     )}
                     {isTouchDevice && (
-                    <div className="absolute bottom-2 right-2 flex flex-col gap-1">
+                    <div
+                      className="absolute bottom-2 right-2 flex flex-col gap-1"
+                      onPointerDown={e => e.stopPropagation()}
+                      onPointerUp={e => e.stopPropagation()}
+                      onPointerCancel={e => e.stopPropagation()}
+                    >
                       <button
-                        onClick={() => zoomTo(zoom + 0.5)}
+                        onClick={() => zoomTo(zoom + 1)}
                         disabled={zoom >= MAX_ZOOM}
                         className="w-8 h-8 flex items-center justify-center rounded-lg text-base font-bold bg-gray-900/80 hover:bg-gray-800 disabled:opacity-40 border border-gray-600 text-gray-200 backdrop-blur-sm"
                       >
                         +
                       </button>
                       <button
-                        onClick={() => zoomTo(zoom - 0.5)}
+                        onClick={() => zoomTo(zoom - 1)}
                         disabled={zoom <= MIN_ZOOM}
                         className="w-8 h-8 flex items-center justify-center rounded-lg text-base font-bold bg-gray-900/80 hover:bg-gray-800 disabled:opacity-40 border border-gray-600 text-gray-200 backdrop-blur-sm"
                       >
