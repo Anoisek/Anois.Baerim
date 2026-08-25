@@ -78,6 +78,7 @@ export default function Maps() {
   const lastTapRef = useRef(null)
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
+  const [isTouchDevice] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches)
 
   useEffect(() => {
     db.from('maps').select('*').order('sort_order').then(({ data }) => {
@@ -301,6 +302,7 @@ export default function Maps() {
   }
 
   function handleMapPointerDown(e) {
+    if (!isTouchDevice) return
     pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
     if (pointersRef.current.size === 2) {
       const pts = [...pointersRef.current.values()]
@@ -316,7 +318,7 @@ export default function Maps() {
   }
 
   function handleMapPointerMove(e) {
-    if (!pointersRef.current.has(e.pointerId)) return
+    if (!isTouchDevice || !pointersRef.current.has(e.pointerId)) return
     pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
     const g = gestureRef.current
     if (!g) return
@@ -349,6 +351,7 @@ export default function Maps() {
   }
 
   function handleMapPointerUp(e) {
+    if (!isTouchDevice) return
     const g = gestureRef.current
     const wasTap = !!g && g.mode === 'pan' && !g.moved
     pointersRef.current.delete(e.pointerId)
@@ -579,8 +582,8 @@ export default function Maps() {
                       style={{
                         aspectRatio: `${selectedMap.width} / ${selectedMap.height}`,
                         width: '100%',
-                        minWidth: `${Math.min(selectedMap.width, 900)}px`,
-                        transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                        minWidth: isTouchDevice ? `${Math.min(selectedMap.width, 900)}px` : undefined,
+                        transform: isTouchDevice ? `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` : undefined,
                         transformOrigin: '0 0',
                       }}
                       onClick={handleContainerClick}
@@ -628,7 +631,7 @@ export default function Maps() {
                         )
                       })}
                     </div>
-                    {zoom > 1 && (
+                    {isTouchDevice && zoom > 1 && (
                       <button
                         onClick={resetZoom}
                         className="absolute top-2 left-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-gray-900/80 hover:bg-gray-800 border border-gray-600 text-gray-200 backdrop-blur-sm"
@@ -636,6 +639,7 @@ export default function Maps() {
                         {Math.round(zoom * 100)}% ⤾
                       </button>
                     )}
+                    {isTouchDevice && (
                     <div className="absolute bottom-2 right-2 flex flex-col gap-1">
                       <button
                         onClick={() => zoomTo(zoom + 0.5)}
@@ -652,6 +656,7 @@ export default function Maps() {
                         −
                       </button>
                     </div>
+                    )}
                     </div>
                     {repositioningMarker ? (
                       <p className="text-xs text-yellow-400 mt-3">{t('maps.repositionHint')}</p>
