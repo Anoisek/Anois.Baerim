@@ -7,7 +7,11 @@ export function slugify(name) {
     .replace(/ł/g, 'l').replace(/Ł/g, 'L')
     .normalize('NFD').replace(COMBINING_MARKS_RE, '')
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
+    // '+' kept as-is (not just stripped to '-') — some material names are
+    // otherwise-identical except for a trailing "+" (e.g. "Seal of Gods" vs
+    // "Seal of Gods+"), and collapsing both into the same slug would make one
+    // of them silently resolve to the other's page.
+    .replace(/[^a-z0-9+]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'x'
 }
 

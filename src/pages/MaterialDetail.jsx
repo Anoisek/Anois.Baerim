@@ -12,10 +12,12 @@ import ItemImage from '../components/ItemImage'
 import { formatYang } from '../utils/formatYang'
 import { usePriceBook, buildRecipeMap, buildYangCostMap, fetchGlobalPrices, makeMaterialPriceFn } from '../utils/priceBook'
 import { itemImages as materialImages } from '../utils/itemImages'
+import { slugify, findBySlugOrId } from '../utils/slug'
 
 export default function MaterialDetail() {
   const { t } = useTranslation()
-  const { materialId } = useParams()
+  const { materialId: materialParam } = useParams()
+  const [materialId, setMaterialId] = useState(null)
   const [material, setMaterial] = useState(null)
   const [components, setComponents] = useState([])
   const [variantRows, setVariantRows] = useState({}) // { [variant]: [{ material, quantity }] }
@@ -31,6 +33,19 @@ export default function MaterialDetail() {
   const navigate = useNavigate()
 
   useEffect(() => {
+    let cancelled = false
+    setMaterialId(null)
+    db.from('materials').select('id, name').then(({ data }) => {
+      if (cancelled) return
+      const resolved = findBySlugOrId(data ?? [], materialParam)
+      if (!resolved) setLoading(false)
+      setMaterialId(resolved?.id ?? null)
+    })
+    return () => { cancelled = true }
+  }, [materialParam])
+
+  useEffect(() => {
+    if (!materialId) return
     setActiveVariant(1)
     Promise.all([
       db.from('materials').select('*').eq('id', materialId).single(),
@@ -105,7 +120,7 @@ export default function MaterialDetail() {
               <div className="ml-auto flex items-center gap-2 shrink-0">
                 <PriceModeToggle mode={mode} setMode={setMode} />
                 <button
-                  onClick={() => navigate(`/materials/${materialId}/usage`)}
+                  onClick={() => navigate(`/materials/${slugify(material.name)}/usage`)}
                   className="text-xs bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 px-2.5 py-1.5 rounded-full transition-colors"
                   title={t('materialDetail.usedInTooltip')}
                 >

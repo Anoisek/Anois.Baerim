@@ -19,6 +19,7 @@ import {
   fetchGlobalPrices, makeMaterialPriceFn,
 } from '../utils/priceBook'
 import { ocrImage, parseFarmSessionText, mergeFarmSessions } from '../utils/farmSessionOcr'
+import { slugify, findBySlugOrId } from '../utils/slug'
 
 function loadLoot(metinId) {
   try {
@@ -42,7 +43,8 @@ const BUFF_TOGGLES = [
 const NO_BUFFS = { vote: false, casual: false, glove: false, guildDrop: false }
 
 export default function MetinDetail() {
-  const { metinId } = useParams()
+  const { metinId: metinParam } = useParams()
+  const [metinId, setMetinId] = useState(null)
   const { t } = useTranslation()
   const { isAdmin } = useAuth()
   const [metin, setMetin] = useState(null)
@@ -86,6 +88,19 @@ export default function MetinDetail() {
   }
 
   useEffect(() => {
+    let cancelled = false
+    setMetinId(null)
+    db.from('metins').select('id, name').then(({ data }) => {
+      if (cancelled) return
+      const resolved = findBySlugOrId(data ?? [], metinParam)
+      if (!resolved) setLoading(false)
+      setMetinId(resolved?.id ?? null)
+    })
+    return () => { cancelled = true }
+  }, [metinParam])
+
+  useEffect(() => {
+    if (!metinId) return
     setLoading(true)
     Promise.all([
       db.from('metins').select('*').eq('id', metinId).maybeSingle(),
@@ -480,7 +495,7 @@ export default function MetinDetail() {
                                 <span className="text-[11px] text-gray-500">Pick which one this metin drops</span>
                               </>
                             ) : (
-                              <Link to={`/materials/${mat.id}`} className="text-sm font-semibold text-gray-100 hover:text-yellow-400 transition-colors truncate">
+                              <Link to={`/materials/${slugify(mat.name)}`} className="text-sm font-semibold text-gray-100 hover:text-yellow-400 transition-colors truncate">
                                 {mat.name}
                               </Link>
                             )}

@@ -17,6 +17,7 @@ import {
 } from '../utils/priceBook'
 import { sortByCategoryTag } from '../utils/materialCategoryTags'
 import { itemImages as materialImages } from '../utils/itemImages'
+import { slugify } from '../utils/slug'
 
 const FILTERS = [
   { key: 'all', labelKey: 'materials.filterAll' },
@@ -237,7 +238,7 @@ export default function Materials() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {visible.map(mat => {
               const Wrapper = mat.is_craftable ? Link : 'div'
-              const wrapperProps = mat.is_craftable ? { to: `/materials/${mat.id}` } : {}
+              const wrapperProps = mat.is_craftable ? { to: `/materials/${slugify(mat.name)}` } : {}
               return (
                 <Wrapper
                   key={mat.id}
@@ -295,7 +296,7 @@ export default function Materials() {
                   )}
                   {(usedInItemIds.has(mat.id) || usedAsComponentIds.has(mat.id)) && (
                     <button
-                      onClick={e => { e.preventDefault(); e.stopPropagation(); navigate(`/materials/${mat.id}/usage`) }}
+                      onClick={e => { e.preventDefault(); e.stopPropagation(); navigate(`/materials/${slugify(mat.name)}/usage`) }}
                       className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-800/90 border border-gray-600 text-gray-300 hover:text-yellow-400 hover:border-yellow-400/50 transition-colors text-xs"
                       title={t('common.seeUsage')}
                     >

@@ -6,7 +6,7 @@ import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import { formatItemName } from '../utils/itemName'
-import { slugify } from '../utils/slug'
+import { slugify, findBySlugOrId } from '../utils/slug'
 
 function dedupeById(rows) {
   return Array.from(new Map(rows.map(r => [r.id, r])).values())
@@ -25,13 +25,27 @@ function UsageRow({ to, image, name, emoji }) {
 
 export default function MaterialUsage() {
   const { t } = useTranslation()
-  const { materialId } = useParams()
+  const { materialId: materialParam } = useParams()
+  const [materialId, setMaterialId] = useState(null)
   const [material, setMaterial] = useState(null)
   const [usedInItems, setUsedInItems] = useState([])
   const [usedInMaterials, setUsedInMaterials] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
+    setMaterialId(null)
+    db.from('materials').select('id, name').then(({ data }) => {
+      if (cancelled) return
+      const resolved = findBySlugOrId(data ?? [], materialParam)
+      if (!resolved) setLoading(false)
+      setMaterialId(resolved?.id ?? null)
+    })
+    return () => { cancelled = true }
+  }, [materialParam])
+
+  useEffect(() => {
+    if (!materialId) return
     Promise.all([
       db.from('materials').select('id, name, image_url').eq('id', materialId).single(),
       db.from('item_materials').select('item_id').eq('material_id', materialId),
@@ -60,7 +74,7 @@ export default function MaterialUsage() {
             <Breadcrumbs items={[
               { label: t('common.home'), to: '/' },
               { label: t('materials.title'), to: '/materials' },
-              { label: material?.name ?? t('common.material'), to: material?.id ? `/materials/${material.id}` : undefined },
+              { label: material?.name ?? t('common.material'), to: material?.name ? `/materials/${slugify(material.name)}` : undefined },
               { label: t('materialUsage.usage') },
             ]} />
 
@@ -98,7 +112,7 @@ export default function MaterialUsage() {
                     <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('materialUsage.materials')}</h2>
                     <div className="flex flex-col gap-2">
                       {usedInMaterials.map(mat => (
-                        <UsageRow key={mat.id} to={`/materials/${mat.id}`} image={mat.image_url} name={mat.name} emoji="🧪" />
+                        <UsageRow key={mat.id} to={`/materials/${slugify(mat.name)}`} image={mat.image_url} name={mat.name} emoji="🧪" />
                       ))}
                     </div>
                   </div>

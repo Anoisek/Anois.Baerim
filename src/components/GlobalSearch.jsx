@@ -130,7 +130,7 @@ export default function GlobalSearch() {
                 {results.materials.length > 0 && (
                   <ResultGroup label={t('globalSearch.materials')}>
                     {results.materials.map(m => (
-                      <ResultRow key={m.id} image={m.image_url} emoji="🧪" name={m.name} onClick={() => go(`/materials/${m.id}`)} />
+                      <ResultRow key={m.id} image={m.image_url} emoji="🧪" name={m.name} onClick={() => go(`/materials/${slugify(m.name)}`)} />
                     ))}
                   </ResultGroup>
                 )}

@@ -8,6 +8,7 @@ import Spinner from '../components/Spinner'
 import Tile from '../components/Tile'
 import AddMetinModal from '../components/AddMetinModal'
 import EditMetinModal from '../components/EditMetinModal'
+import { slugify } from '../utils/slug'
 
 export default function MetinCalculator() {
   const { t } = useTranslation()
@@ -113,7 +114,7 @@ export default function MetinCalculator() {
               {metins.map((metin, index) => (
                 <Tile
                   key={metin.id}
-                  to={`/systems/metin-calculator/${metin.id}`}
+                  to={`/systems/metin-calculator/${slugify(metin.name)}`}
                   image={metin.image_url}
                   emoji="🪨"
                   label={metin.name}
