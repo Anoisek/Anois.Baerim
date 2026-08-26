@@ -346,16 +346,14 @@
     "success": "Mulțumim! Sugestia ta a fost trimisă.",
     "error": "Nu am putut trimite sugestia ta. Încearcă din nou mai târziu."
   },
-  "announcement": {
-    "title": "Hărțile sunt gata! 🎉",
-    "intro": "Toate hărțile cu mokoko sunt finalizate, iar fiecare mokoko ar trebui acum să fie într-un loc solid, ușor de găsit — nu ar trebui să ai probleme să le găsești pe toate.",
-    "thanks": "Mulțumiri uriașe tuturor celor care au ajutat la completarea hărților: tuturor celor care au trimis capturi de ecran, mi-au scris locații pe DM, sau au ajutat în orice fel. Nu aș fi reușit fără voi.",
-    "closing": "Vânătoare plăcută de Mokoko! 🍀",
-    "button": "Ura!"
-  },
   "domainChange": {
     "title": "Ne-am mutat! 🔗",
     "body": "Site-ul are acum o adresă nouă: baerimtools.com. Actualizează-ți marcajul ca să ajungi mereu la locul potrivit.",
     "button": "Am înțeles"
+  },
+  "completion": {
+    "title": "Felicitări, le-ai adunat pe toate! 🎉",
+    "body": "Ai colectat absolut fiecare mokoko de pe fiecare hartă. E nevoie de multă dedicare pentru asta — bravo!",
+    "button": "Ura!"
   }
 }

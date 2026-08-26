@@ -346,16 +346,14 @@
     "success": "Vďaka! Tvoj návrh bol odoslaný.",
     "error": "Nepodarilo sa odoslať tvoj návrh. Skús to prosím neskôr."
   },
-  "announcement": {
-    "title": "Mapy sú hotové! 🎉",
-    "intro": "Všetky mapy mokoko sú dokončené a každé mokoko by teraz malo byť na solídnom, ľahko nájditeľnom mieste — nemal by si mať problém nájsť ich všetky.",
-    "thanks": "Obrovská vďaka všetkým, ktorí pomohli s vypĺňaním máp: všetkým, čo posielali screenshoty, písali mi lokácie do DM, alebo pomohli akokoľvek inak. Bez vás by to nešlo.",
-    "closing": "Nech sa ti darí lov na mokoko! 🍀",
-    "button": "Hurá!"
-  },
   "domainChange": {
     "title": "Presunuli sme sa! 🔗",
     "body": "Stránka je teraz na novej adrese: baerimtools.com. Aktualizuj si záložku, aby si vždy skončil na správnom mieste.",
     "button": "Rozumiem"
+  },
+  "completion": {
+    "title": "Gratulujeme, máš ich všetky! 🎉",
+    "body": "Pozbieral/a si doslova každé mokoko na každej mape. To chce poriadnu dávku odhodlania — skvelá práca!",
+    "button": "Hurá!"
   }
 }

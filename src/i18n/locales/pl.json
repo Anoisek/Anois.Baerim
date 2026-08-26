@@ -346,16 +346,14 @@
     "success": "Dzięki! Twoja sugestia została wysłana.",
     "error": "Nie udało się wysłać sugestii. Spróbuj ponownie później."
   },
-  "announcement": {
-    "title": "Mapy są gotowe! 🎉",
-    "intro": "Wszystkie mapy z mokoko są ukończone, a każde mokoko powinno być teraz w sensownym, możliwym do znalezienia miejscu — nie powinieneś mieć problemu ze znalezieniem wszystkich.",
-    "thanks": "Ogromne podziękowania dla wszystkich, którzy pomogli uzupełnić mapy: każdemu, kto wysyłał screeny, pisał do mnie na DM z lokalizacjami albo pomógł w jakikolwiek sposób. Bez Was by się nie udało.",
-    "closing": "Udanych łowów na mokoko! 🍀",
-    "button": "Hura!"
-  },
   "domainChange": {
     "title": "Zmieniliśmy adres! 🔗",
     "body": "Strona działa teraz pod nowym adresem: baerimtools.com. Zaktualizuj zakładkę, żeby zawsze trafiać we właściwe miejsce.",
     "button": "Rozumiem"
+  },
+  "completion": {
+    "title": "Gratulacje, masz je wszystkie! 🎉",
+    "body": "Zebrałeś/aś dosłownie każde mokoko na każdej mapie. To wymagało niezłej determinacji — brawo!",
+    "button": "Hura!"
   }
 }

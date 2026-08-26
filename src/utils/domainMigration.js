@@ -20,7 +20,7 @@ const STATIC_KEYS = [
   'build_calculator_list',
   'ui_scale',
   'liked_notes',
-  'mokoko_announcement_v1_seen',
+  'mokoko_all_collected_seen',
   'csCatalogOverrides_v1',
 ]
 

@@ -15,6 +15,7 @@ import EditMapModal from '../components/EditMapModal'
 import ReorderButtons from '../components/ReorderButtons'
 import MapPipButton from '../components/MapPipButton'
 import MokokoRevealCountdown from '../components/MokokoRevealCountdown'
+import MokokoCompletionModal from '../components/MokokoCompletionModal'
 import ConfirmBulkMarkModal from '../components/ConfirmBulkMarkModal'
 import { isMarkerCollected } from '../utils/markerCollected'
 
@@ -124,6 +125,12 @@ export default function Maps() {
   }
 
   const visibleMaps = maps.filter(m => isAdmin || !m.admin_only)
+
+  const redWoodV2 = maps.find(m => m.name === 'Red Wood v2')
+  const eligibleMarkers = allMarkers.filter(mk => mk.map_id !== redWoodV2?.id)
+  const eligibleTotal = maps.reduce((sum, m) => m.id === redWoodV2?.id ? sum : sum + (markerCounts[m.id] ?? 0), 0)
+  const eligibleDone = eligibleMarkers.filter(mk => isMarkerCollected(mk, collected)).length
+  const allMokokoCollected = eligibleTotal > 0 && eligibleDone === eligibleTotal
 
   useEffect(() => {
     if (mapsLoading || visibleMaps.length === 0) return
@@ -718,6 +725,8 @@ export default function Maps() {
       {showHelpers && (
         <HallOfFameModal onClose={() => setShowHelpers(false)} />
       )}
+
+      <MokokoCompletionModal show={allMokokoCollected} />
 
       {confirmBulkMode && (
         <ConfirmBulkMarkModal

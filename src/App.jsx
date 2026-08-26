@@ -7,7 +7,6 @@ import { ModalQueueProvider } from './context/ModalQueueContext'
 import ScrollToTop from './components/ScrollToTop'
 import NicknamePrompt from './components/NicknamePrompt'
 import Footer from './components/Footer'
-import MokokoAnnouncement from './components/MokokoAnnouncement'
 import DomainChangeNotice from './components/DomainChangeNotice'
 import Home from './pages/Home'
 import Login from './pages/Login'
@@ -42,7 +41,6 @@ export default function App() {
         <ModalQueueProvider>
           <ScrollToTop />
           <NicknamePrompt />
-          <MokokoAnnouncement />
           <DomainChangeNotice />
           <div className="min-h-screen flex flex-col">
             <div className="flex-1 flex flex-col">

@@ -346,16 +346,14 @@
     "success": "Thanks! Your suggestion has been sent.",
     "error": "Could not send your suggestion. Please try again later."
   },
-  "announcement": {
-    "title": "The maps are complete! 🎉",
-    "intro": "Every mokoko map is finished, and each one should now be in a solid, findable spot — you shouldn't have any trouble tracking them all down.",
-    "thanks": "A huge thank you to everyone who helped fill the maps: everyone who sent screenshots, DM'd me locations, or pitched in in any way. Couldn't have done it without you.",
-    "closing": "Happy Mokoko hunting! 🍀",
-    "button": "YAY"
-  },
   "domainChange": {
     "title": "We've moved! 🔗",
     "body": "The site now lives at a new address: baerimtools.com. Update your bookmark so you always land in the right place.",
     "button": "Understood"
+  },
+  "completion": {
+    "title": "Congrats, you got them all! 🎉",
+    "body": "You've collected every single mokoko across every map. That's some serious dedication — well done!",
+    "button": "YAY"
   }
 }

@@ -346,16 +346,14 @@
     "success": "Merci ! Ta suggestion a été envoyée.",
     "error": "Impossible d'envoyer ta suggestion. Réessaie plus tard."
   },
-  "announcement": {
-    "title": "Les cartes sont terminées ! 🎉",
-    "intro": "Toutes les cartes de mokoko sont terminées, et chaque mokoko devrait maintenant être à un endroit solide et facile à trouver — tu ne devrais avoir aucun mal à tous les retrouver.",
-    "thanks": "Un immense merci à tout le monde qui a aidé à compléter les cartes : à celles et ceux qui ont envoyé des captures d'écran, qui m'ont écrit des emplacements en DM, ou qui ont aidé d'une manière ou d'une autre. Je n'aurais pas pu le faire sans vous.",
-    "closing": "Bonne chasse aux Mokoko ! 🍀",
-    "button": "Youpi !"
-  },
   "domainChange": {
     "title": "Nous avons déménagé ! 🔗",
     "body": "Le site est maintenant à une nouvelle adresse : baerimtools.com. Mets à jour ton favori pour toujours arriver au bon endroit.",
     "button": "Compris"
+  },
+  "completion": {
+    "title": "Félicitations, tu les as tous ! 🎉",
+    "body": "Tu as collecté absolument tous les mokoko sur toutes les cartes. Ça, c'est de la persévérance — bravo !",
+    "button": "Youpi !"
   }
 }
