@@ -106,18 +106,25 @@ export function applyIncomingMigration() {
 
 const BRIDGE_MESSAGE = 'baerim-migration-export'
 
-// Call once on app boot (old domains only). If this page has been embedded in a
-// hidden iframe by requestManualRecovery() below, it skips the normal top-level
-// redirect and just hands its localStorage to the parent window instead. Returns
-// true if it acted as a bridge (caller should skip rendering — nothing to show).
-export function exportPayloadToParentIfFramed() {
+// Call once on app boot (old domains only). If this page was opened as a popup by
+// requestManualRecovery() below, it skips the normal top-level redirect and just
+// hands its localStorage to the opener window instead. Returns true if it acted as
+// a bridge (caller should skip rendering — nothing to show).
+//
+// This has to be a real popup (window.open), not a hidden iframe: browsers
+// increasingly partition/isolate localStorage for cross-site iframes (Firefox's
+// Total Cookie Protection, Safari ITP, and privacy-hardened Chromium builds like
+// Opera GX all do this) — an iframe of this domain embedded under baerimtools.com
+// would see an empty, isolated storage bucket instead of the real one. A popup is
+// a genuine top-level navigation to this origin, so it isn't subject to that.
+export function exportPayloadToOpenerIfPopup() {
   if (!OLD_HOSTS.includes(location.hostname)) return false
-  if (window.self === window.top) return false
+  if (!window.opener) return false
 
   try {
-    window.parent.postMessage({ type: BRIDGE_MESSAGE, payload: collectPayload() }, NEW_ORIGIN)
+    window.opener.postMessage({ type: BRIDGE_MESSAGE, payload: collectPayload() }, NEW_ORIGIN)
   } catch {
-    // ignore — parent will just time out
+    // ignore — opener will just time out
   }
   return true
 }
@@ -127,29 +134,29 @@ export function isNewDomain() {
 }
 
 // Manual fallback for the "restore my data" button: pulls localStorage from every
-// old domain via a hidden iframe + postMessage bridge (no top-level navigation, no
-// query-param payload needed — the user's data never left their own browser this
-// whole time, this just reaches across origins to fetch it once). Resolves true if
-// anything new was applied.
+// old domain via a small popup + postMessage bridge (no top-level navigation of
+// *this* tab — the popup does that on the old domain's behalf, reads its real
+// localStorage, hands it back, and closes itself). Resolves true if anything new
+// was applied.
 //
 // Both old domains are queried at once, but responses are buffered and applied in
 // OLD_HOSTS priority order once everyone's answered (or timed out) — not in
 // whatever order the network happens to deliver them. Otherwise, for someone who
 // has different values saved on both old domains, the "winner" for a given key
-// would come down to which iframe loaded faster, not which domain actually held
+// would come down to which popup loaded faster, not which domain actually held
 // the newer data.
-export function requestManualRecovery({ timeoutMs = 6000 } = {}) {
+export function requestManualRecovery({ timeoutMs = 8000 } = {}) {
   return new Promise(resolve => {
     let settled = false
-    let pending = OLD_HOSTS.length
-    const frames = []
+    let pending = 0
+    const popups = []
     const payloadByHost = {}
 
     function finish() {
       if (settled) return
       settled = true
       window.removeEventListener('message', onMessage)
-      frames.forEach(f => f.remove())
+      popups.forEach(w => { try { w.close() } catch { /* already closed */ } })
 
       let appliedAny = false
       for (const host of OLD_HOSTS) {
@@ -170,13 +177,14 @@ export function requestManualRecovery({ timeoutMs = 6000 } = {}) {
     window.addEventListener('message', onMessage)
 
     for (const host of OLD_HOSTS) {
-      const iframe = document.createElement('iframe')
-      iframe.style.display = 'none'
-      iframe.src = `https://${host}/`
-      document.body.appendChild(iframe)
-      frames.push(iframe)
+      // Off-screen + tiny: browsers won't let it be truly invisible (that's the
+      // point of it being a real top-level window), but this keeps it out of the
+      // way for the second it's open.
+      const popup = window.open(`https://${host}/`, '', 'width=80,height=80,left=-1000,top=-1000')
+      if (popup) { popups.push(popup); pending += 1 }
     }
 
+    if (pending === 0) { finish(); return } // popup blocker got all of them
     setTimeout(finish, timeoutMs)
   })
 }
