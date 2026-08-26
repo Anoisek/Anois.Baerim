@@ -1,15 +1,14 @@
 // One-time transfer of this browser's local data (nickname, collected mokoko markers,
-// prices, ui prefs, etc.) from the old Vercel domain to the new Cloudflare Pages domain.
-// localStorage is per-origin, so a plain DNS/host swap would leave everyone's saved
-// progress behind — this carries it across via a signed-free redirect + query payload.
+// prices, ui prefs, etc.) from an old domain to the current one. localStorage is
+// per-origin, so a plain DNS/host swap would leave everyone's saved progress behind —
+// this carries it across via a signed-free redirect + query payload.
 
-const OLD_HOST = 'anois-baerim.vercel.app'
-const NEW_ORIGIN = 'https://anois-baerim.pages.dev'
+const OLD_HOSTS = new Set(['anois-baerim.vercel.app', 'anois-baerim.pages.dev'])
+const NEW_ORIGIN = 'https://baerimtools.com'
 const MIGRATE_PARAM = 'migrate'
-const MIGRATED_FLAG = 'migrated_to_pages_dev'
+const MIGRATED_FLAG = 'migrated_to_baerimtools'
 
 const STATIC_KEYS = [
-  'cookie_consent',
   'metin_nickname',
   'map_collected_markers',
   'material_prices',
@@ -21,9 +20,11 @@ const STATIC_KEYS = [
   'build_calculator_list',
   'ui_scale',
   'liked_notes',
-  'mokoko_all_collected_seen',
   'mokoko_announcement_v1_seen',
+  'csCatalogOverrides_v1',
 ]
+
+const DYNAMIC_PREFIXES = ['item_choices_', 'metin_loot_']
 
 function toBase64(str) {
   const bytes = new TextEncoder().encode(str)
@@ -45,16 +46,16 @@ function collectPayload() {
     if (value !== null) data[key] = value
   }
   for (const key of Object.keys(localStorage)) {
-    if (key.startsWith('item_choices_')) data[key] = localStorage.getItem(key)
+    if (DYNAMIC_PREFIXES.some(prefix => key.startsWith(prefix))) data[key] = localStorage.getItem(key)
   }
   return data
 }
 
 // Call once on app boot. Returns true if it triggered a redirect (caller should skip rendering).
-// Every visit to the old domain redirects to the new one; only the first visit (per browser)
+// Every visit to an old domain redirects to the new one; only the first visit (per browser)
 // carries the localStorage payload along — later redirects are plain, data's already there.
 export function redirectToNewDomain() {
-  if (location.hostname !== OLD_HOST) return false
+  if (!OLD_HOSTS.has(location.hostname)) return false
 
   const alreadyMigrated = localStorage.getItem(MIGRATED_FLAG) === 'true'
   const target = new URL(location.pathname + location.search, NEW_ORIGIN)

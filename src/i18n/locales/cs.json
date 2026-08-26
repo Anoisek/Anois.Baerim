@@ -355,12 +355,7 @@
   },
   "domainChange": {
     "title": "Přestěhovali jsme se! 🔗",
-    "body": "Stránka je teď na nové adrese: anois-baerim.pages.dev. Aktualizuj si záložku, ať vždy skončíš na správném místě.",
+    "body": "Stránka je teď na nové adrese: baerimtools.com. Aktualizuj si záložku, ať vždy skončíš na správném místě.",
     "button": "Rozumím"
-  },
-  "completion": {
-    "title": "Gratulujeme, máš je všechny! 🎉",
-    "body": "Posbíral/a jsi doslova každé mokoko na každé mapě. To chce pořádnou dávku odhodlání — skvělá práce!",
-    "button": "Juchů!"
   }
 }

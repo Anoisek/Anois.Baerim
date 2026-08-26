@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useModalSlot } from '../context/ModalQueueContext'
 
-const NOTICE_KEY = 'domain_change_notice_v1_seen'
+const NOTICE_KEY = 'domain_change_notice_v2_seen'
 
 export default function DomainChangeNotice() {
   const { t } = useTranslation()

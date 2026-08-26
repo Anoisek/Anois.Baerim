@@ -355,12 +355,7 @@
   },
   "domainChange": {
     "title": "¡Nos hemos mudado! 🔗",
-    "body": "El sitio ahora tiene una nueva dirección: anois-baerim.pages.dev. Actualiza tu marcador para llegar siempre al lugar correcto.",
+    "body": "El sitio ahora tiene una nueva dirección: baerimtools.com. Actualiza tu marcador para llegar siempre al lugar correcto.",
     "button": "Entendido"
-  },
-  "completion": {
-    "title": "¡Felicidades, los tienes todos! 🎉",
-    "body": "Has recolectado absolutamente todos los mokoko de todos los mapas. Eso requiere mucha dedicación — ¡muy bien hecho!",
-    "button": "¡Yupi!"
   }
 }
