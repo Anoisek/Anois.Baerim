@@ -9,9 +9,9 @@ export default function Footer() {
       <div className="max-w-5xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <img src="/logoanois.png" alt="Anois" className="w-6 h-6 object-contain" />
-          <span>Created by Anois</span>
+          <span>Created by <span className="font-bold">Anois</span></span>
         </div>
-        <span>© {new Date().getFullYear()} Baerim Calculator — {t('navbar.tagline')}</span>
+        <span>© {new Date().getFullYear()} BaerimTools — {t('navbar.tagline')}</span>
         <div className="flex items-center gap-4">
           <Link to="/suggestions" className="hover:text-gray-300 transition-colors underline">
             {t('footer.suggestions')}

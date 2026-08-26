@@ -358,7 +358,7 @@ export default function ItemDetail() {
   }
 
   return (
-    <div className="min-h-screen text-white">
+    <div className="text-white">
       <Navbar />
       <div className="max-w-4xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">

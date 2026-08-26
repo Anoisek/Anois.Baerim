@@ -77,7 +77,7 @@ export default function MaterialDetail() {
   const total = subtotal * effectivePity
 
   return (
-    <div className="min-h-screen text-white">
+    <div className="text-white">
       <Navbar />
       <div className="max-w-2xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">

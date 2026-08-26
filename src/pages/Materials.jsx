@@ -128,7 +128,7 @@ export default function Materials() {
   const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts, manualOverrides, noPriceIds })
 
   return (
-    <div className="min-h-screen text-white">
+    <div className="text-white">
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">

@@ -28,11 +28,11 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="flex-1 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <span className="text-4xl">⚔️</span>
-          <h1 className="text-2xl font-bold text-yellow-400 mt-3">Baerim Calculator</h1>
+          <h1 className="text-2xl font-bold text-yellow-400 mt-3">BaerimTools</h1>
           <p className="text-gray-500 text-sm mt-1">{t('login.title')}</p>
         </div>
         <form

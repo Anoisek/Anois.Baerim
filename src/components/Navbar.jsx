@@ -54,7 +54,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
             <img src="/small_logo.png" alt="logo" className="h-8 w-auto" />
-            <span className="text-yellow-400 font-bold text-lg tracking-tight">Baerim Calculator</span>
+            <span className="text-yellow-400 font-bold text-lg tracking-tight">BaerimTools</span>
           </Link>
           <LanguageSwitcher />
           <NightModeToggle />
