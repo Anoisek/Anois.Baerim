@@ -35,3 +35,15 @@ export function formatItemName(item) {
   if (!item) return ''
   return item.category_id === PVP_CATEGORY_ID ? `${item.name} (PvP)` : item.name
 }
+
+// Some call sites (material/build summaries) pass items through formatItemName
+// before handing them to a shared tile component, so `.name` there may already
+// carry the " (PvP)" suffix. Slugs must match the DB's raw name (what ItemDetail
+// resolves against), so this undoes that suffix when present.
+const PVP_SUFFIX = ' (PvP)'
+export function rawItemName(item) {
+  if (!item) return ''
+  return item.category_id === PVP_CATEGORY_ID && item.name?.endsWith(PVP_SUFFIX)
+    ? item.name.slice(0, -PVP_SUFFIX.length)
+    : item.name
+}

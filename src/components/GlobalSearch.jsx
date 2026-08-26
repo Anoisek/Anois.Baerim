@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import { formatItemName } from '../utils/itemName'
+import { slugify } from '../utils/slug'
 
 function ResultGroup({ label, children }) {
   return (
@@ -115,14 +116,14 @@ export default function GlobalSearch() {
                 {results.chapters.length > 0 && (
                   <ResultGroup label={t('globalSearch.chapters')}>
                     {results.chapters.map(c => (
-                      <ResultRow key={c.id} image={c.image_url} emoji="📦" name={c.name} onClick={() => go(`/chapter/${c.id}`)} />
+                      <ResultRow key={c.id} image={c.image_url} emoji="📦" name={c.name} onClick={() => go(`/chapter/${slugify(c.name)}`)} />
                     ))}
                   </ResultGroup>
                 )}
                 {results.categories.length > 0 && (
                   <ResultGroup label={t('globalSearch.categories')}>
                     {results.categories.map(c => (
-                      <ResultRow key={c.id} image={c.image_url} emoji="📦" name={c.name} onClick={() => go(`/chapter/${c.category_id}/sub/${c.id}`)} />
+                      <ResultRow key={c.id} image={c.image_url} emoji="📦" name={c.name} onClick={() => go(`/chapter/${c.category_id}/sub/${slugify(c.name)}`)} />
                     ))}
                   </ResultGroup>
                 )}
@@ -136,7 +137,7 @@ export default function GlobalSearch() {
                 {results.items.length > 0 && (
                   <ResultGroup label={t('globalSearch.items')}>
                     {results.items.map(i => (
-                      <ResultRow key={i.id} image={i.image_url} emoji="⚔️" name={formatItemName(i)} onClick={() => go(`/chapter/${i.category_id}/item/${i.id}`)} />
+                      <ResultRow key={i.id} image={i.image_url} emoji="⚔️" name={formatItemName(i)} onClick={() => go(`/chapter/${i.category_id}/item/${slugify(i.name)}`)} />
                     ))}
                   </ResultGroup>
                 )}

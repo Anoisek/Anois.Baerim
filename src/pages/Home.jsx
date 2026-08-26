@@ -11,6 +11,7 @@ import ImageUpload from '../components/ImageUpload'
 import Spinner from '../components/Spinner'
 import Tile from '../components/Tile'
 import { deleteImages } from '../utils/imageStorage'
+import { slugify } from '../utils/slug'
 
 function EditTileImageModal({ title, settingKey, currentUrl, onClose, onSaved }) {
   const { t } = useTranslation()
@@ -121,7 +122,7 @@ export default function Home() {
     { kind: 'materials', key: 'materials', sort_order: materialsOrder, maintenance: materialsMaintenance, to: '/materials', image: materialsImage, emoji: '⚗️', label: t('home.materials'), onEdit: () => setEditingMaterials(true) },
     { kind: 'systems', key: 'systems', sort_order: systemsOrder, maintenance: systemsMaintenance, to: '/systems', image: systemsImage, emoji: '⚙️', label: t('home.systems'), onEdit: () => setEditingSystems(true) },
     { kind: 'buildcalculator', key: 'buildcalculator', sort_order: buildCalculatorOrder, maintenance: buildCalculatorMaintenance, to: '/buildcalculator', image: buildCalculatorImage, emoji: '🛡️', label: t('home.buildCalculator'), onEdit: () => setEditingBuildCalculator(true) },
-    ...categories.map(cat => ({ kind: 'category', key: cat.id, sort_order: cat.sort_order, maintenance: cat.maintenance ?? false, to: `/chapter/${cat.id}`, image: cat.image_url, emoji: '📦', label: cat.name, onEdit: () => setEditing(cat), raw: cat })),
+    ...categories.map(cat => ({ kind: 'category', key: cat.id, sort_order: cat.sort_order, maintenance: cat.maintenance ?? false, to: `/chapter/${slugify(cat.name)}`, image: cat.image_url, emoji: '📦', label: cat.name, onEdit: () => setEditing(cat), raw: cat })),
   ].sort((a, b) => a.sort_order - b.sort_order)
 
   async function toggleMaintenance(tile) {

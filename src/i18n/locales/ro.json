@@ -18,7 +18,8 @@
     "chapter": "Capitol",
     "category": "Categorie",
     "material": "Material",
-    "item": "Obiect"
+    "item": "Obiect",
+    "close": "Închide"
   },
   "navbar": {
     "tagline": "Instrument neoficial creat de fani, neafiliat cu echipa Baerim",
@@ -199,7 +200,8 @@
     "ownedLevelTooltip": "Nivelul pe care îl deții deja — ascunde costul de crafting și upgrade până la acest nivel",
     "totalCost": "Cost total",
     "overviewUpgrade": "Îmbunătățire",
-    "overviewPrice": "Preț"
+    "overviewPrice": "Preț",
+    "notFound": "Obiectul nu a fost găsit."
   },
   "itemUsage": {
     "usedIn": "Folosit în",
@@ -355,5 +357,10 @@
     "title": "Felicitări, le-ai adunat pe toate! 🎉",
     "body": "Ai colectat absolut fiecare mokoko de pe fiecare hartă. E nevoie de multă dedicare pentru asta — bravo!",
     "button": "Ura!"
+  },
+  "restoreData": {
+    "button": "Recuperează datele vechi",
+    "loading": "Se încarcă…",
+    "empty": "Nu s-a găsit nimic"
   }
 }

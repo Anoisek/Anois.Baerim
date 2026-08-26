@@ -18,7 +18,8 @@
     "chapter": "Kapitola",
     "category": "Kategória",
     "material": "Materiál",
-    "item": "Predmet"
+    "item": "Predmet",
+    "close": "Zavrieť"
   },
   "navbar": {
     "tagline": "Neoficiálny fanúšikovský nástroj, nesúvisí s tímom Baerim",
@@ -199,7 +200,8 @@
     "ownedLevelTooltip": "Úroveň, ktorú už vlastníš — skryje náklady na craft a vylepšenia do tejto úrovne",
     "totalCost": "Celková cena",
     "overviewUpgrade": "Vylepšenie",
-    "overviewPrice": "Cena"
+    "overviewPrice": "Cena",
+    "notFound": "Predmet sa nenašiel."
   },
   "itemUsage": {
     "usedIn": "Použité v",
@@ -355,5 +357,10 @@
     "title": "Gratulujeme, máš ich všetky! 🎉",
     "body": "Pozbieral/a si doslova každé mokoko na každej mape. To chce poriadnu dávku odhodlania — skvelá práca!",
     "button": "Hurá!"
+  },
+  "restoreData": {
+    "button": "Obnoviť staré dáta",
+    "loading": "Načítava sa…",
+    "empty": "Nič sa nenašlo"
   }
 }

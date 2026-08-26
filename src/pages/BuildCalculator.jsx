@@ -11,6 +11,7 @@ import PriceModeToggle from '../components/PriceModeToggle'
 import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
 import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
+import { slugify } from '../utils/slug'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   computeItemPrice, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
@@ -356,13 +357,13 @@ export default function BuildCalculator() {
                 const showVariantButton = item.category_id === PVP_CATEGORY_ID && maxVariantCount > 1
                 return (
                   <div key={item.id} className="flex items-center gap-3 p-3 rounded-xl bg-gray-900 border border-gray-700">
-                    <Link to={`/chapter/${item.category_id}/item/${item.id}`} className="w-8 h-8 shrink-0 flex items-center justify-center hover:opacity-75 transition-opacity">
+                    <Link to={`/chapter/${item.category_id}/item/${slugify(item.name)}`} className="w-8 h-8 shrink-0 flex items-center justify-center hover:opacity-75 transition-opacity">
                       {itemImages(item).length > 0
                         ? <img src={itemImages(item)[0]} alt={item.name} className="w-full h-full object-contain" />
                         : <span className="text-lg">⚔️</span>}
                     </Link>
                     <div className="flex-1 min-w-0 flex items-center gap-2">
-                      <Link to={`/chapter/${item.category_id}/item/${item.id}`} className="text-sm text-gray-200 hover:text-yellow-400 transition-colors truncate">
+                      <Link to={`/chapter/${item.category_id}/item/${slugify(item.name)}`} className="text-sm text-gray-200 hover:text-yellow-400 transition-colors truncate">
                         {formatItemName(item)}
                       </Link>
                       <select

@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import { formatItemName } from '../utils/itemName'
+import { slugify } from '../utils/slug'
 
 function dedupeById(rows) {
   return Array.from(new Map(rows.map(r => [r.id, r])).values())
@@ -87,7 +88,7 @@ export default function MaterialUsage() {
                     <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('materialUsage.items')}</h2>
                     <div className="flex flex-col gap-2">
                       {usedInItems.map(item => (
-                        <UsageRow key={item.id} to={`/chapter/${item.category_id}/item/${item.id}`} image={item.image_url} name={formatItemName(item)} emoji="⚔️" />
+                        <UsageRow key={item.id} to={`/chapter/${item.category_id}/item/${slugify(item.name)}`} image={item.image_url} name={formatItemName(item)} emoji="⚔️" />
                       ))}
                     </div>
                   </div>

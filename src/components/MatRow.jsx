@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { formatYang } from '../utils/formatYang'
 import { FIXED_MATERIAL_PRICES } from '../utils/priceBook'
+import { rawItemName } from '../utils/itemName'
+import { slugify } from '../utils/slug'
 import MaterialPriceCell from './MaterialPriceCell'
 
 export default function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChange, kind, globalMode, manualOverrides, onToggleManualOverride }) {
@@ -12,7 +14,7 @@ export default function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChan
   // crafted items, in own- or global-price mode — except rows with no price at all
   // (no_price materials) or a fixed currency value (Gold Bars) that's never editable.
   const canOverride = !mat.no_price && !FIXED_MATERIAL_PRICES[mat.id] && !!onToggleManualOverride
-  const to = kind === 'item' ? `/chapter/${mat.category_id}/item/${mat.id}` : `/materials/${mat.id}`
+  const to = kind === 'item' ? `/chapter/${mat.category_id}/item/${slugify(rawItemName(mat))}` : `/materials/${mat.id}`
   return (
     <div className="flex items-center gap-3 min-w-0">
       <Link to={to} className="w-8 h-8 shrink-0 flex items-center justify-center hover:opacity-75 transition-opacity" title={mat.name}>

@@ -12,6 +12,7 @@ import ReorderButtons from '../components/ReorderButtons'
 import Spinner from '../components/Spinner'
 import { itemImages } from '../utils/itemImages'
 import { formatItemName } from '../utils/itemName'
+import { slugify, findBySlugOrId } from '../utils/slug'
 
 export default function Subcategory() {
   const { categoryId, subcategoryId } = useParams()
@@ -29,23 +30,37 @@ export default function Subcategory() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    let itemsQuery = db.from('items').select('*').eq('category_id', categoryId).order('sort_order')
-    itemsQuery = isUncategorized ? itemsQuery.is('subcategory_id', null) : itemsQuery.eq('subcategory_id', subcategoryId)
-
+    let cancelled = false
+    setLoading(true)
     Promise.all([
-      db.from('categories').select('id, name').eq('id', categoryId).single(),
-      isUncategorized
-        ? Promise.resolve({ data: null })
-        : db.from('subcategories').select('*').eq('id', subcategoryId).single(),
-      itemsQuery,
+      db.from('categories').select('*'),
       db.from('item_items').select('component_item_id'),
-    ]).then(([catRes, subRes, itemsRes, itemItemsRes]) => {
-      setCategory(catRes.data)
-      setSubcategory(subRes.data)
-      setItems(itemsRes.data ?? [])
+    ]).then(([catsRes, itemItemsRes]) => {
+      if (cancelled) return
+      const cat = findBySlugOrId(catsRes.data ?? [], categoryId)
       setUsedInItemIds(new Set((itemItemsRes.data ?? []).map(r => r.component_item_id)))
-      setLoading(false)
+      if (!cat) { setCategory(null); setLoading(false); return }
+      setCategory(cat)
+
+      const subPromise = isUncategorized
+        ? Promise.resolve(null)
+        : db.from('subcategories').select('*').eq('category_id', cat.id).then(({ data }) => findBySlugOrId(data ?? [], subcategoryId))
+
+      subPromise.then(sub => {
+        if (cancelled) return
+        setSubcategory(sub)
+        if (!isUncategorized && !sub) { setItems([]); setLoading(false); return }
+
+        let itemsQuery = db.from('items').select('*').eq('category_id', cat.id).order('sort_order')
+        itemsQuery = isUncategorized ? itemsQuery.is('subcategory_id', null) : itemsQuery.eq('subcategory_id', sub.id)
+        itemsQuery.then(({ data }) => {
+          if (cancelled) return
+          setItems(data ?? [])
+          setLoading(false)
+        })
+      })
     })
+    return () => { cancelled = true }
   }, [categoryId, subcategoryId, isUncategorized])
 
   async function persistItemOrder(id, newOrder) {
@@ -113,7 +128,7 @@ export default function Subcategory() {
             {items.map((item, index) => {
               const blocked = item.maintenance && !isAdmin
               const Wrapper = blocked ? 'div' : Link
-              const wrapperProps = blocked ? {} : { to: `/chapter/${categoryId}/item/${item.id}` }
+              const wrapperProps = blocked ? {} : { to: `/chapter/${categoryId}/item/${slugify(item.name)}` }
               return (
               <Wrapper
                 key={item.id}
@@ -184,8 +199,8 @@ export default function Subcategory() {
         </div>
       {showModal && (
         <AddItemModal
-          categoryId={categoryId}
-          subcategoryId={isUncategorized ? null : subcategoryId}
+          categoryId={category.id}
+          subcategoryId={isUncategorized ? null : subcategory?.id}
           nextSortOrder={Math.max(0, ...items.map(i => i.sort_order)) + 10}
           onClose={() => setShowModal(false)}
           onAdded={item => setItems(prev => [...prev, item].sort((a, b) => a.sort_order - b.sort_order))}
@@ -194,7 +209,7 @@ export default function Subcategory() {
       {editing && (
         <EditItemModal
           item={editing}
-          categoryId={categoryId}
+          categoryId={category.id}
           onClose={() => setEditing(null)}
           onUpdated={item => setItems(prev => {
             const next = item.subcategory_id === editing.subcategory_id

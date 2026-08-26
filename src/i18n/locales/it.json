@@ -18,7 +18,8 @@
     "chapter": "Capitolo",
     "category": "Categoria",
     "material": "Materiale",
-    "item": "Oggetto"
+    "item": "Oggetto",
+    "close": "Chiudi"
   },
   "navbar": {
     "tagline": "Strumento amatoriale non ufficiale, non affiliato al team di Baerim",
@@ -199,7 +200,8 @@
     "ownedLevelTooltip": "Livello già posseduto — nasconde il costo di creazione e potenziamento fino a quel livello",
     "totalCost": "Costo totale",
     "overviewUpgrade": "Potenziamento",
-    "overviewPrice": "Prezzo"
+    "overviewPrice": "Prezzo",
+    "notFound": "Oggetto non trovato."
   },
   "itemUsage": {
     "usedIn": "Usato in",
@@ -355,5 +357,10 @@
     "title": "Complimenti, li hai presi tutti! 🎉",
     "body": "Hai raccolto assolutamente ogni mokoko su ogni mappa. Una dedizione niente male — ottimo lavoro!",
     "button": "Evviva!"
+  },
+  "restoreData": {
+    "button": "Ripristina i vecchi dati",
+    "loading": "Caricamento…",
+    "empty": "Nessun dato trovato"
   }
 }

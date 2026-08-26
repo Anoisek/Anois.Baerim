@@ -18,7 +18,8 @@
     "chapter": "Chapter",
     "category": "Category",
     "material": "Material",
-    "item": "Item"
+    "item": "Item",
+    "close": "Close"
   },
   "navbar": {
     "tagline": "Unofficial fan-made tool, not affiliated with Baerim's team",
@@ -199,7 +200,8 @@
     "ownedLevelTooltip": "Level you already own — hides craft & upgrade costs up to this level",
     "totalCost": "Total cost",
     "overviewUpgrade": "Upgrade",
-    "overviewPrice": "Price"
+    "overviewPrice": "Price",
+    "notFound": "Item not found."
   },
   "itemUsage": {
     "usedIn": "Used in",
@@ -355,5 +357,10 @@
     "title": "Congrats, you got them all! 🎉",
     "body": "You've collected every single mokoko across every map. That's some serious dedication — well done!",
     "button": "YAY"
+  },
+  "restoreData": {
+    "button": "Restore old data",
+    "loading": "Loading…",
+    "empty": "Nothing found"
   }
 }

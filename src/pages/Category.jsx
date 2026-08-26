@@ -9,6 +9,7 @@ import Tile from '../components/Tile'
 import AddSubcategoryModal from '../components/AddSubcategoryModal'
 import EditSubcategoryModal from '../components/EditSubcategoryModal'
 import Spinner from '../components/Spinner'
+import { slugify, findBySlugOrId } from '../utils/slug'
 
 export default function Category() {
   const { categoryId } = useParams()
@@ -23,16 +24,24 @@ export default function Category() {
   const [editMode, setEditMode] = useState(false)
 
   useEffect(() => {
-    Promise.all([
-      db.from('categories').select('*').eq('id', categoryId).single(),
-      db.from('subcategories').select('*').eq('category_id', categoryId).order('sort_order'),
-      db.from('items').select('id').eq('category_id', categoryId).is('subcategory_id', null),
-    ]).then(([catRes, subRes, uncatRes]) => {
-      setCategory(catRes.data)
-      setSubcategories(subRes.data ?? [])
-      setHasUncategorized((uncatRes.data ?? []).length > 0)
-      setLoading(false)
+    let cancelled = false
+    setLoading(true)
+    db.from('categories').select('*').then(({ data }) => {
+      if (cancelled) return
+      const resolved = findBySlugOrId(data ?? [], categoryId)
+      if (!resolved) { setCategory(null); setLoading(false); return }
+      setCategory(resolved)
+      Promise.all([
+        db.from('subcategories').select('*').eq('category_id', resolved.id).order('sort_order'),
+        db.from('items').select('id').eq('category_id', resolved.id).is('subcategory_id', null),
+      ]).then(([subRes, uncatRes]) => {
+        if (cancelled) return
+        setSubcategories(subRes.data ?? [])
+        setHasUncategorized((uncatRes.data ?? []).length > 0)
+        setLoading(false)
+      })
     })
+    return () => { cancelled = true }
   }, [categoryId])
 
   async function persistSubOrder(id, newOrder) {
@@ -96,7 +105,7 @@ export default function Category() {
             {subcategories.map((sub, index) => (
               <Tile
                 key={sub.id}
-                to={`/chapter/${categoryId}/sub/${sub.id}`}
+                to={`/chapter/${categoryId}/sub/${slugify(sub.name)}`}
                 image={sub.image_url}
                 emoji="📦"
                 label={sub.name}
@@ -126,7 +135,7 @@ export default function Category() {
         </div>
       {showModal && (
         <AddSubcategoryModal
-          categoryId={categoryId}
+          categoryId={category.id}
           nextSortOrder={Math.max(0, ...subcategories.map(s => s.sort_order)) + 10}
           onClose={() => setShowModal(false)}
           onAdded={sub => setSubcategories(prev => [...prev, sub])}

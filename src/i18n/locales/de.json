@@ -18,7 +18,8 @@
     "chapter": "Kapitel",
     "category": "Kategorie",
     "material": "Material",
-    "item": "Gegenstand"
+    "item": "Gegenstand",
+    "close": "Schließen"
   },
   "navbar": {
     "tagline": "Inoffizielles Fan-Tool, nicht mit dem Baerim-Team verbunden",
@@ -199,7 +200,8 @@
     "ownedLevelTooltip": "Stufe, die du bereits besitzt — blendet Craft- und Verbesserungskosten bis zu dieser Stufe aus",
     "totalCost": "Gesamtkosten",
     "overviewUpgrade": "Verbesserung",
-    "overviewPrice": "Preis"
+    "overviewPrice": "Preis",
+    "notFound": "Gegenstand nicht gefunden."
   },
   "itemUsage": {
     "usedIn": "Verwendet in",
@@ -355,5 +357,10 @@
     "title": "Glückwunsch, du hast sie alle! 🎉",
     "body": "Du hast wirklich jedes einzelne Mokoko auf jeder Karte gesammelt. Das ist echte Hingabe — gut gemacht!",
     "button": "Juhu!"
+  },
+  "restoreData": {
+    "button": "Alte Daten wiederherstellen",
+    "loading": "Lädt…",
+    "empty": "Nichts gefunden"
   }
 }

@@ -18,7 +18,8 @@
     "chapter": "Rozdział",
     "category": "Kategoria",
     "material": "Materiał",
-    "item": "Przedmiot"
+    "item": "Przedmiot",
+    "close": "Zamknij"
   },
   "navbar": {
     "tagline": "Nieoficjalne narzędzie fanowskie, niezwiązane z zespołem Baerim",
@@ -199,7 +200,8 @@
     "ownedLevelTooltip": "Poziom, który już posiadasz — ukrywa koszt craftu i ulepszeń do tego poziomu",
     "totalCost": "Koszt całkowity",
     "overviewUpgrade": "Ulepszanie",
-    "overviewPrice": "Cena"
+    "overviewPrice": "Cena",
+    "notFound": "Nie znaleziono przedmiotu."
   },
   "itemUsage": {
     "usedIn": "Użyto w",
@@ -355,5 +357,10 @@
     "title": "Gratulacje, masz je wszystkie! 🎉",
     "body": "Zebrałeś/aś dosłownie każde mokoko na każdej mapie. To wymagało niezłej determinacji — brawo!",
     "button": "Hura!"
+  },
+  "restoreData": {
+    "button": "Odzyskaj dane",
+    "loading": "Wczytywanie…",
+    "empty": "Nic nie znaleziono"
   }
 }

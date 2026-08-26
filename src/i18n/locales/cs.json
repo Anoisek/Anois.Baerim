@@ -18,7 +18,8 @@
     "chapter": "Kapitola",
     "category": "Kategorie",
     "material": "Materiál",
-    "item": "Předmět"
+    "item": "Předmět",
+    "close": "Zavřít"
   },
   "navbar": {
     "tagline": "Neoficiální fanouškovský nástroj, nesouvisí s týmem Baerim",
@@ -199,7 +200,8 @@
     "ownedLevelTooltip": "Úroveň, kterou už vlastníš — skryje náklady na craft a vylepšení do této úrovně",
     "totalCost": "Celková cena",
     "overviewUpgrade": "Vylepšení",
-    "overviewPrice": "Cena"
+    "overviewPrice": "Cena",
+    "notFound": "Předmět nebyl nalezen."
   },
   "itemUsage": {
     "usedIn": "Použito v",
@@ -355,5 +357,10 @@
     "title": "Gratulujeme, máš je všechny! 🎉",
     "body": "Posbíral/a jsi doslova každé mokoko na každé mapě. To chce pořádnou dávku odhodlání — skvělá práce!",
     "button": "Juchů!"
+  },
+  "restoreData": {
+    "button": "Obnovit stará data",
+    "loading": "Načítání…",
+    "empty": "Nic nenalezeno"
   }
 }

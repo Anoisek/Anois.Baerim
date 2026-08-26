@@ -18,6 +18,7 @@ import MokokoRevealCountdown from '../components/MokokoRevealCountdown'
 import MokokoCompletionModal from '../components/MokokoCompletionModal'
 import ConfirmBulkMarkModal from '../components/ConfirmBulkMarkModal'
 import { isMarkerCollected } from '../utils/markerCollected'
+import { slugify, findBySlugOrId } from '../utils/slug'
 
 const COLLECTED_KEY = 'map_collected_markers'
 const MIN_ZOOM = 1
@@ -134,12 +135,12 @@ export default function Maps() {
 
   useEffect(() => {
     if (mapsLoading || visibleMaps.length === 0) return
-    if (!mapId || !visibleMaps.some(m => m.id === mapId)) {
-      navigate(`/systems/interactive-map/${visibleMaps[0].id}`, { replace: true })
+    if (!mapId || !findBySlugOrId(visibleMaps, mapId)) {
+      navigate(`/systems/interactive-map/${slugify(visibleMaps[0].name)}`, { replace: true })
     }
   }, [mapsLoading, visibleMaps, mapId, navigate])
 
-  const selectedMap = visibleMaps.find(m => m.id === mapId)
+  const selectedMap = findBySlugOrId(visibleMaps, mapId)
 
   useEffect(() => {
     if (!selectedMap) return
@@ -471,7 +472,7 @@ export default function Maps() {
                   return (
                     <div key={m.id} className="relative shrink-0 md:shrink group">
                       <button
-                        onClick={() => navigate(`/systems/interactive-map/${m.id}`)}
+                        onClick={() => navigate(`/systems/interactive-map/${slugify(m.name)}`)}
                         className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors border whitespace-nowrap md:whitespace-normal ${
                           active
                             ? 'bg-yellow-400 border-yellow-400 text-gray-950'

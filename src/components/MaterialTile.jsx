@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
+import { rawItemName } from '../utils/itemName'
+import { slugify } from '../utils/slug'
 
 export default function MaterialTile({ mat, quantity, kind }) {
-  const to = kind === 'item' ? `/chapter/${mat.category_id}/item/${mat.id}` : `/materials/${mat.id}`
+  const to = kind === 'item' ? `/chapter/${mat.category_id}/item/${slugify(rawItemName(mat))}` : `/materials/${mat.id}`
   return (
     <Link to={to} className="flex flex-col items-center gap-1.5 p-3 bg-gray-800/60 border border-gray-700 rounded-xl hover:border-yellow-400/50 hover:bg-gray-800 transition-colors">
       <div className="w-12 h-12 shrink-0 flex items-center justify-center">

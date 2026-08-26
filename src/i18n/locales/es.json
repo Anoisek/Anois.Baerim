@@ -18,7 +18,8 @@
     "chapter": "Capítulo",
     "category": "Categoría",
     "material": "Material",
-    "item": "Objeto"
+    "item": "Objeto",
+    "close": "Cerrar"
   },
   "navbar": {
     "tagline": "Herramienta hecha por fans, no afiliada con el equipo de Baerim",
@@ -199,7 +200,8 @@
     "ownedLevelTooltip": "Nivel que ya posees — oculta el coste de creación y mejora hasta ese nivel",
     "totalCost": "Coste total",
     "overviewUpgrade": "Mejora",
-    "overviewPrice": "Precio"
+    "overviewPrice": "Precio",
+    "notFound": "Objeto no encontrado."
   },
   "itemUsage": {
     "usedIn": "Usado en",
@@ -355,5 +357,10 @@
     "title": "¡Felicidades, los tienes todos! 🎉",
     "body": "Has recolectado absolutamente todos los mokoko de todos los mapas. Eso requiere mucha dedicación — ¡muy bien hecho!",
     "button": "¡Yupi!"
+  },
+  "restoreData": {
+    "button": "Recuperar datos antiguos",
+    "loading": "Cargando…",
+    "empty": "No se encontró nada"
   }
 }

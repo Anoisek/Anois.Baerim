@@ -7,6 +7,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import { itemImages } from '../utils/itemImages'
 import { formatItemName } from '../utils/itemName'
+import { slugify } from '../utils/slug'
 
 function dedupeById(rows) {
   return Array.from(new Map(rows.map(r => [r.id, r])).values())
@@ -57,8 +58,8 @@ export default function ItemUsage() {
           <>
             <Breadcrumbs items={[
               { label: t('common.home'), to: '/' },
-              { label: chapterName ?? t('common.chapter'), to: item ? `/chapter/${item.category_id}` : undefined },
-              { label: item ? formatItemName(item) : t('common.item'), to: item ? `/chapter/${item.category_id}/item/${item.id}` : undefined },
+              { label: chapterName ?? t('common.chapter'), to: item ? `/chapter/${chapterName ? slugify(chapterName) : item.category_id}` : undefined },
+              { label: item ? formatItemName(item) : t('common.item'), to: item ? `/chapter/${chapterName ? slugify(chapterName) : item.category_id}/item/${slugify(item.name)}` : undefined },
               { label: t('itemUsage.usage') },
             ]} />
 
@@ -84,7 +85,7 @@ export default function ItemUsage() {
                 <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('itemUsage.items')}</h2>
                 <div className="flex flex-col gap-2">
                   {usedInItems.map(it => (
-                    <UsageRow key={it.id} to={`/chapter/${it.category_id}/item/${it.id}`} image={it.image_url} name={formatItemName(it)} />
+                    <UsageRow key={it.id} to={`/chapter/${it.category_id}/item/${slugify(it.name)}`} image={it.image_url} name={formatItemName(it)} />
                   ))}
                 </div>
               </div>

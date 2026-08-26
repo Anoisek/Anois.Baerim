@@ -18,7 +18,8 @@
     "chapter": "Bölüm",
     "category": "Kategori",
     "material": "Malzeme",
-    "item": "Eşya"
+    "item": "Eşya",
+    "close": "Kapat"
   },
   "navbar": {
     "tagline": "Resmi olmayan hayran yapımı araç, Baerim ekibiyle bağlantılı değildir",
@@ -199,7 +200,8 @@
     "ownedLevelTooltip": "Zaten sahip olduğun seviye — bu seviyeye kadar üretim ve geliştirme maliyetini gizler",
     "totalCost": "Toplam maliyet",
     "overviewUpgrade": "Yükseltme",
-    "overviewPrice": "Fiyat"
+    "overviewPrice": "Fiyat",
+    "notFound": "Eşya bulunamadı."
   },
   "itemUsage": {
     "usedIn": "Şurada kullanıldı",
@@ -355,5 +357,10 @@
     "title": "Tebrikler, hepsini buldun! 🎉",
     "body": "Her haritadaki her mokokoyu tek tek topladın. Bu ciddi bir azim işi — helal olsun!",
     "button": "Yaşasın!"
+  },
+  "restoreData": {
+    "button": "Eski verileri geri yükle",
+    "loading": "Yükleniyor…",
+    "empty": "Hiçbir şey bulunamadı"
   }
 }

@@ -15,6 +15,7 @@ import MaterialTile from '../components/MaterialTile'
 import CraftOverviewPanel from '../components/CraftOverviewPanel'
 import PriceModeToggle from '../components/PriceModeToggle'
 import { formatItemName, PVP_CATEGORY_ID, ENIGMA_POTION_ID, NO_DEFAULT_SCROLL_ITEM_IDS } from '../utils/itemName'
+import { slugify, findBySlugOrId } from '../utils/slug'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   computeItemPrice, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
@@ -44,7 +45,8 @@ function excludedStepsForOwnedLevel(level) {
 
 export default function ItemDetail() {
   const { t } = useTranslation()
-  const { itemId } = useParams()
+  const { categoryId, itemId: itemParam } = useParams()
+  const [itemId, setItemId] = useState(null)
   const [item, setItem] = useState(null)
   const [groupedByVariant, setGroupedByVariant] = useState({}) // { step: { variant: [{material, quantity, kind}] } }
   const [yangByVariant, setYangByVariant] = useState({}) // { step: { variant: yang_cost } }
@@ -74,6 +76,25 @@ export default function ItemDetail() {
   const { rawInputs, setPrice, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
 
   useEffect(() => {
+    let cancelled = false
+    setItemId(null)
+    Promise.all([
+      db.from('categories').select('id, name'),
+      db.from('items').select('id, name, category_id'),
+    ]).then(([catsRes, itemsRes]) => {
+      if (cancelled) return
+      const category = findBySlugOrId(catsRes.data ?? [], categoryId)
+      const allItems = itemsRes.data ?? []
+      const scoped = category ? allItems.filter(i => i.category_id === category.id) : allItems
+      const resolved = findBySlugOrId(scoped.length > 0 ? scoped : allItems, itemParam)
+      if (!resolved) setLoading(false)
+      setItemId(resolved?.id ?? null)
+    })
+    return () => { cancelled = true }
+  }, [categoryId, itemParam])
+
+  useEffect(() => {
+    if (!itemId) return
     Promise.all([
       db.from('items').select('*').eq('id', itemId).single(),
       db.from('item_materials').select('quantity, step, variant, material_id').eq('item_id', itemId).order('step'),
@@ -362,22 +383,27 @@ export default function ItemDetail() {
       <Navbar />
       <div className="max-w-4xl mx-auto px-6 py-10">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
-        {loading ? <Spinner /> : (
+        {loading ? <Spinner /> : !item ? (
+          <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
+            <span className="text-5xl">📭</span>
+            <p className="text-sm">{t('itemDetail.notFound')}</p>
+          </div>
+        ) : (
           <>
             <Breadcrumbs items={[
               { label: t('common.home'), to: '/' },
-              { label: chapterName ?? t('common.chapter'), to: `/chapter/${item.category_id}` },
+              { label: chapterName ?? t('common.chapter'), to: `/chapter/${categoryId}` },
               ...(item.subcategory_id
-                ? [{ label: categoryName ?? t('common.category'), to: `/chapter/${item.category_id}/sub/${item.subcategory_id}` }]
+                ? [{ label: categoryName ?? t('common.category'), to: `/chapter/${categoryId}/sub/${slugify(categoryName ?? '')}` }]
                 : []),
-              { label: item ? formatItemName(item) : t('common.item') },
+              { label: formatItemName(item) },
             ]} />
 
             {(prevItem || nextItem) && (
               <div className="flex items-center justify-between gap-3 mb-4">
                 {prevItem ? (
                   <Link
-                    to={`/chapter/${prevItem.category_id}/item/${prevItem.id}`}
+                    to={`/chapter/${categoryId}/item/${slugify(prevItem.name)}`}
                     className="flex items-center gap-1.5 min-w-0 text-xs text-gray-400 hover:text-yellow-400 transition-colors"
                     title={formatItemName(prevItem)}
                   >
@@ -387,7 +413,7 @@ export default function ItemDetail() {
                 ) : <span />}
                 {nextItem && (
                   <Link
-                    to={`/chapter/${nextItem.category_id}/item/${nextItem.id}`}
+                    to={`/chapter/${categoryId}/item/${slugify(nextItem.name)}`}
                     className="flex items-center gap-1.5 min-w-0 text-xs text-gray-400 hover:text-yellow-400 transition-colors text-right"
                     title={formatItemName(nextItem)}
                   >

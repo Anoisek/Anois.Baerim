@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { formatYang } from '../utils/formatYang'
-import { formatItemName } from '../utils/itemName'
+import { formatItemName, rawItemName } from '../utils/itemName'
+import { slugify } from '../utils/slug'
 
 function shortYang(v) {
   return formatYang(v).replace(' yang', '')
@@ -11,7 +12,7 @@ function OverviewIcon({ row, large }) {
   const name = row.kind === 'item' ? formatItemName(row.material) : row.material.name
   const box = large ? 'w-10 h-10' : 'w-11 h-11'
   const img = large ? 'w-7 h-7' : 'w-8 h-8'
-  const to = row.kind === 'item' ? `/chapter/${row.material.category_id}/item/${row.material.id}` : `/materials/${row.material.id}`
+  const to = row.kind === 'item' ? `/chapter/${row.material.category_id}/item/${slugify(rawItemName(row.material))}` : `/materials/${row.material.id}`
   return (
     <Link
       to={to}

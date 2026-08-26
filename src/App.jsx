@@ -8,6 +8,7 @@ import ScrollToTop from './components/ScrollToTop'
 import NicknamePrompt from './components/NicknamePrompt'
 import Footer from './components/Footer'
 import DomainChangeNotice from './components/DomainChangeNotice'
+import RestoreOldDataButton from './components/RestoreOldDataButton'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Materials from './pages/Materials'
@@ -42,6 +43,7 @@ export default function App() {
           <ScrollToTop />
           <NicknamePrompt />
           <DomainChangeNotice />
+          <RestoreOldDataButton />
           <div className="min-h-screen flex flex-col">
             <div className="flex-1 flex flex-col">
               <Routes>
