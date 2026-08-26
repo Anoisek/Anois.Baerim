@@ -10,7 +10,8 @@ const DEV_ORIGINS = new Set(['http://localhost:5173', 'http://localhost:5174'])
 
 function corsHeaders(request, env) {
   const origin = request.headers.get('Origin')
-  const allowed = (origin === env.ALLOWED_ORIGIN || DEV_ORIGINS.has(origin)) ? origin : env.ALLOWED_ORIGIN
+  const allowedOrigins = env.ALLOWED_ORIGINS.split(',')
+  const allowed = (allowedOrigins.includes(origin) || DEV_ORIGINS.has(origin)) ? origin : allowedOrigins[0]
   return {
     'Access-Control-Allow-Origin': allowed,
     'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',

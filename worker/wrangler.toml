@@ -19,4 +19,4 @@ database_id = "e8bb727e-3582-4356-90f8-d956fc653fb0"
 [vars]
 PUBLIC_R2_URL = "https://baerim-images-worker.bartoszlisowiec.workers.dev"
 OLD_PUBLIC_R2_URL = "https://pub-ca333e738137481fa823decac7e5d3f8.r2.dev"
-ALLOWED_ORIGIN = "https://anois-baerim.pages.dev"
+ALLOWED_ORIGINS = "https://baerimtools.com,https://www.baerimtools.com,https://anois-baerim.pages.dev"
