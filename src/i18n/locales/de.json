@@ -294,12 +294,6 @@
     "privacyPolicy": "Datenschutzerklärung",
     "suggestions": "Vorschläge"
   },
-  "cookieConsent": {
-    "message": "Diese Seite verwendet lokalen Browser-Speicher, um deine Sprache, Einstellungen und deinen Fortschritt zu speichern. Wenn du zustimmst, zeigen wir außerdem Werbung (Google AdSense), um die Hosting-Kosten zu decken.",
-    "learnMore": "Mehr erfahren",
-    "accept": "Akzeptieren",
-    "decline": "Ablehnen"
-  },
   "privacyPolicy": {
     "lastUpdated": "Letzte Aktualisierung: 10. August 2026",
     "intro": {
@@ -324,10 +318,6 @@
       "title": "Daten, die an den Server gesendet werden",
       "body": "Wenn du einen Kommentar unter einem Mokoko auf der Karte hinzufügst (optional mit Foto), einen Preis an die globale Preisliste meldest oder deinen Nickname für den Hall of Fame hinterlässt — landen diese Daten in der Datenbank der Seite (Supabase) und sind für andere Besucher öffentlich sichtbar. Bitte gib in Kommentaren keine persönlichen Daten an — sie werden dafür nie benötigt."
     },
-    "cookiesAds": {
-      "title": "Cookies und Werbung",
-      "body": "Diese Seite zeigt Werbung über Google AdSense, um die Hosting-Kosten zu decken. Werbe-Cookies werden erst geladen, nachdem du dem Banner am unteren Seitenrand zugestimmt hast — lehnst du ab, werden keine Werbe-Cookies gesetzt und du siehst keine personalisierte Werbung. Du kannst deine Wahl jederzeit ändern, indem du die Daten dieser Seite in deinem Browser löschst."
-    },
     "hostingLogs": {
       "title": "Hosting-Protokolle",
       "body": "Wie die meisten Websites können die Hosting-Infrastruktur (Vercel) und die Datenbank (Supabase) hinter dieser Seite routinemäßig IP-Adressen und grundlegende technische Anfrageinformationen (z. B. Browsertyp) im Rahmen des normalen Betriebs und der Sicherheit protokollieren. Wir haben keinen direkten Zugriff auf diese Daten, außer auf grundlegende Statistiken."
@@ -338,7 +328,7 @@
     },
     "changes": {
       "title": "Änderungen dieser Richtlinie",
-      "body": "Diese Richtlinie kann sich mit der Weiterentwicklung der Seite ändern (z. B. nach dem Start von Werbung). Das Datum der letzten Aktualisierung steht oben auf der Seite."
+      "body": "Diese Richtlinie kann sich mit der Weiterentwicklung der Seite ändern. Das Datum der letzten Aktualisierung steht oben auf der Seite."
     },
     "contact": {
       "title": "Kontakt",

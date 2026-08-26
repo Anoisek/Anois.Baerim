@@ -294,12 +294,6 @@
     "privacyPolicy": "Informativa sulla privacy",
     "suggestions": "Suggerimenti"
   },
-  "cookieConsent": {
-    "message": "Questo sito usa lo storage locale del browser per ricordare la tua lingua, le impostazioni e i progressi. Se accetti, mostreremo anche pubblicità (Google AdSense) per aiutare a coprire i costi di hosting.",
-    "learnMore": "Scopri di più",
-    "accept": "Accetta",
-    "decline": "Rifiuta"
-  },
   "privacyPolicy": {
     "lastUpdated": "Ultimo aggiornamento: 10 agosto 2026",
     "intro": {
@@ -324,10 +318,6 @@
       "title": "Dati inviati al server",
       "body": "Se aggiungi un commento sotto un mokoko sulla mappa (facoltativamente con una foto), invii un prezzo alla lista globale dei prezzi, o lasci il tuo nickname per la Hall of Fame — questi dati vengono salvati nel database del sito (Supabase) e sono visibili pubblicamente agli altri visitatori. Ti chiediamo di non includere dati personali nei commenti — non sono mai necessari."
     },
-    "cookiesAds": {
-      "title": "Cookie e pubblicità",
-      "body": "Questo sito mostra pubblicità tramite Google AdSense per aiutare a coprire i costi di hosting. I cookie pubblicitari vengono caricati solo dopo che accetti il banner in fondo alla pagina — se rifiuti, non verrà impostato alcun cookie pubblicitario e non vedrai pubblicità personalizzata. Puoi cambiare la tua scelta in qualsiasi momento cancellando i dati di questo sito nel tuo browser."
-    },
     "hostingLogs": {
       "title": "Log di hosting",
       "body": "Come la maggior parte dei siti web, l'infrastruttura di hosting (Vercel) e il database (Supabase) usati da questo sito possono registrare di routine indirizzi IP e informazioni tecniche di base sulle richieste (ad es. il tipo di browser) come parte del normale funzionamento e della sicurezza del servizio. Non abbiamo accesso diretto a questi dati oltre a statistiche di base."
@@ -338,7 +328,7 @@
     },
     "changes": {
       "title": "Modifiche a questa informativa",
-      "body": "Questa informativa potrebbe essere aggiornata con l'evoluzione del sito (ad esempio dopo l'attivazione della pubblicità). La data dell'ultimo aggiornamento è indicata in cima alla pagina."
+      "body": "Questa informativa potrebbe essere aggiornata con l'evoluzione del sito. La data dell'ultimo aggiornamento è indicata in cima alla pagina."
     },
     "contact": {
       "title": "Contatti",

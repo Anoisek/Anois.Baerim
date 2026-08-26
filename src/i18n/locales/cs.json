@@ -294,12 +294,6 @@
     "privacyPolicy": "Zásady ochrany osobních údajů",
     "suggestions": "Náměty"
   },
-  "cookieConsent": {
-    "message": "Tento web používá lokální úložiště prohlížeče, aby si zapamatoval tvůj jazyk, nastavení a postup. Pokud souhlasíš, zobrazíme také reklamy (Google AdSense), abychom pomohli pokrýt náklady na hosting.",
-    "learnMore": "Zjistit více",
-    "accept": "Přijmout",
-    "decline": "Odmítnout"
-  },
   "privacyPolicy": {
     "lastUpdated": "Poslední aktualizace: 10. srpna 2026",
     "intro": {
@@ -324,10 +318,6 @@
       "title": "Data odesílaná na server",
       "body": "Pokud přidáš komentář pod mokoko na mapě (volitelně s fotkou), odešleš cenu do globálního ceníku, nebo necháš svůj nick pro Hall of Fame — tato data se ukládají do databáze webu (Supabase) a jsou veřejně viditelná ostatním návštěvníkům. Neuváděj prosím v komentářích osobní údaje — nikdy nejsou potřeba."
     },
-    "cookiesAds": {
-      "title": "Cookies a reklamy",
-      "body": "Tento web zobrazuje reklamy prostřednictvím Google AdSense, aby pomohl pokrýt náklady na hosting. Reklamní cookies se načtou až po tvém souhlasu prostřednictvím banneru ve spodní části stránky — pokud odmítneš, žádné reklamní cookies se nenastaví a neuvidíš personalizované reklamy. Svou volbu můžeš kdykoli změnit vymazáním dat tohoto webu v prohlížeči."
-    },
     "hostingLogs": {
       "title": "Protokoly hostingu",
       "body": "Stejně jako většina webů mohou hostingová infrastruktura (Vercel) a databáze (Supabase), na kterých tento web běží, běžně zaznamenávat IP adresy a základní technické informace o požadavcích (např. typ prohlížeče) v rámci běžného provozu a zabezpečení služby. K těmto datům nemáme přímý přístup nad rámec základních statistik."
@@ -338,7 +328,7 @@
     },
     "changes": {
       "title": "Změny těchto zásad",
-      "body": "Tyto zásady mohou být aktualizovány s vývojem webu (např. po spuštění reklam). Datum poslední aktualizace je uvedeno v horní části stránky."
+      "body": "Tyto zásady mohou být aktualizovány s vývojem webu. Datum poslední aktualizace je uvedeno v horní části stránky."
     },
     "contact": {
       "title": "Kontakt",

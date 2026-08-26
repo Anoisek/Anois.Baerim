@@ -7,9 +7,6 @@ import { ModalQueueProvider } from './context/ModalQueueContext'
 import ScrollToTop from './components/ScrollToTop'
 import NicknamePrompt from './components/NicknamePrompt'
 import Footer from './components/Footer'
-import CookieConsent from './components/CookieConsent'
-import GoogleAdsense from './components/GoogleAdsense'
-import SideRailAds from './components/SideRailAds'
 import MokokoAnnouncement from './components/MokokoAnnouncement'
 import DomainChangeNotice from './components/DomainChangeNotice'
 import Home from './pages/Home'
@@ -47,8 +44,6 @@ export default function App() {
           <NicknamePrompt />
           <MokokoAnnouncement />
           <DomainChangeNotice />
-          <GoogleAdsense />
-          <SideRailAds />
           <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -76,7 +71,6 @@ export default function App() {
           <Route path="/suggestions" element={<Suggestions />} />
           </Routes>
           <Footer />
-          <CookieConsent />
         </ModalQueueProvider>
         </UiScaleProvider>
         </NightModeProvider>

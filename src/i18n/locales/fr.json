@@ -294,12 +294,6 @@
     "privacyPolicy": "Politique de confidentialité",
     "suggestions": "Suggestions"
   },
-  "cookieConsent": {
-    "message": "Ce site utilise le stockage local du navigateur pour mémoriser ta langue, tes paramètres et ta progression. Si tu acceptes, nous afficherons aussi des publicités (Google AdSense) pour aider à couvrir les frais d'hébergement.",
-    "learnMore": "En savoir plus",
-    "accept": "Accepter",
-    "decline": "Refuser"
-  },
   "privacyPolicy": {
     "lastUpdated": "Dernière mise à jour : 10 août 2026",
     "intro": {
@@ -324,10 +318,6 @@
       "title": "Données envoyées au serveur",
       "body": "Si tu ajoutes un commentaire sous un mokoko sur la carte (avec une photo en option), que tu soumets un prix à la liste globale, ou que tu laisses ton pseudo pour le Hall of Fame — ces données sont stockées dans la base de données du site (Supabase) et visibles publiquement par les autres visiteurs. Merci de ne pas inclure de données personnelles dans les commentaires — elles ne sont jamais nécessaires."
     },
-    "cookiesAds": {
-      "title": "Cookies et publicité",
-      "body": "Ce site affiche des publicités via Google AdSense pour aider à couvrir les frais d'hébergement. Les cookies publicitaires ne se chargent qu'après ton acceptation du bandeau en bas de page — si tu refuses, aucun cookie publicitaire n'est déposé et tu ne verras pas de publicités personnalisées. Tu peux modifier ton choix à tout moment en effaçant les données de ce site dans ton navigateur."
-    },
     "hostingLogs": {
       "title": "Journaux d'hébergement",
       "body": "Comme la plupart des sites web, l'infrastructure d'hébergement (Vercel) et la base de données (Supabase) utilisées par ce site peuvent enregistrer de façon routinière les adresses IP et des informations techniques de base sur les requêtes (par exemple le type de navigateur) dans le cadre du fonctionnement normal et de la sécurité du service. Nous n'avons pas d'accès direct à ces données, hormis des statistiques de base."
@@ -338,7 +328,7 @@
     },
     "changes": {
       "title": "Modifications de cette politique",
-      "body": "Cette politique peut être mise à jour à mesure que le site évolue (par exemple lors du lancement des publicités). La date de la dernière mise à jour figure en haut de la page."
+      "body": "Cette politique peut être mise à jour à mesure que le site évolue. La date de la dernière mise à jour figure en haut de la page."
     },
     "contact": {
       "title": "Contact",

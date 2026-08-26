@@ -294,12 +294,6 @@
     "privacyPolicy": "Privacy Policy",
     "suggestions": "Suggestions"
   },
-  "cookieConsent": {
-    "message": "This site uses local browser storage to remember your language, settings and progress. If you accept, we'll also show ads (Google AdSense) to help cover hosting costs.",
-    "learnMore": "Learn more",
-    "accept": "Accept",
-    "decline": "Decline"
-  },
   "privacyPolicy": {
     "lastUpdated": "Last updated: August 10, 2026",
     "intro": {
@@ -324,10 +318,6 @@
       "title": "Data sent to the server",
       "body": "If you add a comment under a mokoko on the map (optionally with a photo), submit a price to the global price list, or leave your nickname for the Hall of Fame — that data is stored in the site's database (Supabase) and is publicly visible to other visitors. Please don't include personal information in comments — it's never needed."
     },
-    "cookiesAds": {
-      "title": "Cookies and ads",
-      "body": "This site shows ads via Google AdSense to help cover hosting costs. Advertising cookies are only loaded after you accept the cookie banner at the bottom of the page — if you decline, no advertising cookies are set and you won't see personalized ads. You can change your choice at any time by clearing this site's data in your browser."
-    },
     "hostingLogs": {
       "title": "Hosting logs",
       "body": "Like most websites, the hosting infrastructure (Vercel) and database (Supabase) behind this site may routinely log IP addresses and basic technical request information (e.g. browser type) as part of normal service operation and security. We don't have direct access to this data beyond basic statistics."
@@ -338,7 +328,7 @@
     },
     "changes": {
       "title": "Changes to this policy",
-      "body": "This policy may be updated as the site evolves (e.g. once ads are launched). The date of the last update is shown at the top of the page."
+      "body": "This policy may be updated as the site evolves. The date of the last update is shown at the top of the page."
     },
     "contact": {
       "title": "Contact",

@@ -294,12 +294,6 @@
     "privacyPolicy": "Política de privacidad",
     "suggestions": "Sugerencias"
   },
-  "cookieConsent": {
-    "message": "Este sitio usa almacenamiento local del navegador para recordar tu idioma, ajustes y progreso. Si aceptas, también mostraremos anuncios (Google AdSense) para ayudar a cubrir los costes de alojamiento.",
-    "learnMore": "Saber más",
-    "accept": "Aceptar",
-    "decline": "Rechazar"
-  },
   "privacyPolicy": {
     "lastUpdated": "Última actualización: 10 de agosto de 2026",
     "intro": {
@@ -324,10 +318,6 @@
       "title": "Datos enviados al servidor",
       "body": "Si añades un comentario bajo un mokoko en el mapa (opcionalmente con una foto), envías un precio a la lista global de precios, o dejas tu apodo para el Hall of Fame — esos datos se guardan en la base de datos del sitio (Supabase) y son visibles públicamente para otros visitantes. Por favor no incluyas datos personales en los comentarios — nunca son necesarios."
     },
-    "cookiesAds": {
-      "title": "Cookies y publicidad",
-      "body": "Este sitio muestra anuncios mediante Google AdSense para ayudar a cubrir los costes de alojamiento. Las cookies publicitarias solo se cargan después de que aceptes el banner en la parte inferior de la página — si rechazas, no se establecerá ninguna cookie publicitaria y no verás anuncios personalizados. Puedes cambiar tu elección en cualquier momento borrando los datos de este sitio en tu navegador."
-    },
     "hostingLogs": {
       "title": "Registros de alojamiento",
       "body": "Como la mayoría de los sitios web, la infraestructura de alojamiento (Vercel) y la base de datos (Supabase) que usa este sitio pueden registrar rutinariamente direcciones IP e información técnica básica de las solicitudes (por ejemplo, el tipo de navegador) como parte del funcionamiento normal y la seguridad del servicio. No tenemos acceso directo a estos datos más allá de estadísticas básicas."
@@ -338,7 +328,7 @@
     },
     "changes": {
       "title": "Cambios en esta política",
-      "body": "Esta política puede actualizarse a medida que el sitio evoluciona (por ejemplo, cuando se activen los anuncios). La fecha de la última actualización aparece en la parte superior de la página."
+      "body": "Esta política puede actualizarse a medida que el sitio evoluciona. La fecha de la última actualización aparece en la parte superior de la página."
     },
     "contact": {
       "title": "Contacto",

@@ -294,12 +294,6 @@
     "privacyPolicy": "Gizlilik Politikası",
     "suggestions": "Öneriler"
   },
-  "cookieConsent": {
-    "message": "Bu site, dilini, ayarlarını ve ilerlemeni hatırlamak için tarayıcı yerel depolamasını kullanır. Kabul edersen, barındırma maliyetlerini karşılamaya yardımcı olmak için reklamlar da (Google AdSense) göstereceğiz.",
-    "learnMore": "Daha fazla bilgi",
-    "accept": "Kabul et",
-    "decline": "Reddet"
-  },
   "privacyPolicy": {
     "lastUpdated": "Son güncelleme: 10 Ağustos 2026",
     "intro": {
@@ -324,10 +318,6 @@
       "title": "Sunucuya gönderilen veriler",
       "body": "Haritadaki bir mokoko altına yorum eklersen (isteğe bağlı olarak fotoğrafla birlikte), küresel fiyat listesine bir fiyat gönderirsen ya da Hall of Fame için takma adını bırakırsan — bu veriler sitenin veritabanında (Supabase) saklanır ve diğer ziyaretçiler tarafından herkese açık şekilde görülebilir. Lütfen yorumlara kişisel bilgi eklemeyin — bunlara hiçbir zaman ihtiyaç yoktur."
     },
-    "cookiesAds": {
-      "title": "Çerezler ve reklamlar",
-      "body": "Bu site, barındırma maliyetlerini karşılamaya yardımcı olmak için Google AdSense aracılığıyla reklam gösterir. Reklam çerezleri yalnızca sayfanın altındaki banner'ı kabul ettikten sonra yüklenir — reddedersen hiçbir reklam çerezi ayarlanmaz ve kişiselleştirilmiş reklamlar görmezsin. Seçimini istediğin zaman tarayıcında bu sitenin verilerini silerek değiştirebilirsin."
-    },
     "hostingLogs": {
       "title": "Barındırma günlükleri",
       "body": "Çoğu web sitesi gibi, bu sitenin arkasındaki barındırma altyapısı (Vercel) ve veritabanı (Supabase), hizmetin normal işleyişi ve güvenliği kapsamında rutin olarak IP adreslerini ve temel teknik istek bilgilerini (örneğin tarayıcı türü) kaydedebilir. Temel istatistikler dışında bu verilere doğrudan erişimimiz yoktur."
@@ -338,7 +328,7 @@
     },
     "changes": {
       "title": "Bu politikadaki değişiklikler",
-      "body": "Bu politika, site geliştikçe (örneğin reklamlar başlatıldığında) güncellenebilir. Son güncelleme tarihi sayfanın üstünde gösterilir."
+      "body": "Bu politika, site geliştikçe güncellenebilir. Son güncelleme tarihi sayfanın üstünde gösterilir."
     },
     "contact": {
       "title": "İletişim",

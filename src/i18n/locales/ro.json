@@ -294,12 +294,6 @@
     "privacyPolicy": "Politica de confidențialitate",
     "suggestions": "Sugestii"
   },
-  "cookieConsent": {
-    "message": "Acest site folosește stocarea locală a browserului pentru a-ți reține limba, setările și progresul. Dacă accepți, vom afișa și reclame (Google AdSense) pentru a ajuta la acoperirea costurilor de hosting.",
-    "learnMore": "Află mai multe",
-    "accept": "Acceptă",
-    "decline": "Refuză"
-  },
   "privacyPolicy": {
     "lastUpdated": "Ultima actualizare: 10 august 2026",
     "intro": {
@@ -324,10 +318,6 @@
       "title": "Date trimise către server",
       "body": "Dacă adaugi un comentariu sub un mokoko de pe hartă (opțional cu o fotografie), trimiți un preț către lista globală de prețuri, sau lași porecla ta pentru Hall of Fame — aceste date sunt stocate în baza de date a site-ului (Supabase) și sunt vizibile public pentru ceilalți vizitatori. Te rugăm să nu incluzi date personale în comentarii — nu sunt niciodată necesare."
     },
-    "cookiesAds": {
-      "title": "Cookie-uri și reclame",
-      "body": "Acest site afișează reclame prin Google AdSense pentru a ajuta la acoperirea costurilor de hosting. Cookie-urile publicitare se încarcă doar după ce accepți bannerul din partea de jos a paginii — dacă refuzi, niciun cookie publicitar nu va fi setat și nu vei vedea reclame personalizate. Îți poți schimba alegerea oricând, ștergând datele acestui site din browser."
-    },
     "hostingLogs": {
       "title": "Jurnale de hosting",
       "body": "La fel ca majoritatea site-urilor, infrastructura de hosting (Vercel) și baza de date (Supabase) folosite de acest site pot înregistra în mod obișnuit adresele IP și informații tehnice de bază despre cereri (de ex. tipul de browser) ca parte a funcționării normale și a securității serviciului. Nu avem acces direct la aceste date, în afară de statistici de bază."
@@ -338,7 +328,7 @@
     },
     "changes": {
       "title": "Modificări ale acestei politici",
-      "body": "Această politică poate fi actualizată pe măsură ce site-ul evoluează (de ex. odată lansate reclamele). Data ultimei actualizări este afișată în partea de sus a paginii."
+      "body": "Această politică poate fi actualizată pe măsură ce site-ul evoluează. Data ultimei actualizări este afișată în partea de sus a paginii."
     },
     "contact": {
       "title": "Contact",

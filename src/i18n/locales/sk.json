@@ -294,12 +294,6 @@
     "privacyPolicy": "Zásady ochrany osobných údajov",
     "suggestions": "Návrhy"
   },
-  "cookieConsent": {
-    "message": "Táto stránka používa lokálne úložisko prehliadača na zapamätanie tvojho jazyka, nastavení a postupu. Ak súhlasíš, zobrazíme aj reklamy (Google AdSense), aby sme pomohli pokryť náklady na hosting.",
-    "learnMore": "Zistiť viac",
-    "accept": "Prijať",
-    "decline": "Odmietnuť"
-  },
   "privacyPolicy": {
     "lastUpdated": "Posledná aktualizácia: 10. augusta 2026",
     "intro": {
@@ -324,10 +318,6 @@
       "title": "Dáta odosielané na server",
       "body": "Ak pridáš komentár pod mokoko na mape (voliteľne s fotkou), odošleš cenu do globálneho cenníka, alebo necháš svoj nick pre Hall of Fame — tieto dáta sa ukladajú do databázy stránky (Supabase) a sú verejne viditeľné ostatným návštevníkom. Neuvádzaj prosím v komentároch osobné údaje — nikdy nie sú potrebné."
     },
-    "cookiesAds": {
-      "title": "Cookies a reklamy",
-      "body": "Táto stránka zobrazuje reklamy prostredníctvom Google AdSense, aby pomohla pokryť náklady na hosting. Reklamné cookies sa načítajú až po tvojom súhlase prostredníctvom banneru v spodnej časti stránky — ak odmietneš, žiadne reklamné cookies sa nenastavia a neuvidíš personalizované reklamy. Svoju voľbu môžeš kedykoľvek zmeniť vymazaním údajov tejto stránky vo svojom prehliadači."
-    },
     "hostingLogs": {
       "title": "Protokoly hostingu",
       "body": "Rovnako ako väčšina webov, hostingová infraštruktúra (Vercel) a databáza (Supabase), na ktorých táto stránka beží, môžu bežne zaznamenávať IP adresy a základné technické informácie o požiadavkách (napr. typ prehliadača) v rámci bežnej prevádzky a zabezpečenia služby. K týmto dátam nemáme priamy prístup nad rámec základných štatistík."
@@ -338,7 +328,7 @@
     },
     "changes": {
       "title": "Zmeny týchto zásad",
-      "body": "Tieto zásady môžu byť aktualizované s vývojom stránky (napr. po spustení reklám). Dátum poslednej aktualizácie je uvedený v hornej časti stránky."
+      "body": "Tieto zásady môžu byť aktualizované s vývojom stránky. Dátum poslednej aktualizácie je uvedený v hornej časti stránky."
     },
     "contact": {
       "title": "Kontakt",

@@ -294,12 +294,6 @@
     "privacyPolicy": "Polityka prywatności",
     "suggestions": "Sugestie"
   },
-  "cookieConsent": {
-    "message": "Ta strona używa lokalnej pamięci przeglądarki, żeby zapamiętać Twój język, ustawienia i postęp. Jeśli zaakceptujesz, wyświetlimy też reklamy (Google AdSense), żeby pomóc pokryć koszty hostingu.",
-    "learnMore": "Dowiedz się więcej",
-    "accept": "Akceptuję",
-    "decline": "Odrzuć"
-  },
   "privacyPolicy": {
     "lastUpdated": "Ostatnia aktualizacja: 10 sierpnia 2026",
     "intro": {
@@ -324,10 +318,6 @@
       "title": "Dane wysyłane na serwer",
       "body": "Jeśli dodajesz komentarz pod mokoko na mapie (opcjonalnie razem ze zdjęciem), zgłaszasz cenę do globalnej bazy cen, lub zostawiasz swój nick do Hall of Fame — te dane trafiają do bazy danych strony (Supabase) i są widoczne publicznie dla innych odwiedzających. Nie proś o podawanie w komentarzach danych osobowych — nie są one do tego potrzebne."
     },
-    "cookiesAds": {
-      "title": "Cookies i reklamy",
-      "body": "Ta strona wyświetla reklamy przez Google AdSense, żeby pomóc pokryć koszty hostingu. Cookies reklamowe ładują się dopiero po Twojej zgodzie wyrażonej w banerze na dole strony — jeśli odrzucisz, żadne cookies reklamowe nie zostaną ustawione i nie zobaczysz spersonalizowanych reklam. Możesz zmienić swój wybór w każdej chwili, czyszcząc dane tej strony w przeglądarce."
-    },
     "hostingLogs": {
       "title": "Logi hostingu",
       "body": "Jak większość stron internetowych, infrastruktura hostingowa (Vercel) i baza danych (Supabase), z których korzysta ta strona, mogą standardowo zapisywać adres IP i podstawowe informacje techniczne o żądaniach (np. typ przeglądarki) w ramach normalnego działania i bezpieczeństwa usługi. Nie mamy do tych danych bezpośredniego dostępu poza podstawowymi statystykami."
@@ -338,7 +328,7 @@
     },
     "changes": {
       "title": "Zmiany tej polityki",
-      "body": "Ta polityka może być aktualizowana wraz z rozwojem strony (np. po uruchomieniu reklam). Data ostatniej aktualizacji znajduje się na górze strony."
+      "body": "Ta polityka może być aktualizowana wraz z rozwojem strony. Data ostatniej aktualizacji znajduje się na górze strony."
     },
     "contact": {
       "title": "Kontakt",
