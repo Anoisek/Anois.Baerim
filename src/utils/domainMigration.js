@@ -3,7 +3,10 @@
 // per-origin, so a plain DNS/host swap would leave everyone's saved progress behind —
 // this carries it across via a signed-free redirect + query payload.
 
-const OLD_HOSTS = new Set(['anois-baerim.vercel.app', 'anois-baerim.pages.dev'])
+// Order matters here: pages.dev was the live site for ~12 days right up until this
+// switch, vercel.app is a frozen snapshot from before that. When both are consulted
+// at once (requestManualRecovery), earlier entries win for any key both hold.
+const OLD_HOSTS = ['anois-baerim.pages.dev', 'anois-baerim.vercel.app']
 const NEW_ORIGIN = 'https://baerimtools.com'
 const MIGRATE_PARAM = 'migrate'
 const MIGRATED_FLAG = 'migrated_to_baerimtools'
@@ -66,7 +69,7 @@ function applyPayload(data) {
 // Every visit to an old domain redirects to the new one; only the first visit (per browser)
 // carries the localStorage payload along — later redirects are plain, data's already there.
 export function redirectToNewDomain() {
-  if (!OLD_HOSTS.has(location.hostname)) return false
+  if (!OLD_HOSTS.includes(location.hostname)) return false
 
   const alreadyMigrated = localStorage.getItem(MIGRATED_FLAG) === 'true'
   const target = new URL(location.pathname + location.search, NEW_ORIGIN)
@@ -108,7 +111,7 @@ const BRIDGE_MESSAGE = 'baerim-migration-export'
 // redirect and just hands its localStorage to the parent window instead. Returns
 // true if it acted as a bridge (caller should skip rendering — nothing to show).
 export function exportPayloadToParentIfFramed() {
-  if (!OLD_HOSTS.has(location.hostname)) return false
+  if (!OLD_HOSTS.includes(location.hostname)) return false
   if (window.self === window.top) return false
 
   try {
@@ -128,27 +131,40 @@ export function isNewDomain() {
 // query-param payload needed — the user's data never left their own browser this
 // whole time, this just reaches across origins to fetch it once). Resolves true if
 // anything new was applied.
+//
+// Both old domains are queried at once, but responses are buffered and applied in
+// OLD_HOSTS priority order once everyone's answered (or timed out) — not in
+// whatever order the network happens to deliver them. Otherwise, for someone who
+// has different values saved on both old domains, the "winner" for a given key
+// would come down to which iframe loaded faster, not which domain actually held
+// the newer data.
 export function requestManualRecovery({ timeoutMs = 6000 } = {}) {
   return new Promise(resolve => {
     let settled = false
-    let appliedAny = false
-    let pending = OLD_HOSTS.size
+    let pending = OLD_HOSTS.length
     const frames = []
+    const payloadByHost = {}
 
-    function finish(result) {
+    function finish() {
       if (settled) return
       settled = true
       window.removeEventListener('message', onMessage)
       frames.forEach(f => f.remove())
-      resolve(result)
+
+      let appliedAny = false
+      for (const host of OLD_HOSTS) {
+        if (payloadByHost[host] && applyPayload(payloadByHost[host])) appliedAny = true
+      }
+      resolve(appliedAny)
     }
 
     function onMessage(event) {
       if (event.data?.type !== BRIDGE_MESSAGE) return
-      if (!OLD_HOSTS.has(new URL(event.origin).hostname)) return
-      if (applyPayload(event.data.payload || {})) appliedAny = true
+      const host = new URL(event.origin).hostname
+      if (!OLD_HOSTS.includes(host) || payloadByHost[host]) return
+      payloadByHost[host] = event.data.payload || {}
       pending -= 1
-      if (pending <= 0) finish(appliedAny)
+      if (pending <= 0) finish()
     }
 
     window.addEventListener('message', onMessage)
@@ -161,6 +177,6 @@ export function requestManualRecovery({ timeoutMs = 6000 } = {}) {
       frames.push(iframe)
     }
 
-    setTimeout(() => finish(appliedAny), timeoutMs)
+    setTimeout(finish, timeoutMs)
   })
 }
