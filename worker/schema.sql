@@ -213,3 +213,20 @@ CREATE TABLE metin_drop_stats (
   total_kills INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (metin_id, material_id, vote_buff, casual_buff, glove_buff, guild_buff)
 );
+
+CREATE TABLE bonuses (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE bonus_items (
+  id TEXT PRIMARY KEY,
+  bonus_id TEXT NOT NULL REFERENCES bonuses(id),
+  name TEXT NOT NULL,
+  image_url TEXT,
+  value REAL NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0
+);

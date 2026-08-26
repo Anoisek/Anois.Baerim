@@ -14,6 +14,7 @@ export default function Systems() {
   const [explorationMaintenance, setExplorationMaintenance] = useState(false)
   const [metinCalculatorMaintenance, setMetinCalculatorMaintenance] = useState(false)
   const [colorSystemMaintenance, setColorSystemMaintenance] = useState(false)
+  const [bonusesMaintenance, setBonusesMaintenance] = useState(false)
   const [loading, setLoading] = useState(true)
   const [editMode, setEditMode] = useState(false)
 
@@ -23,11 +24,13 @@ export default function Systems() {
       db.from('settings').select('value').eq('key', 'system_exploration_maintenance').maybeSingle(),
       db.from('settings').select('value').eq('key', 'system_metincalculator_maintenance').maybeSingle(),
       db.from('settings').select('value').eq('key', 'system_colorsystem_maintenance').maybeSingle(),
-    ]).then(([mapRes, explorationRes, metinCalculatorRes, colorSystemRes]) => {
+      db.from('settings').select('value').eq('key', 'system_bonuses_maintenance').maybeSingle(),
+    ]).then(([mapRes, explorationRes, metinCalculatorRes, colorSystemRes, bonusesRes]) => {
       setInteractiveMapMaintenance(mapRes.data?.value === 'true')
       setExplorationMaintenance(explorationRes.data?.value === 'true')
       setMetinCalculatorMaintenance(metinCalculatorRes.data?.value === 'true')
       setColorSystemMaintenance(colorSystemRes.data?.value === 'true')
+      setBonusesMaintenance(bonusesRes.data?.value === 'true')
       setLoading(false)
     })
   }, [])
@@ -37,6 +40,7 @@ export default function Systems() {
     { key: 'exploration', settingKey: 'system_exploration_maintenance', to: '/systems/exploration', emoji: '🧭', label: t('systems.exploration'), maintenance: explorationMaintenance, setMaintenance: setExplorationMaintenance },
     { key: 'metincalculator', settingKey: 'system_metincalculator_maintenance', to: '/systems/metin-calculator', emoji: '🪨', label: t('systems.metinCalculator'), maintenance: metinCalculatorMaintenance, setMaintenance: setMetinCalculatorMaintenance },
     { key: 'colorsystem', settingKey: 'system_colorsystem_maintenance', to: '/systems/color-system', emoji: '🎨', label: t('systems.colorSystem'), maintenance: colorSystemMaintenance, setMaintenance: setColorSystemMaintenance },
+    { key: 'bonuses', settingKey: 'system_bonuses_maintenance', to: '/systems/bonuses', emoji: '🎁', label: t('systems.bonuses'), maintenance: bonusesMaintenance, setMaintenance: setBonusesMaintenance },
   ]
 
   async function toggleMaintenance(tile) {

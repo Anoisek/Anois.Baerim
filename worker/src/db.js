@@ -112,6 +112,14 @@ const TABLES = {
     pk: ['metin_id', 'material_id', 'vote_buff', 'casual_buff', 'glove_buff', 'guild_buff'],
     publicRead: false,
   },
+  bonuses: {
+    columns: ['id', 'name', 'created_at', 'sort_order'],
+    pk: ['id'],
+  },
+  bonus_items: {
+    columns: ['id', 'bonus_id', 'name', 'image_url', 'value', 'created_at', 'sort_order'],
+    pk: ['id'],
+  },
 }
 
 const MODIFIER_KEYS = new Set(['select', 'order', 'limit', 'count', 'head'])
