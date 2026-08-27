@@ -235,7 +235,7 @@ export default function Alchemy() {
                   onClick={() => setPricesExpanded(v => !v)}
                   className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-900/60 hover:bg-gray-900 text-sm font-semibold text-gray-200 transition-colors"
                 >
-                  Stone prices
+                  Alchemy prices
                   <span className="text-gray-500 text-xs">{pricesExpanded ? '▲ hide' : '▼ show'}</span>
                 </button>
                 {pricesExpanded && (
