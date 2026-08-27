@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { db } from '../dbClient'
-import { getVisitorId } from '../utils/visitorId'
+import { visitorIdPromise } from '../utils/visitorId'
 
 const WORKER_URL = import.meta.env.VITE_IMAGES_WORKER_URL
 const PING_INTERVAL_MS = 20 * 1000
@@ -18,37 +18,46 @@ export default function VisitorPing() {
   pathnameRef.current = location.pathname
 
   useEffect(() => {
-    const visitorId = getVisitorId()
-    if (!visitorId) return
+    let cancelled = false
+    let interval = null
+    let announceLeaving = null
 
-    function ping() { db.rpc('ping_visitor', { visitor_id: visitorId, page: pathnameRef.current }) }
-    ping()
-    const interval = setInterval(ping, PING_INTERVAL_MS)
+    visitorIdPromise.then(visitorId => {
+      if (cancelled || !visitorId) return
 
-    // Regular fetch() can get killed mid-flight when a tab closes/navigates away —
-    // sendBeacon is designed to survive that, which is what lets "online now" drop
-    // this visitor almost immediately instead of waiting out a stale heartbeat.
-    function announceLeaving() {
-      if (document.visibilityState !== 'hidden') return
-      const body = new Blob([JSON.stringify({ visitor_id: visitorId, leaving: true, page: pathnameRef.current })], { type: 'application/json' })
-      navigator.sendBeacon?.(`${WORKER_URL}/rpc/ping_visitor`, body)
-    }
-    document.addEventListener('visibilitychange', announceLeaving)
-    window.addEventListener('pagehide', announceLeaving)
+      function ping() { db.rpc('ping_visitor', { visitor_id: visitorId, page: pathnameRef.current }) }
+      ping()
+      interval = setInterval(ping, PING_INTERVAL_MS)
+
+      // Regular fetch() can get killed mid-flight when a tab closes/navigates away —
+      // sendBeacon is designed to survive that, which is what lets "online now" drop
+      // this visitor almost immediately instead of waiting out a stale heartbeat.
+      announceLeaving = function () {
+        if (document.visibilityState !== 'hidden') return
+        const body = new Blob([JSON.stringify({ visitor_id: visitorId, leaving: true, page: pathnameRef.current })], { type: 'application/json' })
+        navigator.sendBeacon?.(`${WORKER_URL}/rpc/ping_visitor`, body)
+      }
+      document.addEventListener('visibilitychange', announceLeaving)
+      window.addEventListener('pagehide', announceLeaving)
+    })
 
     return () => {
+      cancelled = true
       clearInterval(interval)
-      document.removeEventListener('visibilitychange', announceLeaving)
-      window.removeEventListener('pagehide', announceLeaving)
+      if (announceLeaving) {
+        document.removeEventListener('visibilitychange', announceLeaving)
+        window.removeEventListener('pagehide', announceLeaving)
+      }
     }
   }, [])
 
   // Pings immediately on navigation so the admin's per-page breakdown updates
   // without waiting up to 20s for the next regular heartbeat.
   useEffect(() => {
-    const visitorId = getVisitorId()
-    if (!visitorId) return
-    db.rpc('ping_visitor', { visitor_id: visitorId, page: location.pathname })
+    visitorIdPromise.then(visitorId => {
+      if (!visitorId) return
+      db.rpc('ping_visitor', { visitor_id: visitorId, page: location.pathname })
+    })
   }, [location.pathname])
 
   return null
