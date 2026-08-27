@@ -93,6 +93,8 @@
     "maxBonus": "Max bonus",
     "noBonusesYet": "No bonuses yet.",
     "noItemsYet": "No items in this bonus yet.",
+    "checklistView": "Checklist view",
+    "gridView": "Grid view",
     "blockedMessage": "This page isn't available yet.",
     "noMapYet": "No map uploaded yet.",
     "editLevel": "Edit level {{level}}",

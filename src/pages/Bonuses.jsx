@@ -14,6 +14,40 @@ function formatValue(n) {
   return Number(n.toFixed(2)).toString()
 }
 
+const CHECKLIST_STORAGE_KEY = 'bonusChecklist_v1'
+
+function loadChecklist() {
+  try { return JSON.parse(localStorage.getItem(CHECKLIST_STORAGE_KEY) || '{}') } catch { return {} }
+}
+
+function BonusChecklistRow({ item, checked, onToggle }) {
+  const isSixSeven = item.name.toLowerCase().includes('6/7 bonus')
+  return (
+    <label
+      className={`flex items-center gap-3 px-3 py-2 rounded-xl border transition-colors cursor-pointer ${
+        checked ? 'bg-gray-900/30 border-gray-800 opacity-50' : 'bg-gray-900/80 border-gray-700 hover:border-yellow-400/50'
+      }`}
+    >
+      <div className="relative w-10 h-10 flex items-center justify-center shrink-0">
+        {item.image_url
+          ? <img src={item.image_url} alt={item.name} className="w-full h-full object-contain" />
+          : <span className="text-2xl">🎁</span>}
+        {isSixSeven && (
+          <img src="/67.png" alt="6/7" className="pointer-events-none absolute -bottom-1 -right-1 w-4 h-4 object-contain" />
+        )}
+      </div>
+      <span className="flex-1 text-sm font-semibold text-gray-100">{item.name}</span>
+      <span className="text-sm font-bold text-yellow-400 shrink-0">+{formatValue(item.value)}%</span>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onToggle}
+        className="accent-yellow-400 w-4 h-4 shrink-0"
+      />
+    </label>
+  )
+}
+
 function BonusItemTile({ item, isAdmin, onEdit }) {
   const isSixSeven = item.name.toLowerCase().includes('6/7 bonus')
   return (
@@ -62,6 +96,16 @@ export default function Bonuses() {
   const [editingItem, setEditingItem] = useState(null)
   const [showBonusPicker, setShowBonusPicker] = useState(false)
   const bonusPickerRef = useRef(null)
+  const [viewMode, setViewMode] = useState('grid')
+  const [checkedItems, setCheckedItems] = useState(loadChecklist)
+
+  function toggleChecked(itemId) {
+    setCheckedItems(prev => {
+      const next = { ...prev, [itemId]: !prev[itemId] }
+      localStorage.setItem(CHECKLIST_STORAGE_KEY, JSON.stringify(next))
+      return next
+    })
+  }
 
   useEffect(() => {
     if (!showBonusPicker) return
@@ -236,21 +280,38 @@ export default function Bonuses() {
                 {t('systems.maxBonus')}: +{formatValue(maxBonus)}%
               </p>
 
-              {isAdmin && (
-                <div className="flex justify-end mb-3">
+              <div className="flex justify-end items-center gap-2 mb-3">
+                <button
+                  onClick={() => setViewMode(v => v === 'grid' ? 'checklist' : 'grid')}
+                  className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors"
+                >
+                  {viewMode === 'grid' ? `📋 ${t('systems.checklistView')}` : `🖼️ ${t('systems.gridView')}`}
+                </button>
+                {isAdmin && (
                   <button
                     onClick={() => setShowAddItem(true)}
                     className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors"
                   >
                     + Add item
                   </button>
-                </div>
-              )}
+                )}
+              </div>
 
               {currentItems.length === 0 ? (
                 <div className="flex flex-col items-center py-16 text-gray-500 gap-3">
                   <span className="text-4xl">📭</span>
                   <p className="text-sm">{t('systems.noItemsYet')}</p>
+                </div>
+              ) : viewMode === 'checklist' ? (
+                <div className="flex flex-col gap-2 max-w-xl mx-auto">
+                  {currentItems.map(item => (
+                    <BonusChecklistRow
+                      key={item.id}
+                      item={item}
+                      checked={!!checkedItems[item.id]}
+                      onToggle={() => toggleChecked(item.id)}
+                    />
+                  ))}
                 </div>
               ) : (
                 <div className="flex flex-wrap justify-center gap-2">

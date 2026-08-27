@@ -93,6 +93,8 @@
     "maxBonus": "Bonus maxim",
     "noBonusesYet": "Niciun bonus încă.",
     "noItemsYet": "Niciun articol în acest bonus încă.",
+    "checklistView": "Vizualizare listă",
+    "gridView": "Vizualizare grilă",
     "blockedMessage": "Această pagină nu este încă disponibilă.",
     "noMapYet": "Nicio hartă încărcată încă.",
     "editLevel": "Editează nivelul {{level}}",

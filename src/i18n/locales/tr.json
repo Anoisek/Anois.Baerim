@@ -93,6 +93,8 @@
     "maxBonus": "Maksimum bonus",
     "noBonusesYet": "Henüz bonus yok.",
     "noItemsYet": "Bu bonusta henüz öğe yok.",
+    "checklistView": "Liste görünümü",
+    "gridView": "Izgara görünümü",
     "blockedMessage": "Bu sayfa henüz kullanılamıyor.",
     "noMapYet": "Henüz harita yüklenmedi.",
     "editLevel": "Seviye {{level}} düzenle",

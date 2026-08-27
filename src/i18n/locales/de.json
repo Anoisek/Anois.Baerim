@@ -93,6 +93,8 @@
     "maxBonus": "Maximaler Bonus",
     "noBonusesYet": "Noch keine Boni.",
     "noItemsYet": "Noch keine Gegenstände in diesem Bonus.",
+    "checklistView": "Listenansicht",
+    "gridView": "Rasteransicht",
     "blockedMessage": "Diese Seite ist noch nicht verfügbar.",
     "noMapYet": "Noch keine Karte hochgeladen.",
     "editLevel": "Level {{level}} bearbeiten",

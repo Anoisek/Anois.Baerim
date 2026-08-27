@@ -93,6 +93,8 @@
     "maxBonus": "Maximální bonus",
     "noBonusesYet": "Zatím žádné bonusy.",
     "noItemsYet": "Zatím žádné položky v tomto bonusu.",
+    "checklistView": "Zobrazení seznamu",
+    "gridView": "Zobrazení mřížky",
     "blockedMessage": "Tato stránka ještě není dostupná.",
     "noMapYet": "Zatím nebyla nahrána žádná mapa.",
     "editLevel": "Upravit úroveň {{level}}",

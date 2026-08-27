@@ -93,6 +93,8 @@
     "maxBonus": "Bonus maximum",
     "noBonusesYet": "Aucun bonus pour le moment.",
     "noItemsYet": "Aucun objet dans ce bonus pour le moment.",
+    "checklistView": "Vue liste",
+    "gridView": "Vue grille",
     "blockedMessage": "Cette page n'est pas encore disponible.",
     "noMapYet": "Aucune carte n'a encore été téléversée.",
     "editLevel": "Modifier le niveau {{level}}",

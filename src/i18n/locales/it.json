@@ -93,6 +93,8 @@
     "maxBonus": "Bonus massimo",
     "noBonusesYet": "Nessun bonus ancora.",
     "noItemsYet": "Nessun oggetto in questo bonus ancora.",
+    "checklistView": "Vista elenco",
+    "gridView": "Vista griglia",
     "blockedMessage": "Questa pagina non è ancora disponibile.",
     "noMapYet": "Nessuna mappa caricata ancora.",
     "editLevel": "Modifica livello {{level}}",

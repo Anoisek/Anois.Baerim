@@ -93,6 +93,8 @@
     "maxBonus": "Bónus máximo",
     "noBonusesYet": "Ainda não há bónus.",
     "noItemsYet": "Ainda não há itens neste bónus.",
+    "checklistView": "Vista de lista",
+    "gridView": "Vista de grelha",
     "blockedMessage": "Esta página ainda não está disponível.",
     "noMapYet": "Ainda não foi carregado nenhum mapa.",
     "editLevel": "Editar nível {{level}}",
