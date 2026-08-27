@@ -44,6 +44,17 @@ export default function VisitorStatsWidget() {
 
   if (!isAdmin || !stats) return null
 
+  // Server groups by exact path (e.g. one row per specific map slug under
+  // /systems/interactive-map), so several different rows can share the same
+  // friendly label here — merge those into one summed line instead of showing
+  // "Interactive Map" six times over.
+  const grouped = new Map()
+  for (const { page, count } of stats.byPage) {
+    const label = pageLabel(page)
+    grouped.set(label, (grouped.get(label) || 0) + count)
+  }
+  const groupedEntries = [...grouped.entries()].sort((a, b) => b[1] - a[1])
+
   return (
     <div className="fixed top-20 right-4 z-40 bg-gray-900/90 backdrop-blur border border-gray-700 rounded-xl px-4 py-3 text-xs shadow-lg select-none max-w-[14rem]">
       <button
@@ -57,12 +68,12 @@ export default function VisitorStatsWidget() {
 
       {expanded && (
         <div className="flex flex-col gap-0.5 border-t border-gray-700 pt-1.5 mb-1.5">
-          {stats.byPage.length === 0 ? (
+          {groupedEntries.length === 0 ? (
             <div className="text-gray-500">Nobody online.</div>
           ) : (
-            stats.byPage.map(({ page, count }) => (
-              <div key={page} className="flex items-center justify-between gap-3 text-gray-300">
-                <span className="truncate" title={page}>{pageLabel(page)}</span>
+            groupedEntries.map(([label, count]) => (
+              <div key={label} className="flex items-center justify-between gap-3 text-gray-300">
+                <span className="truncate">{label}</span>
                 <span className="font-semibold text-gray-100 shrink-0">{count}</span>
               </div>
             ))
