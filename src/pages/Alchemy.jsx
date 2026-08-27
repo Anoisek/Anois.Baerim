@@ -318,21 +318,24 @@ export default function Alchemy() {
 
               {activeTab === 'average' ? (
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-xl p-1">
-                      {GRADES.map(g => (
-                        <button
-                          key={g.key}
-                          type="button"
-                          onClick={() => setTargetGrade(g.key)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${targetGrade === g.key ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
-                        >
-                          {g.label}
-                        </button>
-                      ))}
+                  <div className="flex items-end gap-3 flex-wrap">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs text-gray-500 text-center">Target grade:</span>
+                      <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-xl p-1">
+                        {GRADES.map(g => (
+                          <button
+                            key={g.key}
+                            type="button"
+                            onClick={() => setTargetGrade(g.key)}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${targetGrade === g.key ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
+                          >
+                            {g.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <span className="text-xs text-gray-500">Purity upgrade chance:</span>
+                      <span className="text-xs text-gray-500 text-center">Purity upgrade chance:</span>
                       <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-xl p-1">
                         <button
                           type="button"
@@ -351,14 +354,14 @@ export default function Alchemy() {
                       </div>
                     </div>
                     {isAdmin && (
-                      <div className="flex items-center gap-2 text-xs text-gray-400">
-                        <span>Avg matt per {CORS_PER_BATCH.toLocaleString()} cors:</span>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs text-gray-500 text-center">Avg matt per {CORS_PER_BATCH.toLocaleString()} cors:</span>
                         <input
                           type="number"
                           step="any"
                           defaultValue={avgMattPer6000}
                           onBlur={e => handleAvgMattBlur(e.target.value)}
-                          className="bg-gray-800 border border-gray-600 rounded-lg px-2 py-1 w-20 text-white focus:outline-none focus:border-yellow-400"
+                          className="bg-gray-800 border border-gray-600 rounded-lg px-2 py-1.5 w-full text-white text-xs focus:outline-none focus:border-yellow-400"
                         />
                       </div>
                     )}
