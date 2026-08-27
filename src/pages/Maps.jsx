@@ -582,7 +582,15 @@ export default function Maps() {
                       className={`relative ${editMode || repositioningMarker ? 'cursor-crosshair' : ''}`}
                       style={{
                         aspectRatio: `${selectedMap.width} / ${selectedMap.height}`,
-                        width: '100%',
+                        // Width normally fills the column, but yields once that would make the
+                        // aspect-ratio-derived height exceed the viewport's own 70vh cap — this
+                        // is what a plain <img> gets for free from object-fit: contain, but here
+                        // the whole box (image + marker overlay) has to shrink together so marker
+                        // percentages stay aligned with the visible image. Without this, a short
+                        // viewport (small monitor, browser zoom) let the map grow taller than the
+                        // visible area and just clipped the bottom half via overflow-hidden.
+                        width: `min(100%, calc(70vh * ${selectedMap.width} / ${selectedMap.height}))`,
+                        margin: '0 auto',
                         transform: isTouchDevice ? `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` : undefined,
                         transformOrigin: '0 0',
                       }}
