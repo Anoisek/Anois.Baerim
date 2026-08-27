@@ -230,3 +230,12 @@ CREATE TABLE bonus_items (
   created_at TEXT NOT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0
 );
+
+-- One row per anonymous visitor (client-generated id in localStorage), upserted on
+-- every heartbeat ping. last_seen alone is enough to answer "active in the last N" —
+-- see visitor_stats in rpc.js.
+CREATE TABLE visitors (
+  visitor_id TEXT PRIMARY KEY,
+  first_seen TEXT NOT NULL,
+  last_seen TEXT NOT NULL
+);

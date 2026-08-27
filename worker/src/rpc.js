@@ -141,7 +141,47 @@ async function submitMetinDropStats(env, params, headers) {
   return json({ data: true, error: null }, 200, headers)
 }
 
-async function handleRpcRequest(request, env, url, headers) {
+// Anonymous, client-generated visitor_id (see src/utils/visitorId.js) — no IP, no
+// account, no personal data, just an opaque id in the caller's own localStorage.
+// Upserted on every heartbeat so last_seen always reflects the most recent ping.
+async function pingVisitor(env, params, headers) {
+  const visitorId = params && params.visitor_id
+  if (typeof visitorId !== 'string' || !visitorId || visitorId.length > 100) {
+    return json({ data: false, error: null }, 200, headers)
+  }
+  const nowIso = new Date().toISOString()
+  await env.DB.prepare(
+    'INSERT INTO visitors (visitor_id, first_seen, last_seen) VALUES (?, ?, ?) ' +
+    'ON CONFLICT(visitor_id) DO UPDATE SET last_seen = excluded.last_seen'
+  ).bind(visitorId, nowIso, nowIso).run()
+  return json({ data: true, error: null }, 200, headers)
+}
+
+// Admin-only. "Active in the last N" is derived purely from last_seen — a visitor's
+// most recent ping is by definition within every window they were active during, so
+// one column answers online-now/day/week/month/all-time without a growing event log.
+async function visitorStats(env, headers, isAdmin, request) {
+  if (!(await isAdmin(request, env))) return json({ data: null, error: { message: 'forbidden' } }, 403, headers)
+
+  const now = Date.now()
+  const since = function (ms) { return new Date(now - ms).toISOString() }
+  const countSince = async function (iso) {
+    const res = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors WHERE last_seen >= ?').bind(iso).first()
+    return res ? res.c : 0
+  }
+  const totalRes = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors').first()
+
+  const [online, day, week, month] = await Promise.all([
+    countSince(since(5 * 60 * 1000)),
+    countSince(since(24 * 3600 * 1000)),
+    countSince(since(7 * 24 * 3600 * 1000)),
+    countSince(since(30 * 24 * 3600 * 1000)),
+  ])
+
+  return json({ data: { online: online, day: day, week: week, month: month, overall: totalRes ? totalRes.c : 0 }, error: null }, 200, headers)
+}
+
+async function handleRpcRequest(request, env, url, headers, isAdmin) {
   const parts = url.pathname.split('/').filter(Boolean) // ['rpc', ':name']
   const name = parts[1]
   const params = await request.json().catch(function () { return {} })
@@ -151,6 +191,8 @@ async function handleRpcRequest(request, env, url, headers) {
   if (name === 'map_marker_counts') return mapMarkerCounts(env, headers)
   if (name === 'map_pending_reveal') return mapPendingReveal(env, headers)
   if (name === 'toggle_note_like') return toggleNoteLike(env, params, headers)
+  if (name === 'ping_visitor') return pingVisitor(env, params, headers)
+  if (name === 'visitor_stats') return visitorStats(env, headers, isAdmin, request)
 
   return json({ data: null, error: { message: 'unknown rpc: ' + name } }, 404, headers)
 }
