@@ -165,16 +165,17 @@ async function pingVisitor(env, params, headers) {
   return json({ data: true, error: null }, 200, headers)
 }
 
-// Admin-only. "Online now" checks the short-lived open_until claim (see above);
-// day/week/month/all-time use last_seen, which a "leaving" ping never rewinds —
-// closing the tab drops you from "online" but still correctly counts today's visit.
+// Admin-only. "Online now" checks the short-lived open_until claim (see above).
+// day/week/month count NEW browsers (first_seen in that window) — a returning
+// visitor who first showed up last month doesn't inflate "today"'s count just
+// because they're still around; "overall" is every browser ever, unfiltered.
 async function visitorStats(env, headers, isAdmin, request) {
   if (!(await isAdmin(request, env))) return json({ data: null, error: { message: 'forbidden' } }, 403, headers)
 
   const now = Date.now()
   const since = function (ms) { return new Date(now - ms).toISOString() }
   const countSince = async function (iso) {
-    const res = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors WHERE last_seen >= ?').bind(iso).first()
+    const res = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors WHERE first_seen >= ?').bind(iso).first()
     return res ? res.c : 0
   }
   const onlineRes = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors WHERE open_until >= ?').bind(new Date(now).toISOString()).first()
