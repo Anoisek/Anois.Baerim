@@ -331,21 +331,24 @@ export default function Alchemy() {
                         </button>
                       ))}
                     </div>
-                    <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-xl p-1">
-                      <button
-                        type="button"
-                        onClick={() => setSuccessMode('100')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${successMode === '100' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
-                      >
-                        100% success
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSuccessMode('avg')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${successMode === 'avg' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
-                      >
-                        Avg (50% success)
-                      </button>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs text-gray-500">Purity upgrade chance:</span>
+                      <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-xl p-1">
+                        <button
+                          type="button"
+                          onClick={() => setSuccessMode('100')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${successMode === '100' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
+                        >
+                          100% success
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSuccessMode('avg')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${successMode === 'avg' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
+                        >
+                          Avg (50% success)
+                        </button>
+                      </div>
                     </div>
                     {isAdmin && (
                       <div className="flex items-center gap-2 text-xs text-gray-400">
