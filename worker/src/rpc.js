@@ -141,25 +141,33 @@ async function submitMetinDropStats(env, params, headers) {
   return json({ data: true, error: null }, 200, headers)
 }
 
+// A ping's open_until claim outlives the client's heartbeat interval (20s, see
+// VisitorPing.jsx) by this much slack, so one missed/delayed ping doesn't flicker
+// someone offline. A "leaving" ping (sendBeacon on tab hide/close) collapses
+// open_until to right now instead, which is what makes closing a tab drop out of
+// the online count almost immediately rather than waiting out this whole window.
+const OPEN_WINDOW_MS = 45 * 1000
+
 // Anonymous, client-generated visitor_id (see src/utils/visitorId.js) — no IP, no
 // account, no personal data, just an opaque id in the caller's own localStorage.
-// Upserted on every heartbeat so last_seen always reflects the most recent ping.
 async function pingVisitor(env, params, headers) {
   const visitorId = params && params.visitor_id
   if (typeof visitorId !== 'string' || !visitorId || visitorId.length > 100) {
     return json({ data: false, error: null }, 200, headers)
   }
+  const leaving = !!(params && params.leaving)
   const nowIso = new Date().toISOString()
+  const openUntilIso = leaving ? nowIso : new Date(Date.now() + OPEN_WINDOW_MS).toISOString()
   await env.DB.prepare(
-    'INSERT INTO visitors (visitor_id, first_seen, last_seen) VALUES (?, ?, ?) ' +
-    'ON CONFLICT(visitor_id) DO UPDATE SET last_seen = excluded.last_seen'
-  ).bind(visitorId, nowIso, nowIso).run()
+    'INSERT INTO visitors (visitor_id, first_seen, last_seen, open_until) VALUES (?, ?, ?, ?) ' +
+    'ON CONFLICT(visitor_id) DO UPDATE SET last_seen = excluded.last_seen, open_until = excluded.open_until'
+  ).bind(visitorId, nowIso, nowIso, openUntilIso).run()
   return json({ data: true, error: null }, 200, headers)
 }
 
-// Admin-only. "Active in the last N" is derived purely from last_seen — a visitor's
-// most recent ping is by definition within every window they were active during, so
-// one column answers online-now/day/week/month/all-time without a growing event log.
+// Admin-only. "Online now" checks the short-lived open_until claim (see above);
+// day/week/month/all-time use last_seen, which a "leaving" ping never rewinds —
+// closing the tab drops you from "online" but still correctly counts today's visit.
 async function visitorStats(env, headers, isAdmin, request) {
   if (!(await isAdmin(request, env))) return json({ data: null, error: { message: 'forbidden' } }, 403, headers)
 
@@ -169,16 +177,16 @@ async function visitorStats(env, headers, isAdmin, request) {
     const res = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors WHERE last_seen >= ?').bind(iso).first()
     return res ? res.c : 0
   }
+  const onlineRes = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors WHERE open_until >= ?').bind(new Date(now).toISOString()).first()
   const totalRes = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors').first()
 
-  const [online, day, week, month] = await Promise.all([
-    countSince(since(5 * 60 * 1000)),
+  const [day, week, month] = await Promise.all([
     countSince(since(24 * 3600 * 1000)),
     countSince(since(7 * 24 * 3600 * 1000)),
     countSince(since(30 * 24 * 3600 * 1000)),
   ])
 
-  return json({ data: { online: online, day: day, week: week, month: month, overall: totalRes ? totalRes.c : 0 }, error: null }, 200, headers)
+  return json({ data: { online: onlineRes ? onlineRes.c : 0, day: day, week: week, month: month, overall: totalRes ? totalRes.c : 0 }, error: null }, 200, headers)
 }
 
 async function handleRpcRequest(request, env, url, headers, isAdmin) {
