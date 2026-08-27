@@ -156,12 +156,14 @@ async function pingVisitor(env, params, headers) {
     return json({ data: false, error: null }, 200, headers)
   }
   const leaving = !!(params && params.leaving)
+  const page = typeof (params && params.page) === 'string' ? params.page.slice(0, 200) : null
   const nowIso = new Date().toISOString()
   const openUntilIso = leaving ? nowIso : new Date(Date.now() + OPEN_WINDOW_MS).toISOString()
   await env.DB.prepare(
-    'INSERT INTO visitors (visitor_id, first_seen, last_seen, open_until) VALUES (?, ?, ?, ?) ' +
-    'ON CONFLICT(visitor_id) DO UPDATE SET last_seen = excluded.last_seen, open_until = excluded.open_until'
-  ).bind(visitorId, nowIso, nowIso, openUntilIso).run()
+    'INSERT INTO visitors (visitor_id, first_seen, last_seen, open_until, current_page) VALUES (?, ?, ?, ?, ?) ' +
+    'ON CONFLICT(visitor_id) DO UPDATE SET last_seen = excluded.last_seen, open_until = excluded.open_until, ' +
+    'current_page = COALESCE(excluded.current_page, visitors.current_page)'
+  ).bind(visitorId, nowIso, nowIso, openUntilIso, page).run()
   await env.DB.prepare(
     'INSERT INTO visitor_days (visitor_id, day) VALUES (?, ?) ON CONFLICT(visitor_id, day) DO NOTHING'
   ).bind(visitorId, nowIso.slice(0, 10)).run()
@@ -182,8 +184,12 @@ async function visitorStats(env, headers, isAdmin, request) {
     const res = await env.DB.prepare('SELECT COUNT(*) as c FROM visitor_days WHERE day >= ?').bind(dayString).first()
     return res ? res.c : 0
   }
-  const onlineRes = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors WHERE open_until >= ?').bind(new Date(now).toISOString()).first()
+  const nowIso = new Date(now).toISOString()
+  const onlineRes = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors WHERE open_until >= ?').bind(nowIso).first()
   const totalRes = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors').first()
+  const byPageRes = await env.DB.prepare(
+    'SELECT current_page as page, COUNT(*) as c FROM visitors WHERE open_until >= ? GROUP BY current_page ORDER BY c DESC'
+  ).bind(nowIso).all()
 
   const [day, week, month] = await Promise.all([
     countSinceDay(dayStr(now)),
@@ -191,7 +197,9 @@ async function visitorStats(env, headers, isAdmin, request) {
     countSinceDay(dayStr(now - 29 * 24 * 3600 * 1000)),
   ])
 
-  return json({ data: { online: onlineRes ? onlineRes.c : 0, day: day, week: week, month: month, overall: totalRes ? totalRes.c : 0 }, error: null }, 200, headers)
+  const byPage = byPageRes.results.map(function (r) { return { page: r.page || '?', count: r.c } })
+
+  return json({ data: { online: onlineRes ? onlineRes.c : 0, byPage: byPage, day: day, week: week, month: month, overall: totalRes ? totalRes.c : 0 }, error: null }, 200, headers)
 }
 
 async function handleRpcRequest(request, env, url, headers, isAdmin) {

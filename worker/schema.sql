@@ -242,7 +242,8 @@ CREATE TABLE visitors (
   visitor_id TEXT PRIMARY KEY,
   first_seen TEXT NOT NULL,
   last_seen TEXT NOT NULL,
-  open_until TEXT
+  open_until TEXT,
+  current_page TEXT
 );
 
 -- One row per (visitor, calendar day UTC) they were seen at least once, PK-deduped
