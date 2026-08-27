@@ -182,68 +182,7 @@ async function submitMetinDropStats(env, params, headers) {
   return json({ data: true, error: null }, 200, headers)
 }
 
-// A ping's open_until claim outlives the client's heartbeat interval (20s, see
-// VisitorPing.jsx) by this much slack, so one missed/delayed ping doesn't flicker
-// someone offline. A "leaving" ping (sendBeacon on tab hide/close) collapses
-// open_until to right now instead, which is what makes closing a tab drop out of
-// the online count almost immediately rather than waiting out this whole window.
-const OPEN_WINDOW_MS = 45 * 1000
-
-// Anonymous, client-generated visitor_id (see src/utils/visitorId.js) — no IP, no
-// account, no personal data, just an opaque id in the caller's own localStorage.
-async function pingVisitor(env, params, headers) {
-  const visitorId = params && params.visitor_id
-  if (typeof visitorId !== 'string' || !visitorId || visitorId.length > 100) {
-    return json({ data: false, error: null }, 200, headers)
-  }
-  const leaving = !!(params && params.leaving)
-  const page = typeof (params && params.page) === 'string' ? params.page.slice(0, 200) : null
-  const nowIso = new Date().toISOString()
-  const openUntilIso = leaving ? nowIso : new Date(Date.now() + OPEN_WINDOW_MS).toISOString()
-  await env.DB.prepare(
-    'INSERT INTO visitors (visitor_id, first_seen, last_seen, open_until, current_page) VALUES (?, ?, ?, ?, ?) ' +
-    'ON CONFLICT(visitor_id) DO UPDATE SET last_seen = excluded.last_seen, open_until = excluded.open_until, ' +
-    'current_page = COALESCE(excluded.current_page, visitors.current_page)'
-  ).bind(visitorId, nowIso, nowIso, openUntilIso, page).run()
-  await env.DB.prepare(
-    'INSERT INTO visitor_days (visitor_id, day) VALUES (?, ?) ON CONFLICT(visitor_id, day) DO NOTHING'
-  ).bind(visitorId, nowIso.slice(0, 10)).run()
-  return json({ data: true, error: null }, 200, headers)
-}
-
-// Admin-only. "Online now" checks the short-lived open_until claim (see above).
-// "day" is distinct browsers seen today; "week"/"month" count every visit-day in
-// that window from visitor_days, so the same browser showing up on two different
-// days within the week adds 2, not 1 — deliberately not deduped by visitor, since
-// that's what was asked for. "overall" is every browser ever, unfiltered.
-async function visitorStats(env, headers, isAdmin, request) {
-  if (!(await isAdmin(request, env))) return json({ data: null, error: { message: 'forbidden' } }, 403, headers)
-
-  const now = Date.now()
-  const dayStr = function (ms) { return new Date(ms).toISOString().slice(0, 10) }
-  const countSinceDay = async function (dayString) {
-    const res = await env.DB.prepare('SELECT COUNT(*) as c FROM visitor_days WHERE day >= ?').bind(dayString).first()
-    return res ? res.c : 0
-  }
-  const nowIso = new Date(now).toISOString()
-  const onlineRes = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors WHERE open_until >= ?').bind(nowIso).first()
-  const totalRes = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors').first()
-  const byPageRes = await env.DB.prepare(
-    'SELECT current_page as page, COUNT(*) as c FROM visitors WHERE open_until >= ? GROUP BY current_page ORDER BY c DESC'
-  ).bind(nowIso).all()
-
-  const [day, week, month] = await Promise.all([
-    countSinceDay(dayStr(now)),
-    countSinceDay(dayStr(now - 6 * 24 * 3600 * 1000)),
-    countSinceDay(dayStr(now - 29 * 24 * 3600 * 1000)),
-  ])
-
-  const byPage = byPageRes.results.map(function (r) { return { page: r.page || '?', count: r.c } })
-
-  return json({ data: { online: onlineRes ? onlineRes.c : 0, byPage: byPage, day: day, week: week, month: month, overall: totalRes ? totalRes.c : 0 }, error: null }, 200, headers)
-}
-
-async function handleRpcRequest(request, env, url, headers, isAdmin) {
+async function handleRpcRequest(request, env, url, headers) {
   const parts = url.pathname.split('/').filter(Boolean) // ['rpc', ':name']
   const name = parts[1]
   const params = await request.json().catch(function () { return {} })
@@ -254,8 +193,6 @@ async function handleRpcRequest(request, env, url, headers, isAdmin) {
   if (name === 'map_marker_counts') return mapMarkerCounts(env, headers)
   if (name === 'map_pending_reveal') return mapPendingReveal(env, headers)
   if (name === 'toggle_note_like') return toggleNoteLike(env, params, headers)
-  if (name === 'ping_visitor') return pingVisitor(env, params, headers)
-  if (name === 'visitor_stats') return visitorStats(env, headers, isAdmin, request)
 
   return json({ data: null, error: { message: 'unknown rpc: ' + name } }, 404, headers)
 }
