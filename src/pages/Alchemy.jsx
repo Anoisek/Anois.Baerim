@@ -318,9 +318,9 @@ export default function Alchemy() {
 
               {activeTab === 'average' ? (
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-end gap-3 flex-wrap">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs text-gray-500 text-center">Target grade:</span>
+                  <div className="flex items-stretch gap-3 flex-wrap">
+                    <div className="flex flex-col items-center justify-center gap-1.5 bg-gray-900/80 border border-gray-700 rounded-xl px-3 py-2">
+                      <span className="text-xs text-gray-200 font-semibold text-center">Target grade:</span>
                       <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-xl p-1">
                         {GRADES.map(g => (
                           <button
@@ -334,8 +334,8 @@ export default function Alchemy() {
                         ))}
                       </div>
                     </div>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs text-gray-500 text-center">Purity upgrade chance:</span>
+                    <div className="flex flex-col items-center justify-center gap-1.5 bg-gray-900/80 border border-gray-700 rounded-xl px-3 py-2">
+                      <span className="text-xs text-gray-200 font-semibold text-center">Purity upgrade chance:</span>
                       <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-xl p-1">
                         <button
                           type="button"
@@ -354,14 +354,14 @@ export default function Alchemy() {
                       </div>
                     </div>
                     {isAdmin && (
-                      <div className="flex flex-col gap-1">
-                        <span className="text-xs text-gray-500 text-center">Avg matt per {CORS_PER_BATCH.toLocaleString()} cors:</span>
+                      <div className="flex flex-col items-center justify-center gap-1.5 bg-gray-900/80 border border-gray-700 rounded-xl px-3 py-2">
+                        <span className="text-xs text-gray-200 font-semibold text-center">Avg matt per {CORS_PER_BATCH.toLocaleString()} cors:</span>
                         <input
                           type="number"
                           step="any"
                           defaultValue={avgMattPer6000}
                           onBlur={e => handleAvgMattBlur(e.target.value)}
-                          className="bg-gray-800 border border-gray-600 rounded-lg px-2 py-1.5 w-full text-white text-xs focus:outline-none focus:border-yellow-400"
+                          className="bg-gray-800 border border-gray-600 rounded-lg px-2 py-1.5 w-24 text-white text-xs text-center focus:outline-none focus:border-yellow-400"
                         />
                       </div>
                     )}
