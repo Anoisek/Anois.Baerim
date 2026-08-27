@@ -162,29 +162,33 @@ async function pingVisitor(env, params, headers) {
     'INSERT INTO visitors (visitor_id, first_seen, last_seen, open_until) VALUES (?, ?, ?, ?) ' +
     'ON CONFLICT(visitor_id) DO UPDATE SET last_seen = excluded.last_seen, open_until = excluded.open_until'
   ).bind(visitorId, nowIso, nowIso, openUntilIso).run()
+  await env.DB.prepare(
+    'INSERT INTO visitor_days (visitor_id, day) VALUES (?, ?) ON CONFLICT(visitor_id, day) DO NOTHING'
+  ).bind(visitorId, nowIso.slice(0, 10)).run()
   return json({ data: true, error: null }, 200, headers)
 }
 
 // Admin-only. "Online now" checks the short-lived open_until claim (see above).
-// day/week/month count NEW browsers (first_seen in that window) — a returning
-// visitor who first showed up last month doesn't inflate "today"'s count just
-// because they're still around; "overall" is every browser ever, unfiltered.
+// "day" is distinct browsers seen today; "week"/"month" count every visit-day in
+// that window from visitor_days, so the same browser showing up on two different
+// days within the week adds 2, not 1 — deliberately not deduped by visitor, since
+// that's what was asked for. "overall" is every browser ever, unfiltered.
 async function visitorStats(env, headers, isAdmin, request) {
   if (!(await isAdmin(request, env))) return json({ data: null, error: { message: 'forbidden' } }, 403, headers)
 
   const now = Date.now()
-  const since = function (ms) { return new Date(now - ms).toISOString() }
-  const countSince = async function (iso) {
-    const res = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors WHERE first_seen >= ?').bind(iso).first()
+  const dayStr = function (ms) { return new Date(ms).toISOString().slice(0, 10) }
+  const countSinceDay = async function (dayString) {
+    const res = await env.DB.prepare('SELECT COUNT(*) as c FROM visitor_days WHERE day >= ?').bind(dayString).first()
     return res ? res.c : 0
   }
   const onlineRes = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors WHERE open_until >= ?').bind(new Date(now).toISOString()).first()
   const totalRes = await env.DB.prepare('SELECT COUNT(*) as c FROM visitors').first()
 
   const [day, week, month] = await Promise.all([
-    countSince(since(24 * 3600 * 1000)),
-    countSince(since(7 * 24 * 3600 * 1000)),
-    countSince(since(30 * 24 * 3600 * 1000)),
+    countSinceDay(dayStr(now)),
+    countSinceDay(dayStr(now - 6 * 24 * 3600 * 1000)),
+    countSinceDay(dayStr(now - 29 * 24 * 3600 * 1000)),
   ])
 
   return json({ data: { online: onlineRes ? onlineRes.c : 0, day: day, week: week, month: month, overall: totalRes ? totalRes.c : 0 }, error: null }, 200, headers)

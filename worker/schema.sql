@@ -244,3 +244,13 @@ CREATE TABLE visitors (
   last_seen TEXT NOT NULL,
   open_until TEXT
 );
+
+-- One row per (visitor, calendar day UTC) they were seen at least once, PK-deduped
+-- so repeated pings the same day are a no-op. Lets visitor_stats count "today" as
+-- distinct browsers today, and "week"/"month" as every visit-day in that window —
+-- so the same browser showing up on two different days within the week adds 2, not 1.
+CREATE TABLE visitor_days (
+  visitor_id TEXT NOT NULL,
+  day TEXT NOT NULL,
+  PRIMARY KEY (visitor_id, day)
+);

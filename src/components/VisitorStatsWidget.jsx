@@ -25,9 +25,9 @@ export default function VisitorStatsWidget() {
     <div className="fixed top-20 right-4 z-40 bg-gray-900/90 backdrop-blur border border-gray-700 rounded-xl px-4 py-3 text-xs shadow-lg pointer-events-none select-none">
       <div className="font-bold text-yellow-400 mb-1.5 whitespace-nowrap">👥 {stats.online} online now</div>
       <div className="flex flex-col gap-0.5 text-gray-400 whitespace-nowrap">
-        <div>New today: <span className="text-gray-100 font-semibold">{stats.day}</span></div>
-        <div>New this week: <span className="text-gray-100 font-semibold">{stats.week}</span></div>
-        <div>New this month: <span className="text-gray-100 font-semibold">{stats.month}</span></div>
+        <div>Today: <span className="text-gray-100 font-semibold">{stats.day}</span></div>
+        <div>This week: <span className="text-gray-100 font-semibold">{stats.week}</span></div>
+        <div>This month: <span className="text-gray-100 font-semibold">{stats.month}</span></div>
         <div>All-time: <span className="text-gray-100 font-semibold">{stats.overall}</span></div>
       </div>
     </div>
