@@ -120,6 +120,19 @@ const TABLES = {
     columns: ['id', 'bonus_id', 'name', 'image_url', 'value', 'created_at', 'sort_order'],
     pk: ['id'],
   },
+  alchemy_stones: {
+    columns: ['id', 'name', 'image_url', 'sort_order'],
+    pk: ['id'],
+  },
+  alchemy_prices: {
+    columns: ['key', 'price', 'submission_count', 'updated_at'],
+    pk: ['key'],
+  },
+  alchemy_price_submissions: {
+    columns: ['id', 'key', 'price', 'created_at'],
+    pk: ['id'],
+    publicRead: false,
+  },
 }
 
 const MODIFIER_KEYS = new Set(['select', 'order', 'limit', 'count', 'head'])

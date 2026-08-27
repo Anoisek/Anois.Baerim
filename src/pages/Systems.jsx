@@ -31,6 +31,7 @@ export default function Systems() {
     { key: 'metincalculator', to: '/systems/metin-calculator', emoji: '🪨', defaultLabel: t('systems.metinCalculator') },
     { key: 'colorsystem', to: '/systems/color-system', emoji: '🎨', defaultLabel: t('systems.colorSystem') },
     { key: 'bonuses', to: '/systems/bonuses', emoji: '🎁', defaultLabel: t('systems.bonuses') },
+    { key: 'alchemy', to: '/systems/alchemy', emoji: '⚗️', defaultLabel: t('systems.alchemy') },
   ]
 
   const tiles = tileDefs.map(def => ({

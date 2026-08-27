@@ -62,6 +62,47 @@ async function submitMaterialPrice(env, params, headers) {
   return json({ data: true, error: null }, 200, headers)
 }
 
+// Same shape as submitMaterialPrice, but for the Alchemy page's flat string-keyed
+// prices ('cor', or '<stone_id>:<grade>') instead of a material_id.
+async function submitAlchemyPrice(env, params, headers) {
+  const key = params?.p_key
+  const price = Number(params?.p_price)
+
+  if (typeof key !== 'string' || !key || key.length > 100 || !(price > 0)) {
+    return json({ data: false, error: null }, 200, headers)
+  }
+
+  const current = await env.DB.prepare('SELECT price FROM alchemy_prices WHERE key = ?').bind(key).first()
+
+  if (current) {
+    const relativeCap = current.price * 1.0
+    const absoluteCap = 500000000
+    const floorAbs = 1000
+    const allowed = Math.max(Math.min(relativeCap, absoluteCap), floorAbs)
+    if (Math.abs(price - current.price) > allowed) {
+      return json({ data: false, error: null }, 200, headers)
+    }
+  }
+
+  const nowIso = new Date().toISOString()
+  await env.DB.prepare('INSERT INTO alchemy_price_submissions (id, key, price, created_at) VALUES (?, ?, ?, ?)')
+    .bind(crypto.randomUUID(), key, price, nowIso)
+    .run()
+
+  const recent = await env.DB.prepare(
+    'SELECT price FROM alchemy_price_submissions WHERE key = ? ORDER BY created_at DESC LIMIT 20'
+  ).bind(key).all()
+  const prices = recent.results.map(function (r) { return r.price })
+  const medianPrice = median(prices)
+
+  await env.DB.prepare(
+    'INSERT INTO alchemy_prices (key, price, submission_count, updated_at) VALUES (?, ?, ?, ?) ' +
+    'ON CONFLICT(key) DO UPDATE SET price = excluded.price, submission_count = excluded.submission_count, updated_at = excluded.updated_at'
+  ).bind(key, medianPrice, prices.length, nowIso).run()
+
+  return json({ data: true, error: null }, 200, headers)
+}
+
 // Deliberately does NOT filter by visible_at — mirrors the Postgres function exactly.
 // Maps.jsx shows the total marker count per map including not-yet-revealed ones (⏳).
 async function mapMarkerCounts(env, headers) {
@@ -208,6 +249,7 @@ async function handleRpcRequest(request, env, url, headers, isAdmin) {
   const params = await request.json().catch(function () { return {} })
 
   if (name === 'submit_material_price') return submitMaterialPrice(env, params, headers)
+  if (name === 'submit_alchemy_price') return submitAlchemyPrice(env, params, headers)
   if (name === 'submit_metin_drop_stats') return submitMetinDropStats(env, params, headers)
   if (name === 'map_marker_counts') return mapMarkerCounts(env, headers)
   if (name === 'map_pending_reveal') return mapPendingReveal(env, headers)

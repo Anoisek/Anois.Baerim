@@ -255,3 +255,29 @@ CREATE TABLE visitor_days (
   day TEXT NOT NULL,
   PRIMARY KEY (visitor_id, day)
 );
+
+-- Fixed set of 6 stone types (admin sets name/image) — the grades themselves
+-- (matt/clear/flawless/brilliant/excellent) are not a table, just a fixed order
+-- used to build alchemy_prices keys as "<stone_id>:<grade>".
+CREATE TABLE alchemy_stones (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  image_url TEXT,
+  sort_order INTEGER NOT NULL DEFAULT 0
+);
+
+-- Crowd-sourced prices, same shape as global_prices but keyed by an opaque string:
+-- 'cor' for Cor Draconis, or '<stone_id>:<grade>' for a stone at a given grade.
+CREATE TABLE alchemy_prices (
+  key TEXT PRIMARY KEY,
+  price REAL NOT NULL,
+  submission_count INTEGER NOT NULL DEFAULT 0,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE alchemy_price_submissions (
+  id TEXT PRIMARY KEY,
+  key TEXT NOT NULL,
+  price REAL NOT NULL,
+  created_at TEXT NOT NULL
+);

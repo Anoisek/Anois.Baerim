@@ -18,6 +18,7 @@ import MaterialDetail from './pages/MaterialDetail'
 import MaterialUsage from './pages/MaterialUsage'
 import Systems from './pages/Systems'
 import Bonuses from './pages/Bonuses'
+import Alchemy from './pages/Alchemy'
 import Exploration from './pages/Exploration'
 import ExplorationLevel from './pages/ExplorationLevel'
 import Maps from './pages/Maps'
@@ -59,6 +60,7 @@ export default function App() {
               <Route path="/materials/:materialId/usage" element={<MaterialUsage />} />
               <Route path="/systems" element={<Systems />} />
               <Route path="/systems/bonuses" element={<Bonuses />} />
+              <Route path="/systems/alchemy" element={<Alchemy />} />
               <Route path="/systems/exploration" element={<Exploration />} />
               <Route path="/systems/exploration/:level" element={<ExplorationLevel />} />
               <Route path="/systems/interactive-map" element={<Maps />} />
