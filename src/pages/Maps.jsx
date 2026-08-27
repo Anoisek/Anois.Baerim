@@ -570,7 +570,9 @@ export default function Maps() {
                   <>
                     <div
                       ref={mapViewportRef}
-                      className="relative w-full overflow-hidden touch-none rounded-xl border border-gray-700 bg-gray-950"
+                      className={`relative w-full touch-none rounded-xl border border-gray-700 bg-gray-950 ${
+                        isTouchDevice ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'
+                      }`}
                       style={{ maxHeight: '70vh' }}
                       onPointerDown={handleMapPointerDown}
                       onPointerMove={handleMapPointerMove}
@@ -582,15 +584,12 @@ export default function Maps() {
                       className={`relative ${editMode || repositioningMarker ? 'cursor-crosshair' : ''}`}
                       style={{
                         aspectRatio: `${selectedMap.width} / ${selectedMap.height}`,
-                        // Width normally fills the column, but yields once that would make the
-                        // aspect-ratio-derived height exceed the viewport's own 70vh cap — this
-                        // is what a plain <img> gets for free from object-fit: contain, but here
-                        // the whole box (image + marker overlay) has to shrink together so marker
-                        // percentages stay aligned with the visible image. Without this, a short
-                        // viewport (small monitor, browser zoom) let the map grow taller than the
-                        // visible area and just clipped the bottom half via overflow-hidden.
-                        width: `min(100%, calc(70vh * ${selectedMap.width} / ${selectedMap.height}))`,
-                        margin: '0 auto',
+                        // Touch keeps the letterboxed "shrink to fit" width, since pinch-zoom's
+                        // 1x baseline needs to already show the whole map. Desktop stays full
+                        // width like before — if that makes it taller than the 70vh viewport,
+                        // the viewport scrolls (overflow-y-auto above) instead of resizing the map.
+                        width: isTouchDevice ? `min(100%, calc(70vh * ${selectedMap.width} / ${selectedMap.height}))` : '100%',
+                        margin: isTouchDevice ? '0 auto' : undefined,
                         transform: isTouchDevice ? `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` : undefined,
                         transformOrigin: '0 0',
                       }}
