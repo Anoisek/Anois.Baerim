@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { db } from '../dbClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
+import IconDbPicker from './IconDbPicker'
+import ExistingImagePicker from './ExistingImagePicker'
 
-export default function AddBonusItemModal({ bonusId, nextSortOrder, onClose, onAdded }) {
+export default function AddBonusItemModal({ bonusId, nextSortOrder, existingImages, onClose, onAdded }) {
   const [name, setName] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [value, setValue] = useState('')
@@ -62,7 +64,11 @@ export default function AddBonusItemModal({ bonusId, nextSortOrder, onClose, onA
 
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-400">Image (optional)</label>
-          <ImageUpload onUploaded={setImageUrl} />
+          <div className="flex flex-wrap gap-2">
+            <ImageUpload onUploaded={setImageUrl} />
+            <IconDbPicker onUploaded={setImageUrl} />
+            <ExistingImagePicker images={existingImages} onUploaded={setImageUrl} />
+          </div>
         </div>
 
         <button

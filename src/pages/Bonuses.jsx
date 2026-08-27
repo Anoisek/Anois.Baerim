@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
@@ -15,13 +15,18 @@ function formatValue(n) {
 }
 
 function BonusItemTile({ item, isAdmin, onEdit }) {
+  const isSixSeven = item.name.toLowerCase().includes('6/7 bonus')
   return (
-    <div className="group relative bg-gray-900/80 border border-gray-700 rounded-2xl p-4 flex items-center justify-center aspect-square transition-all hover:border-yellow-400/50 hover:bg-gray-800/80">
-      <div className="w-12 h-12 flex items-center justify-center">
+    <div className="group relative flex items-center justify-center p-2 transition-transform hover:scale-110">
+      <div className="w-16 h-16 flex items-center justify-center">
         {item.image_url
-          ? <img src={item.image_url} alt={item.name} className="w-full h-full object-contain drop-shadow" />
-          : <span className="text-3xl">🎁</span>}
+          ? <img src={item.image_url} alt={item.name} className="w-full h-full object-contain drop-shadow-lg" />
+          : <span className="text-4xl">🎁</span>}
       </div>
+
+      {isSixSeven && (
+        <img src="/67.png" alt="6/7" className="pointer-events-none absolute bottom-0.5 right-0.5 w-6 h-6 object-contain drop-shadow" />
+      )}
 
       <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-20 hidden group-hover:flex flex-col items-center">
         <div className="bg-gray-950 border border-gray-700 rounded-lg px-3 py-1.5 text-xs text-center whitespace-nowrap shadow-lg">
@@ -55,6 +60,17 @@ export default function Bonuses() {
   const [editingBonus, setEditingBonus] = useState(null)
   const [showAddItem, setShowAddItem] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
+  const [showBonusPicker, setShowBonusPicker] = useState(false)
+  const bonusPickerRef = useRef(null)
+
+  useEffect(() => {
+    if (!showBonusPicker) return
+    function handleClickOutside(e) {
+      if (bonusPickerRef.current && !bonusPickerRef.current.contains(e.target)) setShowBonusPicker(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showBonusPicker])
 
   useEffect(() => {
     Promise.all([
@@ -77,6 +93,14 @@ export default function Bonuses() {
   const currentBonus = bonuses[currentIndex] ?? null
   const currentItems = currentBonus ? (itemsByBonusId[currentBonus.id] ?? []) : []
   const maxBonus = currentItems.reduce((sum, i) => sum + (i.value || 0), 0)
+  const allItemImages = [...new Set(Object.values(itemsByBonusId).flat().map(i => i.image_url).filter(Boolean))]
+
+  // Icons can be shared across items (see ExistingImagePicker) — never physically
+  // delete an image_url that another item still points at.
+  function isImageUsedElsewhere(url, excludeItemIds) {
+    const excluded = Array.isArray(excludeItemIds) ? excludeItemIds : [excludeItemIds]
+    return Object.values(itemsByBonusId).flat().some(i => i.image_url === url && !excluded.includes(i.id))
+  }
 
   function prevBonus() {
     setCurrentIndex(i => (i - 1 + bonuses.length) % bonuses.length)
@@ -157,13 +181,20 @@ export default function Bonuses() {
                 <button
                   onClick={prevBonus}
                   disabled={bonuses.length < 2}
-                  className="text-2xl px-3 py-1 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-yellow-400 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                  className="shrink-0 text-2xl px-3 py-1 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-yellow-400 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
                   aria-label="Previous bonus"
                 >
                   ◀
                 </button>
-                <div className="flex items-center gap-2 min-w-[10rem] justify-center">
-                  <h2 className="text-xl font-bold text-gray-100 text-center">{currentBonus.name}</h2>
+                <div className="relative flex items-center gap-2 w-56 sm:w-[26rem] justify-center" ref={bonusPickerRef}>
+                  <button
+                    type="button"
+                    onClick={() => setShowBonusPicker(v => !v)}
+                    className="max-w-full truncate text-xl font-bold text-gray-100 hover:text-yellow-400 text-center transition-colors"
+                    title={currentBonus.name}
+                  >
+                    {currentBonus.name}
+                  </button>
                   {isAdmin && (
                     <button
                       onClick={() => setEditingBonus(currentBonus)}
@@ -173,11 +204,28 @@ export default function Bonuses() {
                       ✏️
                     </button>
                   )}
+
+                  {showBonusPicker && (
+                    <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-30 bg-gray-900 border border-gray-700 rounded-xl shadow-xl min-w-[14rem] max-h-72 overflow-y-auto py-1">
+                      {bonuses.map((b, i) => (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => { setCurrentIndex(i); setShowBonusPicker(false) }}
+                          className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                            i === currentIndex ? 'bg-yellow-400 text-gray-950 font-semibold' : 'text-gray-200 hover:bg-gray-800'
+                          }`}
+                        >
+                          {b.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <button
                   onClick={nextBonus}
                   disabled={bonuses.length < 2}
-                  className="text-2xl px-3 py-1 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-yellow-400 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                  className="shrink-0 text-2xl px-3 py-1 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-yellow-400 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
                   aria-label="Next bonus"
                 >
                   ▶
@@ -205,7 +253,7 @@ export default function Bonuses() {
                   <p className="text-sm">{t('systems.noItemsYet')}</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
+                <div className="flex flex-wrap justify-center gap-2">
                   {currentItems.map(item => (
                     <BonusItemTile
                       key={item.id}
@@ -232,6 +280,7 @@ export default function Bonuses() {
         <EditBonusModal
           bonus={editingBonus}
           items={itemsByBonusId[editingBonus.id] ?? []}
+          isImageUsedElsewhere={isImageUsedElsewhere}
           onClose={() => setEditingBonus(null)}
           onUpdated={handleBonusUpdated}
           onDeleted={handleBonusDeleted}
@@ -241,6 +290,7 @@ export default function Bonuses() {
         <AddBonusItemModal
           bonusId={currentBonus.id}
           nextSortOrder={Math.max(0, ...currentItems.map(i => i.sort_order)) + 10}
+          existingImages={allItemImages}
           onClose={() => setShowAddItem(false)}
           onAdded={handleItemAdded}
         />
@@ -248,6 +298,8 @@ export default function Bonuses() {
       {editingItem && (
         <EditBonusItemModal
           item={editingItem}
+          existingImages={allItemImages.filter(url => url !== editingItem.image_url)}
+          isImageUsedElsewhere={isImageUsedElsewhere}
           onClose={() => setEditingItem(null)}
           onUpdated={handleItemUpdated}
           onDeleted={id => handleItemDeleted(id, editingItem.bonus_id)}

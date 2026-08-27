@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { db } from '../dbClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
+import IconDbPicker from './IconDbPicker'
+import ExistingImagePicker from './ExistingImagePicker'
 import { deleteImages } from '../utils/imageStorage'
 
-export default function EditBonusItemModal({ item, onClose, onUpdated, onDeleted }) {
+export default function EditBonusItemModal({ item, existingImages, isImageUsedElsewhere, onClose, onUpdated, onDeleted }) {
   const [name, setName] = useState(item.name)
   const [imageUrl, setImageUrl] = useState(item.image_url ?? '')
   const [value, setValue] = useState(String(item.value ?? ''))
@@ -13,12 +15,12 @@ export default function EditBonusItemModal({ item, onClose, onUpdated, onDeleted
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   async function handleRemoveImage() {
-    await deleteImages(imageUrl)
+    if (!isImageUsedElsewhere(imageUrl, item.id)) await deleteImages(imageUrl)
     setImageUrl('')
   }
 
   async function handleNewImage(url) {
-    await deleteImages(imageUrl)
+    if (imageUrl && !isImageUsedElsewhere(imageUrl, item.id)) await deleteImages(imageUrl)
     setImageUrl(url)
   }
 
@@ -47,7 +49,7 @@ export default function EditBonusItemModal({ item, onClose, onUpdated, onDeleted
 
   async function handleDelete() {
     setDeleting(true)
-    if (imageUrl) await deleteImages(imageUrl)
+    if (imageUrl && !isImageUsedElsewhere(imageUrl, item.id)) await deleteImages(imageUrl)
 
     const { error } = await db.from('bonus_items').delete().eq('id', item.id)
     if (error) {
@@ -97,12 +99,20 @@ export default function EditBonusItemModal({ item, onClose, onUpdated, onDeleted
               </button>
             </div>
           ) : (
-            <ImageUpload onUploaded={handleNewImage} />
+            <div className="flex flex-wrap gap-2">
+              <ImageUpload onUploaded={handleNewImage} />
+              <IconDbPicker onUploaded={handleNewImage} />
+              <ExistingImagePicker images={existingImages} onUploaded={handleNewImage} />
+            </div>
           )}
           {imageUrl && (
             <div className="mt-1">
               <p className="text-xs text-gray-500 mb-1">Replace with new image:</p>
-              <ImageUpload onUploaded={handleNewImage} />
+              <div className="flex flex-wrap gap-2">
+                <ImageUpload onUploaded={handleNewImage} />
+                <IconDbPicker onUploaded={handleNewImage} />
+                <ExistingImagePicker images={existingImages} onUploaded={handleNewImage} />
+              </div>
             </div>
           )}
         </div>

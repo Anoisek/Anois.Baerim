@@ -6,48 +6,52 @@ import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Tile from '../components/Tile'
 import Spinner from '../components/Spinner'
+import EditSystemTileModal from '../components/EditSystemTileModal'
 
 export default function Systems() {
   const { t } = useTranslation()
   const { isAdmin } = useAuth()
-  const [interactiveMapMaintenance, setInteractiveMapMaintenance] = useState(false)
-  const [explorationMaintenance, setExplorationMaintenance] = useState(false)
-  const [metinCalculatorMaintenance, setMetinCalculatorMaintenance] = useState(false)
-  const [colorSystemMaintenance, setColorSystemMaintenance] = useState(false)
-  const [bonusesMaintenance, setBonusesMaintenance] = useState(false)
+  const [settingsMap, setSettingsMap] = useState({})
   const [loading, setLoading] = useState(true)
   const [editMode, setEditMode] = useState(false)
+  const [editingTileKey, setEditingTileKey] = useState(null)
 
   useEffect(() => {
-    Promise.all([
-      db.from('settings').select('value').eq('key', 'system_interactivemap_maintenance').maybeSingle(),
-      db.from('settings').select('value').eq('key', 'system_exploration_maintenance').maybeSingle(),
-      db.from('settings').select('value').eq('key', 'system_metincalculator_maintenance').maybeSingle(),
-      db.from('settings').select('value').eq('key', 'system_colorsystem_maintenance').maybeSingle(),
-      db.from('settings').select('value').eq('key', 'system_bonuses_maintenance').maybeSingle(),
-    ]).then(([mapRes, explorationRes, metinCalculatorRes, colorSystemRes, bonusesRes]) => {
-      setInteractiveMapMaintenance(mapRes.data?.value === 'true')
-      setExplorationMaintenance(explorationRes.data?.value === 'true')
-      setMetinCalculatorMaintenance(metinCalculatorRes.data?.value === 'true')
-      setColorSystemMaintenance(colorSystemRes.data?.value === 'true')
-      setBonusesMaintenance(bonusesRes.data?.value === 'true')
+    db.from('settings').select('*').ilike('key', 'system\\_%').then(({ data }) => {
+      const map = {}
+      for (const row of data ?? []) map[row.key] = row.value
+      setSettingsMap(map)
       setLoading(false)
     })
   }, [])
 
-  const tiles = [
-    { key: 'interactivemap', settingKey: 'system_interactivemap_maintenance', to: '/systems/interactive-map', emoji: '🗺️', label: t('systems.interactiveMap'), maintenance: interactiveMapMaintenance, setMaintenance: setInteractiveMapMaintenance },
-    { key: 'exploration', settingKey: 'system_exploration_maintenance', to: '/systems/exploration', emoji: '🧭', label: t('systems.exploration'), maintenance: explorationMaintenance, setMaintenance: setExplorationMaintenance },
-    { key: 'metincalculator', settingKey: 'system_metincalculator_maintenance', to: '/systems/metin-calculator', emoji: '🪨', label: t('systems.metinCalculator'), maintenance: metinCalculatorMaintenance, setMaintenance: setMetinCalculatorMaintenance },
-    { key: 'colorsystem', settingKey: 'system_colorsystem_maintenance', to: '/systems/color-system', emoji: '🎨', label: t('systems.colorSystem'), maintenance: colorSystemMaintenance, setMaintenance: setColorSystemMaintenance },
-    { key: 'bonuses', settingKey: 'system_bonuses_maintenance', to: '/systems/bonuses', emoji: '🎁', label: t('systems.bonuses'), maintenance: bonusesMaintenance, setMaintenance: setBonusesMaintenance },
+  const tileDefs = [
+    { key: 'interactivemap', to: '/systems/interactive-map', emoji: '🗺️', defaultLabel: t('systems.interactiveMap') },
+    { key: 'exploration', to: '/systems/exploration', emoji: '🧭', defaultLabel: t('systems.exploration') },
+    { key: 'metincalculator', to: '/systems/metin-calculator', emoji: '🪨', defaultLabel: t('systems.metinCalculator') },
+    { key: 'colorsystem', to: '/systems/color-system', emoji: '🎨', defaultLabel: t('systems.colorSystem') },
+    { key: 'bonuses', to: '/systems/bonuses', emoji: '🎁', defaultLabel: t('systems.bonuses') },
   ]
+
+  const tiles = tileDefs.map(def => ({
+    ...def,
+    maintenance: settingsMap[`system_${def.key}_maintenance`] === 'true',
+    label: settingsMap[`system_${def.key}_name`] || def.defaultLabel,
+    icon: settingsMap[`system_${def.key}_icon`] || '',
+  }))
 
   async function toggleMaintenance(tile) {
     const next = !tile.maintenance
-    tile.setMaintenance(next)
-    await db.from('settings').upsert({ key: tile.settingKey, value: String(next) })
+    const key = `system_${tile.key}_maintenance`
+    setSettingsMap(prev => ({ ...prev, [key]: String(next) }))
+    await db.from('settings').upsert({ key, value: String(next) })
   }
+
+  function handleTileSaved(tileKey, { name, icon }) {
+    setSettingsMap(prev => ({ ...prev, [`system_${tileKey}_name`]: name, [`system_${tileKey}_icon`]: icon }))
+  }
+
+  const editingTile = tiles.find(t => t.key === editingTileKey) ?? null
 
   return (
     <div className="text-white">
@@ -73,10 +77,12 @@ export default function Systems() {
                 <Tile
                   key={tile.key}
                   to={tile.to}
+                  image={tile.icon || undefined}
                   emoji={tile.emoji}
                   label={tile.label}
                   maintenance={tile.maintenance}
                   blocked={tile.maintenance && !isAdmin}
+                  onEdit={isAdmin ? () => setEditingTileKey(tile.key) : undefined}
                   onToggleMaintenance={isAdmin && editMode ? () => toggleMaintenance(tile) : undefined}
                 />
               ))}
@@ -84,6 +90,18 @@ export default function Systems() {
           )}
         </div>
       </div>
+
+      {editingTile && (
+        <EditSystemTileModal
+          tileKey={editingTile.key}
+          defaultName={editingTile.defaultLabel}
+          defaultEmoji={editingTile.emoji}
+          currentName={settingsMap[`system_${editingTile.key}_name`] || ''}
+          currentIcon={settingsMap[`system_${editingTile.key}_icon`] || ''}
+          onClose={() => setEditingTileKey(null)}
+          onSaved={result => handleTileSaved(editingTile.key, result)}
+        />
+      )}
     </div>
   )
 }

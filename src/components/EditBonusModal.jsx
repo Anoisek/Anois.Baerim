@@ -3,7 +3,7 @@ import { db } from '../dbClient'
 import Modal from './Modal'
 import { deleteImages } from '../utils/imageStorage'
 
-export default function EditBonusModal({ bonus, items, onClose, onUpdated, onDeleted }) {
+export default function EditBonusModal({ bonus, items, isImageUsedElsewhere, onClose, onUpdated, onDeleted }) {
   const [name, setName] = useState(bonus.name)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -35,7 +35,8 @@ export default function EditBonusModal({ bonus, items, onClose, onUpdated, onDel
   async function handleDelete() {
     setDeleting(true)
 
-    const images = items.map(i => i.image_url).filter(Boolean)
+    const itemIds = items.map(i => i.id)
+    const images = [...new Set(items.map(i => i.image_url).filter(Boolean))].filter(url => !isImageUsedElsewhere(url, itemIds))
     if (images.length > 0) await deleteImages(images)
     await db.from('bonus_items').delete().eq('bonus_id', bonus.id)
 
