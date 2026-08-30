@@ -25,7 +25,8 @@
     "tagline": "Instrument neoficial creat de fani, neafiliat cu echipa Baerim",
     "admin": "ADMIN",
     "logOut": "Deconectare",
-    "adminLogin": "Autentificare administrator"
+    "adminLogin": "Autentificare administrator",
+    "reportIssue": "Ceva nu funcționează? Scrie-ne"
   },
   "uiScale": {
     "title": "Ajustează dimensiunea paginii",
@@ -301,7 +302,7 @@
   },
   "footer": {
     "privacyPolicy": "Politica de confidențialitate",
-    "suggestions": "Sugestii"
+    "suggestions": "Contact"
   },
   "privacyPolicy": {
     "lastUpdated": "Ultima actualizare: 10 august 2026",

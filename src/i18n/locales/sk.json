@@ -25,7 +25,8 @@
     "tagline": "Neoficiálny fanúšikovský nástroj, nesúvisí s tímom Baerim",
     "admin": "ADMIN",
     "logOut": "Odhlásiť sa",
-    "adminLogin": "Prihlásenie administrátora"
+    "adminLogin": "Prihlásenie administrátora",
+    "reportIssue": "Niečo nefunguje? Napíšte nám"
   },
   "uiScale": {
     "title": "Upraviť veľkosť stránky",
@@ -301,7 +302,7 @@
   },
   "footer": {
     "privacyPolicy": "Zásady ochrany osobných údajov",
-    "suggestions": "Návrhy"
+    "suggestions": "Kontakt"
   },
   "privacyPolicy": {
     "lastUpdated": "Posledná aktualizácia: 10. augusta 2026",

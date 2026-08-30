@@ -25,7 +25,8 @@
     "tagline": "Herramienta hecha por fans, no afiliada con el equipo de Baerim",
     "admin": "ADMIN",
     "logOut": "Cerrar sesión",
-    "adminLogin": "Acceso de administrador"
+    "adminLogin": "Acceso de administrador",
+    "reportIssue": "¿Algo no funciona? Escríbenos"
   },
   "uiScale": {
     "title": "Ajustar tamaño de página",
@@ -301,7 +302,7 @@
   },
   "footer": {
     "privacyPolicy": "Política de privacidad",
-    "suggestions": "Sugerencias"
+    "suggestions": "Contacto"
   },
   "privacyPolicy": {
     "lastUpdated": "Última actualización: 10 de agosto de 2026",

@@ -62,6 +62,12 @@ export default function Navbar() {
           <DonateButton />
         </div>
         <div className="flex items-center gap-4">
+          <Link
+            to="/suggestions"
+            className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-yellow-400 border border-gray-700 hover:border-yellow-400/50 rounded-full px-3 py-1.5 transition-colors whitespace-nowrap"
+          >
+            💬 {t('navbar.reportIssue')}
+          </Link>
           <GlobalSearch />
           {isAdmin ? (
             <>

@@ -25,7 +25,8 @@
     "tagline": "Strumento amatoriale non ufficiale, non affiliato al team di Baerim",
     "admin": "ADMIN",
     "logOut": "Esci",
-    "adminLogin": "Accesso amministratore"
+    "adminLogin": "Accesso amministratore",
+    "reportIssue": "Qualcosa non funziona? Scrivici"
   },
   "uiScale": {
     "title": "Regola dimensione pagina",
@@ -301,7 +302,7 @@
   },
   "footer": {
     "privacyPolicy": "Informativa sulla privacy",
-    "suggestions": "Suggerimenti"
+    "suggestions": "Contatto"
   },
   "privacyPolicy": {
     "lastUpdated": "Ultimo aggiornamento: 10 agosto 2026",

@@ -25,7 +25,8 @@
     "tagline": "Unofficial fan-made tool, not affiliated with Baerim's team",
     "admin": "ADMIN",
     "logOut": "Log out",
-    "adminLogin": "Admin login"
+    "adminLogin": "Admin login",
+    "reportIssue": "Something wrong? Write here"
   },
   "uiScale": {
     "title": "Adjust page size",
@@ -301,7 +302,7 @@
   },
   "footer": {
     "privacyPolicy": "Privacy Policy",
-    "suggestions": "Suggestions"
+    "suggestions": "Contact"
   },
   "privacyPolicy": {
     "lastUpdated": "Last updated: August 10, 2026",

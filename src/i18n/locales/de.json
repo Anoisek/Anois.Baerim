@@ -25,7 +25,8 @@
     "tagline": "Inoffizielles Fan-Tool, nicht mit dem Baerim-Team verbunden",
     "admin": "ADMIN",
     "logOut": "Abmelden",
-    "adminLogin": "Admin-Login"
+    "adminLogin": "Admin-Login",
+    "reportIssue": "Etwas funktioniert nicht? Schreib uns"
   },
   "uiScale": {
     "title": "Seitengröße anpassen",
@@ -301,7 +302,7 @@
   },
   "footer": {
     "privacyPolicy": "Datenschutzerklärung",
-    "suggestions": "Vorschläge"
+    "suggestions": "Kontakt"
   },
   "privacyPolicy": {
     "lastUpdated": "Letzte Aktualisierung: 10. August 2026",

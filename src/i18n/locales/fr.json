@@ -25,7 +25,8 @@
     "tagline": "Outil non officiel créé par des fans, non affilié à l'équipe de Baerim",
     "admin": "ADMIN",
     "logOut": "Déconnexion",
-    "adminLogin": "Connexion admin"
+    "adminLogin": "Connexion admin",
+    "reportIssue": "Quelque chose ne va pas ? Écrivez-nous"
   },
   "uiScale": {
     "title": "Ajuster la taille de la page",
@@ -301,7 +302,7 @@
   },
   "footer": {
     "privacyPolicy": "Politique de confidentialité",
-    "suggestions": "Suggestions"
+    "suggestions": "Contact"
   },
   "privacyPolicy": {
     "lastUpdated": "Dernière mise à jour : 10 août 2026",

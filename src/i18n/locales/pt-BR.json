@@ -25,7 +25,8 @@
     "tagline": "Ferramenta não oficial feita por fãs, sem afiliação com a equipe da Baerim",
     "admin": "ADMIN",
     "logOut": "Sair",
-    "adminLogin": "Login de administrador"
+    "adminLogin": "Login de administrador",
+    "reportIssue": "Algo não funciona? Escreva aqui"
   },
   "uiScale": {
     "title": "Ajustar tamanho da página",
@@ -301,7 +302,7 @@
   },
   "footer": {
     "privacyPolicy": "Política de privacidade",
-    "suggestions": "Sugestões"
+    "suggestions": "Contato"
   },
   "privacyPolicy": {
     "lastUpdated": "Última atualização: 10 de agosto de 2026",
