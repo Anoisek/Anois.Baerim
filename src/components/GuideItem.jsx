@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 
-// One Q&A card on the community guide (/kompendium). Regular visitors get an
+// One Q&A card on the community guide (/aiguide). Regular visitors get an
 // edit icon that opens a "suggest a change" form (saved to guide_suggestions,
 // admin-reviewed). Admins get the same icon wired to a direct edit that
 // upserts guide_items immediately, plus an always-visible list of pending

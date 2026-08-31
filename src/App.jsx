@@ -78,7 +78,7 @@ export default function App() {
               <Route path="/items/:itemId/usage" element={<ItemUsage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/suggestions" element={<Suggestions />} />
-              <Route path="/kompendium" element={<CommunityGuide />} />
+              <Route path="/aiguide" element={<CommunityGuide />} />
               </Routes>
             </div>
             <Footer />
