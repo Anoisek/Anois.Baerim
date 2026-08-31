@@ -370,5 +370,164 @@
     "button": "Alte Daten wiederherstellen",
     "loading": "Lädt…",
     "empty": "Nichts gefunden"
+  },
+  "communityGuide": {
+    "title": "Baerim-Kompendium",
+    "subtitle": "Von der Community gesammelte Fragen und Antworten, an einem Ort zusammengefasst zum schnellen Nachschlagen.",
+    "disclaimerLabel": "Hinweis:",
+    "disclaimerBody": "die folgenden Antworten wurden von einer KI auf Basis von Discord-Chatverläufen erstellt. Sie können Ungenauigkeiten oder veraltete Informationen enthalten — im Zweifel direkt auf dem Server nachprüfen.",
+    "navLink": "Kompendium",
+    "breadcrumb": "Kompendium",
+    "disputedTag": "Umstritten",
+    "footerNote": "Inoffizielles Material · zusammengestellt aus Diskussionen der Baerim-Community",
+    "categories": {
+      "zwoje": {
+        "title": "Account-Schriftrollen & Limits",
+        "items": [
+          {
+            "q": "Wie funktioniert die One Account Scroll?",
+            "a": "Sie gilt für das Konto, auf dem sie aktiviert wurde, und erfasst alle Charaktere auf diesem Konto. Ein zweites Konto ist nicht eingeschlossen. Man kann sie deaktivieren, verliert sie dabei aber."
+          },
+          {
+            "q": "Kann ich die One Account Scroll auf zwei Konten aktivieren und auf beiden Metins farmen?",
+            "a": "Nein. Die Antwort im Chat war eindeutig: Das Limit lässt sich auf diese Weise nicht umgehen."
+          },
+          {
+            "q": "Kann ich mit aktiver One Account Scroll auf einem zweiten Konto weiterhin angeln oder Erz abbauen?",
+            "a": "Ja, ein zweites Konto kann weiterhin zum Angeln und Abbauen genutzt werden."
+          },
+          {
+            "q": "Wie funktionieren der Casual Buff und das Metin-Limit?",
+            "a": "Er erhöht den Drop von Metins, allerdings gilt ein Tageslimit von etwa 1500 Metins, insgesamt gezählt. Im Chat wurde auch ein Zusammenhang mit Dungeon-Boni erwähnt."
+          }
+        ]
+      },
+      "eventy": {
+        "title": "Events & Drops",
+        "items": [
+          {
+            "q": "Wirkt sich das Doppel-Drop-Event auf Schreine (Shrines) aus?",
+            "a": "Laut Chat-Antworten verdoppelt es die Schreine selbst nicht mehr; der übrige Loot kann aber weiterhin vom Bonus erfasst sein."
+          },
+          {
+            "q": "Wo lässt sich das Moonlight-Chest-Event am besten farmen — auf Dungeons oder Metins?",
+            "a": "Auf Metins."
+          },
+          {
+            "q": "Wirkt sich der 10%-Doppel-Drop-Bonus von Metins auf die Moonlight Chest aus?",
+            "a": "Hier waren die Chat-Antworten widersprüchlich — eine Person sagte „nein\", eine andere „sollte funktionieren\" — es gibt also keine eindeutige Antwort.",
+            "disputed": true
+          }
+        ]
+      },
+      "poziomy": {
+        "title": "Level & Farmen",
+        "items": [
+          {
+            "q": "Bei welchem Level sollte man mit EXP aufhören — 54 oder 55?",
+            "a": "Meistens wurde Level 55 empfohlen, sofern der Charakter bereits genug Schaden und Überlebensfähigkeit für den Demon Tower hat."
+          },
+          {
+            "q": "Lohnt es sich, auf höheren Levels zu farmen, z. B. 70/75/80/90?",
+            "a": "In den ausgewerteten Gesprächen wurde oft empfohlen, bei 55 zu bleiben, da höherstufige Metins als wenig lohnend eingeschätzt wurden."
+          }
+        ]
+      },
+      "yang": {
+        "title": "Yang & Wirtschaft",
+        "items": [
+          {
+            "q": "Wie verdient man Yang abseits von Dungeons und Metins?",
+            "a": "Am häufigsten wurden Mining, das Farmen des Temple sowie das Kaufen günstiger Items zum teureren Weiterverkauf genannt. Beim Abbauen wurden Skill P und eine Spitzhacke +5 oder höher empfohlen."
+          },
+          {
+            "q": "Wo baut man am besten Erz ab?",
+            "a": "Map1 / City 1. Eine Antwort nannte zudem eine Respawn-Zeit der Erzvorkommen von etwa 30 Minuten."
+          }
+        ]
+      },
+      "ekwipunek": {
+        "title": "Ausrüstung & Boni",
+        "items": [
+          {
+            "q": "Welche Boni sollte man für den Schal (Sash) für PvE / Dragon wählen?",
+            "a": "Oft wurde 5% PvE gegen Elementarresistenz abgewogen. Ein Spieler empfahl 5% PvE und deckte die Resistenz stattdessen über Elementarschuhe ab."
+          },
+          {
+            "q": "Lohnt es sich mehr, den Schal selbst herzustellen oder einen fertigen zu kaufen?",
+            "a": "Zu Spielbeginn wurde häufiger empfohlen, Stoffe zu sammeln und einen fertigen Schal zu kaufen, oder ihn erst später herzustellen, z. B. um Level 75."
+          },
+          {
+            "q": "Wie fügt man Boni zu Kostümen hinzu?",
+            "a": "Die passenden Items gibt es bei der Händlerin. Laut Chat braucht man im Schnitt etwa 150–200 Versuche für 3 Boni."
+          },
+          {
+            "q": "Lassen sich Boni bei Items ändern, die von Level 54 auf 81 weiterentwickelt wurden?",
+            "a": "Ja, mit den normalen Änderungsschriftrollen."
+          },
+          {
+            "q": "Wie verbessert man Soul EQ am besten von +1 auf +6?",
+            "a": "Im Chat empfohlen: +1–+3 Dragon Scroll, +4 mit 100%-Schriftrolle, danach Magic Stone."
+          },
+          {
+            "q": "Was kostet eine Bonusänderung in der Alchemie?",
+            "a": "Laut den Antworten: 1 Flame, ohne Yang-Kosten; der neue Bonus ist zufällig. Von einer Bonusänderung unterhalb von Brilliant wurde abgeraten."
+          },
+          {
+            "q": "Sollte man zuerst mythische oder legendäre Alchemie machen?",
+            "a": "Häufigste kurze Antwort: mythisch."
+          },
+          {
+            "q": "Welche Resistenzen braucht man gegen Dragon? Warum werde ich one-geshottet?",
+            "a": "Am häufigsten wurden Magieresistenz plus die passende Elementresistenz genannt; Magieresistenz u. a. auf Helm und Armband sowie passende Boni auf dem Schild."
+          }
+        ]
+      },
+      "techniczne": {
+        "title": "Technische Probleme",
+        "items": [
+          {
+            "q": "Wie behebt man Lags/FPS-Probleme bei zwei gleichzeitig laufenden Clients?",
+            "a": "Häufigster Rat: das Spiel schließen und metin2.cfg löschen. Manchmal wurde auch ein FPS-Limit von 60 empfohlen."
+          },
+          {
+            "q": "Warum stürzt das Spiel ab / setzen sich Einstellungen zurück / funktioniert der Vollbildmodus nicht?",
+            "a": "metin2.cfg löschen, config.exe prüfen, Antivirus prüfen, Client neu installieren, und falls das Problem bleibt — ein Support-Ticket eröffnen."
+          }
+        ]
+      },
+      "platnosci": {
+        "title": "Zahlungen",
+        "items": [
+          {
+            "q": "Wie kauft man DC / wie bezahlt man mit Paysafecard?",
+            "a": "Das war im polnischen Chat sehr häufig. Die Zahlung läuft über eine externe Seite; das Feld auf der Baerim-Seite war für Gutschein-Codes gedacht, nicht zur direkten Eingabe eines PSC-Codes."
+          }
+        ]
+      },
+      "skille": {
+        "title": "Skills",
+        "items": [
+          {
+            "q": "Wie funktioniert Skill Synergy und was muss auf P sein?",
+            "a": "Für den vollen Bonus braucht man laut Chat alle 6 Hauptskills auf P sowie die Buff-Skills auf P; Mining/Fishing waren dafür nicht erforderlich."
+          },
+          {
+            "q": "Welche ersten Skills sollte man für ein Pet im PvM wählen?",
+            "a": "Für einen Krieger wurden u. a. Boss Guard → Magic/Melee Attack → Crit Power → Monster Hunter vorgeschlagen, je nach Bedarf des Charakters."
+          }
+        ]
+      }
+    },
+    "suggestTooltip": "Änderung vorschlagen",
+    "questionLabel": "Frage",
+    "answerLabel": "Antwort",
+    "submitSuggestion": "Vorschlag senden",
+    "suggestionSuccess": "Danke! Dein Vorschlag wurde zur Prüfung gesendet.",
+    "suggestionError": "Vorschlag konnte nicht gesendet werden. Bitte später erneut versuchen.",
+    "pendingSuggestions": "Vorschläge von Nutzern",
+    "acceptSuggestion": "Vorschlag übernehmen",
+    "rejectSuggestion": "Verwerfen",
+    "changesSaved": "Änderungen gespeichert."
   }
 }

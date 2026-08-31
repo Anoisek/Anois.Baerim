@@ -370,5 +370,164 @@
     "button": "Restaurar dados antigos",
     "loading": "A carregar…",
     "empty": "Nada encontrado"
+  },
+  "communityGuide": {
+    "title": "Compêndio Baerim",
+    "subtitle": "Perguntas e respostas reunidas pela comunidade, organizadas num só lugar para consulta rápida.",
+    "disclaimerLabel": "Aviso:",
+    "disclaimerBody": "as respostas abaixo foram geradas por IA com base em transcrições de conversas do Discord. Podem conter imprecisões ou informação desatualizada — em caso de dúvida, vale a pena confirmar diretamente no servidor.",
+    "navLink": "Compêndio",
+    "breadcrumb": "Compêndio",
+    "disputedTag": "Controverso",
+    "footerNote": "Material não oficial · compilado a partir de conversas da comunidade Baerim",
+    "categories": {
+      "zwoje": {
+        "title": "Pergaminhos de conta e limites",
+        "items": [
+          {
+            "q": "Como funciona o One Account Scroll?",
+            "a": "Aplica-se à conta em que foi ativado e abrange todas as personagens dessa conta. Não abrange uma segunda conta. Pode ser desativado, mas perde-se ao fazê-lo."
+          },
+          {
+            "q": "Posso ativar o One Account Scroll em duas contas e farmar metins em ambas?",
+            "a": "Não. A resposta no chat foi clara: não é possível contornar o limite desta forma."
+          },
+          {
+            "q": "Com o One Account Scroll ativo, ainda posso pescar ou minerar minério numa segunda conta?",
+            "a": "Sim, a segunda conta pode continuar a ser usada para pescar e minerar."
+          },
+          {
+            "q": "Como funcionam o Casual Buff e o limite de metins?",
+            "a": "Aumenta o drop dos metins, mas há um limite diário de cerca de 1500 metins, contado no total. No chat também se falou de uma ligação aos bónus de dungeon."
+          }
+        ]
+      },
+      "eventy": {
+        "title": "Eventos e drops",
+        "items": [
+          {
+            "q": "O evento de drop duplo afeta os shrines?",
+            "a": "Segundo as respostas no chat, já não duplica os shrines em si; o restante loot pode continuar a ser abrangido pelo bónus."
+          },
+          {
+            "q": "Onde é melhor fazer o evento Moonlight Chest — em dungeons ou em metins?",
+            "a": "Em metins."
+          },
+          {
+            "q": "O bónus/buff de 10% de drop duplo dos metins funciona no Moonlight Chest?",
+            "a": "Aqui as respostas no chat foram contraditórias — uma pessoa disse que «não», outra que «devia funcionar» — por isso não há resposta clara.",
+            "disputed": true
+          }
+        ]
+      },
+      "poziomy": {
+        "title": "Níveis e farming",
+        "items": [
+          {
+            "q": "Em que nível parar o EXP — 54 ou 55?",
+            "a": "O mais recomendado foi o nível 55, desde que a personagem já tenha dano e sobrevivência suficientes para a Demon Tower."
+          },
+          {
+            "q": "Vale a pena farmar metins em níveis mais altos, por exemplo 70/75/80/90?",
+            "a": "Nas conversas analisadas, recomendava-se muitas vezes ficar no 55, já que os metins de nível mais alto eram considerados pouco compensadores."
+          }
+        ]
+      },
+      "yang": {
+        "title": "Yang e economia",
+        "items": [
+          {
+            "q": "Como ganhar yang fora das dungeons e dos metins?",
+            "a": "O mais recomendado foi mining, farmar o Temple e comprar itens baratos para revender mais caro. Para minerar recomendava-se o skill P e uma picareta +5 ou superior."
+          },
+          {
+            "q": "Onde é melhor minerar minério?",
+            "a": "Map1 / City 1. Uma das respostas indicava também que o minério renasce a cada 30 minutos, aproximadamente."
+          }
+        ]
+      },
+      "ekwipunek": {
+        "title": "Equipamento e bónus",
+        "items": [
+          {
+            "q": "Que bónus escolher para a sash a pensar em PvE / Dragon?",
+            "a": "Discutia-se muitas vezes entre 5% PvE e resistência elemental. Um jogador recomendava 5% PvE e cobria a resistência com botas elementais."
+          },
+          {
+            "q": "Compensa mais fazer a sash sozinho ou comprar uma já feita?",
+            "a": "No início do jogo recomendava-se mais juntar tecidos e comprar uma já feita, ou fazê-la só mais tarde, por exemplo por volta do nível 75."
+          },
+          {
+            "q": "Como se adicionam bónus aos trajes (kostiumy)?",
+            "a": "Os itens necessários estão à venda junto da mercadora. Segundo o chat, são precisas em média cerca de 150–200 tentativas para conseguir 3 bónus."
+          },
+          {
+            "q": "É possível mudar os bónus em itens evoluídos do nível 54 para o 81?",
+            "a": "Sim, com os pergaminhos de mudança normais."
+          },
+          {
+            "q": "Qual a melhor forma de melhorar o Soul EQ de +1 a +6?",
+            "a": "No chat recomendava-se: Dragon Scroll de +1 a +3, scroll de 100% no +4, e depois Magic Stone."
+          },
+          {
+            "q": "Quanto custa mudar os bónus na alquimia?",
+            "a": "Segundo as respostas: 1 Flame, sem custo em yang; o bónus resultante é aleatório. Foi desaconselhado mudar bónus em alquimia abaixo de Brilliant."
+          },
+          {
+            "q": "Vale a pena fazer primeiro a alquimia mítica ou a lendária?",
+            "a": "Resposta curta mais comum: a mítica."
+          },
+          {
+            "q": "Que resistências são precisas contra o Dragon? Porque é que levo um one-shot?",
+            "a": "O mais apontado foi resistência a magia mais a resistência ao elemento correspondente; resistência a magia sobretudo no capacete e na pulseira, além dos bónus certos no escudo."
+          }
+        ]
+      },
+      "techniczne": {
+        "title": "Questões técnicas",
+        "items": [
+          {
+            "q": "Como resolver lag/quebras de FPS com dois clientes abertos ao mesmo tempo?",
+            "a": "O conselho mais comum: fechar o jogo e apagar o metin2.cfg. Às vezes também se recomendava limitar a 60 FPS."
+          },
+          {
+            "q": "Porque é que o jogo crasha / as definições são repostas / o ecrã inteiro não funciona?",
+            "a": "Apagar o metin2.cfg, verificar o config.exe, verificar o antivírus, reinstalar o cliente e, se o problema persistir, abrir um ticket ao suporte."
+          }
+        ]
+      },
+      "platnosci": {
+        "title": "Pagamentos",
+        "items": [
+          {
+            "q": "Como comprar DC / como pagar com Paysafecard?",
+            "a": "Isto era muito frequente no chat em polaco. O pagamento passa por um site externo; o campo no site da Baerim servia para códigos de gift card, não para introduzir diretamente um código PSC."
+          }
+        ]
+      },
+      "skille": {
+        "title": "Skills",
+        "items": [
+          {
+            "q": "Como funciona o Skill Synergy e o que é preciso ter em P?",
+            "a": "Para o bónus completo, segundo o chat é preciso ter as 6 skills principais em P e também as skills de buff em P; mining/fishing não eram necessários para isto."
+          },
+          {
+            "q": "Que primeiras skills escolher para o pet em PvM?",
+            "a": "Para um guerreiro sugeriam-se, entre outras, Boss Guard → Magic/Melee Attack → Crit Power → Monster Hunter, consoante as necessidades da personagem."
+          }
+        ]
+      }
+    },
+    "suggestTooltip": "Sugerir uma alteração",
+    "questionLabel": "Pergunta",
+    "answerLabel": "Resposta",
+    "submitSuggestion": "Enviar sugestão",
+    "suggestionSuccess": "Obrigado! A tua sugestão foi enviada para revisão.",
+    "suggestionError": "Não foi possível enviar a tua sugestão. Tenta novamente mais tarde.",
+    "pendingSuggestions": "Sugestões dos utilizadores",
+    "acceptSuggestion": "Aceitar sugestão",
+    "rejectSuggestion": "Rejeitar",
+    "changesSaved": "Alterações guardadas."
   }
 }

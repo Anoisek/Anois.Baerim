@@ -370,5 +370,164 @@
     "button": "Obnovit stará data",
     "loading": "Načítání…",
     "empty": "Nic nenalezeno"
+  },
+  "communityGuide": {
+    "title": "Kompendium Baerim",
+    "subtitle": "Otázky a odpovědi sesbírané komunitou, přehledně na jednom místě pro rychlé prohlížení.",
+    "disclaimerLabel": "Upozornění:",
+    "disclaimerBody": "níže uvedené odpovědi byly vygenerovány AI na základě přepisů rozhovorů z Discordu. Mohou obsahovat nepřesnosti nebo neaktuální informace — v případě pochybností je dobré si odpověď ověřit přímo na serveru.",
+    "navLink": "Kompendium",
+    "breadcrumb": "Kompendium",
+    "disputedTag": "Sporné",
+    "footerNote": "Neoficiální materiál · sestavený z diskuzí komunity Baerim",
+    "categories": {
+      "zwoje": {
+        "title": "Svitky účtu a limity",
+        "items": [
+          {
+            "q": "Jak funguje One Account Scroll?",
+            "a": "Platí pro účet, na kterém byl aktivován, a vztahuje se na všechny postavy na tomto účtu. Na druhý účet se nevztahuje. Lze ho vypnout, ale tím o něj přijdete."
+          },
+          {
+            "q": "Můžu aktivovat One Account Scroll na dvou účtech a farmit metiny na obou?",
+            "a": "Ne. Odpověď v chatu byla jednoznačná: limit se tímto způsobem obejít nedá."
+          },
+          {
+            "q": "Když mám aktivní One Account Scroll, můžu na druhém účtu dál rybařit nebo těžit rudu?",
+            "a": "Ano, druhý účet lze dál používat na rybaření a těžbu."
+          },
+          {
+            "q": "Jak funguje Casual Buff a limit metinů?",
+            "a": "Zvyšuje drop z metinů, ale platí denní limit kolem 1500 metinů, počítaný dohromady. V chatu se také zmiňovala souvislost s bonusy z dungeonů."
+          }
+        ]
+      },
+      "eventy": {
+        "title": "Eventy a droppy",
+        "items": [
+          {
+            "q": "Funguje event dvojitého dropu na shriny?",
+            "a": "Podle odpovědí v chatu už samotné shriny nezdvojnásobuje; zbytek lootu ale bonusem pokrytý být může."
+          },
+          {
+            "q": "Kde je nejlepší dělat event Moonlight Chest — na dungeonech, nebo na metinech?",
+            "a": "Na metinech."
+          },
+          {
+            "q": "Funguje bonus/buff 10% dvojitého dropu z metinů na Moonlight Chest?",
+            "a": "Tady byly odpovědi v chatu protichůdné — jeden říkal „ne\", druhý „mělo by to fungovat\" — takže jednoznačná odpověď neexistuje.",
+            "disputed": true
+          }
+        ]
+      },
+      "poziomy": {
+        "title": "Levely a farmení",
+        "items": [
+          {
+            "q": "Na jakém levelu zastavit EXP — na 54, nebo na 55?",
+            "a": "Nejčastěji se doporučoval level 55, pokud už má postava dostatečný damage a přežití na Demon Tower."
+          },
+          {
+            "q": "Vyplatí se farmit metiny na vyšších levelech, např. 70/75/80/90?",
+            "a": "V analyzovaných rozhovorech se často doporučovalo zůstat na 55, protože vyšší metiny byly hodnoceny jako málo výnosné."
+          }
+        ]
+      },
+      "yang": {
+        "title": "Yang a ekonomika",
+        "items": [
+          {
+            "q": "Jak vydělávat yang mimo dungeony a metiny?",
+            "a": "Nejčastěji se doporučoval mining, farmení Temple a nákup levných předmětů s dalším prodejem dráž. Při těžbě se doporučoval skill P a krumpáč +5 nebo lepší."
+          },
+          {
+            "q": "Kde je nejlepší těžit rudu?",
+            "a": "Map1 / City 1. V jedné z odpovědí se také uvádělo, že se ruda obnovuje zhruba každých 30 minut."
+          }
+        ]
+      },
+      "ekwipunek": {
+        "title": "Výbava a bonusy",
+        "items": [
+          {
+            "q": "Jaké bonusy zvolit na šálu (sash) pro PvE / Dragona?",
+            "a": "Často se zvažovalo 5% PvE proti odolnosti vůči živlům. Jeden hráč doporučoval 5% PvE a odolnost doplňoval elementálními botami."
+          },
+          {
+            "q": "Vyplatí se šálu udělat sám, nebo koupit hotovou?",
+            "a": "Na začátku hry se častěji doporučovalo sbírat látky a koupit hotovou, případně si ji vyrobit až později, např. kolem levelu 75."
+          },
+          {
+            "q": "Jak přidávat bonusy do kostýmů?",
+            "a": "Potřebné předměty jsou u obchodnice. Podle chatu je v průměru potřeba kolem 150–200 pokusů na získání 3 bonusů."
+          },
+          {
+            "q": "Dají se měnit bonusy u předmětů vyvinutých z levelu 54 na 81?",
+            "a": "Ano, běžnými svitky na změnu."
+          },
+          {
+            "q": "Jak nejlépe vylepšovat Soul EQ z +1 na +6?",
+            "a": "V chatu se doporučovalo: +1–+3 Dragon Scroll, +4 scroll 100 %, později Magic Stone."
+          },
+          {
+            "q": "Kolik stojí změna bonusů v alchymii?",
+            "a": "Podle odpovědí: 1 Flame, bez nákladů na yang; výsledný bonus je náhodný. Změna bonusů v alchymii pod Brilliant se nedoporučovala."
+          },
+          {
+            "q": "Vyplatí se dělat nejdřív mytickou, nebo legendární alchymii?",
+            "a": "Nejčastější krátká odpověď: mytickou."
+          },
+          {
+            "q": "Jaké odolnosti jsou potřeba na Dragona? Proč dostávám one-shot?",
+            "a": "Nejčastěji se uváděla odolnost vůči magii plus odpovídající živel; odolnost vůči magii hlavně na helmě a náramku a odpovídající bonusy na štítu."
+          }
+        ]
+      },
+      "techniczne": {
+        "title": "Technické problémy",
+        "items": [
+          {
+            "q": "Jak opravit lagy/FPS při dvou spuštěných klientech?",
+            "a": "Nejčastější rada: zavřít hru a smazat metin2.cfg. Občas se doporučovalo i omezení na 60 FPS."
+          },
+          {
+            "q": "Proč hra padá / se resetují nastavení / nefunguje fullscreen?",
+            "a": "Smazat metin2.cfg, zkontrolovat config.exe, zkontrolovat antivirus, přeinstalovat klienta, a pokud problém přetrvává — otevřít ticket na support."
+          }
+        ]
+      },
+      "platnosci": {
+        "title": "Platby",
+        "items": [
+          {
+            "q": "Jak koupit DC / jak zaplatit Paysafecard?",
+            "a": "Tohle se v polském chatu řešilo velmi často. Platba probíhá přes externí stránku; pole na stránce Baerim sloužilo pro kódy dárkových karet, ne pro přímé zadání kódu PSC."
+          }
+        ]
+      },
+      "skille": {
+        "title": "Skilly",
+        "items": [
+          {
+            "q": "Jak funguje Skill Synergy a co je potřeba mít na P?",
+            "a": "Pro plný bonus je podle chatu potřeba mít na P všech 6 hlavních skillů a také buff skilly na P; mining/fishing k tomu potřeba nebyly."
+          },
+          {
+            "q": "Jaké první skilly zvolit pro peta na PvM?",
+            "a": "Pro válečníka se doporučovalo mimo jiné Boss Guard → Magic/Melee Attack → Crit Power → Monster Hunter, podle potřeb postavy."
+          }
+        ]
+      }
+    },
+    "suggestTooltip": "Navrhnout změnu",
+    "questionLabel": "Otázka",
+    "answerLabel": "Odpověď",
+    "submitSuggestion": "Odeslat návrh",
+    "suggestionSuccess": "Díky! Tvůj návrh byl odeslán ke kontrole.",
+    "suggestionError": "Návrh se nepodařilo odeslat. Zkus to prosím později.",
+    "pendingSuggestions": "Návrhy uživatelů",
+    "acceptSuggestion": "Přijmout návrh",
+    "rejectSuggestion": "Zamítnout",
+    "changesSaved": "Změny uloženy."
   }
 }

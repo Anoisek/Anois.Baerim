@@ -370,5 +370,164 @@
     "button": "Eski verileri geri yükle",
     "loading": "Yükleniyor…",
     "empty": "Hiçbir şey bulunamadı"
+  },
+  "communityGuide": {
+    "title": "Baerim Derlemesi",
+    "subtitle": "Topluluk tarafından derlenen soru ve cevaplar, hızlıca göz atmak için tek bir yerde toplandı.",
+    "disclaimerLabel": "Not:",
+    "disclaimerBody": "aşağıdaki cevaplar, Discord sohbet dökümlerine dayanarak yapay zeka tarafından oluşturulmuştur. Yanlışlıklar veya güncel olmayan bilgiler içerebilir — şüpheye düşerseniz doğrudan sunucudan teyit etmekte fayda var.",
+    "navLink": "Derleme",
+    "breadcrumb": "Derleme",
+    "disputedTag": "Tartışmalı",
+    "footerNote": "Resmi olmayan içerik · Baerim topluluk sohbetlerinden derlenmiştir",
+    "categories": {
+      "zwoje": {
+        "title": "Hesap tomarları ve limitler",
+        "items": [
+          {
+            "q": "One Account Scroll nasıl çalışır?",
+            "a": "Aktive edildiği hesap için geçerlidir ve o hesaptaki tüm karakterleri kapsar. İkinci bir hesabı kapsamaz. Kapatılabilir ama kapatınca kaybedilir."
+          },
+          {
+            "q": "One Account Scroll'u iki hesapta aktive edip her ikisinde de metin farmlayabilir miyim?",
+            "a": "Hayır. Sohbetteki cevap netti: limit bu şekilde aşılamıyor."
+          },
+          {
+            "q": "One Account Scroll aktifken ikinci hesapla balık tutabilir ya da maden kazabilir miyim?",
+            "a": "Evet, ikinci hesap balık tutma ve maden kazma için kullanılmaya devam edilebilir."
+          },
+          {
+            "q": "Casual Buff ve metin limiti nasıl işliyor?",
+            "a": "Metinlerden gelen dropu artırıyor, ama toplamda sayılan günlük yaklaşık 1500 metin limiti var. Sohbette dungeon bonuslarıyla bağlantısından da bahsedildi."
+          }
+        ]
+      },
+      "eventy": {
+        "title": "Etkinlikler ve drop",
+        "items": [
+          {
+            "q": "Çift drop etkinliği shrine'lara etki ediyor mu?",
+            "a": "Sohbetteki cevaplara göre artık shrine'ların kendisini ikiye katlamıyor; kalan loot yine de bonus kapsamında olabilir."
+          },
+          {
+            "q": "Moonlight Chest etkinliğini en iyi nerede yapmak lazım — dungeonlarda mı, metinlerde mi?",
+            "a": "Metinlerde."
+          },
+          {
+            "q": "Metinlerden gelen %10 çift drop bonusu/buff'ı Moonlight Chest için de geçerli mi?",
+            "a": "Burada sohbetteki cevaplar birbiriyle çelişiyordu — biri „hayır\" derken diğeri „işlemesi lazım\" dedi, yani net bir cevap yok.",
+            "disputed": true
+          }
+        ]
+      },
+      "poziomy": {
+        "title": "Seviye ve farm",
+        "items": [
+          {
+            "q": "EXP'yi hangi seviyede durdurmalı — 54 mü, 55 mi?",
+            "a": "En çok önerilen 55. seviyeydi, tabii karakterin Demon Tower için yeterli hasarı ve hayatta kalma gücü olması şartıyla."
+          },
+          {
+            "q": "70/75/80/90 gibi daha yüksek seviyelerde metin farmlamak mantıklı mı?",
+            "a": "İncelenen sohbetlerde sıklıkla 55'te kalmak öneriliyordu, çünkü daha yüksek seviye metinler pek karlı bulunmuyordu."
+          }
+        ]
+      },
+      "yang": {
+        "title": "Yang ve ekonomi",
+        "items": [
+          {
+            "q": "Dungeon ve metin dışında yang nasıl kazanılır?",
+            "a": "En çok önerilenler mining, Temple farmlamak ve ucuz eşyaları alıp daha pahalıya satmaktı. Maden kazmak için skill P ve +5 veya üstü kazma önerildi."
+          },
+          {
+            "q": "Maden kazmak için en iyi yer neresi?",
+            "a": "Map1 / City 1. Bir cevapta ayrıca madenlerin yaklaşık her 30 dakikada bir yenilendiği belirtildi."
+          }
+        ]
+      },
+      "ekwipunek": {
+        "title": "Ekipman ve bonuslar",
+        "items": [
+          {
+            "q": "PvE / Dragon için sash'a hangi bonuslar seçilmeli?",
+            "a": "Sıklıkla %5 PvE ile element direnci karşılaştırıldı. Bir oyuncu %5 PvE'yi önerip direnci elemental botlarla tamamlıyordu."
+          },
+          {
+            "q": "Sash'ı kendin yapmak mı, yoksa hazır almak mı daha mantıklı?",
+            "a": "Oyunun başında genelde kumaş toplayıp hazır bir sash almak, ya da onu daha sonra, örneğin 75. seviye civarında yapmak öneriliyordu."
+          },
+          {
+            "q": "Kostümlere bonus nasıl eklenir?",
+            "a": "Gerekli eşyalar tüccar NPC'de bulunuyor. Sohbete göre 3 bonus elde etmek için ortalama 150–200 deneme gerekiyor."
+          },
+          {
+            "q": "54'ten 81. seviyeye evrilmiş eşyalarda bonuslar değiştirilebilir mi?",
+            "a": "Evet, normal değiştirme tomarlarıyla."
+          },
+          {
+            "q": "Soul EQ'yu +1'den +6'ya en iyi nasıl yükseltilir?",
+            "a": "Sohbette önerilen: +1–+3 için Dragon Scroll, +4 için %100 tomar, sonrasında Magic Stone."
+          },
+          {
+            "q": "Simyada bonus değiştirmenin maliyeti nedir?",
+            "a": "Cevaplara göre: 1 Flame, yang maliyeti yok; çıkan bonus rastgele. Brilliant altında simyada bonus değiştirmek önerilmedi."
+          },
+          {
+            "q": "Önce mitik simya mı, yoksa efsanevi simya mı yapılmalı?",
+            "a": "En sık verilen kısa cevap: mitik."
+          },
+          {
+            "q": "Dragon için hangi dirençler gerekli? Neden tek vuruşta ölüyorum?",
+            "a": "En sık belirtilenler büyü direnci artı ilgili element direnciydi; büyü direnci özellikle kask ve bilezikte, kalkanda da doğru bonuslar."
+          }
+        ]
+      },
+      "techniczne": {
+        "title": "Teknik sorunlar",
+        "items": [
+          {
+            "q": "İki client açıkken lag/FPS sorunları nasıl düzeltilir?",
+            "a": "En yaygın öneri: oyunu kapatıp metin2.cfg dosyasını silmek. Bazen 60 FPS ile sınırlamak da önerildi."
+          },
+          {
+            "q": "Oyun neden çöküyor / ayarlar neden sıfırlanıyor / tam ekran neden çalışmıyor?",
+            "a": "metin2.cfg dosyasını silin, config.exe'yi kontrol edin, antivirüsü kontrol edin, client'ı yeniden yükleyin; sorun devam ederse destek ekibine ticket açın."
+          }
+        ]
+      },
+      "platnosci": {
+        "title": "Ödemeler",
+        "items": [
+          {
+            "q": "DC nasıl satın alınır / Paysafecard ile nasıl ödeme yapılır?",
+            "a": "Bu, Polonya sohbetinde çok sık soruluyordu. Ödeme harici bir site üzerinden yapılıyor; Baerim sitesindeki alan doğrudan PSC kodu girmek için değil, hediye kartı kodları için kullanılıyordu."
+          }
+        ]
+      },
+      "skille": {
+        "title": "Skill'ler",
+        "items": [
+          {
+            "q": "Skill Synergy nasıl çalışır, P'de ne olması gerekir?",
+            "a": "Sohbete göre tam bonus için 6 ana skill'in P'de olması ve buff skill'lerinin de P'de olması gerekiyor; mining/fishing bunun için gerekli değildi."
+          },
+          {
+            "q": "PvM için pet'e ilk hangi skill'ler seçilmeli?",
+            "a": "Bir savaşçı için diğerlerinin yanı sıra Boss Guard → Magic/Melee Attack → Crit Power → Monster Hunter öneriliyordu, karakterin ihtiyacına göre değişir."
+          }
+        ]
+      }
+    },
+    "suggestTooltip": "Değişiklik öner",
+    "questionLabel": "Soru",
+    "answerLabel": "Cevap",
+    "submitSuggestion": "Öneriyi gönder",
+    "suggestionSuccess": "Teşekkürler! Önerin incelenmek üzere gönderildi.",
+    "suggestionError": "Öneri gönderilemedi. Lütfen daha sonra tekrar dene.",
+    "pendingSuggestions": "Kullanıcı önerileri",
+    "acceptSuggestion": "Öneriyi kabul et",
+    "rejectSuggestion": "Reddet",
+    "changesSaved": "Değişiklikler kaydedildi."
   }
 }

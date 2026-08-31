@@ -133,7 +133,44 @@ const TABLES = {
     pk: ['id'],
     publicRead: false,
   },
+  // Live per-language overrides for the /kompendium community guide — see
+  // schema.sql for the fallback-to-static-translation model. Admin-only
+  // writes (default insertAuth), upserted by (category_id, item_index, lang).
+  guide_items: {
+    columns: ['category_id', 'item_index', 'lang', 'question', 'answer', 'updated_at'],
+    pk: ['category_id', 'item_index', 'lang'],
+  },
+  guide_suggestions: {
+    columns: ['id', 'category_id', 'item_index', 'lang', 'question', 'answer', 'created_at'],
+    pk: ['id'],
+    insertAuth: 'public',
+    publicRead: false,
+    beforeInsert: function (row) {
+      const categoryId = typeof row.category_id === 'string' ? row.category_id : ''
+      const itemIndex = Number(row.item_index)
+      const lang = typeof row.lang === 'string' ? row.lang : ''
+      const question = typeof row.question === 'string' ? row.question.trim() : ''
+      const answer = typeof row.answer === 'string' ? row.answer.trim() : ''
+      if (!GUIDE_CATEGORIES.has(categoryId)) return { error: 'unknown category_id' }
+      if (!Number.isInteger(itemIndex) || itemIndex < 0 || itemIndex > 50) return { error: 'invalid item_index' }
+      if (!GUIDE_LANGS.has(lang)) return { error: 'unknown lang' }
+      if (!question || question.length > 500) return { error: 'question must be 1-500 characters' }
+      if (!answer || answer.length > 2000) return { error: 'answer must be 1-2000 characters' }
+      return {
+        row: {
+          category_id: categoryId,
+          item_index: itemIndex,
+          lang: lang,
+          question: censorComment(question),
+          answer: censorComment(answer),
+        },
+      }
+    },
+  },
 }
+
+const GUIDE_CATEGORIES = new Set(['zwoje', 'eventy', 'poziomy', 'yang', 'ekwipunek', 'techniczne', 'platnosci', 'skille'])
+const GUIDE_LANGS = new Set(['pl', 'en', 'de', 'es', 'pt', 'pt-BR', 'fr', 'it', 'el', 'cs', 'sk', 'ro', 'tr'])
 
 const MODIFIER_KEYS = new Set(['select', 'order', 'limit', 'count', 'head'])
 

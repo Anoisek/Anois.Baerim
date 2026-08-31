@@ -370,5 +370,164 @@
     "button": "Recuperează datele vechi",
     "loading": "Se încarcă…",
     "empty": "Nu s-a găsit nimic"
+  },
+  "communityGuide": {
+    "title": "Compendiul Baerim",
+    "subtitle": "Întrebări și răspunsuri adunate de comunitate, organizate într-un singur loc pentru consultare rapidă.",
+    "disclaimerLabel": "Notă:",
+    "disclaimerBody": "răspunsurile de mai jos au fost generate de AI pe baza transcrierilor discuțiilor de pe Discord. Pot conține inexactități sau informații neactualizate — în caz de îndoială, e bine să verifici direct pe server.",
+    "navLink": "Compendiu",
+    "breadcrumb": "Compendiu",
+    "disputedTag": "Disputat",
+    "footerNote": "Material neoficial · realizat pe baza discuțiilor comunității Baerim",
+    "categories": {
+      "zwoje": {
+        "title": "Suluri de cont și limite",
+        "items": [
+          {
+            "q": "Cum funcționează One Account Scroll?",
+            "a": "Se aplică pe contul pe care a fost activat și acoperă toate personajele de pe acel cont. Nu acoperă un al doilea cont. Poate fi dezactivat, dar în acest caz se pierde."
+          },
+          {
+            "q": "Pot activa One Account Scroll pe două conturi și să farmez metine pe amândouă?",
+            "a": "Nu. Răspunsul din chat a fost clar: limita nu poate fi ocolită în acest fel."
+          },
+          {
+            "q": "Cu One Account Scroll activ, mai pot pescui sau mina minereu de pe un al doilea cont?",
+            "a": "Da, al doilea cont poate fi folosit în continuare pentru pescuit și minerit."
+          },
+          {
+            "q": "Cum funcționează Casual Buff și limita de metine?",
+            "a": "Oferă drop crescut de la metine, dar există o limită zilnică de aproximativ 1500 de metine, calculată în total. În chat s-a menționat și o legătură cu bonusurile de dungeon."
+          }
+        ]
+      },
+      "eventy": {
+        "title": "Evenimente și drop",
+        "items": [
+          {
+            "q": "Evenimentul de drop dublu funcționează pe shrine-uri?",
+            "a": "Conform răspunsurilor din chat, nu mai dublează shrine-urile în sine; restul loot-ului poate fi totuși acoperit de bonus."
+          },
+          {
+            "q": "Unde e cel mai bine de făcut evenimentul Moonlight Chest — pe dungeon-uri sau pe metine?",
+            "a": "Pe metine."
+          },
+          {
+            "q": "Bonusul/buff-ul de 10% drop dublu de la metine funcționează pentru Moonlight Chest?",
+            "a": "Aici răspunsurile din chat au fost contradictorii — cineva a spus „nu\", altcineva „ar trebui să funcționeze\" — deci nu există un răspuns clar.",
+            "disputed": true
+          }
+        ]
+      },
+      "poziomy": {
+        "title": "Nivele și farmit",
+        "items": [
+          {
+            "q": "La ce nivel să oprești EXP — 54 sau 55?",
+            "a": "Cel mai des se recomanda nivelul 55, atâta timp cât personajul are deja destul damage și supraviețuire pentru Demon Tower."
+          },
+          {
+            "q": "Merită să faci farm de metine la nivele mai mari, de exemplu 70/75/80/90?",
+            "a": "În discuțiile analizate se recomanda adesea să rămâi la 55, deoarece metinele de nivel mai mare erau considerate puțin rentabile."
+          }
+        ]
+      },
+      "yang": {
+        "title": "Yang și economie",
+        "items": [
+          {
+            "q": "Cum câștigi yang în afara dungeon-urilor și metinelor?",
+            "a": "Cel mai des se recomanda mining-ul, farm-ul de Temple și cumpărarea de obiecte ieftine pentru a le revinde mai scump. Pentru minerit se recomanda skill-ul P și un târnăcop +5 sau mai bun."
+          },
+          {
+            "q": "Unde e cel mai bine să minezi minereu?",
+            "a": "Map1 / City 1. Într-un răspuns se mai preciza că minereul se regenerează la aproximativ 30 de minute."
+          }
+        ]
+      },
+      "ekwipunek": {
+        "title": "Echipament și bonusuri",
+        "items": [
+          {
+            "q": "Ce bonusuri să alegi pentru sash, pentru PvE / Dragon?",
+            "a": "Se discuta des între 5% PvE și rezistență elementală. Un jucător recomanda 5% PvE și completa rezistența cu cizme elementale."
+          },
+          {
+            "q": "Merită mai mult să-ți faci singur sash-ul sau să cumperi unul gata făcut?",
+            "a": "La începutul jocului se recomanda mai des să strângi materiale și să cumperi unul gata făcut, sau să-l faci mai târziu, de exemplu pe la nivelul 75."
+          },
+          {
+            "q": "Cum se adaugă bonusuri la costume?",
+            "a": "Obiectele necesare se găsesc la negustoreasă. Conform chatului, sunt necesare în medie circa 150–200 de încercări pentru a obține 3 bonusuri."
+          },
+          {
+            "q": "Se pot schimba bonusurile la obiectele evoluate de la nivelul 54 la 81?",
+            "a": "Da, cu sulurile de schimbare obișnuite."
+          },
+          {
+            "q": "Care e cel mai bun mod de a îmbunătăți Soul EQ de la +1 la +6?",
+            "a": "În chat se recomanda: +1–+3 Dragon Scroll, +4 cu scroll 100%, apoi Magic Stone."
+          },
+          {
+            "q": "Cât costă schimbarea bonusurilor în alchimie?",
+            "a": "Conform răspunsurilor: 1 Flame, fără cost în yang; bonusul obținut este aleatoriu. Nu se recomanda schimbarea bonusurilor în alchimie sub gradul Brilliant."
+          },
+          {
+            "q": "Merită să faci mai întâi alchimia mitică sau cea legendară?",
+            "a": "Cel mai frecvent răspuns scurt: cea mitică."
+          },
+          {
+            "q": "Ce rezistențe sunt necesare pentru Dragon? De ce iau one-shot?",
+            "a": "Cel mai des menționate au fost rezistența la magie plus rezistența la elementul corespunzător; rezistența la magie mai ales pe cască și brățară, plus bonusurile potrivite pe scut."
+          }
+        ]
+      },
+      "techniczne": {
+        "title": "Probleme tehnice",
+        "items": [
+          {
+            "q": "Cum se repară lag-urile/FPS-ul scăzut la două clienturi deschise simultan?",
+            "a": "Cel mai frecvent sfat: închiderea jocului și ștergerea metin2.cfg. Uneori se recomanda și limitarea la 60 FPS."
+          },
+          {
+            "q": "De ce se crapă jocul / se resetează setările / nu merge fullscreen?",
+            "a": "Ștergerea metin2.cfg, verificarea config.exe, verificarea antivirusului, reinstalarea clientului, iar dacă problema persistă — deschide un tichet la support."
+          }
+        ]
+      },
+      "platnosci": {
+        "title": "Plăți",
+        "items": [
+          {
+            "q": "Cum cumpăr DC / cum plătesc cu Paysafecard?",
+            "a": "Asta apărea foarte des în chatul în poloneză. Plata se face printr-un site extern; câmpul de pe site-ul Baerim era destinat codurilor de gift card, nu pentru introducerea directă a unui cod PSC."
+          }
+        ]
+      },
+      "skille": {
+        "title": "Skill-uri",
+        "items": [
+          {
+            "q": "Cum funcționează Skill Synergy și ce trebuie să fie pe P?",
+            "a": "Pentru bonusul complet, conform chatului, trebuie să ai toate cele 6 skill-uri principale pe P, precum și skill-urile de buff pe P; mining/fishing nu erau necesare pentru asta."
+          },
+          {
+            "q": "Ce prime skill-uri să alegi pentru pet, în PvM?",
+            "a": "Pentru un războinic se sugera, printre altele, Boss Guard → Magic/Melee Attack → Crit Power → Monster Hunter, în funcție de nevoile personajului."
+          }
+        ]
+      }
+    },
+    "suggestTooltip": "Sugerează o modificare",
+    "questionLabel": "Întrebare",
+    "answerLabel": "Răspuns",
+    "submitSuggestion": "Trimite sugestia",
+    "suggestionSuccess": "Mulțumim! Sugestia ta a fost trimisă spre verificare.",
+    "suggestionError": "Sugestia nu a putut fi trimisă. Încearcă din nou mai târziu.",
+    "pendingSuggestions": "Sugestii de la utilizatori",
+    "acceptSuggestion": "Acceptă sugestia",
+    "rejectSuggestion": "Respinge",
+    "changesSaved": "Modificări salvate."
   }
 }

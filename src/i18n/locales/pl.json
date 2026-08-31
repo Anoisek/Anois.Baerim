@@ -370,5 +370,164 @@
     "button": "Odzyskaj dane",
     "loading": "Wczytywanie…",
     "empty": "Nic nie znaleziono"
+  },
+  "communityGuide": {
+    "title": "Kompendium Baerim",
+    "subtitle": "Zebrane pytania i odpowiedzi ze społeczności — usystematyzowane w jednym miejscu do szybkiego przeglądania.",
+    "disclaimerLabel": "Uwaga:",
+    "disclaimerBody": "poniższe odpowiedzi zostały wygenerowane przez AI na podstawie transkrypcji rozmów z Discorda. Mogą zawierać nieścisłości lub nieaktualne informacje — w razie wątpliwości warto zweryfikować odpowiedź bezpośrednio na serwerze.",
+    "navLink": "Kompendium",
+    "breadcrumb": "Kompendium",
+    "disputedTag": "Sporne",
+    "footerNote": "Materiał nieoficjalny · opracowany na podstawie rozmów społeczności Baerim",
+    "categories": {
+      "zwoje": {
+        "title": "Zwoje i limity konta",
+        "items": [
+          {
+            "q": "Jak działa Zwój Jednego Konta / One Account Scroll?",
+            "a": "Działa na konto, na którym został aktywowany, i obejmuje wszystkie postacie na tym koncie. Nie obejmuje drugiego konta. Można go wyłączyć, ale wtedy się go traci."
+          },
+          {
+            "q": "Czy mogę aktywować One Account Scroll na dwóch kontach i farmić metiny na obu?",
+            "a": "Nie. W czacie odpowiedź była jednoznaczna: nie można w ten sposób ominąć ograniczenia."
+          },
+          {
+            "q": "Czy mając One Account Scroll mogę łowić ryby albo kopać rudy drugim kontem?",
+            "a": "Tak, drugiego konta nadal można używać do wędkowania i kopania."
+          },
+          {
+            "q": "Jak działa Casual Buff i limit metinów?",
+            "a": "Daje zwiększony drop z metinów, ale obowiązuje dzienny limit około 1500 metinów, liczony łącznie. W czacie przewijało się też powiązanie z bonusami dungeonów."
+          }
+        ]
+      },
+      "eventy": {
+        "title": "Eventy i drop",
+        "items": [
+          {
+            "q": "Czy event podwójnego dropu działa na shrine'y?",
+            "a": "Według odpowiedzi z czatu nie podwaja już samych shrine'ów; pozostały loot może być objęty bonusem."
+          },
+          {
+            "q": "Gdzie najlepiej robić event Moonlight Chest? Na dungeonach czy metinach?",
+            "a": "Na metinach."
+          },
+          {
+            "q": "Czy bonus/potka 10% podwójnego dropu z metinów działa na Moonlight Chest?",
+            "a": "Tutaj odpowiedzi na czacie były sprzeczne — jedna osoba mówiła „nie\", druga „powinno działać\", więc nie ma jednoznacznej odpowiedzi.",
+            "disputed": true
+          }
+        ]
+      },
+      "poziomy": {
+        "title": "Poziomy i farmienie",
+        "items": [
+          {
+            "q": "Na którym poziomie zatrzymać EXP — 54 czy 55?",
+            "a": "Najczęściej polecano 55 poziom, o ile postać ma już wystarczający dmg i przeżywalność na Demon Tower."
+          },
+          {
+            "q": "Czy warto farmić metiny na wyższych poziomach, np. 70/75/80/90?",
+            "a": "W analizowanych rozmowach często polecano zostać na 55, ponieważ wyższe metiny były oceniane jako mało opłacalne."
+          }
+        ]
+      },
+      "yang": {
+        "title": "Yang i ekonomia",
+        "items": [
+          {
+            "q": "Jak zarabiać yang poza dungeonami i metinami?",
+            "a": "Najczęściej polecano mining, farmienie Temple oraz kupowanie tanich przedmiotów i odsprzedawanie ich drożej. Przy kopaniu polecano skill P i kilof +5 lub wyższy."
+          },
+          {
+            "q": "Gdzie najlepiej kopać rudy?",
+            "a": "Map1 / City 1. W jednej z odpowiedzi podano też, że rudy odnawiają się co około 30 minut."
+          }
+        ]
+      },
+      "ekwipunek": {
+        "title": "Ekwipunek i bonusy",
+        "items": [
+          {
+            "q": "Jakie bonusy wybrać do szarfy pod PvE / Dragona?",
+            "a": "Często rozważano 5% PvE kontra odporność na żywioły. Jeden z graczy polecał 5% PvE, a odporność uzupełniał butami elementalnymi."
+          },
+          {
+            "q": "Czy bardziej opłaca się zrobić szarfę samemu czy kupić gotową?",
+            "a": "Na początku gry częściej polecano zbierać sukna i kupić gotową albo robić ją dopiero później, np. około 75 poziomu."
+          },
+          {
+            "q": "Jak dodawać bonusy do kostiumów?",
+            "a": "Odpowiednie przedmioty są u handlarki. Według czatu średnio potrzeba około 150–200 prób, żeby uzyskać 3 bonusy."
+          },
+          {
+            "q": "Czy można zmieniać bonusy w przedmiotach ewoluowanych z 54 na 81 poziom?",
+            "a": "Tak, normalnymi zmiankami."
+          },
+          {
+            "q": "Jak najlepiej ulepszać Soul EQ od +1 do +6?",
+            "a": "W czacie polecano: +1–+3 Dragon Scroll, +4 scroll 100%, później Magic Stone."
+          },
+          {
+            "q": "Ile kosztuje zmiana bonusów w alchemii?",
+            "a": "Według odpowiedzi: 1 Flame, bez kosztu yang; bonus po zmianie jest losowy. Odradzano zmianę bonusów w alchemii poniżej Brilliant."
+          },
+          {
+            "q": "Czy warto najpierw robić mityczną czy legendarną alchemię?",
+            "a": "Najczęstsza krótka odpowiedź: mityczną."
+          },
+          {
+            "q": "Jakie odporności są potrzebne na Dragona? Dlaczego dostaję one-shota?",
+            "a": "Najczęściej wskazywano odporność na magię + odpowiedni żywioł; magia m.in. w hełmie i bransolecie oraz odpowiednie bonusy w tarczy."
+          }
+        ]
+      },
+      "techniczne": {
+        "title": "Sprawy techniczne",
+        "items": [
+          {
+            "q": "Jak naprawić lagi/FPS przy dwóch klientach?",
+            "a": "Najczęstsza rada: zamknąć grę i usunąć metin2.cfg. Czasami polecano też ograniczenie do 60 FPS."
+          },
+          {
+            "q": "Dlaczego gra się crashuje / ustawienia się resetują / nie działa fullscreen?",
+            "a": "Usunięcie metin2.cfg, sprawdzenie config.exe, antywirusa, reinstalacja klienta, a jeśli problem zostaje — ticket do supportu."
+          }
+        ]
+      },
+      "platnosci": {
+        "title": "Płatności",
+        "items": [
+          {
+            "q": "Jak kupić DC / jak zapłacić Paysafecard?",
+            "a": "To było bardzo częste na polskim czacie. Płatność przechodzi przez zewnętrzną stronę; pole na stronie Baerim służyło do kodów giftcard, a nie do bezpośredniego wpisania kodu PSC."
+          }
+        ]
+      },
+      "skille": {
+        "title": "Skille",
+        "items": [
+          {
+            "q": "Jak działa Skill Synergy i co trzeba mieć na P?",
+            "a": "Do pełnego bonusu według czatu trzeba mieć 6 głównych skilli na P oraz skille buffi na P; mining/fishing nie były do tego wymagane."
+          },
+          {
+            "q": "Jakie pierwsze skille wybrać dla peta pod PvM?",
+            "a": "Dla wojownika sugerowano m.in. Boss Guard → Magic/Melee Attack → Crit Power → Monster Hunter, zależnie od potrzeb postaci."
+          }
+        ]
+      }
+    },
+    "suggestTooltip": "Zasugeruj zmianę",
+    "questionLabel": "Pytanie",
+    "answerLabel": "Odpowiedź",
+    "submitSuggestion": "Wyślij sugestię",
+    "suggestionSuccess": "Dzięki! Twoja sugestia została wysłana do przejrzenia.",
+    "suggestionError": "Nie udało się wysłać sugestii. Spróbuj ponownie później.",
+    "pendingSuggestions": "Sugestie użytkowników",
+    "acceptSuggestion": "Zaakceptuj sugestię",
+    "rejectSuggestion": "Odrzuć",
+    "changesSaved": "Zmiany zapisane."
   }
 }

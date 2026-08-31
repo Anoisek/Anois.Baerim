@@ -370,5 +370,164 @@
     "button": "Récupérer les anciennes données",
     "loading": "Chargement…",
     "empty": "Rien trouvé"
+  },
+  "communityGuide": {
+    "title": "Compendium Baerim",
+    "subtitle": "Questions et réponses rassemblées par la communauté, regroupées en un seul endroit pour une consultation rapide.",
+    "disclaimerLabel": "Remarque :",
+    "disclaimerBody": "les réponses ci-dessous ont été générées par IA à partir de transcriptions de discussions Discord. Elles peuvent contenir des imprécisions ou des informations dépassées — en cas de doute, mieux vaut vérifier directement sur le serveur.",
+    "navLink": "Compendium",
+    "breadcrumb": "Compendium",
+    "disputedTag": "Contesté",
+    "footerNote": "Contenu non officiel · compilé à partir des discussions de la communauté Baerim",
+    "categories": {
+      "zwoje": {
+        "title": "Parchemins de compte et limites",
+        "items": [
+          {
+            "q": "Comment fonctionne le One Account Scroll ?",
+            "a": "Il s'applique au compte sur lequel il a été activé et couvre tous les personnages de ce compte. Il ne couvre pas un second compte. On peut le désactiver, mais on le perd alors."
+          },
+          {
+            "q": "Puis-je activer le One Account Scroll sur deux comptes pour farmer les metins sur les deux ?",
+            "a": "Non. La réponse sur le chat était sans appel : impossible de contourner la limite de cette façon."
+          },
+          {
+            "q": "Avec le One Account Scroll actif, puis-je encore pêcher ou miner du minerai avec un second compte ?",
+            "a": "Oui, un second compte peut toujours être utilisé pour pêcher et miner."
+          },
+          {
+            "q": "Comment fonctionnent le Casual Buff et la limite de metins ?",
+            "a": "Il augmente le drop des metins, mais une limite quotidienne d'environ 1500 metins s'applique, comptée globalement. Le chat évoquait aussi un lien avec les bonus de donjon."
+          }
+        ]
+      },
+      "eventy": {
+        "title": "Événements et drops",
+        "items": [
+          {
+            "q": "L'événement double drop s'applique-t-il aux shrines ?",
+            "a": "D'après les réponses sur le chat, il ne double plus les shrines eux-mêmes ; le reste du loot peut néanmoins bénéficier du bonus."
+          },
+          {
+            "q": "Où vaut-il mieux faire l'événement Moonlight Chest — en donjon ou sur les metins ?",
+            "a": "Sur les metins."
+          },
+          {
+            "q": "Le bonus/buff de 10% de double drop des metins s'applique-t-il au Moonlight Chest ?",
+            "a": "Les réponses sur le chat étaient contradictoires ici — une personne disait « non », une autre « ça devrait marcher » — il n'y a donc pas de réponse tranchée.",
+            "disputed": true
+          }
+        ]
+      },
+      "poziomy": {
+        "title": "Niveaux et farming",
+        "items": [
+          {
+            "q": "À quel niveau arrêter l'EXP — 54 ou 55 ?",
+            "a": "Le niveau 55 était le plus souvent recommandé, à condition que le personnage ait déjà assez de dégâts et de survie pour le Demon Tower."
+          },
+          {
+            "q": "Vaut-il la peine de farmer les metins à des niveaux plus élevés, genre 70/75/80/90 ?",
+            "a": "Dans les échanges analysés, il était souvent conseillé de rester à 55, les metins de niveau supérieur étant jugés peu rentables."
+          }
+        ]
+      },
+      "yang": {
+        "title": "Yang et économie",
+        "items": [
+          {
+            "q": "Comment gagner du yang en dehors des donjons et des metins ?",
+            "a": "Le plus souvent conseillé : le mining, farmer le Temple, et acheter des objets pas chers pour les revendre plus cher. Pour miner, un skill P et une pioche +5 ou plus étaient recommandés."
+          },
+          {
+            "q": "Où miner le minerai en priorité ?",
+            "a": "Map1 / City 1. Une réponse indiquait aussi que le minerai réapparaît toutes les 30 minutes environ."
+          }
+        ]
+      },
+      "ekwipunek": {
+        "title": "Équipement et bonus",
+        "items": [
+          {
+            "q": "Quels bonus choisir pour la sash en PvE / contre Dragon ?",
+            "a": "Le choix entre 5% PvE et résistance élémentaire revenait souvent. Un joueur recommandait 5% PvE, en complétant la résistance avec des bottes élémentaires."
+          },
+          {
+            "q": "Vaut-il mieux fabriquer sa sash soi-même ou en acheter une déjà faite ?",
+            "a": "En début de jeu, il était plus souvent conseillé de rassembler les tissus et d'en acheter une déjà faite, ou de la fabriquer plus tard, vers le niveau 75 par exemple."
+          },
+          {
+            "q": "Comment ajouter des bonus aux costumes ?",
+            "a": "Les objets nécessaires sont vendus par la marchande. D'après le chat, il faut en moyenne 150 à 200 essais pour obtenir 3 bonus."
+          },
+          {
+            "q": "Peut-on changer les bonus des objets évolués du niveau 54 au 81 ?",
+            "a": "Oui, avec les parchemins de changement classiques."
+          },
+          {
+            "q": "Quelle est la meilleure façon d'améliorer le Soul EQ de +1 à +6 ?",
+            "a": "Conseillé sur le chat : Dragon Scroll pour +1 à +3, scroll 100% pour le +4, puis Magic Stone ensuite."
+          },
+          {
+            "q": "Combien coûte un changement de bonus en alchimie ?",
+            "a": "D'après les réponses : 1 Flame, sans coût en yang ; le bonus obtenu est aléatoire. Il était déconseillé de changer les bonus en alchimie en dessous de Brilliant."
+          },
+          {
+            "q": "Vaut-il mieux faire l'alchimie mythique ou légendaire en premier ?",
+            "a": "Réponse courte la plus fréquente : la mythique."
+          },
+          {
+            "q": "Quelles résistances faut-il contre Dragon ? Pourquoi je me fais one-shot ?",
+            "a": "Le plus souvent cité : résistance magique plus la résistance à l'élément correspondant ; résistance magique notamment sur le casque et le bracelet, et les bons bonus sur le bouclier."
+          }
+        ]
+      },
+      "techniczne": {
+        "title": "Problèmes techniques",
+        "items": [
+          {
+            "q": "Comment corriger les lags/FPS avec deux clients ouverts en même temps ?",
+            "a": "Le conseil le plus courant : fermer le jeu et supprimer metin2.cfg. Une limite à 60 FPS était aussi parfois recommandée."
+          },
+          {
+            "q": "Pourquoi le jeu crash / les réglages se réinitialisent / le plein écran ne fonctionne pas ?",
+            "a": "Supprimer metin2.cfg, vérifier config.exe, vérifier l'antivirus, réinstaller le client, et si le problème persiste, ouvrir un ticket auprès du support."
+          }
+        ]
+      },
+      "platnosci": {
+        "title": "Paiements",
+        "items": [
+          {
+            "q": "Comment acheter des DC / payer avec Paysafecard ?",
+            "a": "C'était une question très fréquente sur le chat polonais. Le paiement passe par un site externe ; le champ sur le site de Baerim était destiné aux codes de carte-cadeau, pas à la saisie directe d'un code PSC."
+          }
+        ]
+      },
+      "skille": {
+        "title": "Skills",
+        "items": [
+          {
+            "q": "Comment fonctionne le Skill Synergy et que faut-il avoir en P ?",
+            "a": "Pour le bonus complet, selon le chat, il faut les 6 skills principaux en P ainsi que les skills de buff en P ; le mining/fishing n'était pas requis pour ça."
+          },
+          {
+            "q": "Quels premiers skills choisir pour le pet en PvM ?",
+            "a": "Pour un guerrier, on suggérait notamment Boss Guard → Magic/Melee Attack → Crit Power → Monster Hunter, selon les besoins du personnage."
+          }
+        ]
+      }
+    },
+    "suggestTooltip": "Suggérer une modification",
+    "questionLabel": "Question",
+    "answerLabel": "Réponse",
+    "submitSuggestion": "Envoyer la suggestion",
+    "suggestionSuccess": "Merci ! Votre suggestion a été envoyée pour vérification.",
+    "suggestionError": "Impossible d'envoyer votre suggestion. Réessayez plus tard.",
+    "pendingSuggestions": "Suggestions des utilisateurs",
+    "acceptSuggestion": "Accepter la suggestion",
+    "rejectSuggestion": "Rejeter",
+    "changesSaved": "Modifications enregistrées."
   }
 }

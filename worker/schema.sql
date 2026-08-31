@@ -281,3 +281,32 @@ CREATE TABLE alchemy_price_submissions (
   price REAL NOT NULL,
   created_at TEXT NOT NULL
 );
+
+-- Community guide (/kompendium): live per-language overrides on top of the
+-- static translations bundled in src/i18n/locales/*.json. Only rows present
+-- here override the bundled text for that (category, item, lang); anything
+-- absent falls back to the static translation. No automatic cross-language
+-- translation — each language is edited/accepted independently by an admin.
+CREATE TABLE guide_items (
+  category_id TEXT NOT NULL,
+  item_index INTEGER NOT NULL,
+  lang TEXT NOT NULL,
+  question TEXT NOT NULL,
+  answer TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (category_id, item_index, lang)
+);
+
+-- Pending user-submitted edit suggestions, admin-reviewed only (publicRead:
+-- false). Accepting one means the admin copies question/answer into
+-- guide_items and deletes this row; rejecting just deletes it.
+CREATE TABLE guide_suggestions (
+  id TEXT PRIMARY KEY,
+  category_id TEXT NOT NULL,
+  item_index INTEGER NOT NULL,
+  lang TEXT NOT NULL,
+  question TEXT NOT NULL,
+  answer TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX idx_guide_suggestions_category_lang ON guide_suggestions(category_id, lang);

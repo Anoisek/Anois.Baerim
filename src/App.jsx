@@ -9,6 +9,7 @@ import NicknamePrompt from './components/NicknamePrompt'
 import Footer from './components/Footer'
 import DomainChangeNotice from './components/DomainChangeNotice'
 import RestoreOldDataButton from './components/RestoreOldDataButton'
+import CommunityGuideLink from './components/CommunityGuideLink'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Materials from './pages/Materials'
@@ -29,6 +30,7 @@ import ItemDetail from './pages/ItemDetail'
 import ItemUsage from './pages/ItemUsage'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import Suggestions from './pages/Suggestions'
+import CommunityGuide from './pages/CommunityGuide'
 import Spinner from './components/Spinner'
 
 // Lazy-loaded: pulls in three.js, which is heavy enough that every other page
@@ -46,6 +48,7 @@ export default function App() {
           <NicknamePrompt />
           <DomainChangeNotice />
           <RestoreOldDataButton />
+          <CommunityGuideLink />
           <div className="min-h-screen flex flex-col">
             <div className="flex-1 flex flex-col">
               <Routes>
@@ -75,6 +78,7 @@ export default function App() {
               <Route path="/items/:itemId/usage" element={<ItemUsage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/suggestions" element={<Suggestions />} />
+              <Route path="/kompendium" element={<CommunityGuide />} />
               </Routes>
             </div>
             <Footer />
