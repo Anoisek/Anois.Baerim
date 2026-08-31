@@ -51,6 +51,9 @@ export default function CommunityGuide() {
   const navRef = useRef(null)
   const itemRefs = useRef({})
   const lang = i18n.language
+  // "Gildia" only exists in Polish (community-specific, not translated) — hidden entirely
+  // for every other language rather than shown with fallback English/whatever text.
+  const visibleCategories = lang === 'pl' ? [...CATEGORY_ORDER, 'gildia'] : CATEGORY_ORDER
 
   const [overrides, setOverrides] = useState({})
   const [suggestions, setSuggestions] = useState({})
@@ -101,7 +104,7 @@ export default function CommunityGuide() {
           </div>
 
           <nav ref={navRef} className="sticky top-16 z-30 flex flex-wrap gap-2 mb-10 py-4 bg-transparent">
-            {CATEGORY_ORDER.map(id => (
+            {visibleCategories.map(id => (
               <a
                 key={id}
                 href={`#${id}`}
@@ -113,7 +116,7 @@ export default function CommunityGuide() {
           </nav>
 
           <div className="flex flex-col gap-12">
-            {CATEGORY_ORDER.map(id => (
+            {visibleCategories.map(id => (
               <section key={id} id={id} className="scroll-mt-48">
                 <h2
                   ref={el => { itemRefs.current[`${id}-title`] = el }}

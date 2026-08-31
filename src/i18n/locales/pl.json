@@ -517,6 +517,15 @@
             "a": "Dla wojownika sugerowano m.in. Boss Guard → Magic/Melee Attack → Crit Power → Monster Hunter, zależnie od potrzeb postaci."
           }
         ]
+      },
+      "gildia": {
+        "title": "Gildia",
+        "items": [
+          {
+            "q": "Czy jest jakaś polska gildia?",
+            "a": "W Chunjo jest polska gildia i do jednej z ich akademii można cały czas dołączać."
+          }
+        ]
       }
     },
     "suggestTooltip": "Zasugeruj zmianę",

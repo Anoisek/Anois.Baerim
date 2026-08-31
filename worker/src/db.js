@@ -169,7 +169,7 @@ const TABLES = {
   },
 }
 
-const GUIDE_CATEGORIES = new Set(['zwoje', 'eventy', 'poziomy', 'yang', 'ekwipunek', 'techniczne', 'platnosci', 'skille'])
+const GUIDE_CATEGORIES = new Set(['zwoje', 'eventy', 'poziomy', 'yang', 'ekwipunek', 'techniczne', 'platnosci', 'skille', 'gildia'])
 const GUIDE_LANGS = new Set(['pl', 'en', 'de', 'es', 'pt', 'pt-BR', 'fr', 'it', 'el', 'cs', 'sk', 'ro', 'tr'])
 
 const MODIFIER_KEYS = new Set(['select', 'order', 'limit', 'count', 'head'])
