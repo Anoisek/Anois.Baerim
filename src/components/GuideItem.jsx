@@ -98,6 +98,13 @@ export default function GuideItem({ categoryId, index, question, answer, dispute
         ✏️
       </button>
 
+      {isAdmin && suggestions.length > 0 && (
+        <span
+          title={`${t('communityGuide.pendingSuggestions')} (${suggestions.length})`}
+          className="absolute top-2.5 right-10 w-2.5 h-2.5 rounded-full bg-green-400 shadow-[0_0_6px_2px_rgba(74,222,128,0.6)] animate-pulse"
+        />
+      )}
+
       {mode === 'view' ? (
         <>
           {disputed && (
