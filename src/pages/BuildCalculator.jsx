@@ -403,7 +403,7 @@ export default function BuildCalculator() {
               })}
             </div>
 
-            <StickyTotalBar sticky={stickyTotal} maxWidthClass="max-w-2xl">
+            <StickyTotalBar sticky={stickyTotal}>
               <button
                 type="button"
                 onClick={() => setShowSummary(true)}

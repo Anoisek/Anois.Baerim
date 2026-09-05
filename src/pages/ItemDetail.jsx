@@ -628,7 +628,7 @@ export default function ItemDetail() {
                   )
                 })}
 
-                <StickyTotalBar sticky={stickyTotal} maxWidthClass="max-w-4xl">
+                <StickyTotalBar sticky={stickyTotal}>
                   <button
                     type="button"
                     onClick={() => setShowSummary(true)}
