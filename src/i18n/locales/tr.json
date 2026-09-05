@@ -19,7 +19,8 @@
     "category": "Kategori",
     "material": "Malzeme",
     "item": "Eşya",
-    "close": "Kapat"
+    "close": "Kapat",
+    "stickToBottom": "Alta sabitle"
   },
   "navbar": {
     "tagline": "Resmi olmayan hayran yapımı araç, Baerim ekibiyle bağlantılı değildir",

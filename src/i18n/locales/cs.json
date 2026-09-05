@@ -19,7 +19,8 @@
     "category": "Kategorie",
     "material": "Materiál",
     "item": "Předmět",
-    "close": "Zavřít"
+    "close": "Zavřít",
+    "stickToBottom": "Připnout dolů"
   },
   "navbar": {
     "tagline": "Neoficiální fanouškovský nástroj, nesouvisí s týmem Baerim",

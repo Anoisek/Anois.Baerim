@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import Navbar from '../components/Navbar'
+import StickyTotalBar, { useStickyTotal } from '../components/StickyTotalBar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import SealPicker from '../components/SealPicker'
 import Spinner from '../components/Spinner'
@@ -68,6 +69,7 @@ export default function ItemDetail() {
   const [ownedLevel, setOwnedLevel] = useState('-')
   const [manualExcludedSteps, setManualExcludedSteps] = useState({})
   const [showSummary, setShowSummary] = useState(false)
+  const [stickyTotal, setStickyTotal] = useStickyTotal()
   const [globalPrices, setGlobalPrices] = useState({})
   const [chapterName, setChapterName] = useState(null)
   const [categoryName, setCategoryName] = useState(null)
@@ -626,21 +628,32 @@ export default function ItemDetail() {
                   )
                 })}
 
-                <button
-                  type="button"
-                  onClick={() => setShowSummary(true)}
-                  className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
-                >
-                  {t('itemDetail.materialsSummary')}
-                </button>
+                <StickyTotalBar sticky={stickyTotal} maxWidthClass="max-w-4xl">
+                  <button
+                    type="button"
+                    onClick={() => setShowSummary(true)}
+                    className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+                  >
+                    {t('itemDetail.materialsSummary')}
+                  </button>
 
-                {/* Total card */}
-                <div className="bg-gray-900 border border-yellow-400/20 rounded-2xl px-6 py-5 mt-1">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300 font-semibold">{t('itemDetail.totalCost')}</span>
-                    <span className="text-3xl font-bold text-yellow-400 font-mono">{formatYang(total)}</span>
+                  {/* Total card */}
+                  <div className="bg-gray-900 border border-yellow-400/20 rounded-2xl px-6 py-5 mt-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-300 font-semibold">{t('itemDetail.totalCost')}</span>
+                      <span className="text-3xl font-bold text-yellow-400 font-mono">{formatYang(total)}</span>
+                    </div>
+                    <label className="flex items-center gap-1.5 text-xs text-gray-500 mt-3 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={stickyTotal}
+                        onChange={e => setStickyTotal(e.target.checked)}
+                        className="accent-yellow-400 w-3.5 h-3.5"
+                      />
+                      {t('common.stickToBottom')}
+                    </label>
                   </div>
-                </div>
+                </StickyTotalBar>
               </div>
             )}
             </>

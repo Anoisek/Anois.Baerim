@@ -19,7 +19,8 @@
     "category": "Categoria",
     "material": "Materiale",
     "item": "Oggetto",
-    "close": "Chiudi"
+    "close": "Chiudi",
+    "stickToBottom": "Fissa in basso"
   },
   "navbar": {
     "tagline": "Strumento amatoriale non ufficiale, non affiliato al team di Baerim",

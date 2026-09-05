@@ -19,7 +19,8 @@
     "category": "Kategorie",
     "material": "Material",
     "item": "Gegenstand",
-    "close": "Schließen"
+    "close": "Schließen",
+    "stickToBottom": "Am unteren Rand fixieren"
   },
   "navbar": {
     "tagline": "Inoffizielles Fan-Tool, nicht mit dem Baerim-Team verbunden",

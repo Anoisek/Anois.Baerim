@@ -19,7 +19,8 @@
     "category": "Kategória",
     "material": "Materiál",
     "item": "Predmet",
-    "close": "Zavrieť"
+    "close": "Zavrieť",
+    "stickToBottom": "Pripnúť dole"
   },
   "navbar": {
     "tagline": "Neoficiálny fanúšikovský nástroj, nesúvisí s tímom Baerim",

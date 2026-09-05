@@ -19,7 +19,8 @@
     "category": "Categoria",
     "material": "Material",
     "item": "Item",
-    "close": "Fechar"
+    "close": "Fechar",
+    "stickToBottom": "Fixar na parte inferior"
   },
   "navbar": {
     "tagline": "Ferramenta feita por fãs, não afiliada com a equipa da Baerim",

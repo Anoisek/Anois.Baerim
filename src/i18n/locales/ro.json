@@ -19,7 +19,8 @@
     "category": "Categorie",
     "material": "Material",
     "item": "Obiect",
-    "close": "Închide"
+    "close": "Închide",
+    "stickToBottom": "Fixează jos"
   },
   "navbar": {
     "tagline": "Instrument neoficial creat de fani, neafiliat cu echipa Baerim",

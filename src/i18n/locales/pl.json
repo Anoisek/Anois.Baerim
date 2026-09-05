@@ -19,7 +19,8 @@
     "category": "Kategoria",
     "material": "Materiał",
     "item": "Przedmiot",
-    "close": "Zamknij"
+    "close": "Zamknij",
+    "stickToBottom": "Przyklej na dole"
   },
   "navbar": {
     "tagline": "Nieoficjalne narzędzie fanowskie, niezwiązane z zespołem Baerim",

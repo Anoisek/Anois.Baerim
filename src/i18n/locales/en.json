@@ -19,7 +19,8 @@
     "category": "Category",
     "material": "Material",
     "item": "Item",
-    "close": "Close"
+    "close": "Close",
+    "stickToBottom": "Stick to bottom"
   },
   "navbar": {
     "tagline": "Unofficial fan-made tool, not affiliated with Baerim's team",

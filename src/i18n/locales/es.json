@@ -19,7 +19,8 @@
     "category": "Categoría",
     "material": "Material",
     "item": "Objeto",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "stickToBottom": "Fijar en la parte inferior"
   },
   "navbar": {
     "tagline": "Herramienta hecha por fans, no afiliada con el equipo de Baerim",
