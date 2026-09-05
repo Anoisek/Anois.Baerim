@@ -3,7 +3,8 @@ import { useState } from 'react'
 const STICKY_KEY = 'sticky_total_bar'
 
 function loadStickyTotal() {
-  return localStorage.getItem(STICKY_KEY) === '1'
+  const stored = localStorage.getItem(STICKY_KEY)
+  return stored === null ? true : stored === '1'
 }
 
 export function useStickyTotal() {
