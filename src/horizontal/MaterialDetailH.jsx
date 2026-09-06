@@ -1,0 +1,195 @@
+import { useEffect, useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { db } from '../dbClient'
+import NavbarH from './NavbarH'
+import Breadcrumbs from '../components/Breadcrumbs'
+import Spinner from '../components/Spinner'
+import MaterialPriceCell from '../components/MaterialPriceCell'
+import PriceModeToggle from '../components/PriceModeToggle'
+import ItemImage from '../components/ItemImage'
+import { formatYang } from '../utils/formatYang'
+import { usePriceBook, buildRecipeMap, buildYangCostMap, fetchGlobalPrices, makeMaterialPriceFn } from '../utils/priceBook'
+import { itemImages as materialImages } from '../utils/itemImages'
+import { slugify, findBySlugOrId } from '../utils/slug'
+import { EmptyState, MatTag, PityStepper } from './ui'
+
+export default function MaterialDetailH() {
+  const { t } = useTranslation()
+  const { materialId: materialParam } = useParams()
+  const [materialId, setMaterialId] = useState(null)
+  const [material, setMaterial] = useState(null)
+  const [components, setComponents] = useState([])
+  const [variantRows, setVariantRows] = useState({})
+  const [variantYield, setVariantYield] = useState({})
+  const [activeVariant, setActiveVariant] = useState(1)
+  const [recipes, setRecipes] = useState({})
+  const [craftYangCosts, setCraftYangCosts] = useState({})
+  const [globalPrices, setGlobalPrices] = useState({})
+  const [noPriceIds, setNoPriceIds] = useState(new Set())
+  const [pity, setPity] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const { rawInputs, setPrice, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    let cancelled = false
+    setMaterialId(null)
+    db.from('materials').select('id, name').then(({ data }) => {
+      if (cancelled) return
+      const resolved = findBySlugOrId(data ?? [], materialParam)
+      if (!resolved) setLoading(false)
+      setMaterialId(resolved?.id ?? null)
+    })
+    return () => { cancelled = true }
+  }, [materialParam])
+
+  useEffect(() => {
+    if (!materialId) return
+    setActiveVariant(1)
+    Promise.all([
+      db.from('materials').select('*').eq('id', materialId).single(),
+      db.from('material_materials').select('quantity, variant, component_id').eq('material_id', materialId),
+      db.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
+      db.from('materials').select('id, name, image_url, is_craftable, craft_yang_cost, no_price'),
+      db.from('material_craft_variant_yield').select('variant, yield').eq('material_id', materialId),
+      fetchGlobalPrices(),
+    ]).then(([matRes, compRes, recipeRes, allMatsRes, yieldRes, globalPricesMap]) => {
+      setMaterial(matRes.data)
+      const materialsById = Object.fromEntries((allMatsRes.data ?? []).map(m => [m.id, m]))
+      const compRows = (compRes.data ?? []).map(r => ({ ...r, component: materialsById[r.component_id] }))
+      setComponents(compRows.filter(r => (r.variant ?? 1) === 1))
+      const byVariant = {}
+      for (const row of compRows) {
+        const v = row.variant ?? 1
+        if (!byVariant[v]) byVariant[v] = []
+        byVariant[v].push({ material: row.component, quantity: row.quantity })
+      }
+      setVariantRows(byVariant)
+      const vy = {}
+      for (const row of yieldRes.data ?? []) vy[row.variant] = row.yield
+      setVariantYield(vy)
+      setRecipes(buildRecipeMap(recipeRes.data))
+      setCraftYangCosts(buildYangCostMap(allMatsRes.data))
+      setGlobalPrices(globalPricesMap)
+      setNoPriceIds(new Set((allMatsRes.data ?? []).filter(m => m.no_price).map(m => m.id)))
+      setLoading(false)
+    })
+  }, [materialId])
+
+  const variantNumbers = Object.keys(variantRows).map(Number).sort((a, b) => a - b)
+  const variantCount = variantNumbers.length > 0 ? Math.max(...variantNumbers) : 0
+
+  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides, noPriceIds })
+  function priceOf(id) { return priceFn(id) }
+
+  const craftYangFee = material?.craft_yang_cost ?? 0
+  const effectivePity = Math.max(0, pity) + 1
+  const matCost = components.reduce((s, row) => s + priceOf(row.component.id) * row.quantity, 0)
+  const total = (matCost + craftYangFee) * effectivePity
+
+  return (
+    <div className="min-h-screen bg-[#14110d] text-white">
+      <NavbarH />
+      <div className="max-w-[90rem] mx-auto px-6 py-8">
+        {loading ? (
+          <div className="py-20 flex justify-center"><Spinner /></div>
+        ) : (
+          <>
+            <Breadcrumbs items={[{ label: t('common.home'), to: '/' }, { label: t('materials.title'), to: '/materials' }, { label: material?.name ?? t('common.material') }]} />
+            <div className="flex items-center gap-5 my-4 px-5 py-4 rounded-xl border border-white/10 bg-black/20 flex-wrap">
+              <div className="w-16 h-16 shrink-0 flex items-center justify-center rounded-lg bg-black/30 border border-white/5">
+                {material && materialImages(material).length > 0
+                  ? <ItemImage images={materialImages(material)} alt={material.name} className="w-11 h-11 object-contain drop-shadow-lg" />
+                  : <span className="text-3xl">🧪</span>}
+              </div>
+              <div className="flex flex-col gap-1">
+                <h1 className="text-xl font-bold text-yellow-400">{material?.name}</h1>
+                {material && !material.is_pvp && (
+                  <MaterialPriceCell
+                    material={material}
+                    rawValue={rawInputs[material.id]}
+                    computedValue={priceOf(material.id)}
+                    onPriceChange={setPrice}
+                    computed={mode === 'global' || material.is_craftable ? true : undefined}
+                  />
+                )}
+              </div>
+              <div className="ml-auto flex items-center gap-2 shrink-0">
+                <PriceModeToggle mode={mode} setMode={setMode} horizontal />
+                <button
+                  onClick={() => navigate(`/materials/${slugify(material.name)}/usage`)}
+                  className="text-xs bg-black/30 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-yellow-400 px-2.5 py-1.5 rounded-full transition-colors"
+                  title={t('materialDetail.usedInTooltip')}
+                >
+                  🔗 {t('materialDetail.usedIn')}
+                </button>
+              </div>
+            </div>
+
+            {!material?.is_craftable ? null : material.is_pvp ? (
+              variantCount === 0 ? (
+                <EmptyState emoji="📭" text={t('materialDetail.noRecipe')} />
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {variantCount > 1 && (
+                    <div className="flex items-center justify-center gap-4 rounded-xl border border-white/10 bg-black/20 px-4 py-2 self-center">
+                      <button type="button" onClick={() => setActiveVariant(v => Math.max(1, v - 1))} disabled={activeVariant === 1}
+                        className="text-gray-300 hover:text-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-lg leading-none px-1">‹</button>
+                      <span className="text-sm text-white font-semibold min-w-[6rem] text-center">
+                        {t('materialDetail.variant', { current: activeVariant, count: variantCount })}
+                      </span>
+                      <button type="button" onClick={() => setActiveVariant(v => Math.min(variantCount, v + 1))} disabled={activeVariant === variantCount}
+                        className="text-gray-300 hover:text-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-lg leading-none px-1">›</button>
+                    </div>
+                  )}
+                  <p className="text-center text-xs text-gray-400">{t('materialDetail.produces', { count: variantYield[activeVariant] ?? 1 })}</p>
+                  <div className="rounded-xl border border-white/10 bg-black/20 p-4 flex flex-wrap gap-3 justify-center">
+                    {(variantRows[activeVariant] ?? []).map(row => (
+                      <MatTag key={row.material.id} mat={row.material} quantity={row.quantity} unitPrice={priceOf(row.material.id)} rawValue={rawInputs[row.material.id]} onPriceChange={setPrice} kind="material" globalMode={mode === 'global'} manualOverrides={manualOverrides} onToggleManualOverride={toggleManualOverride} />
+                    ))}
+                  </div>
+                </div>
+              )
+            ) : components.length === 0 && !craftYangFee ? (
+              <EmptyState emoji="📭" text={t('materialDetail.noRecipe')} />
+            ) : (
+              <div className="flex flex-col lg:flex-row gap-6 items-start">
+                <div className="flex-1 min-w-0 w-full rounded-xl border border-white/10 bg-black/20">
+                  <div className="flex flex-wrap items-center gap-4 px-5 py-3.5">
+                    <div className="flex items-center gap-3 min-w-[11rem] shrink-0">
+                      <div className="w-9 h-9 shrink-0 rounded-lg bg-yellow-400/10 border border-yellow-400/25 flex items-center justify-center text-yellow-400 font-bold text-xs">⚒</div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-xs font-semibold text-gray-400 truncate">{t('materialDetail.craft')}</span>
+                        <span className="text-sm font-bold font-mono text-gray-200">{formatYang(total)}</span>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0 flex flex-wrap items-start gap-x-4 gap-y-2 py-1">
+                      {craftYangFee > 0 && (
+                        <div className="flex flex-col items-center gap-1 shrink-0" title={t('materialDetail.yangFee')}>
+                          <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-black/25">
+                            <span className="text-base">💰</span>
+                          </div>
+                          <span className="text-xs text-yellow-400 font-mono">{formatYang(craftYangFee)}</span>
+                        </div>
+                      )}
+                      {components.map(row => (
+                        <MatTag key={row.component.id} mat={row.component} quantity={row.quantity} unitPrice={priceOf(row.component.id)} rawValue={rawInputs[row.component.id]} onPriceChange={setPrice} kind="material" globalMode={mode === 'global'} manualOverrides={manualOverrides} onToggleManualOverride={toggleManualOverride} />
+                      ))}
+                    </div>
+                    <PityStepper value={pity} onChange={setPity} title={t('materialDetail.pity')} />
+                  </div>
+                </div>
+
+                <div className="w-full lg:w-80 shrink-0 lg:sticky lg:top-24 rounded-xl border border-yellow-400/20 bg-gradient-to-b from-yellow-400/[0.06] to-black/30 px-6 py-5">
+                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{t('materialDetail.totalCost')}</span>
+                  <div className="text-3xl font-bold text-yellow-400 font-mono mt-1">{formatYang(total)}</div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  )
+}

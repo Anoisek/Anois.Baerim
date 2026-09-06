@@ -8,7 +8,7 @@ function shortYang(v) {
   return formatYang(v).replace(' yang', '')
 }
 
-function OverviewIcon({ row, large }) {
+function OverviewIcon({ row, large, horizontal }) {
   const name = row.kind === 'item' ? formatItemName(row.material) : row.material.name
   const box = large ? 'w-10 h-10' : 'w-11 h-11'
   const img = large ? 'w-7 h-7' : 'w-8 h-8'
@@ -16,7 +16,7 @@ function OverviewIcon({ row, large }) {
   return (
     <Link
       to={to}
-      className={`relative ${box} shrink-0 bg-black/40 border border-gray-700 rounded-md flex items-center justify-center hover:border-yellow-400/50 transition-colors`}
+      className={`relative ${box} shrink-0 bg-black/40 border ${horizontal ? 'border-white/10' : 'border-gray-700'} rounded-md flex items-center justify-center hover:border-yellow-400/50 transition-colors`}
       title={name}
     >
       {row.material.image_url
@@ -31,54 +31,61 @@ function OverviewIcon({ row, large }) {
 
 // Compact "at a glance" summary of an item's craft + upgrade path, shown above
 // the interactive calculator. Reads the same grouped/yangCosts data the
-// calculator itself uses, so the two are always in sync.
-export default function CraftOverviewPanel({ allSteps, grouped, yangCosts, onShowSummary }) {
+// calculator itself uses, so the two are always in sync. `horizontal` swaps
+// the neutral colors to match that design's palette without touching the
+// vertical page that also renders this panel.
+export default function CraftOverviewPanel({ allSteps, grouped, yangCosts, onShowSummary, horizontal, skipCraftSection }) {
   const { t } = useTranslation()
   const upgradeSteps = allSteps.filter(s => s !== 0)
-  const craftMats = grouped[0] ?? []
+  const craftMats = skipCraftSection ? [] : (grouped[0] ?? [])
 
   if (upgradeSteps.length === 0 && craftMats.length === 0) return null
 
   const maxRows = upgradeSteps.length > 0 ? Math.max(3, ...upgradeSteps.map(s => (grouped[s] ?? []).length)) : 0
+  const border = horizontal ? 'border-white/10' : 'border-gray-700'
+  const cellBorder = horizontal ? 'border-white/5' : 'border-gray-800'
+  const headBg = horizontal ? 'bg-black/30' : 'bg-gray-800/80'
+  const bodyBg = horizontal ? 'bg-black/20' : 'bg-gray-900'
+  const stripeBg = horizontal ? 'bg-black/10' : 'bg-gray-800/40'
 
   return (
     <div className="flex flex-col gap-5 mb-6">
       {upgradeSteps.length > 0 && (
         <div>
           <div className="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-2">{t('itemDetail.overviewUpgrade')}</div>
-          <div className="overflow-x-auto rounded-xl border border-gray-700">
+          <div className={`overflow-x-auto rounded-xl border ${border}`}>
             <div
-              className="grid bg-gray-900"
-              style={{ gridTemplateColumns: `minmax(3.4rem,4rem) repeat(${upgradeSteps.length}, 5rem)` }}
+              className={`grid ${horizontal ? '' : 'justify-center'} ${bodyBg}`}
+              style={{ gridTemplateColumns: `minmax(3.4rem,4rem) repeat(${upgradeSteps.length}, ${horizontal ? 'minmax(3.5rem,1fr)' : '5rem'})` }}
             >
-              <div className="bg-gray-800/80 text-[0.6rem] font-bold uppercase text-gray-500 border-b border-r border-gray-800 flex items-center justify-center px-1 py-1.5">
+              <div className={`${headBg} text-[0.6rem] font-bold uppercase text-gray-500 border-b border-r ${cellBorder} flex items-center justify-center px-1 py-1.5`}>
                 {t('common.material')}
               </div>
               {upgradeSteps.map(step => (
-                <div key={step} className="bg-gray-800/80 text-yellow-400 text-xs font-bold border-b border-r border-gray-800 flex items-center justify-center py-1.5 font-mono">
+                <div key={step} className={`${headBg} text-yellow-400 text-xs font-bold border-b border-r ${cellBorder} flex items-center justify-center py-1.5 font-mono`}>
                   +{step}
                 </div>
               ))}
 
               {Array.from({ length: maxRows }).map((_, row) => (
                 <div key={row} className="contents">
-                  <div className="bg-gray-800/40 border-b border-r border-gray-800" />
+                  <div className={`${stripeBg} border-b border-r ${cellBorder}`} />
                   {upgradeSteps.map(step => {
                     const r = (grouped[step] ?? [])[row]
                     return (
-                      <div key={step} className="h-14 border-b border-r border-gray-800 flex items-center justify-center p-1">
-                        {r ? <OverviewIcon row={r} /> : <span className="text-gray-600 text-sm">–</span>}
+                      <div key={step} className={`h-14 border-b border-r ${cellBorder} flex items-center justify-center p-1`}>
+                        {r ? <OverviewIcon row={r} horizontal={horizontal} /> : <span className="text-gray-600 text-sm">–</span>}
                       </div>
                     )
                   })}
                 </div>
               ))}
 
-              <div className="bg-gray-800/40 text-[0.58rem] text-gray-500 border-r border-gray-800 flex items-center justify-end px-1.5">
+              <div className={`${stripeBg} text-[0.58rem] text-gray-500 border-r ${cellBorder} flex items-center justify-end px-1.5`}>
                 {t('itemDetail.overviewPrice')}
               </div>
               {upgradeSteps.map(step => (
-                <div key={step} className="h-8 border-r border-gray-800 flex items-center justify-center text-yellow-400 text-[0.66rem] font-bold font-mono">
+                <div key={step} className={`h-8 border-r ${cellBorder} flex items-center justify-center text-yellow-400 text-[0.66rem] font-bold font-mono`}>
                   {shortYang(yangCosts[step] ?? 0)}
                 </div>
               ))}
@@ -91,9 +98,9 @@ export default function CraftOverviewPanel({ allSteps, grouped, yangCosts, onSho
         <div>
           <div className="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-2">{t('itemDetail.step0')}</div>
           <div className="flex flex-col gap-2.5">
-            <div className="flex flex-wrap gap-2 bg-gray-900 border border-gray-700 rounded-xl p-2.5">
+            <div className={`flex flex-wrap gap-2 ${bodyBg} border ${border} rounded-xl p-2.5`}>
               {craftMats.map(row => (
-                <OverviewIcon key={`${row.kind}-${row.material.id}`} row={row} large />
+                <OverviewIcon key={`${row.kind}-${row.material.id}`} row={row} large horizontal={horizontal} />
               ))}
             </div>
             <div className="flex items-center justify-between gap-2">

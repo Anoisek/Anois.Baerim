@@ -6,6 +6,7 @@ import GlobalSearch from './GlobalSearch'
 import LanguageSwitcher from './LanguageSwitcher'
 import NightModeToggle from './NightModeToggle'
 import UiScaleToggle from './UiScaleToggle'
+import LayoutStyleToggle from './LayoutStyleToggle'
 import DonateButton from './DonateButton'
 import PromoBanner from './PromoBanner'
 
@@ -59,6 +60,7 @@ export default function Navbar() {
           <LanguageSwitcher />
           <NightModeToggle />
           <UiScaleToggle />
+          <LayoutStyleToggle />
           <DonateButton />
         </div>
         <div className="flex items-center gap-4">
