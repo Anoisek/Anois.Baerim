@@ -144,7 +144,8 @@
     "submitResult": "Enviado: {{accepted}} aceptados{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} rechazados (demasiado alejados del precio global actual)",
     "submitSkipped": ", {{count}} omitidos (ya enviados desde este navegador en las últimas 6h)",
-    "manualPrice": "Precio manual (temporal, solo esta sesión)"
+    "manualPrice": "Precio manual (temporal, solo esta sesión)",
+    "editSinglePrice": "Editar este precio"
   },
   "materialDetail": {
     "usedInTooltip": "Ver dónde se usa este material",

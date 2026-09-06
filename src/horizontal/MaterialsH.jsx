@@ -66,6 +66,7 @@ export default function MaterialsH() {
   const [submitting, setSubmitting] = useState(false)
   const [usedInItemIds, setUsedInItemIds] = useState(new Set())
   const [usedAsComponentIds, setUsedAsComponentIds] = useState(new Set())
+  const [editingPriceId, setEditingPriceId] = useState(null)
   const { rawInputs, setPrice, importPrices, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
   const [view, setView] = useViewMode('materials')
   const fileInputRef = useRef(null)
@@ -133,6 +134,15 @@ export default function MaterialsH() {
   const noPriceIds = new Set(materials.filter(m => m.no_price).map(m => m.id))
   const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts, manualOverrides, noPriceIds })
 
+  function canEditSingleGlobalPrice(mat) {
+    return mode === 'global' && !mat.no_price && FIXED_MATERIAL_PRICES[mat.id] == null
+  }
+
+  function handleSingleGlobalSubmitted() {
+    setEditingPriceId(null)
+    fetchGlobalPrices().then(setGlobalPrices)
+  }
+
   const visible = sortByCategoryTag(materials.filter(mat =>
     (chapterTab === 'pvp' ? mat.is_pvp : !mat.is_pvp) &&
     matchesFilter(mat, filter) &&
@@ -194,11 +204,41 @@ export default function MaterialsH() {
               const Wrapper = mat.is_craftable ? Link : 'div'
               const wrapperProps = mat.is_craftable ? { to: `/materials/${slugify(mat.name)}` } : {}
               return (
-                <Wrapper key={mat.id} {...wrapperProps} className="group relative flex flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/20 hover:bg-yellow-400/[0.06] hover:border-yellow-400/30 p-3 aspect-square transition-colors">
-                  <div className="w-14 h-14 flex items-center justify-center rounded-lg bg-black/30 border border-white/5">
+                <Wrapper key={mat.id} {...wrapperProps} className="group relative flex flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/20 hover:bg-yellow-400/[0.06] hover:border-yellow-400/30 p-3 transition-colors">
+                  <div className="relative w-14 h-14 flex items-center justify-center rounded-lg bg-black/30 border border-white/5">
                     {materialImages(mat).length > 0 ? <ItemImage images={materialImages(mat)} alt={mat.name} className="w-9 h-9 object-contain" /> : <span className="text-2xl">🧪</span>}
+                    {canEditSingleGlobalPrice(mat) && (
+                      <button
+                        type="button"
+                        onClick={e => { e.preventDefault(); e.stopPropagation(); setEditingPriceId(editingPriceId === mat.id ? null : mat.id) }}
+                        title={t('materials.editSinglePrice')}
+                        className={`absolute -top-1 -left-1 w-3 h-3 rounded-full border transition-colors ${editingPriceId === mat.id ? 'bg-yellow-400 border-yellow-400' : 'bg-white border-white/60 hover:bg-yellow-200'}`}
+                      />
+                    )}
                   </div>
                   <span className="text-xs font-semibold text-center leading-tight line-clamp-2 text-gray-200">{mat.name}</span>
+                  {!mat.is_pvp && (
+                    <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                      {mat.is_craftable && mode !== 'global' && (
+                        <button
+                          type="button"
+                          onClick={e => { e.preventDefault(); e.stopPropagation(); toggleManualOverride(mat.id) }}
+                          title={t('materials.manualPrice')}
+                          className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center text-[0.5rem] shrink-0 transition-colors ${manualOverrides.has(mat.id) ? 'bg-yellow-400 border-yellow-400 text-gray-950' : 'border-white/20 text-transparent hover:border-yellow-400/50'}`}
+                        >✓</button>
+                      )}
+                      <MaterialPriceCell
+                        material={mat}
+                        rawValue={rawInputs[mat.id]}
+                        computedValue={editingPriceId !== mat.id && (mode === 'global' || FIXED_MATERIAL_PRICES[mat.id] != null || (mat.is_craftable && !manualOverrides.has(mat.id))) ? priceFn(mat.id) : undefined}
+                        onPriceChange={setPrice}
+                        computed={editingPriceId === mat.id ? false : (mode === 'global' ? true : undefined)}
+                        manualOverride={manualOverrides.has(mat.id)}
+                        onSubmitted={handleSingleGlobalSubmitted}
+                        bare
+                      />
+                    </div>
+                  )}
                   {isAdmin && (
                     <button onClick={e => { e.preventDefault(); e.stopPropagation(); setEditing(mat) }}
                       className="absolute top-1.5 right-1.5 text-gray-500 hover:text-yellow-400 opacity-0 group-hover:opacity-100 transition-all text-sm">✏️</button>
@@ -214,8 +254,16 @@ export default function MaterialsH() {
               const wrapperProps = mat.is_craftable ? { to: `/materials/${slugify(mat.name)}` } : {}
               return (
                 <Wrapper key={mat.id} {...wrapperProps} className="group relative flex items-center gap-4 px-5 py-3 odd:bg-white/[0.02] hover:bg-yellow-400/[0.05] transition-colors">
-                  <div className="w-11 h-11 shrink-0 flex items-center justify-center rounded-lg bg-black/30 border border-white/5">
+                  <div className="relative w-11 h-11 shrink-0 flex items-center justify-center rounded-lg bg-black/30 border border-white/5">
                     {materialImages(mat).length > 0 ? <ItemImage images={materialImages(mat)} alt={mat.name} className="w-7 h-7 object-contain" /> : <span className="text-xl">🧪</span>}
+                    {canEditSingleGlobalPrice(mat) && (
+                      <button
+                        type="button"
+                        onClick={e => { e.preventDefault(); e.stopPropagation(); setEditingPriceId(editingPriceId === mat.id ? null : mat.id) }}
+                        title={t('materials.editSinglePrice')}
+                        className={`absolute -top-1 -left-1 w-3 h-3 rounded-full border transition-colors ${editingPriceId === mat.id ? 'bg-yellow-400 border-yellow-400' : 'bg-white border-white/60 hover:bg-yellow-200'}`}
+                      />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-semibold text-gray-100 truncate">{mat.name}</span>
@@ -244,10 +292,11 @@ export default function MaterialsH() {
                       <MaterialPriceCell
                         material={mat}
                         rawValue={rawInputs[mat.id]}
-                        computedValue={mode === 'global' || FIXED_MATERIAL_PRICES[mat.id] != null || (mat.is_craftable && !manualOverrides.has(mat.id)) ? priceFn(mat.id) : undefined}
+                        computedValue={editingPriceId !== mat.id && (mode === 'global' || FIXED_MATERIAL_PRICES[mat.id] != null || (mat.is_craftable && !manualOverrides.has(mat.id))) ? priceFn(mat.id) : undefined}
                         onPriceChange={setPrice}
-                        computed={mode === 'global' ? true : undefined}
+                        computed={editingPriceId === mat.id ? false : (mode === 'global' ? true : undefined)}
                         manualOverride={manualOverrides.has(mat.id)}
+                        onSubmitted={handleSingleGlobalSubmitted}
                       />
                     </div>
                   )}

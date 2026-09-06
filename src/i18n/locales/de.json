@@ -144,7 +144,8 @@
     "submitResult": "Gesendet: {{accepted}} akzeptiert{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} abgelehnt (zu weit vom aktuellen globalen Preis entfernt)",
     "submitSkipped": ", {{count}} übersprungen (in den letzten 6h bereits von diesem Browser gesendet)",
-    "manualPrice": "Manueller Preis (vorübergehend, nur diese Sitzung)"
+    "manualPrice": "Manueller Preis (vorübergehend, nur diese Sitzung)",
+    "editSinglePrice": "Diesen Preis bearbeiten"
   },
   "materialDetail": {
     "usedInTooltip": "Zeigen, wo dieses Material verwendet wird",

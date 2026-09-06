@@ -5,7 +5,7 @@ import { submitPriceToGlobal, FIXED_MATERIAL_PRICES } from '../utils/priceBook'
 // `bare` drops the cell's own border/background/rounding so it can sit
 // seamlessly inside another component's box (e.g. one unified material tag)
 // instead of nesting one bordered box inside another.
-export default function MaterialPriceCell({ material, rawValue, computedValue, onPriceChange, computed, manualOverride, allowGlobalSubmit = true, bare = false }) {
+export default function MaterialPriceCell({ material, rawValue, computedValue, onPriceChange, computed, manualOverride, allowGlobalSubmit = true, bare = false, onSubmitted }) {
   const { t } = useTranslation()
   const isFixed = FIXED_MATERIAL_PRICES[material.id] != null
   // Display text (no_price / computed) sizes to its own content — a fixed
@@ -41,7 +41,7 @@ export default function MaterialPriceCell({ material, rawValue, computedValue, o
       value={rawValue ?? ''}
       onChange={e => onPriceChange(material.id, e.target.value)}
       onClick={e => { e.preventDefault(); e.stopPropagation() }}
-      onBlur={e => { if (allowGlobalSubmit) submitPriceToGlobal(material.id, e.target.value) }}
+      onBlur={async e => { if (allowGlobalSubmit) onSubmitted?.(await submitPriceToGlobal(material.id, e.target.value)) }}
       className={`${inputBox} focus:outline-none transition-colors ${bare ? 'bg-black/25 text-white placeholder:text-gray-600 focus:ring-1 focus:ring-yellow-400' : 'bg-gray-800 border border-gray-700 text-white focus:border-yellow-400'}`}
     />
   )

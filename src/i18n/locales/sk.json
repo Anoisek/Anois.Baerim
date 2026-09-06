@@ -144,7 +144,8 @@
     "submitResult": "Odoslané: {{accepted}} akceptovaných{{rejectedText}}{{skippedText}}.",
     "submitRejected": ", {{count}} odmietnutých (príliš ďaleko od aktuálnej globálnej ceny)",
     "submitSkipped": ", {{count}} preskočených (už odoslané z tohto prehliadača za posledných 6h)",
-    "manualPrice": "Ručná cena (dočasne, len táto relácia)"
+    "manualPrice": "Ručná cena (dočasne, len táto relácia)",
+    "editSinglePrice": "Upraviť túto cenu"
   },
   "materialDetail": {
     "usedInTooltip": "Zobraziť, kde sa tento materiál používa",
