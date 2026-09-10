@@ -306,8 +306,14 @@
     "privacyPolicy": "Zásady ochrany osobných údajov",
     "suggestions": "Kontakt"
   },
+  "adsConsent": {
+    "message": "Táto stránka používa lokálne úložisko prehliadača na zapamätanie vášho jazyka, nastavení a postupu. Ak súhlasíte, budeme tiež zobrazovať reklamy (Google AdSense), aby sme pomohli pokryť náklady na hosting.",
+    "learnMore": "Zistiť viac",
+    "accept": "Prijať",
+    "decline": "Odmietnuť"
+  },
   "privacyPolicy": {
-    "lastUpdated": "Posledná aktualizácia: 10. augusta 2026",
+    "lastUpdated": "Posledná aktualizácia: 10. septembra 2026",
     "intro": {
       "title": "Čo je táto stránka",
       "body": "BaerimTools je neoficiálny fanúšikovský nástroj vytvorený pre hráčov serveru Baerim (Metin2). Stránka nie je spojená s tímom Baerim ani s tvorcami Metin2. Na jej používanie nepotrebuješ účet ani prihlásenie."
@@ -328,11 +334,15 @@
     },
     "serverData": {
       "title": "Dáta odosielané na server",
-      "body": "Ak pridáš komentár pod mokoko na mape (voliteľne s fotkou), odošleš cenu do globálneho cenníka, alebo necháš svoj nick pre Hall of Fame — tieto dáta sa ukladajú do databázy stránky (Supabase) a sú verejne viditeľné ostatným návštevníkom. Neuvádzaj prosím v komentároch osobné údaje — nikdy nie sú potrebné."
+      "body": "Ak pridáš komentár pod mokoko na mape (voliteľne s fotkou), odošleš cenu do globálneho cenníka, alebo necháš svoj nick pre Hall of Fame — tieto dáta sa ukladajú do databázy stránky (Cloudflare D1) a sú verejne viditeľné ostatným návštevníkom. Neuvádzaj prosím v komentároch osobné údaje — nikdy nie sú potrebné."
+    },
+    "ads": {
+      "title": "Reklamy",
+      "body": "Ak prijmete banner s reklamami, táto stránka načíta Google AdSense na zobrazovanie reklám a pomoc s pokrytím nákladov na hosting. AdSense môže nastavovať súbory cookie a používať informácie o zariadení na meranie a tam, kde je to povolené, na personalizáciu reklám. Toto môžete skontrolovať a spravovať v Nastaveniach reklám Google (adssettings.google.com) a kedykoľvek zmeniť svoje rozhodnutie vymazaním údajov o prehliadaní pre túto stránku."
     },
     "hostingLogs": {
       "title": "Protokoly hostingu",
-      "body": "Rovnako ako väčšina webov, hostingová infraštruktúra (Vercel) a databáza (Supabase), na ktorých táto stránka beží, môžu bežne zaznamenávať IP adresy a základné technické informácie o požiadavkách (napr. typ prehliadača) v rámci bežnej prevádzky a zabezpečenia služby. K týmto dátam nemáme priamy prístup nad rámec základných štatistík."
+      "body": "Rovnako ako väčšina webov, hostingová infraštruktúra (Cloudflare Pages a Workers) a databáza (Cloudflare D1), na ktorých táto stránka beží, môžu bežne zaznamenávať IP adresy a základné technické informácie o požiadavkách (napr. typ prehliadača) v rámci bežnej prevádzky a zabezpečenia služby. K týmto dátam nemáme priamy prístup nad rámec základných štatistík."
     },
     "rights": {
       "title": "Tvoje práva",

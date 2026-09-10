@@ -306,8 +306,14 @@
     "privacyPolicy": "Datenschutzerklärung",
     "suggestions": "Kontakt"
   },
+  "adsConsent": {
+    "message": "Diese Website verwendet lokalen Browserspeicher, um deine Sprache, Einstellungen und deinen Fortschritt zu merken. Wenn du zustimmst, zeigen wir außerdem Werbung (Google AdSense) an, um die Hosting-Kosten zu decken.",
+    "learnMore": "Mehr erfahren",
+    "accept": "Akzeptieren",
+    "decline": "Ablehnen"
+  },
   "privacyPolicy": {
-    "lastUpdated": "Letzte Aktualisierung: 10. August 2026",
+    "lastUpdated": "Letzte Aktualisierung: 10. September 2026",
     "intro": {
       "title": "Was diese Seite ist",
       "body": "BaerimTools ist ein inoffizielles, von Fans erstelltes Tool für Spieler des Baerim-Servers (Metin2). Die Seite ist nicht mit dem Baerim-Team oder den Machern von Metin2 verbunden. Du brauchst kein Konto und musst dich nicht anmelden, um sie zu nutzen."
@@ -328,11 +334,15 @@
     },
     "serverData": {
       "title": "Daten, die an den Server gesendet werden",
-      "body": "Wenn du einen Kommentar unter einem Mokoko auf der Karte hinzufügst (optional mit Foto), einen Preis an die globale Preisliste meldest oder deinen Nickname für den Hall of Fame hinterlässt — landen diese Daten in der Datenbank der Seite (Supabase) und sind für andere Besucher öffentlich sichtbar. Bitte gib in Kommentaren keine persönlichen Daten an — sie werden dafür nie benötigt."
+      "body": "Wenn du einen Kommentar unter einem Mokoko auf der Karte hinzufügst (optional mit Foto), einen Preis an die globale Preisliste meldest oder deinen Nickname für den Hall of Fame hinterlässt — landen diese Daten in der Datenbank der Seite (Cloudflare D1) und sind für andere Besucher öffentlich sichtbar. Bitte gib in Kommentaren keine persönlichen Daten an — sie werden dafür nie benötigt."
+    },
+    "ads": {
+      "title": "Werbung",
+      "body": "Wenn du den Werbe-Banner akzeptierst, lädt diese Website Google AdSense, um Werbung anzuzeigen und die Hosting-Kosten zu decken. AdSense kann Cookies setzen und Geräteinformationen verwenden, um Werbung zu messen und, soweit zulässig, zu personalisieren. Du kannst dies in den Google-Anzeigeneinstellungen (adssettings.google.com) einsehen und verwalten und deine Entscheidung jederzeit ändern, indem du die Browserdaten für diese Website löschst."
     },
     "hostingLogs": {
       "title": "Hosting-Protokolle",
-      "body": "Wie die meisten Websites können die Hosting-Infrastruktur (Vercel) und die Datenbank (Supabase) hinter dieser Seite routinemäßig IP-Adressen und grundlegende technische Anfrageinformationen (z. B. Browsertyp) im Rahmen des normalen Betriebs und der Sicherheit protokollieren. Wir haben keinen direkten Zugriff auf diese Daten, außer auf grundlegende Statistiken."
+      "body": "Wie die meisten Websites können die Hosting-Infrastruktur (Cloudflare Pages und Workers) und die Datenbank (Cloudflare D1) hinter dieser Seite routinemäßig IP-Adressen und grundlegende technische Anfrageinformationen (z. B. Browsertyp) im Rahmen des normalen Betriebs und der Sicherheit protokollieren. Wir haben keinen direkten Zugriff auf diese Daten, außer auf grundlegende Statistiken."
     },
     "rights": {
       "title": "Deine Rechte",

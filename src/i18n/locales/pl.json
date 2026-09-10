@@ -306,8 +306,14 @@
     "privacyPolicy": "Polityka prywatności",
     "suggestions": "Kontakt"
   },
+  "adsConsent": {
+    "message": "Ta strona wykorzystuje lokalną pamięć przeglądarki, żeby zapamiętać Twój język, ustawienia i postępy. Jeśli zaakceptujesz, wyświetlimy też reklamy (Google AdSense), żeby pomóc pokryć koszty hostingu.",
+    "learnMore": "Dowiedz się więcej",
+    "accept": "Akceptuję",
+    "decline": "Odrzucam"
+  },
   "privacyPolicy": {
-    "lastUpdated": "Ostatnia aktualizacja: 10 sierpnia 2026",
+    "lastUpdated": "Ostatnia aktualizacja: 10 września 2026",
     "intro": {
       "title": "Czym jest ta strona",
       "body": "BaerimTools to nieoficjalne, fanowskie narzędzie stworzone dla graczy serwera Baerim (Metin2). Strona nie jest powiązana z zespołem Baerim ani z twórcami gry Metin2. Nie wymaga zakładania konta ani logowania, żeby z niej korzystać."
@@ -328,11 +334,15 @@
     },
     "serverData": {
       "title": "Dane wysyłane na serwer",
-      "body": "Jeśli dodajesz komentarz pod mokoko na mapie (opcjonalnie razem ze zdjęciem), zgłaszasz cenę do globalnej bazy cen, lub zostawiasz swój nick do Hall of Fame — te dane trafiają do bazy danych strony (Supabase) i są widoczne publicznie dla innych odwiedzających. Nie proś o podawanie w komentarzach danych osobowych — nie są one do tego potrzebne."
+      "body": "Jeśli dodajesz komentarz pod mokoko na mapie (opcjonalnie razem ze zdjęciem), zgłaszasz cenę do globalnej bazy cen, lub zostawiasz swój nick do Hall of Fame — te dane trafiają do bazy danych strony (Cloudflare D1) i są widoczne publicznie dla innych odwiedzających. Nie proś o podawanie w komentarzach danych osobowych — nie są one do tego potrzebne."
     },
     "hostingLogs": {
       "title": "Logi hostingu",
-      "body": "Jak większość stron internetowych, infrastruktura hostingowa (Vercel) i baza danych (Supabase), z których korzysta ta strona, mogą standardowo zapisywać adres IP i podstawowe informacje techniczne o żądaniach (np. typ przeglądarki) w ramach normalnego działania i bezpieczeństwa usługi. Nie mamy do tych danych bezpośredniego dostępu poza podstawowymi statystykami."
+      "body": "Jak większość stron internetowych, infrastruktura hostingowa (Cloudflare Pages i Workers) i baza danych (Cloudflare D1), z których korzysta ta strona, mogą standardowo zapisywać adres IP i podstawowe informacje techniczne o żądaniach (np. typ przeglądarki) w ramach normalnego działania i bezpieczeństwa usługi. Nie mamy do tych danych bezpośredniego dostępu poza podstawowymi statystykami."
+    },
+    "ads": {
+      "title": "Reklamy",
+      "body": "Jeśli zaakceptujesz banner z reklamami, strona ładuje Google AdSense, żeby wyświetlać reklamy i pomóc pokryć koszty hostingu. AdSense może zapisywać pliki cookie i wykorzystywać informacje o urządzeniu do mierzenia skuteczności reklam oraz, tam gdzie to dozwolone, ich personalizacji. Możesz sprawdzić i zarządzać tym w Ustawieniach reklam Google (adssettings.google.com) oraz w każdej chwili zmienić decyzję, czyszcząc dane przeglądania dla tej strony."
     },
     "rights": {
       "title": "Twoje prawa",

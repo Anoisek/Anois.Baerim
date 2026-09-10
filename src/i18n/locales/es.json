@@ -306,8 +306,14 @@
     "privacyPolicy": "Política de privacidad",
     "suggestions": "Contacto"
   },
+  "adsConsent": {
+    "message": "Este sitio utiliza almacenamiento local del navegador para recordar tu idioma, configuración y progreso. Si aceptas, también mostraremos anuncios (Google AdSense) para ayudar a cubrir los costes de alojamiento.",
+    "learnMore": "Más información",
+    "accept": "Aceptar",
+    "decline": "Rechazar"
+  },
   "privacyPolicy": {
-    "lastUpdated": "Última actualización: 10 de agosto de 2026",
+    "lastUpdated": "Última actualización: 10 de septiembre de 2026",
     "intro": {
       "title": "Qué es este sitio",
       "body": "BaerimTools es una herramienta no oficial, creada por fans para los jugadores del servidor Baerim (Metin2). El sitio no está afiliado al equipo de Baerim ni a los creadores de Metin2. No necesitas cuenta ni iniciar sesión para usarlo."
@@ -328,11 +334,15 @@
     },
     "serverData": {
       "title": "Datos enviados al servidor",
-      "body": "Si añades un comentario bajo un mokoko en el mapa (opcionalmente con una foto), envías un precio a la lista global de precios, o dejas tu apodo para el Hall of Fame — esos datos se guardan en la base de datos del sitio (Supabase) y son visibles públicamente para otros visitantes. Por favor no incluyas datos personales en los comentarios — nunca son necesarios."
+      "body": "Si añades un comentario bajo un mokoko en el mapa (opcionalmente con una foto), envías un precio a la lista global de precios, o dejas tu apodo para el Hall of Fame — esos datos se guardan en la base de datos del sitio (Cloudflare D1) y son visibles públicamente para otros visitantes. Por favor no incluyas datos personales en los comentarios — nunca son necesarios."
+    },
+    "ads": {
+      "title": "Anuncios",
+      "body": "Si aceptas el banner de anuncios, este sitio carga Google AdSense para mostrar anuncios y ayudar a cubrir los costes de alojamiento. AdSense puede establecer cookies y utilizar información del dispositivo para medir y, cuando esté permitido, personalizar los anuncios. Puedes consultar y gestionar esto en la Configuración de anuncios de Google (adssettings.google.com) y cambiar tu decisión en cualquier momento borrando los datos de navegación de este sitio."
     },
     "hostingLogs": {
       "title": "Registros de alojamiento",
-      "body": "Como la mayoría de los sitios web, la infraestructura de alojamiento (Vercel) y la base de datos (Supabase) que usa este sitio pueden registrar rutinariamente direcciones IP e información técnica básica de las solicitudes (por ejemplo, el tipo de navegador) como parte del funcionamiento normal y la seguridad del servicio. No tenemos acceso directo a estos datos más allá de estadísticas básicas."
+      "body": "Como la mayoría de los sitios web, la infraestructura de alojamiento (Cloudflare Pages y Workers) y la base de datos (Cloudflare D1) que usa este sitio pueden registrar rutinariamente direcciones IP e información técnica básica de las solicitudes (por ejemplo, el tipo de navegador) como parte del funcionamiento normal y la seguridad del servicio. No tenemos acceso directo a estos datos más allá de estadísticas básicas."
     },
     "rights": {
       "title": "Tus derechos",

@@ -30,6 +30,7 @@ import ScrollToTop from './components/ScrollToTop'
 import NicknamePrompt from './components/NicknamePrompt'
 import Footer from './components/Footer'
 import DomainChangeNotice from './components/DomainChangeNotice'
+import AdConsentBanner from './components/AdConsentBanner'
 import RestoreOldDataButton from './components/RestoreOldDataButton'
 import CommunityGuideLink from './components/CommunityGuideLink'
 import Home from './pages/Home'
@@ -95,6 +96,7 @@ export default function App() {
           <ScrollToTop />
           <NicknamePrompt />
           <DomainChangeNotice />
+          <AdConsentBanner />
           <RestoreOldDataButton />
           <CommunityGuideLink />
           <AppShell>

@@ -306,8 +306,14 @@
     "privacyPolicy": "Politica de confidențialitate",
     "suggestions": "Contact"
   },
+  "adsConsent": {
+    "message": "Acest site folosește stocarea locală a browserului pentru a-ți reține limba, setările și progresul. Dacă accepți, vom afișa și reclame (Google AdSense) pentru a ajuta la acoperirea costurilor de găzduire.",
+    "learnMore": "Află mai multe",
+    "accept": "Accept",
+    "decline": "Refuz"
+  },
   "privacyPolicy": {
-    "lastUpdated": "Ultima actualizare: 10 august 2026",
+    "lastUpdated": "Ultima actualizare: 10 septembrie 2026",
     "intro": {
       "title": "Ce este acest site",
       "body": "BaerimTools este un instrument neoficial, creat de fani pentru jucătorii serverului Baerim (Metin2). Site-ul nu este afiliat cu echipa Baerim și nici cu creatorii Metin2. Nu ai nevoie de cont sau de autentificare pentru a-l folosi."
@@ -328,11 +334,15 @@
     },
     "serverData": {
       "title": "Date trimise către server",
-      "body": "Dacă adaugi un comentariu sub un mokoko de pe hartă (opțional cu o fotografie), trimiți un preț către lista globală de prețuri, sau lași porecla ta pentru Hall of Fame — aceste date sunt stocate în baza de date a site-ului (Supabase) și sunt vizibile public pentru ceilalți vizitatori. Te rugăm să nu incluzi date personale în comentarii — nu sunt niciodată necesare."
+      "body": "Dacă adaugi un comentariu sub un mokoko de pe hartă (opțional cu o fotografie), trimiți un preț către lista globală de prețuri, sau lași porecla ta pentru Hall of Fame — aceste date sunt stocate în baza de date a site-ului (Cloudflare D1) și sunt vizibile public pentru ceilalți vizitatori. Te rugăm să nu incluzi date personale în comentarii — nu sunt niciodată necesare."
+    },
+    "ads": {
+      "title": "Reclame",
+      "body": "Dacă accepți bannerul de reclame, acest site încarcă Google AdSense pentru a afișa reclame și a ajuta la acoperirea costurilor de găzduire. AdSense poate seta cookie-uri și poate folosi informații despre dispozitiv pentru a măsura și, acolo unde este permis, a personaliza reclamele. Poți verifica și gestiona acest lucru în Setările pentru anunțuri Google (adssettings.google.com) și îți poți schimba oricând decizia ștergând datele de navigare pentru acest site."
     },
     "hostingLogs": {
       "title": "Jurnale de hosting",
-      "body": "La fel ca majoritatea site-urilor, infrastructura de hosting (Vercel) și baza de date (Supabase) folosite de acest site pot înregistra în mod obișnuit adresele IP și informații tehnice de bază despre cereri (de ex. tipul de browser) ca parte a funcționării normale și a securității serviciului. Nu avem acces direct la aceste date, în afară de statistici de bază."
+      "body": "La fel ca majoritatea site-urilor, infrastructura de hosting (Cloudflare Pages și Workers) și baza de date (Cloudflare D1) folosite de acest site pot înregistra în mod obișnuit adresele IP și informații tehnice de bază despre cereri (de ex. tipul de browser) ca parte a funcționării normale și a securității serviciului. Nu avem acces direct la aceste date, în afară de statistici de bază."
     },
     "rights": {
       "title": "Drepturile tale",

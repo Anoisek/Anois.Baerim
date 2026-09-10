@@ -306,8 +306,14 @@
     "privacyPolicy": "Gizlilik Politikası",
     "suggestions": "İletişim"
   },
+  "adsConsent": {
+    "message": "Bu site, dilinizi, ayarlarınızı ve ilerlemenizi hatırlamak için tarayıcının yerel depolamasını kullanır. Kabul ederseniz, barındırma maliyetlerini karşılamaya yardımcı olmak için reklamlar (Google AdSense) da göstereceğiz.",
+    "learnMore": "Daha fazla bilgi",
+    "accept": "Kabul Et",
+    "decline": "Reddet"
+  },
   "privacyPolicy": {
-    "lastUpdated": "Son güncelleme: 10 Ağustos 2026",
+    "lastUpdated": "Son güncelleme: 10 Eylül 2026",
     "intro": {
       "title": "Bu site nedir",
       "body": "BaerimTools, Baerim sunucusu (Metin2) oyuncuları için yapılmış resmi olmayan, hayran yapımı bir araçtır. Site, Baerim ekibi veya Metin2 yapımcılarıyla bağlantılı değildir. Kullanmak için hesaba veya girişe ihtiyacın yok."
@@ -328,11 +334,15 @@
     },
     "serverData": {
       "title": "Sunucuya gönderilen veriler",
-      "body": "Haritadaki bir mokoko altına yorum eklersen (isteğe bağlı olarak fotoğrafla birlikte), küresel fiyat listesine bir fiyat gönderirsen ya da Hall of Fame için takma adını bırakırsan — bu veriler sitenin veritabanında (Supabase) saklanır ve diğer ziyaretçiler tarafından herkese açık şekilde görülebilir. Lütfen yorumlara kişisel bilgi eklemeyin — bunlara hiçbir zaman ihtiyaç yoktur."
+      "body": "Haritadaki bir mokoko altına yorum eklersen (isteğe bağlı olarak fotoğrafla birlikte), küresel fiyat listesine bir fiyat gönderirsen ya da Hall of Fame için takma adını bırakırsan — bu veriler sitenin veritabanında (Cloudflare D1) saklanır ve diğer ziyaretçiler tarafından herkese açık şekilde görülebilir. Lütfen yorumlara kişisel bilgi eklemeyin — bunlara hiçbir zaman ihtiyaç yoktur."
+    },
+    "ads": {
+      "title": "Reklamlar",
+      "body": "Reklam banner'ını kabul ederseniz, bu site reklamları göstermek ve barındırma maliyetlerini karşılamaya yardımcı olmak için Google AdSense'i yükler. AdSense, reklamları ölçmek ve izin verilen durumlarda kişiselleştirmek için çerezler ayarlayabilir ve cihaz bilgilerini kullanabilir. Bunu Google Reklam Ayarları'nda (adssettings.google.com) inceleyip yönetebilir ve bu site için tarama verilerinizi silerek fikrinizi istediğiniz zaman değiştirebilirsiniz."
     },
     "hostingLogs": {
       "title": "Barındırma günlükleri",
-      "body": "Çoğu web sitesi gibi, bu sitenin arkasındaki barındırma altyapısı (Vercel) ve veritabanı (Supabase), hizmetin normal işleyişi ve güvenliği kapsamında rutin olarak IP adreslerini ve temel teknik istek bilgilerini (örneğin tarayıcı türü) kaydedebilir. Temel istatistikler dışında bu verilere doğrudan erişimimiz yoktur."
+      "body": "Çoğu web sitesi gibi, bu sitenin arkasındaki barındırma altyapısı (Cloudflare Pages ve Workers) ve veritabanı (Cloudflare D1), hizmetin normal işleyişi ve güvenliği kapsamında rutin olarak IP adreslerini ve temel teknik istek bilgilerini (örneğin tarayıcı türü) kaydedebilir. Temel istatistikler dışında bu verilere doğrudan erişimimiz yoktur."
     },
     "rights": {
       "title": "Haklarınız",

@@ -306,8 +306,14 @@
     "privacyPolicy": "Politique de confidentialité",
     "suggestions": "Contact"
   },
+  "adsConsent": {
+    "message": "Ce site utilise le stockage local du navigateur pour mémoriser votre langue, vos paramètres et votre progression. Si vous acceptez, nous afficherons aussi des publicités (Google AdSense) pour aider à couvrir les frais d'hébergement.",
+    "learnMore": "En savoir plus",
+    "accept": "Accepter",
+    "decline": "Refuser"
+  },
   "privacyPolicy": {
-    "lastUpdated": "Dernière mise à jour : 10 août 2026",
+    "lastUpdated": "Dernière mise à jour : 10 septembre 2026",
     "intro": {
       "title": "Ce qu'est ce site",
       "body": "BaerimTools est un outil non officiel, créé par des fans pour les joueurs du serveur Baerim (Metin2). Le site n'est affilié ni à l'équipe de Baerim ni aux créateurs de Metin2. Tu n'as besoin ni de compte ni de connexion pour l'utiliser."
@@ -328,11 +334,15 @@
     },
     "serverData": {
       "title": "Données envoyées au serveur",
-      "body": "Si tu ajoutes un commentaire sous un mokoko sur la carte (avec une photo en option), que tu soumets un prix à la liste globale, ou que tu laisses ton pseudo pour le Hall of Fame — ces données sont stockées dans la base de données du site (Supabase) et visibles publiquement par les autres visiteurs. Merci de ne pas inclure de données personnelles dans les commentaires — elles ne sont jamais nécessaires."
+      "body": "Si tu ajoutes un commentaire sous un mokoko sur la carte (avec une photo en option), que tu soumets un prix à la liste globale, ou que tu laisses ton pseudo pour le Hall of Fame — ces données sont stockées dans la base de données du site (Cloudflare D1) et visibles publiquement par les autres visiteurs. Merci de ne pas inclure de données personnelles dans les commentaires — elles ne sont jamais nécessaires."
+    },
+    "ads": {
+      "title": "Publicités",
+      "body": "Si vous acceptez la bannière publicitaire, ce site charge Google AdSense pour afficher des publicités et aider à couvrir les frais d'hébergement. AdSense peut déposer des cookies et utiliser des informations sur l'appareil pour mesurer et, si autorisé, personnaliser les publicités. Vous pouvez consulter et gérer cela dans les paramètres des annonces Google (adssettings.google.com) et changer d'avis à tout moment en supprimant les données de navigation de ce site."
     },
     "hostingLogs": {
       "title": "Journaux d'hébergement",
-      "body": "Comme la plupart des sites web, l'infrastructure d'hébergement (Vercel) et la base de données (Supabase) utilisées par ce site peuvent enregistrer de façon routinière les adresses IP et des informations techniques de base sur les requêtes (par exemple le type de navigateur) dans le cadre du fonctionnement normal et de la sécurité du service. Nous n'avons pas d'accès direct à ces données, hormis des statistiques de base."
+      "body": "Comme la plupart des sites web, l'infrastructure d'hébergement (Cloudflare Pages et Workers) et la base de données (Cloudflare D1) utilisées par ce site peuvent enregistrer de façon routinière les adresses IP et des informations techniques de base sur les requêtes (par exemple le type de navigateur) dans le cadre du fonctionnement normal et de la sécurité du service. Nous n'avons pas d'accès direct à ces données, hormis des statistiques de base."
     },
     "rights": {
       "title": "Tes droits",

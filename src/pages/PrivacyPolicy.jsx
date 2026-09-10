@@ -5,7 +5,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 export default function PrivacyPolicy() {
   const { t } = useTranslation()
 
-  const sections = ['intro', 'localData', 'serverData', 'hostingLogs', 'rights', 'changes']
+  const sections = ['intro', 'localData', 'serverData', 'ads', 'hostingLogs', 'rights', 'changes']
   const localDataItems = t('privacyPolicy.localData.items', { returnObjects: true })
 
   return (
