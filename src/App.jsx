@@ -33,6 +33,7 @@ import DomainChangeNotice from './components/DomainChangeNotice'
 import AdConsentBanner from './components/AdConsentBanner'
 import RestoreOldDataButton from './components/RestoreOldDataButton'
 import CommunityGuideLink from './components/CommunityGuideLink'
+import DogTrackerLink from './components/DogTrackerLink'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Materials from './pages/Materials'
@@ -54,6 +55,7 @@ import ItemUsage from './pages/ItemUsage'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import Suggestions from './pages/Suggestions'
 import CommunityGuide from './pages/CommunityGuide'
+import DogTracker from './pages/DogTracker'
 import Spinner from './components/Spinner'
 
 // Lazy-loaded: pulls in three.js, which is heavy enough that every other page
@@ -99,6 +101,7 @@ export default function App() {
           <AdConsentBanner />
           <RestoreOldDataButton />
           <CommunityGuideLink />
+          <DogTrackerLink />
           <AppShell>
             <div className="flex-1 flex flex-col">
               <Routes>
@@ -129,6 +132,7 @@ export default function App() {
               <Route path="/privacy-policy" element={<Routed vertical={PrivacyPolicy} horizontal={PrivacyPolicyH} />} />
               <Route path="/suggestions" element={<Routed vertical={Suggestions} horizontal={SuggestionsH} />} />
               <Route path="/aiguide" element={<Routed vertical={CommunityGuide} horizontal={CommunityGuideH} />} />
+              <Route path="/dogtracker" element={<DogTracker />} />
               </Routes>
             </div>
             <AppFooter />

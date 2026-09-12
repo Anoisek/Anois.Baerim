@@ -35,7 +35,7 @@ function useContentWidth() {
   return width
 }
 
-export default function Navbar() {
+export default function Navbar({ hideBanner = false }) {
   const { isAdmin, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -86,7 +86,7 @@ export default function Navbar() {
         </div>
       </nav>
       {/* Home renders its own PromoBanner below the chapters box instead. */}
-      {!isHome && (
+      {!isHome && !hideBanner && (
         <div data-navbar-banner className="max-w-5xl mx-auto pt-6" style={contentWidth ? { width: contentWidth, maxWidth: contentWidth } : undefined}>
           <PromoBanner />
         </div>

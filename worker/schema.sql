@@ -310,3 +310,17 @@ CREATE TABLE guide_suggestions (
   created_at TEXT NOT NULL
 );
 CREATE INDEX idx_guide_suggestions_category_lang ON guide_suggestions(category_id, lang);
+
+-- /dogtracker (beta): public live sightings reported by anyone, shown to
+-- everyone viewing the same metin+tier tab. No expiry yet — stays until an
+-- admin clears it.
+CREATE TABLE dogtracker_dogs (
+  id TEXT PRIMARY KEY,
+  metin TEXT NOT NULL,
+  tier TEXT NOT NULL,
+  x REAL NOT NULL,
+  y REAL NOT NULL,
+  channel INTEGER NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX idx_dogtracker_dogs_metin_tier ON dogtracker_dogs(metin, tier);

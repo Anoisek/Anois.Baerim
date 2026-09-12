@@ -167,10 +167,31 @@ const TABLES = {
       }
     },
   },
+  // /dogtracker (beta): public live sightings, anyone can report or read.
+  dogtracker_dogs: {
+    columns: ['id', 'metin', 'tier', 'x', 'y', 'channel', 'created_at'],
+    pk: ['id'],
+    insertAuth: 'public',
+    beforeInsert: function (row) {
+      const metin = typeof row.metin === 'string' ? row.metin : ''
+      const tier = typeof row.tier === 'string' ? row.tier : ''
+      const x = Number(row.x)
+      const y = Number(row.y)
+      const channel = Number(row.channel)
+      if (!DOGTRACKER_METINS.has(metin)) return { error: 'unknown metin' }
+      if (!DOGTRACKER_TIERS.has(tier)) return { error: 'unknown tier' }
+      if (!Number.isFinite(x) || x < 0 || x > 100) return { error: 'invalid x' }
+      if (!Number.isFinite(y) || y < 0 || y > 100) return { error: 'invalid y' }
+      if (!Number.isInteger(channel) || channel < 1 || channel > 6) return { error: 'invalid channel' }
+      return { row: { metin: metin, tier: tier, x: x, y: y, channel: channel } }
+    },
+  },
 }
 
 const GUIDE_CATEGORIES = new Set(['zwoje', 'eventy', 'poziomy', 'yang', 'ekwipunek', 'techniczne', 'platnosci', 'skille', 'gildia'])
 const GUIDE_LANGS = new Set(['pl', 'en', 'de', 'es', 'pt', 'pt-BR', 'fr', 'it', 'el', 'cs', 'sk', 'ro', 'tr'])
+const DOGTRACKER_METINS = new Set(['Metin of Gloom', 'Metin of Ember', 'Metin of Wrath', 'Metin of Calamity'])
+const DOGTRACKER_TIERS = new Set(['I', 'II', 'III'])
 
 const MODIFIER_KEYS = new Set(['select', 'order', 'limit', 'count', 'head'])
 
