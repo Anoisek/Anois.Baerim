@@ -4,6 +4,7 @@ import Spinner from '../components/Spinner'
 import { useAuth } from '../context/AuthContext'
 import { db } from '../dbClient'
 
+const WORKER_URL = import.meta.env.VITE_IMAGES_WORKER_URL
 const METINS = ['Metin of Gloom', 'Metin of Ember', 'Metin of Wrath', 'Metin of Calamity']
 const TIERS = ['I', 'II', 'III']
 const TABS = METINS.flatMap(metin => TIERS.map(tier => ({ metin, tier })))
@@ -35,9 +36,20 @@ export default function DogTracker() {
   const [selectedChannel, setSelectedChannel] = useState(null)
   const [sending, setSending] = useState(false)
   const [confirmDog, setConfirmDog] = useState(null)
+  const [geo, setGeo] = useState('checking')
   const mapWrapRef = useRef(null)
 
   useEffect(() => {
+    fetch(`${WORKER_URL}/geo`)
+      .then(r => r.json())
+      .then(data => setGeo(data.country === 'PL' ? 'allowed' : 'blocked'))
+      .catch(() => setGeo('error'))
+  }, [])
+
+  const allowed = geo === 'allowed' || isAdmin
+
+  useEffect(() => {
+    if (!allowed) return
     db.from('maps').select('*').eq('name', 'Dragon Flame Cape').maybeSingle().then(({ data }) => {
       setMap(data)
       setLoading(false)
@@ -50,17 +62,19 @@ export default function DogTracker() {
         // ignore malformed stored value
       }
     })
-  }, [])
+  }, [allowed])
 
   useEffect(() => {
+    if (!allowed) return
     db.from('dogtracker_dogs').select('*').eq('metin', selected.metin).eq('tier', selected.tier).then(({ data }) => {
       setDogs((data ?? []).filter(dog => !isExpired(dog)))
     })
-  }, [selected.metin, selected.tier])
+  }, [allowed, selected.metin, selected.tier])
 
   // Dogs disappear on their own 5 minutes after being reported. Checked
   // periodically rather than with one timer per dog, since dogs come and go.
   useEffect(() => {
+    if (!allowed) return
     const id = setInterval(() => {
       setDogs(prev => {
         const alive = prev.filter(dog => !isExpired(dog))
@@ -71,7 +85,7 @@ export default function DogTracker() {
       })
     }, 15000)
     return () => clearInterval(id)
-  }, [])
+  }, [allowed])
 
   function toggleEdit(tab) {
     setSelected(tab)
@@ -128,6 +142,25 @@ export default function DogTracker() {
   }
 
   const activeCircle = !editingTab ? circles[tabKey(selected)] : null
+
+  if (!allowed) {
+    return (
+      <div className="text-white min-h-screen flex flex-col">
+        <Navbar hideBanner />
+        <div className="flex-1 flex items-center justify-center p-6">
+          {geo === 'checking' ? (
+            <Spinner />
+          ) : (
+            <p className="text-gray-400 text-sm text-center max-w-sm">
+              {geo === 'error'
+                ? 'Nie udało się zweryfikować lokalizacji. Spróbuj ponownie później.'
+                : 'Ta strona jest dostępna tylko dla osób łączących się z Polski.'}
+            </p>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="text-white min-h-screen flex flex-col">

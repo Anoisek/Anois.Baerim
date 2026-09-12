@@ -121,6 +121,7 @@ export default {
       if (request.method === 'POST' && url.pathname === '/upload') return await handleUpload(request, env, headers)
       if (request.method === 'POST' && url.pathname === '/delete') return await handleDelete(request, env, headers)
       if (request.method === 'GET' && (url.pathname.indexOf('/images/') === 0 || url.pathname.indexOf('/map-notes/') === 0)) return await handleGetImage(request, env, url.pathname, headers)
+      if (request.method === 'GET' && url.pathname === '/geo') return json({ country: (request.cf && request.cf.country) || null }, 200, headers)
       if (request.method === 'GET' && url.pathname === '/icondb/search') return await handleIconDbSearch(request, env, url, headers)
       if (request.method === 'GET' && url.pathname.indexOf('/icondb/icon/') === 0) return await handleIconDbIcon(request, env, url.pathname.slice('/icondb/icon/'.length), headers)
       if (request.method === 'POST' && url.pathname === '/icondb/import') return await handleIconDbImport(request, env, headers, isAdmin)
