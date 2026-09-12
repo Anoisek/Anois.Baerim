@@ -12,6 +12,7 @@ const CHANNELS = [1, 2, 3, 4, 5, 6]
 const CIRCLES_KEY = 'dogtracker_circles'
 const PATHS_KEY = 'dogtracker_paths'
 const DOG_TTL_MS = 5 * 60 * 1000
+const MIN_POINT_DIST = 0.3
 
 function tabKey(tab) {
   return `${tab.metin}__${tab.tier}`
@@ -40,8 +41,9 @@ export default function DogTracker() {
   const [geo, setGeo] = useState('checking')
   const [paths, setPaths] = useState([])
   const [pathMode, setPathMode] = useState(false)
-  const [drawingPoints, setDrawingPoints] = useState([])
+  const [drawingStrokes, setDrawingStrokes] = useState([])
   const mapWrapRef = useRef(null)
+  const isDrawingRef = useRef(false)
 
   useEffect(() => {
     fetch(`${WORKER_URL}/geo`)
@@ -101,42 +103,76 @@ export default function DogTracker() {
 
   function toggleEdit(tab) {
     setPathMode(false)
-    setDrawingPoints([])
+    setDrawingStrokes([])
     setSelected(tab)
     setEditingTab(prev => (sameTab(prev, tab) ? null : tab))
   }
 
   function startPath() {
     setEditingTab(null)
-    setDrawingPoints([])
+    setDrawingStrokes([])
     setPathMode(true)
   }
 
   function cancelPath() {
-    setDrawingPoints([])
+    setDrawingStrokes([])
     setPathMode(false)
   }
 
   async function finishPath() {
-    if (drawingPoints.length >= 2) {
-      const next = [...paths, drawingPoints]
+    const strokes = drawingStrokes.filter(stroke => stroke.length >= 2)
+    if (strokes.length > 0) {
+      const next = [...paths, ...strokes]
       setPaths(next)
       await db.from('settings').upsert({ key: PATHS_KEY, value: JSON.stringify(next) })
     }
-    setDrawingPoints([])
+    setDrawingStrokes([])
     setPathMode(false)
   }
 
+  function percentFromEvent(e) {
+    const rect = mapWrapRef.current.getBoundingClientRect()
+    return {
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    }
+  }
+
+  // Freehand drawing (like a paint brush) instead of click-to-place vertices -
+  // tracing the actual mouse path handles winding/backtracking roads far
+  // better than manually placing straight-line points ever could.
+  function handlePathPointerDown(e) {
+    if (!pathMode || !mapWrapRef.current) return
+    e.currentTarget.setPointerCapture(e.pointerId)
+    isDrawingRef.current = true
+    setDrawingStrokes(prev => [...prev, [percentFromEvent(e)]])
+  }
+
+  function handlePathPointerMove(e) {
+    if (!pathMode || !isDrawingRef.current) return
+    const p = percentFromEvent(e)
+    setDrawingStrokes(prev => {
+      if (prev.length === 0) return prev
+      const last = prev[prev.length - 1]
+      const lastPoint = last[last.length - 1]
+      if (Math.hypot(p.x - lastPoint.x, p.y - lastPoint.y) < MIN_POINT_DIST) return prev
+      return [...prev.slice(0, -1), [...last, p]]
+    })
+  }
+
+  function handlePathPointerUp(e) {
+    if (!pathMode) return
+    isDrawingRef.current = false
+    try { e.currentTarget.releasePointerCapture(e.pointerId) } catch {
+      // ignore - capture may already be released
+    }
+  }
+
   async function handleMapClick(e) {
-    if (!mapWrapRef.current) return
+    if (!mapWrapRef.current || pathMode) return
     const rect = mapWrapRef.current.getBoundingClientRect()
     const x = ((e.clientX - rect.left) / rect.width) * 100
     const y = ((e.clientY - rect.top) / rect.height) * 100
-
-    if (pathMode) {
-      setDrawingPoints(prev => [...prev, { x, y }])
-      return
-    }
 
     if (editingTab) {
       const next = { ...circles, [tabKey(editingTab)]: { x, y } }
@@ -217,7 +253,7 @@ export default function DogTracker() {
               </button>
             ) : (
               <>
-                <span className="text-xs text-green-400">Klikaj na mapę, aby dodawać punkty ścieżki</span>
+                <span className="text-xs text-green-400">Rysuj po mapie z wciśniętym przyciskiem myszy</span>
                 <button
                   onClick={finishPath}
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-yellow-400 hover:bg-yellow-300 text-gray-950 transition-colors"
@@ -279,7 +315,11 @@ export default function DogTracker() {
               <div
                 ref={mapWrapRef}
                 onClick={handleMapClick}
-                className={`relative inline-block ${editingTab || pathMode ? 'cursor-crosshair' : 'cursor-pointer'}`}
+                onPointerDown={handlePathPointerDown}
+                onPointerMove={handlePathPointerMove}
+                onPointerUp={handlePathPointerUp}
+                onPointerCancel={handlePathPointerUp}
+                className={`relative inline-block ${pathMode ? 'touch-none' : ''} ${editingTab || pathMode ? 'cursor-crosshair' : 'cursor-pointer'}`}
               >
                 <img
                   src={map.image_url}
@@ -302,18 +342,16 @@ export default function DogTracker() {
                       vectorEffect="non-scaling-stroke"
                     />
                   ))}
-                  {drawingPoints.length > 0 && (
+                  {drawingStrokes.map((stroke, i) => (
                     <polyline
-                      points={drawingPoints.map(p => `${p.x},${p.y}`).join(' ')}
+                      key={`draft-${i}`}
+                      points={stroke.map(p => `${p.x},${p.y}`).join(' ')}
                       fill="none"
                       stroke="#22c55e"
                       strokeWidth="0.6"
                       strokeDasharray="1.5,1"
                       vectorEffect="non-scaling-stroke"
                     />
-                  )}
-                  {drawingPoints.map((p, i) => (
-                    <circle key={i} cx={p.x} cy={p.y} r="0.8" fill="#22c55e" vectorEffect="non-scaling-stroke" />
                   ))}
                 </svg>
                 {activeCircle && (
