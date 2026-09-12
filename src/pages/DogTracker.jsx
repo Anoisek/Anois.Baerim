@@ -409,40 +409,55 @@ export default function DogTracker() {
       <div className="flex-1 flex flex-col items-center justify-center gap-2 p-6">
         <h1 className="text-2xl font-extrabold tracking-wide text-yellow-400 mb-1">DOG TRACKER</h1>
         {isAdmin && (
-          <div className="flex items-center gap-2 mb-1">
-            {!drawMode ? (
-              <>
-                <button
-                  onClick={() => startDraw('path')}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
-                >
-                  🛣️ Zaznacz ścieżkę
-                </button>
-                <button
-                  onClick={() => startDraw('wall')}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
-                >
-                  🧱 Zaznacz ścianę
-                </button>
-              </>
-            ) : (
-              <>
-                <span className={`text-xs ${drawMode === 'wall' ? 'text-orange-400' : 'text-green-400'}`}>
-                  Rysuj po mapie z wciśniętym przyciskiem myszy
-                </span>
-                <button
-                  onClick={finishDraw}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-yellow-400 hover:bg-yellow-300 text-gray-950 transition-colors"
-                >
-                  Zakończ
-                </button>
-                <button
-                  onClick={cancelDraw}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
-                >
-                  Anuluj
-                </button>
-              </>
+          <div className="flex flex-col items-center gap-1.5 mb-1">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => startDraw('path')}
+                disabled={!!drawMode}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                  drawMode === 'path'
+                    ? 'bg-green-500 border-green-500 text-gray-950'
+                    : drawMode
+                      ? 'bg-gray-800 border-gray-600 text-gray-500 opacity-40'
+                      : 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200'
+                }`}
+              >
+                🛣️ Zaznacz ścieżkę
+              </button>
+              <button
+                onClick={() => startDraw('wall')}
+                disabled={!!drawMode}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                  drawMode === 'wall'
+                    ? 'bg-orange-500 border-orange-500 text-gray-950'
+                    : drawMode
+                      ? 'bg-gray-800 border-gray-600 text-gray-500 opacity-40'
+                      : 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200'
+                }`}
+              >
+                🧱 Zaznacz ścianę
+              </button>
+              {drawMode && (
+                <>
+                  <button
+                    onClick={finishDraw}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-yellow-400 hover:bg-yellow-300 text-gray-950 transition-colors"
+                  >
+                    Zakończ
+                  </button>
+                  <button
+                    onClick={cancelDraw}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+                  >
+                    Anuluj
+                  </button>
+                </>
+              )}
+            </div>
+            {drawMode && (
+              <span className={`text-xs font-semibold ${drawMode === 'wall' ? 'text-orange-400' : 'text-green-400'}`}>
+                Rysujesz {drawMode === 'wall' ? 'ścianę' : 'ścieżkę'} - prowadź kursor z wciśniętym przyciskiem myszy
+              </span>
             )}
           </div>
         )}
