@@ -332,16 +332,8 @@ export default function DogTracker() {
                   viewBox="0 0 100 100"
                   preserveAspectRatio="none"
                 >
-                  {paths.map((path, i) => (
-                    <polyline
-                      key={i}
-                      points={path.map(p => `${p.x},${p.y}`).join(' ')}
-                      fill="none"
-                      stroke="#facc15"
-                      strokeWidth="0.6"
-                      vectorEffect="non-scaling-stroke"
-                    />
-                  ))}
+                  {/* Saved paths are routing data, not something shown on the map -
+                      only the in-progress draft renders, as a drawing aid. */}
                   {drawingStrokes.map((stroke, i) => (
                     <polyline
                       key={`draft-${i}`}
