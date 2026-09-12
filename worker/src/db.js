@@ -174,7 +174,7 @@ const TABLES = {
   // clear one (confirming "no longer there") — no accounts involved, so
   // both insert and delete are wide open by design.
   dogtracker_dogs: {
-    columns: ['id', 'metin', 'tier', 'x', 'y', 'channel', 'created_at'],
+    columns: ['id', 'metin', 'tier', 'x', 'y', 'channel', 'created_at', 'discord_message_id'],
     pk: ['id'],
     insertAuth: 'public',
     deleteAuth: 'public',

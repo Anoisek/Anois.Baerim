@@ -328,7 +328,8 @@ CREATE TABLE dogtracker_dogs (
   x REAL NOT NULL,
   y REAL NOT NULL,
   channel INTEGER NOT NULL,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  discord_message_id TEXT
 );
 CREATE INDEX idx_dogtracker_dogs_metin_tier ON dogtracker_dogs(metin, tier);
 
