@@ -11,6 +11,7 @@ const TABS = METINS.flatMap(metin => TIERS.map(tier => ({ metin, tier })))
 const CHANNELS = [1, 2, 3, 4, 5, 6]
 const CIRCLES_KEY = 'dogtracker_circles'
 const PATHS_KEY = 'dogtracker_paths'
+const WALLS_KEY = 'dogtracker_walls'
 const DOG_TTL_MS = 5 * 60 * 1000
 const MIN_POINT_DIST = 0.3
 // Points from separate (or non-consecutive) strokes within this distance count
@@ -34,10 +35,34 @@ function dist(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y)
 }
 
-// Builds a graph out of the admin-drawn strokes: each stroke's own points
-// form a chain, and any two points (from the same or different strokes)
-// within BRIDGE_DIST get an extra edge, standing in for path crossings.
-function buildRouteGraph(strokes) {
+function cross(o, a, b) {
+  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x)
+}
+
+// Standard segment-intersection test (no special-casing collinear overlaps -
+// hand-drawn lines essentially never land exactly on one another).
+function segmentsIntersect(p1, p2, p3, p4) {
+  const d1 = cross(p3, p4, p1)
+  const d2 = cross(p3, p4, p2)
+  const d3 = cross(p1, p2, p3)
+  const d4 = cross(p1, p2, p4)
+  return ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))
+}
+
+function segmentBlocked(a, b, walls) {
+  for (const wall of walls) {
+    for (let i = 0; i < wall.length - 1; i++) {
+      if (segmentsIntersect(a, b, wall[i], wall[i + 1])) return true
+    }
+  }
+  return false
+}
+
+// Builds a graph out of the admin-drawn path strokes: each stroke's own
+// points form a chain, and any two points (from the same or different
+// strokes) within BRIDGE_DIST get an extra edge, standing in for path
+// crossings - unless a wall actually separates them.
+function buildRouteGraph(strokes, walls) {
   const nodes = []
   const adj = []
   for (const stroke of strokes) {
@@ -53,7 +78,7 @@ function buildRouteGraph(strokes) {
   for (let i = 0; i < nodes.length; i++) {
     for (let j = i + 1; j < nodes.length; j++) {
       const d = dist(nodes[i], nodes[j])
-      if (d <= BRIDGE_DIST) {
+      if (d <= BRIDGE_DIST && !segmentBlocked(nodes[i], nodes[j], walls)) {
         adj[i].push({ to: j, dist: d })
         adj[j].push({ to: i, dist: d })
       }
@@ -62,13 +87,17 @@ function buildRouteGraph(strokes) {
   return { nodes, adj }
 }
 
-function nearestGraphNode(nodes, point) {
+// Nearest graph node NOT separated from `point` by a wall - walking "as the
+// crow flies" onto a path is only valid if nothing actually blocks that hop.
+function nearestGraphNode(nodes, point, walls) {
   let bestIdx = -1
   let bestDist = Infinity
   for (let i = 0; i < nodes.length; i++) {
+    if (segmentBlocked(point, nodes[i], walls)) continue
     const d = dist(nodes[i], point)
     if (d < bestDist) { bestDist = d; bestIdx = i }
   }
+  if (bestIdx === -1) return null
   return { idx: bestIdx, dist: bestDist }
 }
 
@@ -94,29 +123,34 @@ function shortestDistancesFrom(adj, startIdx) {
 }
 
 // Nearest teleport by walking distance along the admin-drawn paths (snapping
-// the dog and each teleport onto the nearest point of the graph). Falls back
-// to straight-line distance when there's no path data yet, or no drawn path
-// actually connects the dog to any teleport.
-function nearestTeleport(point, graph, teleports) {
+// the dog and each teleport onto the nearest not-wall-blocked point of the
+// graph). Falls back to straight-line distance - still blocked by walls -
+// when there's no path data yet, or no drawn path connects the dog to any
+// teleport. A teleport whose only routes are wall-blocked is skipped
+// entirely rather than reported as "nearest" through a wall.
+function nearestTeleport(point, graph, teleports, walls) {
   if (teleports.length === 0) return null
 
   if (graph.nodes.length > 0) {
-    const entry = nearestGraphNode(graph.nodes, point)
-    const distances = shortestDistancesFrom(graph.adj, entry.idx)
-    let best = null
-    let bestTotal = Infinity
-    for (const tp of teleports) {
-      const tpEntry = nearestGraphNode(graph.nodes, tp)
-      if (!Number.isFinite(distances[tpEntry.idx])) continue
-      const total = entry.dist + distances[tpEntry.idx] + tpEntry.dist
-      if (total < bestTotal) { bestTotal = total; best = tp }
+    const entry = nearestGraphNode(graph.nodes, point, walls)
+    if (entry) {
+      const distances = shortestDistancesFrom(graph.adj, entry.idx)
+      let best = null
+      let bestTotal = Infinity
+      for (const tp of teleports) {
+        const tpEntry = nearestGraphNode(graph.nodes, tp, walls)
+        if (!tpEntry || !Number.isFinite(distances[tpEntry.idx])) continue
+        const total = entry.dist + distances[tpEntry.idx] + tpEntry.dist
+        if (total < bestTotal) { bestTotal = total; best = tp }
+      }
+      if (best) return best
     }
-    if (best) return best
   }
 
   let best = null
   let bestDist = Infinity
   for (const tp of teleports) {
+    if (segmentBlocked(point, tp, walls)) continue
     const d = dist(point, tp)
     if (d < bestDist) { bestDist = d; best = tp }
   }
@@ -137,7 +171,8 @@ export default function DogTracker() {
   const [confirmDog, setConfirmDog] = useState(null)
   const [geo, setGeo] = useState('checking')
   const [paths, setPaths] = useState([])
-  const [pathMode, setPathMode] = useState(false)
+  const [walls, setWalls] = useState([])
+  const [drawMode, setDrawMode] = useState(null)
   const [drawingStrokes, setDrawingStrokes] = useState([])
   const mapWrapRef = useRef(null)
   const isDrawingRef = useRef(false)
@@ -173,9 +208,17 @@ export default function DogTracker() {
         // ignore malformed stored value
       }
     })
+    db.from('settings').select('value').eq('key', WALLS_KEY).maybeSingle().then(({ data }) => {
+      if (!data?.value) return
+      try {
+        setWalls(JSON.parse(data.value))
+      } catch {
+        // ignore malformed stored value
+      }
+    })
   }, [allowed])
 
-  const routeGraph = useMemo(() => buildRouteGraph(paths), [paths])
+  const routeGraph = useMemo(() => buildRouteGraph(paths, walls), [paths, walls])
 
   // "Teleports" are just the per-tab red zones the admin already marks (✏️) -
   // each defined circle is a candidate destination, not a separate thing to draw.
@@ -190,9 +233,9 @@ export default function DogTracker() {
 
   const nearestTeleportByDog = useMemo(() => {
     const result = {}
-    for (const dog of dogs) result[dog.id] = nearestTeleport(dog, routeGraph, teleportCandidates)
+    for (const dog of dogs) result[dog.id] = nearestTeleport(dog, routeGraph, teleportCandidates, walls)
     return result
-  }, [dogs, routeGraph, teleportCandidates])
+  }, [dogs, routeGraph, teleportCandidates, walls])
 
   useEffect(() => {
     if (!allowed) return
@@ -218,32 +261,38 @@ export default function DogTracker() {
   }, [allowed])
 
   function toggleEdit(tab) {
-    setPathMode(false)
+    setDrawMode(null)
     setDrawingStrokes([])
     setSelected(tab)
     setEditingTab(prev => (sameTab(prev, tab) ? null : tab))
   }
 
-  function startPath() {
+  function startDraw(mode) {
     setEditingTab(null)
     setDrawingStrokes([])
-    setPathMode(true)
+    setDrawMode(mode)
   }
 
-  function cancelPath() {
+  function cancelDraw() {
     setDrawingStrokes([])
-    setPathMode(false)
+    setDrawMode(null)
   }
 
-  async function finishPath() {
+  async function finishDraw() {
     const strokes = drawingStrokes.filter(stroke => stroke.length >= 2)
     if (strokes.length > 0) {
-      const next = [...paths, ...strokes]
-      setPaths(next)
-      await db.from('settings').upsert({ key: PATHS_KEY, value: JSON.stringify(next) })
+      if (drawMode === 'wall') {
+        const next = [...walls, ...strokes]
+        setWalls(next)
+        await db.from('settings').upsert({ key: WALLS_KEY, value: JSON.stringify(next) })
+      } else {
+        const next = [...paths, ...strokes]
+        setPaths(next)
+        await db.from('settings').upsert({ key: PATHS_KEY, value: JSON.stringify(next) })
+      }
     }
     setDrawingStrokes([])
-    setPathMode(false)
+    setDrawMode(null)
   }
 
   function percentFromEvent(e) {
@@ -256,16 +305,17 @@ export default function DogTracker() {
 
   // Freehand drawing (like a paint brush) instead of click-to-place vertices -
   // tracing the actual mouse path handles winding/backtracking roads far
-  // better than manually placing straight-line points ever could.
-  function handlePathPointerDown(e) {
-    if (!pathMode || !mapWrapRef.current) return
+  // better than manually placing straight-line points ever could. Same
+  // mechanism for both paths and walls - drawMode says which one.
+  function handleDrawPointerDown(e) {
+    if (!drawMode || !mapWrapRef.current) return
     e.currentTarget.setPointerCapture(e.pointerId)
     isDrawingRef.current = true
     setDrawingStrokes(prev => [...prev, [percentFromEvent(e)]])
   }
 
-  function handlePathPointerMove(e) {
-    if (!pathMode || !isDrawingRef.current) return
+  function handleDrawPointerMove(e) {
+    if (!drawMode || !isDrawingRef.current) return
     const p = percentFromEvent(e)
     setDrawingStrokes(prev => {
       if (prev.length === 0) return prev
@@ -276,8 +326,8 @@ export default function DogTracker() {
     })
   }
 
-  function handlePathPointerUp(e) {
-    if (!pathMode) return
+  function handleDrawPointerUp(e) {
+    if (!drawMode) return
     isDrawingRef.current = false
     try { e.currentTarget.releasePointerCapture(e.pointerId) } catch {
       // ignore - capture may already be released
@@ -285,7 +335,7 @@ export default function DogTracker() {
   }
 
   async function handleMapClick(e) {
-    if (!mapWrapRef.current || pathMode) return
+    if (!mapWrapRef.current || drawMode) return
     const rect = mapWrapRef.current.getBoundingClientRect()
     const x = ((e.clientX - rect.left) / rect.width) * 100
     const y = ((e.clientY - rect.top) / rect.height) * 100
@@ -360,24 +410,34 @@ export default function DogTracker() {
         <h1 className="text-2xl font-extrabold tracking-wide text-yellow-400 mb-1">DOG TRACKER</h1>
         {isAdmin && (
           <div className="flex items-center gap-2 mb-1">
-            {!pathMode ? (
-              <button
-                onClick={startPath}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
-              >
-                🛣️ Zaznacz ścieżkę
-              </button>
+            {!drawMode ? (
+              <>
+                <button
+                  onClick={() => startDraw('path')}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+                >
+                  🛣️ Zaznacz ścieżkę
+                </button>
+                <button
+                  onClick={() => startDraw('wall')}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+                >
+                  🧱 Zaznacz ścianę
+                </button>
+              </>
             ) : (
               <>
-                <span className="text-xs text-green-400">Rysuj po mapie z wciśniętym przyciskiem myszy</span>
+                <span className={`text-xs ${drawMode === 'wall' ? 'text-orange-400' : 'text-green-400'}`}>
+                  Rysuj po mapie z wciśniętym przyciskiem myszy
+                </span>
                 <button
-                  onClick={finishPath}
+                  onClick={finishDraw}
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-yellow-400 hover:bg-yellow-300 text-gray-950 transition-colors"
                 >
                   Zakończ
                 </button>
                 <button
-                  onClick={cancelPath}
+                  onClick={cancelDraw}
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
                 >
                   Anuluj
@@ -431,11 +491,11 @@ export default function DogTracker() {
               <div
                 ref={mapWrapRef}
                 onClick={handleMapClick}
-                onPointerDown={handlePathPointerDown}
-                onPointerMove={handlePathPointerMove}
-                onPointerUp={handlePathPointerUp}
-                onPointerCancel={handlePathPointerUp}
-                className={`relative inline-block ${pathMode ? 'touch-none' : ''} ${editingTab || pathMode ? 'cursor-crosshair' : 'cursor-pointer'}`}
+                onPointerDown={handleDrawPointerDown}
+                onPointerMove={handleDrawPointerMove}
+                onPointerUp={handleDrawPointerUp}
+                onPointerCancel={handleDrawPointerUp}
+                className={`relative inline-block ${drawMode ? 'touch-none' : ''} ${editingTab || drawMode ? 'cursor-crosshair' : 'cursor-pointer'}`}
               >
                 <img
                   src={map.image_url}
@@ -448,15 +508,15 @@ export default function DogTracker() {
                   viewBox="0 0 100 100"
                   preserveAspectRatio="none"
                 >
-                  {/* Saved paths are routing data, not something shown on the map -
-                      only the in-progress draft renders, as a drawing aid. */}
+                  {/* Saved paths/walls are routing data, not something shown on
+                      the map - only the in-progress draft renders, as a drawing aid. */}
                   {drawingStrokes.map((stroke, i) => (
                     <polyline
                       key={`draft-${i}`}
                       points={stroke.map(p => `${p.x},${p.y}`).join(' ')}
                       fill="none"
-                      stroke="#22c55e"
-                      strokeWidth="0.6"
+                      stroke={drawMode === 'wall' ? '#fb923c' : '#22c55e'}
+                      strokeWidth={drawMode === 'wall' ? '1.4' : '0.6'}
                       strokeDasharray="1.5,1"
                       vectorEffect="non-scaling-stroke"
                     />
