@@ -9,6 +9,7 @@ const TIERS = ['I', 'II', 'III']
 const TABS = METINS.flatMap(metin => TIERS.map(tier => ({ metin, tier })))
 const CHANNELS = [1, 2, 3, 4, 5, 6]
 const CIRCLES_KEY = 'dogtracker_circles'
+const DOG_TTL_MS = 5 * 60 * 1000
 
 function tabKey(tab) {
   return `${tab.metin}__${tab.tier}`
@@ -16,6 +17,10 @@ function tabKey(tab) {
 
 function sameTab(a, b) {
   return !!a && !!b && a.metin === b.metin && a.tier === b.tier
+}
+
+function isExpired(dog) {
+  return Date.now() - new Date(dog.created_at).getTime() > DOG_TTL_MS
 }
 
 export default function DogTracker() {
@@ -29,6 +34,7 @@ export default function DogTracker() {
   const [pendingClick, setPendingClick] = useState(null)
   const [selectedChannel, setSelectedChannel] = useState(null)
   const [sending, setSending] = useState(false)
+  const [confirmDog, setConfirmDog] = useState(null)
   const mapWrapRef = useRef(null)
 
   useEffect(() => {
@@ -48,9 +54,24 @@ export default function DogTracker() {
 
   useEffect(() => {
     db.from('dogtracker_dogs').select('*').eq('metin', selected.metin).eq('tier', selected.tier).then(({ data }) => {
-      setDogs(data ?? [])
+      setDogs((data ?? []).filter(dog => !isExpired(dog)))
     })
   }, [selected.metin, selected.tier])
+
+  // Dogs disappear on their own 5 minutes after being reported. Checked
+  // periodically rather than with one timer per dog, since dogs come and go.
+  useEffect(() => {
+    const id = setInterval(() => {
+      setDogs(prev => {
+        const alive = prev.filter(dog => !isExpired(dog))
+        for (const dog of prev) {
+          if (isExpired(dog)) db.from('dogtracker_dogs').delete().eq('id', dog.id)
+        }
+        return alive.length === prev.length ? prev : alive
+      })
+    }, 15000)
+    return () => clearInterval(id)
+  }, [])
 
   function toggleEdit(tab) {
     setSelected(tab)
@@ -98,12 +119,21 @@ export default function DogTracker() {
     setSelectedChannel(null)
   }
 
+  async function handleDogNo() {
+    if (!confirmDog) return
+    const id = confirmDog.id
+    setConfirmDog(null)
+    setDogs(prev => prev.filter(dog => dog.id !== id))
+    await db.from('dogtracker_dogs').delete().eq('id', id)
+  }
+
   const activeCircle = !editingTab ? circles[tabKey(selected)] : null
 
   return (
     <div className="text-white min-h-screen flex flex-col">
       <Navbar hideBanner />
       <div className="flex-1 flex flex-col items-center justify-center gap-2 p-6">
+        <h1 className="text-2xl font-extrabold tracking-wide text-yellow-400 mb-1">DOG TRACKER</h1>
         <div className="flex border border-gray-700 rounded-xl overflow-hidden bg-gray-950">
           <aside className="w-56 shrink-0 flex flex-col border-r border-gray-700">
             {TABS.map(tab => {
@@ -164,14 +194,15 @@ export default function DogTracker() {
                   />
                 )}
                 {dogs.map(dog => (
-                  <div
+                  <button
                     key={dog.id}
-                    className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 pointer-events-none"
+                    onClick={e => { e.stopPropagation(); setConfirmDog(dog) }}
+                    className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 hover:scale-125 transition-transform"
                     style={{ left: `${dog.x}%`, top: `${dog.y}%` }}
                   >
                     <span className="text-2xl leading-none drop-shadow">🐕</span>
                     <span className="text-[10px] font-bold text-white bg-black/70 rounded px-1">CH{dog.channel}</span>
-                  </div>
+                  </button>
                 ))}
               </div>
             ) : (
@@ -227,6 +258,34 @@ export default function DogTracker() {
                 className="flex-1 py-2 rounded-lg text-sm font-semibold bg-red-500 hover:bg-red-400 disabled:opacity-40 disabled:hover:bg-red-500 text-white transition-colors"
               >
                 SEND
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmDog && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setConfirmDog(null)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-72 flex flex-col items-center gap-4 shadow-xl shadow-black/50"
+          >
+            <p className="text-lg font-bold text-gray-100 text-center">Is dog still here?</p>
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={handleDogNo}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold bg-red-500 hover:bg-red-400 text-white transition-colors"
+              >
+                NO
+              </button>
+              <button
+                onClick={() => setConfirmDog(null)}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+              >
+                YES
               </button>
             </div>
           </div>

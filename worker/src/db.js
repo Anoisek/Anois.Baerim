@@ -9,9 +9,10 @@
 //   insertAuth: 'public'     -> POST allowed with no auth at all
 //   visibilityFilter: true   -> GET hides rows with a future visible_at unless caller is admin
 //   beforeInsert: fn(row)    -> return { row } (possibly transformed) or { error } to reject
+//   deleteAuth: 'public'     -> DELETE allowed with no auth at all (default 'admin' = admin only)
 //
-// PATCH/DELETE are always admin-only regardless of insertAuth (mirrors the Postgres RLS,
-// where map editors could only INSERT, never UPDATE/DELETE).
+// PATCH is always admin-only regardless of insertAuth (mirrors the Postgres RLS,
+// where map editors could only INSERT, never UPDATE/DELETE). DELETE follows deleteAuth.
 
 import { censorComment } from './profanity.js'
 
@@ -167,11 +168,14 @@ const TABLES = {
       }
     },
   },
-  // /dogtracker (beta): public live sightings, anyone can report or read.
+  // /dogtracker (beta): public live sightings, anyone can report, read, or
+  // clear one (confirming "no longer there") — no accounts involved, so
+  // both insert and delete are wide open by design.
   dogtracker_dogs: {
     columns: ['id', 'metin', 'tier', 'x', 'y', 'channel', 'created_at'],
     pk: ['id'],
     insertAuth: 'public',
+    deleteAuth: 'public',
     beforeInsert: function (row) {
       const metin = typeof row.metin === 'string' ? row.metin : ''
       const tier = typeof row.tier === 'string' ? row.tier : ''
@@ -376,8 +380,9 @@ async function handleDelete(env, table, cfg, searchParams, headers) {
   return json({ data: res.results.map(function (r) { return rowToClient(cfg, r) }), error: null }, 200, headers)
 }
 
-// PATCH/DELETE always require admin. POST authorization depends on cfg.insertAuth:
-// 'admin' (default) -> admin only, 'editor' -> admin or map editor, 'public' -> no auth.
+// PATCH always requires admin. POST/DELETE authorization depends on cfg.insertAuth /
+// cfg.deleteAuth: 'admin' (default) -> admin only, insertAuth also allows 'editor'
+// (admin or map editor), and both allow 'public' -> no auth.
 async function handleDbRequest(request, env, url, headers, isAdmin, isEditor) {
   const parts = url.pathname.split('/').filter(Boolean) // ['db', ':table']
   const table = parts[1]
@@ -401,10 +406,16 @@ async function handleDbRequest(request, env, url, headers, isAdmin, isEditor) {
     return handlePost(env, table, cfg, request, url.searchParams, headers)
   }
 
-  if (!(await isAdmin(request, env))) return errorResponse('forbidden', 403, headers)
+  if (request.method === 'PATCH') {
+    if (!(await isAdmin(request, env))) return errorResponse('forbidden', 403, headers)
+    return handlePatch(env, table, cfg, request, url.searchParams, headers)
+  }
 
-  if (request.method === 'PATCH') return handlePatch(env, table, cfg, request, url.searchParams, headers)
-  if (request.method === 'DELETE') return handleDelete(env, table, cfg, url.searchParams, headers)
+  if (request.method === 'DELETE') {
+    const deleteAuth = cfg.deleteAuth || 'admin'
+    if (deleteAuth !== 'public' && !(await isAdmin(request, env))) return errorResponse('forbidden', 403, headers)
+    return handleDelete(env, table, cfg, url.searchParams, headers)
+  }
 
   return errorResponse('method not allowed', 405, headers)
 }
