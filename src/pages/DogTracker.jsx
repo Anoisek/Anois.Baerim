@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Navbar from '../components/Navbar'
 import Spinner from '../components/Spinner'
 import { useAuth } from '../context/AuthContext'
@@ -11,8 +11,13 @@ const TABS = METINS.flatMap(metin => TIERS.map(tier => ({ metin, tier })))
 const CHANNELS = [1, 2, 3, 4, 5, 6]
 const CIRCLES_KEY = 'dogtracker_circles'
 const PATHS_KEY = 'dogtracker_paths'
+const TELEPORTS_KEY = 'dogtracker_teleports'
 const DOG_TTL_MS = 5 * 60 * 1000
 const MIN_POINT_DIST = 0.3
+// Points from separate (or non-consecutive) strokes within this distance count
+// as touching, so crossing paths connect into one walkable graph without
+// needing pixel-perfect overlap.
+const BRIDGE_DIST = 1.5
 
 function tabKey(tab) {
   return `${tab.metin}__${tab.tier}`
@@ -24,6 +29,99 @@ function sameTab(a, b) {
 
 function isExpired(dog) {
   return Date.now() - new Date(dog.created_at).getTime() > DOG_TTL_MS
+}
+
+function dist(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y)
+}
+
+// Builds a graph out of the admin-drawn strokes: each stroke's own points
+// form a chain, and any two points (from the same or different strokes)
+// within BRIDGE_DIST get an extra edge, standing in for path crossings.
+function buildRouteGraph(strokes) {
+  const nodes = []
+  const adj = []
+  for (const stroke of strokes) {
+    const ids = stroke.map(p => { nodes.push(p); adj.push([]); return nodes.length - 1 })
+    for (let i = 0; i < ids.length - 1; i++) {
+      const a = ids[i]
+      const b = ids[i + 1]
+      const d = dist(nodes[a], nodes[b])
+      adj[a].push({ to: b, dist: d })
+      adj[b].push({ to: a, dist: d })
+    }
+  }
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const d = dist(nodes[i], nodes[j])
+      if (d <= BRIDGE_DIST) {
+        adj[i].push({ to: j, dist: d })
+        adj[j].push({ to: i, dist: d })
+      }
+    }
+  }
+  return { nodes, adj }
+}
+
+function nearestGraphNode(nodes, point) {
+  let bestIdx = -1
+  let bestDist = Infinity
+  for (let i = 0; i < nodes.length; i++) {
+    const d = dist(nodes[i], point)
+    if (d < bestDist) { bestDist = d; bestIdx = i }
+  }
+  return { idx: bestIdx, dist: bestDist }
+}
+
+// Plain O(n^2) Dijkstra - graphs here are small (hand-drawn strokes), so a
+// priority queue isn't worth the extra code.
+function shortestDistancesFrom(adj, startIdx) {
+  const dists = new Array(adj.length).fill(Infinity)
+  const visited = new Array(adj.length).fill(false)
+  dists[startIdx] = 0
+  for (let iter = 0; iter < adj.length; iter++) {
+    let u = -1
+    let best = Infinity
+    for (let i = 0; i < adj.length; i++) {
+      if (!visited[i] && dists[i] < best) { best = dists[i]; u = i }
+    }
+    if (u === -1) break
+    visited[u] = true
+    for (const edge of adj[u]) {
+      if (dists[u] + edge.dist < dists[edge.to]) dists[edge.to] = dists[u] + edge.dist
+    }
+  }
+  return dists
+}
+
+// Nearest teleport by walking distance along the admin-drawn paths (snapping
+// the dog and each teleport onto the nearest point of the graph). Falls back
+// to straight-line distance when there's no path data yet, or no drawn path
+// actually connects the dog to any teleport.
+function nearestTeleport(point, graph, teleports) {
+  if (teleports.length === 0) return null
+
+  if (graph.nodes.length > 0) {
+    const entry = nearestGraphNode(graph.nodes, point)
+    const distances = shortestDistancesFrom(graph.adj, entry.idx)
+    let best = null
+    let bestTotal = Infinity
+    for (const tp of teleports) {
+      const tpEntry = nearestGraphNode(graph.nodes, tp)
+      if (!Number.isFinite(distances[tpEntry.idx])) continue
+      const total = entry.dist + distances[tpEntry.idx] + tpEntry.dist
+      if (total < bestTotal) { bestTotal = total; best = tp }
+    }
+    if (best) return best
+  }
+
+  let best = null
+  let bestDist = Infinity
+  for (const tp of teleports) {
+    const d = dist(point, tp)
+    if (d < bestDist) { bestDist = d; best = tp }
+  }
+  return best
 }
 
 export default function DogTracker() {
@@ -42,6 +140,8 @@ export default function DogTracker() {
   const [paths, setPaths] = useState([])
   const [pathMode, setPathMode] = useState(false)
   const [drawingStrokes, setDrawingStrokes] = useState([])
+  const [teleports, setTeleports] = useState([])
+  const [addingTeleport, setAddingTeleport] = useState(false)
   const mapWrapRef = useRef(null)
   const isDrawingRef = useRef(false)
 
@@ -76,7 +176,23 @@ export default function DogTracker() {
         // ignore malformed stored value
       }
     })
+    db.from('settings').select('value').eq('key', TELEPORTS_KEY).maybeSingle().then(({ data }) => {
+      if (!data?.value) return
+      try {
+        setTeleports(JSON.parse(data.value))
+      } catch {
+        // ignore malformed stored value
+      }
+    })
   }, [allowed])
+
+  const routeGraph = useMemo(() => buildRouteGraph(paths), [paths])
+
+  const nearestTeleportByDog = useMemo(() => {
+    const result = {}
+    for (const dog of dogs) result[dog.id] = nearestTeleport(dog, routeGraph, teleports)
+    return result
+  }, [dogs, routeGraph, teleports])
 
   useEffect(() => {
     if (!allowed) return
@@ -104,14 +220,23 @@ export default function DogTracker() {
   function toggleEdit(tab) {
     setPathMode(false)
     setDrawingStrokes([])
+    setAddingTeleport(false)
     setSelected(tab)
     setEditingTab(prev => (sameTab(prev, tab) ? null : tab))
   }
 
   function startPath() {
     setEditingTab(null)
+    setAddingTeleport(false)
     setDrawingStrokes([])
     setPathMode(true)
+  }
+
+  function toggleAddTeleport() {
+    setEditingTab(null)
+    setPathMode(false)
+    setDrawingStrokes([])
+    setAddingTeleport(v => !v)
   }
 
   function cancelPath() {
@@ -179,6 +304,16 @@ export default function DogTracker() {
       setCircles(next)
       setEditingTab(null)
       await db.from('settings').upsert({ key: CIRCLES_KEY, value: JSON.stringify(next) })
+      return
+    }
+
+    if (addingTeleport) {
+      setAddingTeleport(false)
+      const name = window.prompt('Nazwa teleportu:')
+      if (!name || !name.trim()) return
+      const next = [...teleports, { id: crypto.randomUUID(), name: name.trim(), x, y }]
+      setTeleports(next)
+      await db.from('settings').upsert({ key: TELEPORTS_KEY, value: JSON.stringify(next) })
       return
     }
 
@@ -268,6 +403,16 @@ export default function DogTracker() {
                 </button>
               </>
             )}
+            <button
+              onClick={toggleAddTeleport}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                addingTeleport
+                  ? 'bg-cyan-400 border-cyan-400 text-gray-950'
+                  : 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200'
+              }`}
+            >
+              🌀 {addingTeleport ? 'Kliknij na mapę...' : 'Dodaj teleport'}
+            </button>
           </div>
         )}
         <div className="flex border border-gray-700 rounded-xl overflow-hidden bg-gray-950">
@@ -319,7 +464,7 @@ export default function DogTracker() {
                 onPointerMove={handlePathPointerMove}
                 onPointerUp={handlePathPointerUp}
                 onPointerCancel={handlePathPointerUp}
-                className={`relative inline-block ${pathMode ? 'touch-none' : ''} ${editingTab || pathMode ? 'cursor-crosshair' : 'cursor-pointer'}`}
+                className={`relative inline-block ${pathMode ? 'touch-none' : ''} ${editingTab || pathMode || addingTeleport ? 'cursor-crosshair' : 'cursor-pointer'}`}
               >
                 <img
                   src={map.image_url}
@@ -352,6 +497,16 @@ export default function DogTracker() {
                     style={{ left: `${activeCircle.x}%`, top: `${activeCircle.y}%`, width: 48, height: 48 }}
                   />
                 )}
+                {teleports.map(tp => (
+                  <div
+                    key={tp.id}
+                    className="absolute z-10 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 pointer-events-none"
+                    style={{ left: `${tp.x}%`, top: `${tp.y}%` }}
+                  >
+                    <span className="text-xl leading-none drop-shadow">🌀</span>
+                    <span className="text-[9px] font-bold text-cyan-300 bg-black/70 rounded px-1 whitespace-nowrap">{tp.name}</span>
+                  </div>
+                ))}
                 {dogs.map(dog => (
                   <button
                     key={dog.id}
@@ -359,6 +514,11 @@ export default function DogTracker() {
                     className="absolute z-10 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 hover:scale-125 transition-transform"
                     style={{ left: `${dog.x}%`, top: `${dog.y}%` }}
                   >
+                    {nearestTeleportByDog[dog.id] && (
+                      <span className="text-[9px] font-bold text-cyan-300 bg-black/70 rounded px-1 whitespace-nowrap">
+                        🌀 {nearestTeleportByDog[dog.id].name}
+                      </span>
+                    )}
                     <span className="text-2xl leading-none drop-shadow">🐕</span>
                     <span className="text-[10px] font-bold text-white bg-black/70 rounded px-1">CH{dog.channel}</span>
                   </button>
