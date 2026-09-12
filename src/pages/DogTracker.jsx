@@ -11,7 +11,6 @@ const TABS = METINS.flatMap(metin => TIERS.map(tier => ({ metin, tier })))
 const CHANNELS = [1, 2, 3, 4, 5, 6]
 const CIRCLES_KEY = 'dogtracker_circles'
 const PATHS_KEY = 'dogtracker_paths'
-const TELEPORTS_KEY = 'dogtracker_teleports'
 const DOG_TTL_MS = 5 * 60 * 1000
 const MIN_POINT_DIST = 0.3
 // Points from separate (or non-consecutive) strokes within this distance count
@@ -140,8 +139,6 @@ export default function DogTracker() {
   const [paths, setPaths] = useState([])
   const [pathMode, setPathMode] = useState(false)
   const [drawingStrokes, setDrawingStrokes] = useState([])
-  const [teleports, setTeleports] = useState([])
-  const [addingTeleport, setAddingTeleport] = useState(false)
   const mapWrapRef = useRef(null)
   const isDrawingRef = useRef(false)
 
@@ -176,23 +173,26 @@ export default function DogTracker() {
         // ignore malformed stored value
       }
     })
-    db.from('settings').select('value').eq('key', TELEPORTS_KEY).maybeSingle().then(({ data }) => {
-      if (!data?.value) return
-      try {
-        setTeleports(JSON.parse(data.value))
-      } catch {
-        // ignore malformed stored value
-      }
-    })
   }, [allowed])
 
   const routeGraph = useMemo(() => buildRouteGraph(paths), [paths])
 
+  // "Teleports" are just the per-tab red zones the admin already marks (✏️) -
+  // each defined circle is a candidate destination, not a separate thing to draw.
+  const teleportCandidates = useMemo(() => {
+    return TABS
+      .map(tab => {
+        const c = circles[tabKey(tab)]
+        return c ? { id: tabKey(tab), name: `${tab.metin} ${tab.tier}`, x: c.x, y: c.y } : null
+      })
+      .filter(Boolean)
+  }, [circles])
+
   const nearestTeleportByDog = useMemo(() => {
     const result = {}
-    for (const dog of dogs) result[dog.id] = nearestTeleport(dog, routeGraph, teleports)
+    for (const dog of dogs) result[dog.id] = nearestTeleport(dog, routeGraph, teleportCandidates)
     return result
-  }, [dogs, routeGraph, teleports])
+  }, [dogs, routeGraph, teleportCandidates])
 
   useEffect(() => {
     if (!allowed) return
@@ -220,23 +220,14 @@ export default function DogTracker() {
   function toggleEdit(tab) {
     setPathMode(false)
     setDrawingStrokes([])
-    setAddingTeleport(false)
     setSelected(tab)
     setEditingTab(prev => (sameTab(prev, tab) ? null : tab))
   }
 
   function startPath() {
     setEditingTab(null)
-    setAddingTeleport(false)
     setDrawingStrokes([])
     setPathMode(true)
-  }
-
-  function toggleAddTeleport() {
-    setEditingTab(null)
-    setPathMode(false)
-    setDrawingStrokes([])
-    setAddingTeleport(v => !v)
   }
 
   function cancelPath() {
@@ -304,16 +295,6 @@ export default function DogTracker() {
       setCircles(next)
       setEditingTab(null)
       await db.from('settings').upsert({ key: CIRCLES_KEY, value: JSON.stringify(next) })
-      return
-    }
-
-    if (addingTeleport) {
-      setAddingTeleport(false)
-      const name = window.prompt('Nazwa teleportu:')
-      if (!name || !name.trim()) return
-      const next = [...teleports, { id: crypto.randomUUID(), name: name.trim(), x, y }]
-      setTeleports(next)
-      await db.from('settings').upsert({ key: TELEPORTS_KEY, value: JSON.stringify(next) })
       return
     }
 
@@ -403,16 +384,6 @@ export default function DogTracker() {
                 </button>
               </>
             )}
-            <button
-              onClick={toggleAddTeleport}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
-                addingTeleport
-                  ? 'bg-cyan-400 border-cyan-400 text-gray-950'
-                  : 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200'
-              }`}
-            >
-              🌀 {addingTeleport ? 'Kliknij na mapę...' : 'Dodaj teleport'}
-            </button>
           </div>
         )}
         <div className="flex border border-gray-700 rounded-xl overflow-hidden bg-gray-950">
@@ -464,7 +435,7 @@ export default function DogTracker() {
                 onPointerMove={handlePathPointerMove}
                 onPointerUp={handlePathPointerUp}
                 onPointerCancel={handlePathPointerUp}
-                className={`relative inline-block ${pathMode ? 'touch-none' : ''} ${editingTab || pathMode || addingTeleport ? 'cursor-crosshair' : 'cursor-pointer'}`}
+                className={`relative inline-block ${pathMode ? 'touch-none' : ''} ${editingTab || pathMode ? 'cursor-crosshair' : 'cursor-pointer'}`}
               >
                 <img
                   src={map.image_url}
@@ -497,16 +468,6 @@ export default function DogTracker() {
                     style={{ left: `${activeCircle.x}%`, top: `${activeCircle.y}%`, width: 48, height: 48 }}
                   />
                 )}
-                {teleports.map(tp => (
-                  <div
-                    key={tp.id}
-                    className="absolute z-10 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 pointer-events-none"
-                    style={{ left: `${tp.x}%`, top: `${tp.y}%` }}
-                  >
-                    <span className="text-xl leading-none drop-shadow">🌀</span>
-                    <span className="text-[9px] font-bold text-cyan-300 bg-black/70 rounded px-1 whitespace-nowrap">{tp.name}</span>
-                  </div>
-                ))}
                 {dogs.map(dog => (
                   <button
                     key={dog.id}
