@@ -320,17 +320,15 @@ export default function DogTracker() {
     return result
   }, [dogs, routeGraph, teleportCandidates, walls])
 
+  // Dogs are global - visible the same way regardless of which tab is
+  // selected. Switching tabs only changes which red zone circle shows;
+  // it's not a filter on sightings.
   useEffect(() => {
     if (!allowed) return
-    let cancelled = false
-    db.from('dogtracker_dogs').select('*').eq('metin', selected.metin).eq('tier', selected.tier).then(({ data }) => {
-      // A slower fetch for a tab the admin already navigated away from must
-      // not clobber the dogs list that's since been fetched for the new one.
-      if (cancelled) return
+    db.from('dogtracker_dogs').select('*').then(({ data }) => {
       setDogs((data ?? []).filter(dog => !isExpired(dog)))
     })
-    return () => { cancelled = true }
-  }, [allowed, selected.metin, selected.tier])
+  }, [allowed])
 
   // Dogs disappear on their own 5 minutes after being reported. Checked
   // periodically rather than with one timer per dog, since dogs come and go.
