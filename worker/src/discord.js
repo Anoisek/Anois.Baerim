@@ -109,13 +109,13 @@ async function sendDiscordDogAlert(env, dog) {
     ])
 
     const description = [
-      `**${dog.metin} ${dog.tier}** · Kanał **CH${dog.channel}**`,
-      teleportName ? `📍 Najbliższy teleport: **${teleportName}**` : null,
+      `**${dog.metin} ${dog.tier}** · Channel **CH${dog.channel}**`,
+      teleportName ? `📍 Nearest teleport: **${teleportName}**` : null,
     ].filter(Boolean).join('\n')
 
     const payload = {
       embeds: [{
-        title: '🐕 Nowy pies zgłoszony!',
+        title: '🐕 New dog found!',
         description,
         color: 15548997,
         image: { url: 'attachment://dog-map.png' },
