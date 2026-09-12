@@ -18,6 +18,9 @@ const MIN_POINT_DIST = 0.3
 // as touching, so crossing paths connect into one walkable graph without
 // needing pixel-perfect overlap.
 const BRIDGE_DIST = 1.5
+// How far (in the same percent units) a point may drift from the straight
+// line between its neighbors before it's kept during simplification.
+const SIMPLIFY_EPSILON = 0.6
 
 function tabKey(tab) {
   return `${tab.metin}__${tab.tier}`
@@ -33,6 +36,42 @@ function isExpired(dog) {
 
 function dist(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y)
+}
+
+function perpendicularDistance(p, a, b) {
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  const lenSq = dx * dx + dy * dy
+  if (lenSq === 0) return dist(p, a)
+  const t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / lenSq
+  return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy))
+}
+
+// Ramer-Douglas-Peucker simplification. A freehand stroke samples a point
+// every MIN_POINT_DIST, so a long straight-ish run ends up with hundreds of
+// near-collinear points that add nothing but graph size - this collapses
+// those runs down to the vertices that actually change direction, without
+// changing the stroke's shape by more than SIMPLIFY_EPSILON.
+function simplifyStroke(points, epsilon) {
+  if (points.length < 3) return points
+  let maxDist = 0
+  let index = 0
+  const first = points[0]
+  const last = points[points.length - 1]
+  for (let i = 1; i < points.length - 1; i++) {
+    const d = perpendicularDistance(points[i], first, last)
+    if (d > maxDist) { maxDist = d; index = i }
+  }
+  if (maxDist > epsilon) {
+    const left = simplifyStroke(points.slice(0, index + 1), epsilon)
+    const right = simplifyStroke(points.slice(index), epsilon)
+    return left.slice(0, -1).concat(right)
+  }
+  return [first, last]
+}
+
+function simplifyStrokes(strokes, epsilon) {
+  return strokes.map(stroke => simplifyStroke(stroke, epsilon))
 }
 
 function cross(o, a, b) {
@@ -62,6 +101,11 @@ function segmentBlocked(a, b, walls) {
 // points form a chain, and any two points (from the same or different
 // strokes) within BRIDGE_DIST get an extra edge, standing in for path
 // crossings - unless a wall actually separates them.
+//
+// Freehand strokes pile up thousands of points fast, so the bridging step
+// buckets points into a BRIDGE_DIST-sized grid and only compares points in
+// neighboring cells instead of every pair - the naive O(n^2) version was the
+// main cause of the page freezing up once a few strokes had been drawn.
 function buildRouteGraph(strokes, walls) {
   const nodes = []
   const adj = []
@@ -70,17 +114,38 @@ function buildRouteGraph(strokes, walls) {
     for (let i = 0; i < ids.length - 1; i++) {
       const a = ids[i]
       const b = ids[i + 1]
+      // A wall drawn across an already-drawn path severs it here - otherwise
+      // the path's own original edge would tunnel straight through the wall.
+      if (segmentBlocked(nodes[a], nodes[b], walls)) continue
       const d = dist(nodes[a], nodes[b])
       adj[a].push({ to: b, dist: d })
       adj[b].push({ to: a, dist: d })
     }
   }
+
+  const grid = new Map()
+  function cellOf(p) { return `${Math.floor(p.x / BRIDGE_DIST)}:${Math.floor(p.y / BRIDGE_DIST)}` }
   for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      const d = dist(nodes[i], nodes[j])
-      if (d <= BRIDGE_DIST && !segmentBlocked(nodes[i], nodes[j], walls)) {
-        adj[i].push({ to: j, dist: d })
-        adj[j].push({ to: i, dist: d })
+    const key = cellOf(nodes[i])
+    const bucket = grid.get(key)
+    if (bucket) bucket.push(i)
+    else grid.set(key, [i])
+  }
+  for (let i = 0; i < nodes.length; i++) {
+    const cx = Math.floor(nodes[i].x / BRIDGE_DIST)
+    const cy = Math.floor(nodes[i].y / BRIDGE_DIST)
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        const bucket = grid.get(`${cx + dx}:${cy + dy}`)
+        if (!bucket) continue
+        for (const j of bucket) {
+          if (j <= i) continue
+          const d = dist(nodes[i], nodes[j])
+          if (d <= BRIDGE_DIST && !segmentBlocked(nodes[i], nodes[j], walls)) {
+            adj[i].push({ to: j, dist: d })
+            adj[j].push({ to: i, dist: d })
+          }
+        }
       }
     }
   }
@@ -203,7 +268,14 @@ export default function DogTracker() {
     db.from('settings').select('value').eq('key', PATHS_KEY).maybeSingle().then(({ data }) => {
       if (!data?.value) return
       try {
-        setPaths(JSON.parse(data.value))
+        const stored = JSON.parse(data.value)
+        const simplified = simplifyStrokes(stored, SIMPLIFY_EPSILON)
+        setPaths(simplified)
+        // Old data was saved before simplification existed - clean it up in
+        // place once so future loads (and the graph build) stay cheap.
+        if (JSON.stringify(simplified).length < data.value.length) {
+          db.from('settings').upsert({ key: PATHS_KEY, value: JSON.stringify(simplified) })
+        }
       } catch {
         // ignore malformed stored value
       }
@@ -211,7 +283,12 @@ export default function DogTracker() {
     db.from('settings').select('value').eq('key', WALLS_KEY).maybeSingle().then(({ data }) => {
       if (!data?.value) return
       try {
-        setWalls(JSON.parse(data.value))
+        const stored = JSON.parse(data.value)
+        const simplified = simplifyStrokes(stored, SIMPLIFY_EPSILON)
+        setWalls(simplified)
+        if (JSON.stringify(simplified).length < data.value.length) {
+          db.from('settings').upsert({ key: WALLS_KEY, value: JSON.stringify(simplified) })
+        }
       } catch {
         // ignore malformed stored value
       }
@@ -219,6 +296,12 @@ export default function DogTracker() {
   }, [allowed])
 
   const routeGraph = useMemo(() => buildRouteGraph(paths, walls), [paths, walls])
+
+  // Precomputed once per paths/walls change instead of on every render (which,
+  // during active drawing, means every accepted mouse-move) - rebuilding these
+  // point strings from scratch each frame was a big chunk of the lag.
+  const pathPointStrings = useMemo(() => paths.map(path => path.map(p => `${p.x},${p.y}`).join(' ')), [paths])
+  const wallPointStrings = useMemo(() => walls.map(wall => wall.map(p => `${p.x},${p.y}`).join(' ')), [walls])
 
   // "Teleports" are just the per-tab red zones the admin already marks (✏️) -
   // each defined circle is a candidate destination, not a separate thing to draw.
@@ -239,9 +322,14 @@ export default function DogTracker() {
 
   useEffect(() => {
     if (!allowed) return
+    let cancelled = false
     db.from('dogtracker_dogs').select('*').eq('metin', selected.metin).eq('tier', selected.tier).then(({ data }) => {
+      // A slower fetch for a tab the admin already navigated away from must
+      // not clobber the dogs list that's since been fetched for the new one.
+      if (cancelled) return
       setDogs((data ?? []).filter(dog => !isExpired(dog)))
     })
+    return () => { cancelled = true }
   }, [allowed, selected.metin, selected.tier])
 
   // Dogs disappear on their own 5 minutes after being reported. Checked
@@ -279,7 +367,7 @@ export default function DogTracker() {
   }
 
   async function finishDraw() {
-    const strokes = drawingStrokes.filter(stroke => stroke.length >= 2)
+    const strokes = simplifyStrokes(drawingStrokes.filter(stroke => stroke.length >= 2), SIMPLIFY_EPSILON)
     if (strokes.length > 0) {
       if (drawMode === 'wall') {
         const next = [...walls, ...strokes]
@@ -526,20 +614,20 @@ export default function DogTracker() {
                   {/* Saved paths/walls aren't shown to regular users (just
                       routing data) - admin only sees the set relevant to
                       whichever mode is active, to keep the map readable. */}
-                  {drawMode === 'path' && paths.map((path, i) => (
+                  {drawMode === 'path' && pathPointStrings.map((points, i) => (
                     <polyline
                       key={`saved-path-${i}`}
-                      points={path.map(p => `${p.x},${p.y}`).join(' ')}
+                      points={points}
                       fill="none"
                       stroke="#22c55e"
                       strokeWidth="0.6"
                       vectorEffect="non-scaling-stroke"
                     />
                   ))}
-                  {drawMode === 'wall' && walls.map((wall, i) => (
+                  {drawMode === 'wall' && wallPointStrings.map((points, i) => (
                     <polyline
                       key={`saved-wall-${i}`}
-                      points={wall.map(p => `${p.x},${p.y}`).join(' ')}
+                      points={points}
                       fill="none"
                       stroke="#fb923c"
                       strokeWidth="1.4"
