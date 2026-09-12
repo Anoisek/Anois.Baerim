@@ -109,7 +109,7 @@ async function sendDiscordDogAlert(env, dog) {
     ])
 
     const description = [
-      `**${dog.metin} ${dog.tier}** · Channel **CH${dog.channel}**`,
+      `Channel **CH${dog.channel}**`,
       teleportName ? `📍 Nearest teleport: **${teleportName}**` : null,
     ].filter(Boolean).join('\n')
 
