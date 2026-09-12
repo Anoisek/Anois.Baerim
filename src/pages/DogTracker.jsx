@@ -324,6 +324,15 @@ export default function DogTracker() {
     }
   }
 
+  useEffect(() => {
+    fetch(`${WORKER_URL}/geo`)
+      .then(r => r.json())
+      .then(data => setGeo(data.country === 'PL' ? 'allowed' : 'blocked'))
+      .catch(() => setGeo('error'))
+  }, [])
+
+  const allowed = geo === 'allowed' || isAdmin || isDogtrackerUser
+
   // A push wakes the service worker even with the tab open; it messages us
   // here so the open page updates live instead of waiting on a poll.
   useEffect(() => {
@@ -348,15 +357,6 @@ export default function DogTracker() {
       setDogs((data ?? []).filter(dog => !isExpired(dog)))
     })
   }, [allowed, notifPermission, pushSupported])
-
-  useEffect(() => {
-    fetch(`${WORKER_URL}/geo`)
-      .then(r => r.json())
-      .then(data => setGeo(data.country === 'PL' ? 'allowed' : 'blocked'))
-      .catch(() => setGeo('error'))
-  }, [])
-
-  const allowed = geo === 'allowed' || isAdmin || isDogtrackerUser
 
   useEffect(() => {
     if (!allowed) return
