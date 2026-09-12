@@ -134,18 +134,7 @@ async function sendDiscordDogAlert(env, dog) {
     })
     if (!res.ok) {
       console.log('dogtracker discord send failed', res.status, await res.text().catch(() => ''))
-      return
     }
-
-    // Remember which message this dog's alert is, so a reaction listener can
-    // look the dog back up from the message id, and pre-add the checkmark so
-    // confirming "not here anymore" is just one click on the existing reaction.
-    const message = await res.json()
-    await env.DB.prepare('UPDATE dogtracker_dogs SET discord_message_id = ? WHERE id = ?').bind(message.id, dog.id).run()
-    await fetch(
-      `https://discord.com/api/v10/channels/${env.DISCORD_CHANNEL_ID}/messages/${message.id}/reactions/%E2%9C%85/@me`,
-      { method: 'PUT', headers: { Authorization: `Bot ${env.DISCORD_BOT_TOKEN}` } }
-    )
   } catch (err) {
     console.log('dogtracker discord send error', err && err.message)
   }

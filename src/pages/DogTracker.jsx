@@ -19,7 +19,7 @@ const CHANNELS = [1, 2, 3, 4, 5, 6]
 const CIRCLES_KEY = 'dogtracker_circles'
 const PATHS_KEY = 'dogtracker_paths'
 const WALLS_KEY = 'dogtracker_walls'
-const DOG_TTL_MS = 5 * 60 * 1000
+const DOG_TTL_MS = 2 * 60 * 1000
 const MIN_POINT_DIST = 0.3
 // Points from separate (or non-consecutive) strokes within this distance count
 // as touching, so crossing paths connect into one walkable graph without
