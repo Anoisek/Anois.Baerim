@@ -523,8 +523,29 @@ export default function DogTracker() {
                   viewBox="0 0 100 100"
                   preserveAspectRatio="none"
                 >
-                  {/* Saved paths/walls are routing data, not something shown on
-                      the map - only the in-progress draft renders, as a drawing aid. */}
+                  {/* Saved paths/walls aren't shown to regular users (just
+                      routing data), but admin sees them to know what's already
+                      marked. */}
+                  {isAdmin && paths.map((path, i) => (
+                    <polyline
+                      key={`saved-path-${i}`}
+                      points={path.map(p => `${p.x},${p.y}`).join(' ')}
+                      fill="none"
+                      stroke="#22c55e"
+                      strokeWidth="0.6"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  ))}
+                  {isAdmin && walls.map((wall, i) => (
+                    <polyline
+                      key={`saved-wall-${i}`}
+                      points={wall.map(p => `${p.x},${p.y}`).join(' ')}
+                      fill="none"
+                      stroke="#fb923c"
+                      strokeWidth="1.4"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  ))}
                   {drawingStrokes.map((stroke, i) => (
                     <polyline
                       key={`draft-${i}`}
