@@ -16,6 +16,7 @@
 
 import { censorComment } from './profanity.js'
 import { broadcastToAll } from './webpush.js'
+import { sendDiscordDogAlert } from './discord.js'
 
 const TABLES = {
   categories: {
@@ -362,6 +363,7 @@ async function handlePost(env, table, cfg, request, searchParams, headers, ctx) 
   // response is already back with them.
   if (table === 'dogtracker_dogs' && inserted.length > 0 && ctx) {
     ctx.waitUntil(broadcastToAll(env, { type: 'dogtracker-dog-added', dogId: inserted[0].id }))
+    ctx.waitUntil(sendDiscordDogAlert(env, inserted[0]))
   }
 
   return json({ data: inserted, error: null }, 200, headers)

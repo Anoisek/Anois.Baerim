@@ -1,0 +1,8 @@
+{
+  "name": "baerim-images-worker",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@cf-wasm/photon": "^0.4.0"
+  }
+}
