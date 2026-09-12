@@ -241,6 +241,43 @@ export default function DogTracker() {
   const [drawingStrokes, setDrawingStrokes] = useState([])
   const mapWrapRef = useRef(null)
   const isDrawingRef = useRef(false)
+  const audioCtxRef = useRef(null)
+  const knownDogIdsRef = useRef(new Set())
+
+  // Browsers only allow audio after a real user gesture - grab the first
+  // click/tap anywhere on the page to unlock it, so the beep can actually
+  // play later once a new dog shows up.
+  useEffect(() => {
+    function unlock() {
+      if (!audioCtxRef.current) {
+        const Ctx = window.AudioContext || window.webkitAudioContext
+        if (Ctx) audioCtxRef.current = new Ctx()
+      }
+      if (audioCtxRef.current?.state === 'suspended') audioCtxRef.current.resume()
+    }
+    window.addEventListener('pointerdown', unlock, { once: true })
+    return () => window.removeEventListener('pointerdown', unlock)
+  }, [])
+
+  function playDogBeep() {
+    const ctx = audioCtxRef.current
+    if (!ctx) return
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.type = 'sine'
+    osc.frequency.value = 880
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.01)
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.3)
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.start()
+    osc.stop(ctx.currentTime + 0.3)
+  }
+
+  useEffect(() => {
+    knownDogIdsRef.current = new Set(dogs.map(dog => dog.id))
+  }, [dogs])
 
   useEffect(() => {
     fetch(`${WORKER_URL}/geo`)
@@ -323,11 +360,34 @@ export default function DogTracker() {
   // Dogs are global - visible the same way regardless of which tab is
   // selected. Switching tabs only changes which red zone circle shows;
   // it's not a filter on sightings.
+  //
+  // Polled rather than fetched once, so a dog someone else reports shows up
+  // (and beeps) without a reload - but only while the tab is actually
+  // visible, so a background tab doesn't keep hammering the shared worker.
   useEffect(() => {
     if (!allowed) return
-    db.from('dogtracker_dogs').select('*').then(({ data }) => {
-      setDogs((data ?? []).filter(dog => !isExpired(dog)))
-    })
+    let isFirstPoll = true
+
+    function poll() {
+      if (document.visibilityState !== 'visible') return
+      db.from('dogtracker_dogs').select('*').then(({ data }) => {
+        const fresh = (data ?? []).filter(dog => !isExpired(dog))
+        if (!isFirstPoll && fresh.some(dog => !knownDogIdsRef.current.has(dog.id))) playDogBeep()
+        isFirstPoll = false
+        setDogs(fresh)
+      })
+    }
+
+    poll()
+    const intervalId = setInterval(poll, 10000)
+    function onVisibilityChange() {
+      if (document.visibilityState === 'visible') poll()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => {
+      clearInterval(intervalId)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
   }, [allowed])
 
   // Dogs disappear on their own 5 minutes after being reported. Checked
