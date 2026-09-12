@@ -112,7 +112,7 @@ async function handleDelete(request, env, headers) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const headers = corsHeaders(request, env)
     if (request.method === 'OPTIONS') return new Response(null, { headers: headers })
 
@@ -125,7 +125,7 @@ export default {
       if (request.method === 'GET' && url.pathname === '/icondb/search') return await handleIconDbSearch(request, env, url, headers)
       if (request.method === 'GET' && url.pathname.indexOf('/icondb/icon/') === 0) return await handleIconDbIcon(request, env, url.pathname.slice('/icondb/icon/'.length), headers)
       if (request.method === 'POST' && url.pathname === '/icondb/import') return await handleIconDbImport(request, env, headers, isAdmin)
-      if (url.pathname.indexOf('/db/') === 0) return await handleDbRequest(request, env, url, headers, isAdmin, isEditor)
+      if (url.pathname.indexOf('/db/') === 0) return await handleDbRequest(request, env, url, headers, isAdmin, isEditor, ctx)
       if (request.method === 'POST' && url.pathname.indexOf('/rpc/') === 0) return await handleRpcRequest(request, env, url, headers)
       if (url.pathname.indexOf('/auth/') === 0) return await handleAuthRequest(request, env, url, headers)
     } catch (err) {

@@ -5,6 +5,13 @@ import { useAuth } from '../context/AuthContext'
 import { db } from '../dbClient'
 
 const WORKER_URL = import.meta.env.VITE_IMAGES_WORKER_URL
+// Public half of the dogtracker Web Push key pair - safe to ship to the
+// client, it's only used to identify our server to the push service.
+const VAPID_PUBLIC_KEY = 'BLdZQ3ulehTXPJ7XBj2LDiI1YGUe9AWk0EaEk5J-q_rkUjd8ZgOqQCtbVuEFETN20Vv0oS2gz1M71yepJAEeTs4'
+// Slow safety-net poll for whoever hasn't granted (or can't get) push
+// notifications, so their view still catches up eventually rather than
+// staying silent forever.
+const FALLBACK_POLL_MS = 60000
 const METINS = ['Metin of Gloom', 'Metin of Ember', 'Metin of Wrath', 'Metin of Calamity']
 const TIERS = ['I', 'II', 'III']
 const TABS = METINS.flatMap(metin => TIERS.map(tier => ({ metin, tier })))
@@ -32,6 +39,15 @@ function sameTab(a, b) {
 
 function isExpired(dog) {
   return Date.now() - new Date(dog.created_at).getTime() > DOG_TTL_MS
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const raw = atob(base64)
+  const bytes = new Uint8Array(raw.length)
+  for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i)
+  return bytes
 }
 
 function dist(a, b) {
@@ -243,6 +259,8 @@ export default function DogTracker() {
   const isDrawingRef = useRef(false)
   const audioCtxRef = useRef(null)
   const knownDogIdsRef = useRef(new Set())
+  const pushSupported = typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window
+  const [notifPermission, setNotifPermission] = useState(() => (pushSupported ? Notification.permission : 'unsupported'))
 
   // Browsers only allow audio after a real user gesture - grab the first
   // click/tap anywhere on the page to unlock it, so the beep can actually
@@ -278,6 +296,58 @@ export default function DogTracker() {
   useEffect(() => {
     knownDogIdsRef.current = new Set(dogs.map(dog => dog.id))
   }, [dogs])
+
+  async function enablePushNotifications() {
+    if (!pushSupported) return
+    try {
+      await navigator.serviceWorker.register('/dogtracker-sw.js')
+      const permission = await Notification.requestPermission()
+      setNotifPermission(permission)
+      if (permission !== 'granted') return
+
+      const registration = await navigator.serviceWorker.ready
+      let sub = await registration.pushManager.getSubscription()
+      if (!sub) {
+        sub = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        })
+      }
+      const json = sub.toJSON()
+      await db.from('dogtracker_push_subscriptions').upsert({
+        endpoint: json.endpoint,
+        p256dh: json.keys.p256dh,
+        auth: json.keys.auth,
+      })
+    } catch (err) {
+      console.error('dogtracker push subscribe failed:', err)
+    }
+  }
+
+  // A push wakes the service worker even with the tab open; it messages us
+  // here so the open page updates live instead of waiting on a poll.
+  useEffect(() => {
+    if (!allowed || !pushSupported) return
+    function onMessage(event) {
+      if (event.data?.type !== 'dogtracker-push') return
+      db.from('dogtracker_dogs').select('*').then(({ data }) => {
+        const fresh = (data ?? []).filter(dog => !isExpired(dog))
+        if (fresh.some(dog => !knownDogIdsRef.current.has(dog.id))) playDogBeep()
+        setDogs(fresh)
+      })
+    }
+    navigator.serviceWorker.addEventListener('message', onMessage)
+    return () => navigator.serviceWorker.removeEventListener('message', onMessage)
+  }, [allowed, pushSupported])
+
+  // Initial load once push is actually granted - no polling needed, the
+  // message listener above takes over from here.
+  useEffect(() => {
+    if (!allowed || !(pushSupported && notifPermission === 'granted')) return
+    db.from('dogtracker_dogs').select('*').then(({ data }) => {
+      setDogs((data ?? []).filter(dog => !isExpired(dog)))
+    })
+  }, [allowed, notifPermission, pushSupported])
 
   useEffect(() => {
     fetch(`${WORKER_URL}/geo`)
@@ -361,11 +431,13 @@ export default function DogTracker() {
   // selected. Switching tabs only changes which red zone circle shows;
   // it's not a filter on sightings.
   //
-  // Polled rather than fetched once, so a dog someone else reports shows up
-  // (and beeps) without a reload - but only while the tab is actually
-  // visible, so a background tab doesn't keep hammering the shared worker.
+  // Safety-net poll for anyone who hasn't granted push notifications (or
+  // whose browser doesn't support them) - skipped entirely once push is
+  // granted, since the message listener above already covers that case live.
+  // Slow on purpose (60s) and paused whenever the tab isn't visible, so it
+  // stays cheap even with many people leaving the page open for hours.
   useEffect(() => {
-    if (!allowed) return
+    if (!allowed || (pushSupported && notifPermission === 'granted')) return
     let isFirstPoll = true
 
     function poll() {
@@ -379,7 +451,7 @@ export default function DogTracker() {
     }
 
     poll()
-    const intervalId = setInterval(poll, 10000)
+    const intervalId = setInterval(poll, FALLBACK_POLL_MS)
     function onVisibilityChange() {
       if (document.visibilityState === 'visible') poll()
     }
@@ -388,7 +460,7 @@ export default function DogTracker() {
       clearInterval(intervalId)
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
-  }, [allowed])
+  }, [allowed, notifPermission, pushSupported])
 
   // Dogs disappear on their own 5 minutes after being reported. Checked
   // periodically rather than with one timer per dog, since dogs come and go.
@@ -554,6 +626,19 @@ export default function DogTracker() {
       <Navbar hideBanner />
       <div className="flex-1 flex flex-col items-center justify-center gap-2 p-6">
         <h1 className="text-2xl font-extrabold tracking-wide text-yellow-400 mb-1">DOG TRACKER</h1>
+        {pushSupported && notifPermission === 'default' && (
+          <div className="flex flex-col items-center gap-2 bg-yellow-400/10 border border-yellow-400/30 rounded-xl px-4 py-3 mb-1 max-w-sm text-center">
+            <p className="text-xs text-yellow-200/90">
+              Ta strona wymaga zgody na powiadomienia, aby na bieżąco pokazywać nowo zgłoszone psy.
+            </p>
+            <button
+              onClick={enablePushNotifications}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-yellow-400 hover:bg-yellow-300 text-gray-950 transition-colors"
+            >
+              Włącz powiadomienia
+            </button>
+          </div>
+        )}
         {isAdmin && (
           <div className="flex flex-col items-center gap-1.5 mb-1">
             <div className="flex items-center gap-2">

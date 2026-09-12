@@ -15,6 +15,7 @@
 // where map editors could only INSERT, never UPDATE/DELETE). DELETE follows deleteAuth.
 
 import { censorComment } from './profanity.js'
+import { broadcastToAll } from './webpush.js'
 
 const TABLES = {
   categories: {
@@ -190,6 +191,15 @@ const TABLES = {
       return { row: { metin: metin, tier: tier, x: x, y: y, channel: channel } }
     },
   },
+  // Web Push subscriptions backing dogtracker's "new dog" notification -
+  // a browser subscribes/unsubscribes itself, no account involved.
+  dogtracker_push_subscriptions: {
+    columns: ['endpoint', 'p256dh', 'auth', 'created_at'],
+    pk: ['endpoint'],
+    insertAuth: 'public',
+    deleteAuth: 'public',
+    publicRead: false,
+  },
 }
 
 const GUIDE_CATEGORIES = new Set(['zwoje', 'eventy', 'poziomy', 'yang', 'ekwipunek', 'techniczne', 'platnosci', 'skille', 'gildia'])
@@ -308,7 +318,7 @@ async function handleGet(env, table, cfg, searchParams, headers, callerIsAdmin) 
   return json({ data: rows, error: null }, 200, headers)
 }
 
-async function handlePost(env, table, cfg, request, searchParams, headers) {
+async function handlePost(env, table, cfg, request, searchParams, headers, ctx) {
   const body = await request.json().catch(function () { return null })
   if (body === null) return errorResponse('invalid JSON body', 400, headers)
   const rows = Array.isArray(body) ? body : [body]
@@ -347,6 +357,13 @@ async function handlePost(env, table, cfg, request, searchParams, headers) {
     if (res) inserted.push(rowToClient(cfg, res))
   }
 
+  // Notify anyone with dogtracker open, without making the reporter wait on
+  // every push send - ctx.waitUntil lets this keep running after the
+  // response is already back with them.
+  if (table === 'dogtracker_dogs' && inserted.length > 0 && ctx) {
+    ctx.waitUntil(broadcastToAll(env, { type: 'dogtracker-dog-added', dogId: inserted[0].id }))
+  }
+
   return json({ data: inserted, error: null }, 200, headers)
 }
 
@@ -383,7 +400,7 @@ async function handleDelete(env, table, cfg, searchParams, headers) {
 // PATCH always requires admin. POST/DELETE authorization depends on cfg.insertAuth /
 // cfg.deleteAuth: 'admin' (default) -> admin only, insertAuth also allows 'editor'
 // (admin or map editor), and both allow 'public' -> no auth.
-async function handleDbRequest(request, env, url, headers, isAdmin, isEditor) {
+async function handleDbRequest(request, env, url, headers, isAdmin, isEditor, ctx) {
   const parts = url.pathname.split('/').filter(Boolean) // ['db', ':table']
   const table = parts[1]
   if (!table || !TABLES[table]) return errorResponse('unknown table', 404, headers)
@@ -403,7 +420,7 @@ async function handleDbRequest(request, env, url, headers, isAdmin, isEditor) {
       if (!(await isAdmin(request, env))) return errorResponse('forbidden', 403, headers)
     }
     // insertAuth === 'public' -> no check
-    return handlePost(env, table, cfg, request, url.searchParams, headers)
+    return handlePost(env, table, cfg, request, url.searchParams, headers, ctx)
   }
 
   if (request.method === 'PATCH') {

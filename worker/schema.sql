@@ -331,3 +331,12 @@ CREATE TABLE dogtracker_dogs (
   created_at TEXT NOT NULL
 );
 CREATE INDEX idx_dogtracker_dogs_metin_tier ON dogtracker_dogs(metin, tier);
+
+-- Web Push subscriptions for live "a dog was reported" notifications, keyed
+-- by the browser-issued endpoint URL itself (naturally unique per device).
+CREATE TABLE dogtracker_push_subscriptions (
+  endpoint TEXT PRIMARY KEY,
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
