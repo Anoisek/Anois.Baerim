@@ -151,11 +151,10 @@ export default function DogTracker() {
           {geo === 'checking' ? (
             <Spinner />
           ) : (
-            <p className="text-gray-400 text-sm text-center max-w-sm">
-              {geo === 'error'
-                ? 'Nie udało się zweryfikować lokalizacji. Spróbuj ponownie później.'
-                : 'Ta strona jest dostępna tylko dla osób łączących się z Polski.'}
-            </p>
+            <div className="text-center">
+              <p className="text-3xl font-bold text-gray-600 mb-2">404</p>
+              <p className="text-gray-500 text-sm">Ta strona nie istnieje.</p>
+            </div>
           )}
         </div>
       </div>
