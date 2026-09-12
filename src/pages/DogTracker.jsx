@@ -524,9 +524,9 @@ export default function DogTracker() {
                   preserveAspectRatio="none"
                 >
                   {/* Saved paths/walls aren't shown to regular users (just
-                      routing data), but admin sees them to know what's already
-                      marked. */}
-                  {isAdmin && paths.map((path, i) => (
+                      routing data) - admin only sees the set relevant to
+                      whichever mode is active, to keep the map readable. */}
+                  {drawMode === 'path' && paths.map((path, i) => (
                     <polyline
                       key={`saved-path-${i}`}
                       points={path.map(p => `${p.x},${p.y}`).join(' ')}
@@ -536,7 +536,7 @@ export default function DogTracker() {
                       vectorEffect="non-scaling-stroke"
                     />
                   ))}
-                  {isAdmin && walls.map((wall, i) => (
+                  {drawMode === 'wall' && walls.map((wall, i) => (
                     <polyline
                       key={`saved-wall-${i}`}
                       points={wall.map(p => `${p.x},${p.y}`).join(' ')}
