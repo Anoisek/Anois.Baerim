@@ -221,7 +221,7 @@ export default function DogTracker() {
                 />
                 {activeCircle && (
                   <div
-                    className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-500/40 border-2 border-red-500 pointer-events-none"
+                    className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-500/40 border-2 border-red-500 pointer-events-none z-0"
                     style={{ left: `${activeCircle.x}%`, top: `${activeCircle.y}%`, width: 48, height: 48 }}
                   />
                 )}
@@ -229,7 +229,7 @@ export default function DogTracker() {
                   <button
                     key={dog.id}
                     onClick={e => { e.stopPropagation(); setConfirmDog(dog) }}
-                    className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 hover:scale-125 transition-transform"
+                    className="absolute z-10 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 hover:scale-125 transition-transform"
                     style={{ left: `${dog.x}%`, top: `${dog.y}%` }}
                   >
                     <span className="text-2xl leading-none drop-shadow">🐕</span>
