@@ -95,11 +95,12 @@ function bearerToken(request) {
 }
 
 async function roleFlags(env, userId) {
-  const [adminRow, editorRow] = await Promise.all([
+  const [adminRow, editorRow, dogtrackerRow] = await Promise.all([
     env.DB.prepare('SELECT user_id FROM admins WHERE user_id = ?').bind(userId).first(),
     env.DB.prepare('SELECT user_id FROM map_editors WHERE user_id = ?').bind(userId).first(),
+    env.DB.prepare('SELECT user_id FROM dogtracker_users WHERE user_id = ?').bind(userId).first(),
   ])
-  return { isAdmin: !!adminRow, isEditor: !!editorRow }
+  return { isAdmin: !!adminRow, isEditor: !!editorRow, isDogtrackerUser: !!dogtrackerRow }
 }
 
 async function handleLogin(request, env, headers) {

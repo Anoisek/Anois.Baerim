@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(undefined)
   const [isAdmin, setIsAdmin] = useState(false)
   const [canAddMarkers, setCanAddMarkers] = useState(false)
+  const [isDogtrackerUser, setIsDogtrackerUser] = useState(false)
   const [nickname, setNicknameState] = useState(() => localStorage.getItem(NICKNAME_KEY) || '')
 
   function setNickname(value) {
@@ -21,6 +22,7 @@ export function AuthProvider({ children }) {
       setSession(null)
       setIsAdmin(false)
       setCanAddMarkers(false)
+      setIsDogtrackerUser(false)
       return
     }
     const flags = await authMe()
@@ -28,11 +30,13 @@ export function AuthProvider({ children }) {
       setSession(null)
       setIsAdmin(false)
       setCanAddMarkers(false)
+      setIsDogtrackerUser(false)
       return
     }
     setSession(true)
     setIsAdmin(flags.isAdmin)
     setCanAddMarkers(flags.isAdmin || flags.isEditor)
+    setIsDogtrackerUser(flags.isDogtrackerUser)
   }
 
   useEffect(() => {
@@ -44,10 +48,11 @@ export function AuthProvider({ children }) {
     setSession(null)
     setIsAdmin(false)
     setCanAddMarkers(false)
+    setIsDogtrackerUser(false)
   }
 
   return (
-    <AuthContext.Provider value={{ session, isAdmin, canAddMarkers, nickname, setNickname, refresh, logout }}>
+    <AuthContext.Provider value={{ session, isAdmin, canAddMarkers, isDogtrackerUser, nickname, setNickname, refresh, logout }}>
       {session !== undefined && children}
     </AuthContext.Provider>
   )

@@ -139,6 +139,13 @@ CREATE TABLE map_editors (
   created_at TEXT NOT NULL
 );
 
+-- Accounts that may use /dogtracker from outside Poland without being a full
+-- admin or map editor. No other privilege attached.
+CREATE TABLE dogtracker_users (
+  user_id TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL
+);
+
 CREATE TABLE maps (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,

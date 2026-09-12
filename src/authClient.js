@@ -18,7 +18,7 @@ export async function login(username, password) {
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(data.error || 'Login failed')
   localStorage.setItem(TOKEN_KEY, data.token)
-  return { isAdmin: data.isAdmin, isEditor: data.isEditor }
+  return { isAdmin: data.isAdmin, isEditor: data.isEditor, isDogtrackerUser: data.isDogtrackerUser }
 }
 
 // Resolves the current session's role flags, or null if not logged in / token invalid.
@@ -33,7 +33,7 @@ export async function me() {
     return null
   }
   const data = await res.json()
-  return { isAdmin: data.isAdmin, isEditor: data.isEditor }
+  return { isAdmin: data.isAdmin, isEditor: data.isEditor, isDogtrackerUser: data.isDogtrackerUser }
 }
 
 export async function changePassword(currentPassword, newPassword) {

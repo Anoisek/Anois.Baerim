@@ -25,7 +25,7 @@ function isExpired(dog) {
 }
 
 export default function DogTracker() {
-  const { isAdmin } = useAuth()
+  const { isAdmin, isDogtrackerUser } = useAuth()
   const [map, setMap] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(TABS[0])
@@ -46,7 +46,7 @@ export default function DogTracker() {
       .catch(() => setGeo('error'))
   }, [])
 
-  const allowed = geo === 'allowed' || isAdmin
+  const allowed = geo === 'allowed' || isAdmin || isDogtrackerUser
 
   useEffect(() => {
     if (!allowed) return
