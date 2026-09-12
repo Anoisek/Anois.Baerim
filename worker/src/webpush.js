@@ -14,7 +14,7 @@ function toBase64Url(bytes) {
 }
 
 function fromBase64Url(str) {
-  str = str.replace(/-/g, '+').replace(/\//g, '_')
+  str = str.replace(/-/g, '+').replace(/_/g, '/')
   while (str.length % 4) str += '='
   const binary = atob(str)
   const bytes = new Uint8Array(binary.length)
@@ -107,9 +107,11 @@ async function broadcastToAll(env, payloadObj) {
       const res = await sendWebPush(env, sub, payloadObj)
       if (res.status === 404 || res.status === 410) {
         await env.DB.prepare('DELETE FROM dogtracker_push_subscriptions WHERE endpoint = ?').bind(sub.endpoint).run()
+      } else if (!res.ok) {
+        console.log('dogtracker push send failed', sub.endpoint.slice(-12), res.status)
       }
-    } catch {
-      // network hiccup or dead endpoint - skip, next event will retry the rest
+    } catch (err) {
+      console.log('dogtracker push send error', sub.endpoint.slice(-12), err && err.message)
     }
   }))
 }

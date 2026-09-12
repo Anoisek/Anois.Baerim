@@ -297,30 +297,16 @@ export default function DogTracker() {
     knownDogIdsRef.current = new Set(dogs.map(dog => dog.id))
   }, [dogs])
 
+  // Just the permission prompt - the effect below (keyed on notifPermission)
+  // does the actual subscribing once permission is granted.
   async function enablePushNotifications() {
     if (!pushSupported) return
     try {
       await navigator.serviceWorker.register('/dogtracker-sw.js')
       const permission = await Notification.requestPermission()
       setNotifPermission(permission)
-      if (permission !== 'granted') return
-
-      const registration = await navigator.serviceWorker.ready
-      let sub = await registration.pushManager.getSubscription()
-      if (!sub) {
-        sub = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-        })
-      }
-      const json = sub.toJSON()
-      await db.from('dogtracker_push_subscriptions').upsert({
-        endpoint: json.endpoint,
-        p256dh: json.keys.p256dh,
-        auth: json.keys.auth,
-      })
     } catch (err) {
-      console.error('dogtracker push subscribe failed:', err)
+      console.error('dogtracker notification permission request failed:', err)
     }
   }
 
@@ -356,6 +342,57 @@ export default function DogTracker() {
     db.from('dogtracker_dogs').select('*').then(({ data }) => {
       setDogs((data ?? []).filter(dog => !isExpired(dog)))
     })
+  }, [allowed, notifPermission, pushSupported])
+
+  // Subscribed only while this page is actually mounted, and unsubscribed
+  // again on unmount - so a push is never even sent to this browser once
+  // the user has navigated away from dogtracker, rather than relying on the
+  // service worker to notice nobody's looking after the fact.
+  useEffect(() => {
+    if (!allowed || !pushSupported || notifPermission !== 'granted') return
+    let cancelled = false
+
+    ;(async () => {
+      try {
+        const registration = await navigator.serviceWorker.ready
+        let sub = await registration.pushManager.getSubscription()
+        if (!sub) {
+          sub = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+          })
+        }
+        if (cancelled) {
+          await sub.unsubscribe()
+          return
+        }
+        const json = sub.toJSON()
+        await db.from('dogtracker_push_subscriptions').upsert({
+          endpoint: json.endpoint,
+          p256dh: json.keys.p256dh,
+          auth: json.keys.auth,
+        })
+      } catch (err) {
+        console.error('dogtracker push subscribe failed:', err)
+      }
+    })()
+
+    return () => {
+      cancelled = true
+      ;(async () => {
+        try {
+          const registration = await navigator.serviceWorker.ready
+          const sub = await registration.pushManager.getSubscription()
+          if (!sub) return
+          const endpoint = sub.endpoint
+          await sub.unsubscribe()
+          await db.from('dogtracker_push_subscriptions').delete().eq('endpoint', endpoint)
+        } catch {
+          // best-effort - a stale subscription still gets pruned server-side
+          // the next time a push to it comes back 404/410
+        }
+      })()
+    }
   }, [allowed, notifPermission, pushSupported])
 
   useEffect(() => {
