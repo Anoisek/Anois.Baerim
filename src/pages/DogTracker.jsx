@@ -10,6 +10,7 @@ const TIERS = ['I', 'II', 'III']
 const TABS = METINS.flatMap(metin => TIERS.map(tier => ({ metin, tier })))
 const CHANNELS = [1, 2, 3, 4, 5, 6]
 const CIRCLES_KEY = 'dogtracker_circles'
+const PATHS_KEY = 'dogtracker_paths'
 const DOG_TTL_MS = 5 * 60 * 1000
 
 function tabKey(tab) {
@@ -37,6 +38,9 @@ export default function DogTracker() {
   const [sending, setSending] = useState(false)
   const [confirmDog, setConfirmDog] = useState(null)
   const [geo, setGeo] = useState('checking')
+  const [paths, setPaths] = useState([])
+  const [pathMode, setPathMode] = useState(false)
+  const [drawingPoints, setDrawingPoints] = useState([])
   const mapWrapRef = useRef(null)
 
   useEffect(() => {
@@ -58,6 +62,14 @@ export default function DogTracker() {
       if (!data?.value) return
       try {
         setCircles(JSON.parse(data.value))
+      } catch {
+        // ignore malformed stored value
+      }
+    })
+    db.from('settings').select('value').eq('key', PATHS_KEY).maybeSingle().then(({ data }) => {
+      if (!data?.value) return
+      try {
+        setPaths(JSON.parse(data.value))
       } catch {
         // ignore malformed stored value
       }
@@ -88,8 +100,31 @@ export default function DogTracker() {
   }, [allowed])
 
   function toggleEdit(tab) {
+    setPathMode(false)
+    setDrawingPoints([])
     setSelected(tab)
     setEditingTab(prev => (sameTab(prev, tab) ? null : tab))
+  }
+
+  function startPath() {
+    setEditingTab(null)
+    setDrawingPoints([])
+    setPathMode(true)
+  }
+
+  function cancelPath() {
+    setDrawingPoints([])
+    setPathMode(false)
+  }
+
+  async function finishPath() {
+    if (drawingPoints.length >= 2) {
+      const next = [...paths, drawingPoints]
+      setPaths(next)
+      await db.from('settings').upsert({ key: PATHS_KEY, value: JSON.stringify(next) })
+    }
+    setDrawingPoints([])
+    setPathMode(false)
   }
 
   async function handleMapClick(e) {
@@ -97,6 +132,11 @@ export default function DogTracker() {
     const rect = mapWrapRef.current.getBoundingClientRect()
     const x = ((e.clientX - rect.left) / rect.width) * 100
     const y = ((e.clientY - rect.top) / rect.height) * 100
+
+    if (pathMode) {
+      setDrawingPoints(prev => [...prev, { x, y }])
+      return
+    }
 
     if (editingTab) {
       const next = { ...circles, [tabKey(editingTab)]: { x, y } }
@@ -166,6 +206,34 @@ export default function DogTracker() {
       <Navbar hideBanner />
       <div className="flex-1 flex flex-col items-center justify-center gap-2 p-6">
         <h1 className="text-2xl font-extrabold tracking-wide text-yellow-400 mb-1">DOG TRACKER</h1>
+        {isAdmin && (
+          <div className="flex items-center gap-2 mb-1">
+            {!pathMode ? (
+              <button
+                onClick={startPath}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+              >
+                🛣️ Zaznacz ścieżkę
+              </button>
+            ) : (
+              <>
+                <span className="text-xs text-green-400">Klikaj na mapę, aby dodawać punkty ścieżki</span>
+                <button
+                  onClick={finishPath}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-yellow-400 hover:bg-yellow-300 text-gray-950 transition-colors"
+                >
+                  Zakończ
+                </button>
+                <button
+                  onClick={cancelPath}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+                >
+                  Anuluj
+                </button>
+              </>
+            )}
+          </div>
+        )}
         <div className="flex border border-gray-700 rounded-xl overflow-hidden bg-gray-950">
           <aside className="w-56 shrink-0 flex flex-col border-r border-gray-700">
             {TABS.map(tab => {
@@ -211,7 +279,7 @@ export default function DogTracker() {
               <div
                 ref={mapWrapRef}
                 onClick={handleMapClick}
-                className={`relative inline-block ${editingTab ? 'cursor-crosshair' : 'cursor-pointer'}`}
+                className={`relative inline-block ${editingTab || pathMode ? 'cursor-crosshair' : 'cursor-pointer'}`}
               >
                 <img
                   src={map.image_url}
@@ -219,6 +287,35 @@ export default function DogTracker() {
                   draggable="false"
                   className="block max-w-full max-h-[80vh] object-contain select-none"
                 />
+                <svg
+                  className="absolute inset-0 w-full h-full z-[5] pointer-events-none"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                >
+                  {paths.map((path, i) => (
+                    <polyline
+                      key={i}
+                      points={path.map(p => `${p.x},${p.y}`).join(' ')}
+                      fill="none"
+                      stroke="#facc15"
+                      strokeWidth="0.6"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  ))}
+                  {drawingPoints.length > 0 && (
+                    <polyline
+                      points={drawingPoints.map(p => `${p.x},${p.y}`).join(' ')}
+                      fill="none"
+                      stroke="#22c55e"
+                      strokeWidth="0.6"
+                      strokeDasharray="1.5,1"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  )}
+                  {drawingPoints.map((p, i) => (
+                    <circle key={i} cx={p.x} cy={p.y} r="0.8" fill="#22c55e" vectorEffect="non-scaling-stroke" />
+                  ))}
+                </svg>
                 {activeCircle && (
                   <div
                     className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-500/40 border-2 border-red-500 pointer-events-none z-0"
