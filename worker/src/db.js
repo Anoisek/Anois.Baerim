@@ -204,13 +204,13 @@ const TABLES = {
   },
   // /systems/ore-finder: public live legendary-ore reports, one per map
   // (Yongan, Joan, Pyungmoo - enforced by the DB's unique index on `map`).
-  // Same "no accounts, wide open" philosophy as dogtracker_dogs: anyone can
-  // report or clear a marker.
+  // Anyone can report one (insertAuth public), but only admin can clear one
+  // early - regular expiry cleanup still happens server-side in beforeInsert
+  // and doesn't go through this HTTP delete path at all.
   ore_finder_ores: {
     columns: ['id', 'map', 'x', 'y', 'comment', 'created_at', 'expires_at', 'discord_message_id'],
     pk: ['id'],
     insertAuth: 'public',
-    deleteAuth: 'public',
     beforeInsert: async function (row, env) {
       const map = typeof row.map === 'string' ? row.map : ''
       const x = Number(row.x)

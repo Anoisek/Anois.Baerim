@@ -29,7 +29,7 @@ function copyStyles(pipWindow) {
 // full click-to-report flow (confirm+comment modal, remove confirm) ported
 // into the popped-out window too, since that content lives in a separate
 // document a plain portal to the main page's overlay can't reach.
-export default function OreFinderPipButton({ map, ore, windowOpen, onSend, onRemove, t }) {
+export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSend, onRemove, t }) {
   const [pipWindow, setPipWindow] = useState(null)
   const [pendingClick, setPendingClick] = useState(null)
   const [commentDraft, setCommentDraft] = useState('')
@@ -141,8 +141,8 @@ export default function OreFinderPipButton({ map, ore, windowOpen, onSend, onRem
             />
             {ore && (
               <button
-                onClick={e => { e.stopPropagation(); setConfirmRemove(true) }}
-                className="absolute -translate-x-1/2 -translate-y-1/2 hover:scale-125 transition-transform"
+                onClick={e => { if (isAdmin) { e.stopPropagation(); setConfirmRemove(true) } }}
+                className={`absolute -translate-x-1/2 -translate-y-1/2 transition-transform ${isAdmin ? 'hover:scale-125' : 'cursor-default'}`}
                 style={{ left: `${ore.x}%`, top: `${ore.y}%` }}
               >
                 <span className="text-3xl leading-none drop-shadow">🪨</span>

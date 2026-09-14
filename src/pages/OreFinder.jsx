@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
@@ -26,6 +27,7 @@ function loadFavoriteMap() {
 
 export default function OreFinder() {
   const { t } = useTranslation()
+  const { isAdmin } = useAuth()
   const [maps, setMaps] = useState([])
   const [mapsLoading, setMapsLoading] = useState(true)
   const [favoriteMap, setFavoriteMap] = useState(loadFavoriteMap)
@@ -220,6 +222,7 @@ export default function OreFinder() {
                         map={selectedMap}
                         ore={oreOnSelected}
                         windowOpen={windowOpen}
+                        isAdmin={isAdmin}
                         onSend={sendOreReport}
                         onRemove={() => oreOnSelected && removeOre(oreOnSelected)}
                         t={t}
@@ -245,9 +248,9 @@ export default function OreFinder() {
                         />
                         {oreOnSelected && (
                           <button
-                            onClick={e => { e.stopPropagation(); setConfirmOre(oreOnSelected) }}
-                            title={t('oreFinder.removeTooltip')}
-                            className="absolute z-10 -translate-x-1/2 -translate-y-1/2 hover:scale-125 transition-transform"
+                            onClick={e => { if (isAdmin) { e.stopPropagation(); setConfirmOre(oreOnSelected) } }}
+                            title={isAdmin ? t('oreFinder.removeTooltip') : undefined}
+                            className={`absolute z-10 -translate-x-1/2 -translate-y-1/2 transition-transform ${isAdmin ? 'hover:scale-125' : 'cursor-default'}`}
                             style={{ left: `${oreOnSelected.x}%`, top: `${oreOnSelected.y}%` }}
                           >
                             <span className="text-3xl leading-none drop-shadow">🪨</span>
