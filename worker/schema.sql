@@ -357,3 +357,15 @@ CREATE TABLE ore_finder_ores (
   discord_message_id TEXT
 );
 CREATE UNIQUE INDEX idx_ore_finder_ores_map ON ore_finder_ores(map);
+
+-- Per-Discord-server config for the Ore Finder alert bot, set via the
+-- /orefinder-here, /orefinder-role, /orefinder-addmap and /orefinder-removemap
+-- slash commands. excluded_maps is a JSON array of map names this server
+-- opted out of - NULL/empty means every map is sent (the default).
+CREATE TABLE ore_finder_discord_configs (
+  guild_id TEXT PRIMARY KEY,
+  channel_id TEXT NOT NULL,
+  role_id TEXT,
+  excluded_maps TEXT,
+  updated_at TEXT NOT NULL
+);

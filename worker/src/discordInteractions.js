@@ -4,12 +4,27 @@
 // Worker's request/response model with no extra infrastructure.
 //
 // /orefinder-here sets the invoking channel as an alert destination for that
-// guild; /orefinder-role sets which role gets pinged there. Both require the
-// "Manage Server" permission (enforced by Discord itself via each command's
-// default_member_permissions at registration time - see registerOreFinderCommands).
+// guild; /orefinder-role sets which role gets pinged there; /orefinder-addmap
+// and /orefinder-removemap toggle per-map opt-out (every map is included by
+// default). All four require the "Manage Server" permission (enforced by
+// Discord itself via each command's default_member_permissions at
+// registration time - see registerOreFinderCommands).
 
 const MANAGE_GUILD = 0x20n
 const ROLE_OPTION_TYPE = 8
+const STRING_OPTION_TYPE = 3
+const ORE_MAP_NAMES = ['Yongan', 'Joan', 'Pyungmoo']
+const MAP_CHOICES = ORE_MAP_NAMES.map(name => ({ name, value: name }))
+
+function parseExcludedMaps(raw) {
+  if (!raw) return []
+  try {
+    const list = JSON.parse(raw)
+    return Array.isArray(list) ? list.filter(m => ORE_MAP_NAMES.includes(m)) : []
+  } catch {
+    return []
+  }
+}
 
 function hexToBytes(hex) {
   const bytes = new Uint8Array(hex.length / 2)
@@ -82,6 +97,30 @@ async function handleDiscordInteractions(request, env, headers) {
     return ephemeral(`✅ Ore Finder alerts will mention <@&${roleId}>.`, headers)
   }
 
+  if (name === 'orefinder-addmap' || name === 'orefinder-removemap') {
+    const mapName = interaction.data?.options?.find(o => o.name === 'map')?.value
+    if (!ORE_MAP_NAMES.includes(mapName)) return ephemeral('Unknown map.', headers)
+
+    const row = await env.DB.prepare('SELECT excluded_maps FROM ore_finder_discord_configs WHERE guild_id = ?').bind(guildId).first()
+    if (!row) return ephemeral('Set a channel first with /orefinder-here.', headers)
+
+    const excluded = parseExcludedMaps(row.excluded_maps)
+
+    if (name === 'orefinder-removemap') {
+      if (excluded.includes(mapName)) return ephemeral(`You are already not receiving alerts for **${mapName}**.`, headers)
+      excluded.push(mapName)
+      await env.DB.prepare('UPDATE ore_finder_discord_configs SET excluded_maps = ?, updated_at = ? WHERE guild_id = ?')
+        .bind(JSON.stringify(excluded), nowIso, guildId).run()
+      return ephemeral(`✅ You will no longer receive alerts for **${mapName}**.`, headers)
+    }
+
+    if (!excluded.includes(mapName)) return ephemeral(`You are already receiving alerts for **${mapName}**.`, headers)
+    const next = excluded.filter(m => m !== mapName)
+    await env.DB.prepare('UPDATE ore_finder_discord_configs SET excluded_maps = ?, updated_at = ? WHERE guild_id = ?')
+      .bind(next.length > 0 ? JSON.stringify(next) : null, nowIso, guildId).run()
+    return ephemeral(`✅ You will now receive alerts for **${mapName}**.`, headers)
+  }
+
   return json({ error: 'unknown command' }, 400, headers)
 }
 
@@ -108,6 +147,24 @@ async function registerOreFinderCommands(env) {
       dm_permission: false,
       options: [
         { type: ROLE_OPTION_TYPE, name: 'role', description: 'Role to mention', required: true },
+      ],
+    },
+    {
+      name: 'orefinder-addmap',
+      description: 'Resume Ore Finder alerts for a map you previously removed',
+      default_member_permissions: String(MANAGE_GUILD),
+      dm_permission: false,
+      options: [
+        { type: STRING_OPTION_TYPE, name: 'map', description: 'Map to resume alerts for', required: true, choices: MAP_CHOICES },
+      ],
+    },
+    {
+      name: 'orefinder-removemap',
+      description: 'Stop Ore Finder alerts for one map (every map is included by default)',
+      default_member_permissions: String(MANAGE_GUILD),
+      dm_permission: false,
+      options: [
+        { type: STRING_OPTION_TYPE, name: 'map', description: 'Map to stop alerts for', required: true, choices: MAP_CHOICES },
       ],
     },
   ]

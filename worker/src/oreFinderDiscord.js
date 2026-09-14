@@ -110,8 +110,15 @@ async function sendDiscordOreAlert(env, ore) {
     if (env.ORE_FINDER_DISCORD_CHANNEL_ID) {
       destinations.push({ channelId: env.ORE_FINDER_DISCORD_CHANNEL_ID, roleId: env.ORE_FINDER_DISCORD_ROLE_ID })
     }
-    const configured = await env.DB.prepare('SELECT channel_id, role_id FROM ore_finder_discord_configs').all()
-    for (const row of configured.results) destinations.push({ channelId: row.channel_id, roleId: row.role_id })
+    const configured = await env.DB.prepare('SELECT channel_id, role_id, excluded_maps FROM ore_finder_discord_configs').all()
+    for (const row of configured.results) {
+      let excluded = []
+      if (row.excluded_maps) {
+        try { excluded = JSON.parse(row.excluded_maps) } catch { excluded = [] }
+      }
+      if (excluded.includes(ore.map)) continue
+      destinations.push({ channelId: row.channel_id, roleId: row.role_id })
+    }
 
     await Promise.all(destinations.map(d => postOreAlert(env, d.channelId, d.roleId, description, png, ore.created_at)))
   } catch (err) {
