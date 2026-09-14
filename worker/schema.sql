@@ -341,3 +341,19 @@ CREATE TABLE dogtracker_push_subscriptions (
   auth TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
+
+-- /systems/ore-finder: public live legendary-ore reports, one per map
+-- (Yongan, Joan, Pyungmoo - enforced by the unique index below). Reported
+-- anytime in xx:58-xx:09 or xx:28-xx:39, always expires at the next xx:10
+-- or xx:40 respectively.
+CREATE TABLE ore_finder_ores (
+  id TEXT PRIMARY KEY,
+  map TEXT NOT NULL,
+  x REAL NOT NULL,
+  y REAL NOT NULL,
+  comment TEXT,
+  created_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  discord_message_id TEXT
+);
+CREATE UNIQUE INDEX idx_ore_finder_ores_map ON ore_finder_ores(map);

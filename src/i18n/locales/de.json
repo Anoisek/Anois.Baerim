@@ -113,7 +113,8 @@
     "levelShort": "Level {{level}}",
     "noDescriptionYet": "Noch keine Beschreibung.",
     "repositionHint": "Klicke irgendwo auf die Karte, um diese Flagge dorthin zu verschieben. Esc zum Abbrechen.",
-    "editLevelHint": "Klicke eine Flagge zum Bearbeiten an, oder halte sie gedrückt, um sie zu verschieben."
+    "editLevelHint": "Klicke eine Flagge zum Bearbeiten an, oder halte sie gedrückt, um sie zu verschieben.",
+    "oreFinder": "Erzsucher"
   },
   "materials": {
     "title": "Materialien",
@@ -264,6 +265,21 @@
     "confirmSelectAllWarning": "Dadurch werden alle Mokoko auf dieser Karte als gesammelt markiert. Das kann nicht rückgängig gemacht werden.",
     "confirmDeselectAllWarning": "Dadurch wird die Markierung aller Mokoko auf dieser Karte als gesammelt entfernt. Das kann nicht rückgängig gemacht werden.",
     "confirmBulkMarkYes": "Ja, tun"
+  },
+  "oreFinder": {
+    "activeLabel": "Aktives Erz",
+    "disappearsIn": "Verschwindet in:",
+    "clickToMark": "Klicke auf die Karte, um das Erz zu markieren.",
+    "addWindowClosed": "Erz markieren ist nur im Zeitfenster xx:58–xx:09 und xx:28–xx:39 möglich.",
+    "confirmTitle": "ERZ HIER",
+    "confirmSend": "SENDEN",
+    "confirmCancel": "ABBRECHEN",
+    "sendError": "Meldung fehlgeschlagen: {{message}}",
+    "removeTooltip": "Entfernen",
+    "confirmStillThereTitle": "Ist das Erz noch dort?",
+    "confirmStillThereNo": "NEIN",
+    "confirmStillThereYes": "JA",
+    "commentPlaceholder": "Zusätzliche Infos (optional)..."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -114,6 +114,7 @@ async function sendDiscordDogAlert(env, dog) {
     ].filter(Boolean).join('\n')
 
     const payload = {
+      content: env.DISCORD_ROLE_ID ? `<@&${env.DISCORD_ROLE_ID}>` : undefined,
       embeds: [{
         title: '🐕 New dog found!',
         description,

@@ -15,8 +15,9 @@ database_id = "e8bb727e-3582-4356-90f8-d956fc653fb0"
 #   SUPABASE_URL
 #   SUPABASE_ANON_KEY
 #   SUPABASE_SERVICE_ROLE_KEY
-#   VAPID_PRIVATE_KEY_JWK  - dogtracker Web Push signing key (JSON JWK)
-#   DISCORD_BOT_TOKEN      - dogtracker Discord alert bot
+#   VAPID_PRIVATE_KEY_JWK           - dogtracker Web Push signing key (JSON JWK)
+#   DISCORD_BOT_TOKEN               - dogtracker Discord alert bot
+#   ORE_FINDER_DISCORD_BOT_TOKEN    - ore finder Discord alert bot (separate bot/token from dogtracker's)
 
 [vars]
 PUBLIC_R2_URL = "https://baerim-images-worker.bartoszlisowiec.workers.dev"
@@ -24,4 +25,8 @@ OLD_PUBLIC_R2_URL = "https://pub-ca333e738137481fa823decac7e5d3f8.r2.dev"
 ALLOWED_ORIGINS = "https://baerimtools.com,https://www.baerimtools.com,https://anois-baerim.pages.dev"
 VAPID_PUBLIC_KEY = "BLdZQ3ulehTXPJ7XBj2LDiI1YGUe9AWk0EaEk5J-q_rkUjd8ZgOqQCtbVuEFETN20Vv0oS2gz1M71yepJAEeTs4"
 VAPID_SUBJECT = "mailto:anois131313@gmail.com"
-DISCORD_CHANNEL_ID = "1256227856904618094"
+DISCORD_CHANNEL_ID = "1548329118213607514"
+DISCORD_ROLE_ID = "1548329137930772510"
+# Ore finder alert bot - separate bot/channel/role from the dogtracker ones above.
+ORE_FINDER_DISCORD_CHANNEL_ID = "1520001195840901240"
+ORE_FINDER_DISCORD_ROLE_ID = "1520010923815866409"

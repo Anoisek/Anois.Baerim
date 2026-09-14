@@ -1,0 +1,299 @@
+import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import Navbar from '../components/Navbar'
+import Breadcrumbs from '../components/Breadcrumbs'
+import Spinner from '../components/Spinner'
+import OreFinderCountdown from '../components/OreFinderCountdown'
+import { db } from '../dbClient'
+import { isOreAddWindowOpen } from '../utils/oreFinderWindow'
+
+const ORE_MAP_NAMES = ['Yongan', 'Joan', 'Pyungmoo']
+// Polling only - no push infra here. Kept slow-ish and paused on a hidden
+// tab so this doesn't eat into the worker's shared daily request budget.
+const POLL_MS = 15000
+
+export default function OreFinder() {
+  const { t } = useTranslation()
+  const [maps, setMaps] = useState([])
+  const [mapsLoading, setMapsLoading] = useState(true)
+  const [selectedName, setSelectedName] = useState(ORE_MAP_NAMES[0])
+  const [ores, setOres] = useState([])
+  const [pendingClick, setPendingClick] = useState(null)
+  const [commentDraft, setCommentDraft] = useState('')
+  const [sending, setSending] = useState(false)
+  const [confirmOre, setConfirmOre] = useState(null)
+  const [windowOpen, setWindowOpen] = useState(() => isOreAddWindowOpen())
+  const [hoverPos, setHoverPos] = useState(null)
+  const mapWrapRef = useRef(null)
+
+  useEffect(() => {
+    db.from('maps').select('*').then(({ data }) => {
+      setMaps((data ?? []).filter(m => ORE_MAP_NAMES.includes(m.name)))
+      setMapsLoading(false)
+    })
+  }, [])
+
+  function loadOres() {
+    db.from('ore_finder_ores').select('*').then(({ data }) => {
+      const now = Date.now()
+      setOres((data ?? []).filter(o => new Date(o.expires_at).getTime() > now))
+    })
+  }
+
+  // Same visibility-paused polling shape as DogTracker's fallback poll - a
+  // background tab must not keep hitting the worker.
+  useEffect(() => {
+    loadOres()
+    function poll() {
+      if (document.visibilityState === 'visible') loadOres()
+    }
+    const intervalId = setInterval(poll, POLL_MS)
+    document.addEventListener('visibilitychange', poll)
+    return () => {
+      clearInterval(intervalId)
+      document.removeEventListener('visibilitychange', poll)
+    }
+  }, [])
+
+  useEffect(() => {
+    const id = setInterval(() => setWindowOpen(isOreAddWindowOpen()), 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  const selectedMap = maps.find(m => m.name === selectedName) || null
+  const oreOnSelected = ores.find(o => o.map === selectedName) || null
+
+  function handleOreExpired(id) {
+    setOres(prev => prev.filter(o => o.id !== id))
+    db.from('ore_finder_ores').delete().eq('id', id)
+  }
+
+  function handleMapClick(e) {
+    if (!mapWrapRef.current || !selectedMap) return
+    if (!windowOpen || oreOnSelected) return
+    const rect = mapWrapRef.current.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+    setHoverPos(null)
+    setCommentDraft('')
+    setPendingClick({ x, y })
+  }
+
+  function handleMapMouseMove(e) {
+    if (!mapWrapRef.current) return
+    const rect = mapWrapRef.current.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+    setHoverPos({ x, y, clientX: e.clientX, clientY: e.clientY })
+  }
+
+  function handleMapMouseLeave() {
+    setHoverPos(null)
+  }
+
+  function handleCancel() {
+    setPendingClick(null)
+    setCommentDraft('')
+  }
+
+  async function handleSend() {
+    if (!pendingClick || !selectedMap || sending) return
+    setSending(true)
+    const { data, error } = await db
+      .from('ore_finder_ores')
+      .insert({ map: selectedMap.name, x: pendingClick.x, y: pendingClick.y, comment: commentDraft.trim() })
+      .select()
+      .single()
+    setSending(false)
+    if (error) {
+      alert(t('oreFinder.sendError', { message: error.message }))
+      return
+    }
+    setOres(prev => [...prev, data])
+    setPendingClick(null)
+    setCommentDraft('')
+  }
+
+  async function handleStillThereNo() {
+    if (!confirmOre) return
+    const id = confirmOre.id
+    setConfirmOre(null)
+    setOres(prev => prev.filter(o => o.id !== id))
+    await db.from('ore_finder_ores').delete().eq('id', id)
+  }
+
+  return (
+    <div className="text-white min-h-screen flex flex-col">
+      <Navbar />
+      <div className="max-w-5xl mx-auto px-6 py-10 w-full">
+        <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
+          <Breadcrumbs items={[
+            { label: t('common.home'), to: '/' },
+            { label: t('systems.title'), to: '/systems' },
+            { label: t('systems.oreFinder') },
+          ]} />
+          <h1 className="text-2xl font-bold text-gray-100 mb-6">{t('systems.oreFinder')}</h1>
+
+          {mapsLoading ? <Spinner /> : (
+            <div className="flex gap-4 flex-col md:flex-row">
+              <aside className="w-full md:w-56 shrink-0 flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible pb-1 md:pb-0">
+                {ORE_MAP_NAMES.map(name => {
+                  const active = name === selectedName
+                  const hasOre = ores.some(o => o.map === name)
+                  return (
+                    <button
+                      key={name}
+                      onClick={() => setSelectedName(name)}
+                      className={`shrink-0 flex items-center gap-1.5 text-left px-3 py-2 rounded-lg text-sm font-semibold border transition-colors whitespace-nowrap md:whitespace-normal ${
+                        active
+                          ? 'bg-yellow-400 border-yellow-400 text-gray-950'
+                          : 'bg-gray-800/60 border-gray-700 hover:bg-gray-800 text-gray-200'
+                      }`}
+                    >
+                      {hasOre && <span title={t('oreFinder.activeLabel')}>🪨</span>}
+                      <span>{name}</span>
+                    </button>
+                  )
+                })}
+              </aside>
+
+              <div className="flex-1 min-w-0">
+                {!selectedMap ? (
+                  <p className="text-gray-500 text-sm p-6">{t('systems.noMapYet')}</p>
+                ) : (
+                  <>
+                    <div
+                      className="relative w-full rounded-xl border border-gray-700 bg-gray-950 overflow-y-auto overflow-x-hidden"
+                      style={{ maxHeight: '70vh' }}
+                    >
+                      <div
+                        ref={mapWrapRef}
+                        onClick={handleMapClick}
+                        onMouseMove={handleMapMouseMove}
+                        onMouseLeave={handleMapMouseLeave}
+                        className={`relative ${windowOpen && !oreOnSelected ? 'cursor-crosshair' : 'cursor-default'}`}
+                        style={{ width: '100%', aspectRatio: `${selectedMap.width} / ${selectedMap.height}` }}
+                      >
+                        <img
+                          src={selectedMap.image_url}
+                          alt={selectedMap.name}
+                          draggable="false"
+                          className="w-full h-full object-contain select-none pointer-events-none"
+                        />
+                        {oreOnSelected && (
+                          <button
+                            onClick={e => { e.stopPropagation(); setConfirmOre(oreOnSelected) }}
+                            title={t('oreFinder.removeTooltip')}
+                            className="absolute z-10 -translate-x-1/2 -translate-y-1/2 hover:scale-125 transition-transform"
+                            style={{ left: `${oreOnSelected.x}%`, top: `${oreOnSelected.y}%` }}
+                          >
+                            <span className="text-3xl leading-none drop-shadow">🪨</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-3 text-xs">
+                      {oreOnSelected ? (
+                        <div className="flex flex-col gap-1">
+                          <div className="flex flex-wrap items-center gap-1.5 text-gray-400">
+                            <span>{t('oreFinder.disappearsIn')}</span>
+                            <OreFinderCountdown
+                              expiresAt={oreOnSelected.expires_at}
+                              onExpire={() => handleOreExpired(oreOnSelected.id)}
+                            />
+                          </div>
+                          {oreOnSelected.comment && (
+                            <p className="text-gray-300">💬 {oreOnSelected.comment}</p>
+                          )}
+                        </div>
+                      ) : windowOpen ? (
+                        <p className="text-yellow-400">{t('oreFinder.clickToMark')}</p>
+                      ) : (
+                        <p className="text-gray-500">{t('oreFinder.addWindowClosed')}</p>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {hoverPos && !pendingClick && !confirmOre && (
+        <div
+          className="fixed z-20 pointer-events-none rounded-md border border-gray-600 bg-gray-900/90 px-2 py-1 text-[11px] font-mono text-gray-100 shadow-lg whitespace-nowrap"
+          style={{ left: hoverPos.clientX + 14, top: hoverPos.clientY + 14 }}
+        >
+          X: {Math.round((hoverPos.x / 100) * selectedMap.width)} Y: {Math.round((hoverPos.y / 100) * selectedMap.height)}
+        </div>
+      )}
+
+      {pendingClick && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={handleCancel}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-80 flex flex-col items-center gap-4 shadow-xl shadow-black/50"
+          >
+            <p className="text-xl font-extrabold text-yellow-400 tracking-wide">{t('oreFinder.confirmTitle')}</p>
+            <textarea
+              value={commentDraft}
+              onChange={e => setCommentDraft(e.target.value.slice(0, 200))}
+              placeholder={t('oreFinder.commentPlaceholder')}
+              rows={2}
+              maxLength={200}
+              className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400 resize-none"
+            />
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={handleCancel}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+              >
+                {t('oreFinder.confirmCancel')}
+              </button>
+              <button
+                onClick={handleSend}
+                disabled={sending}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold bg-yellow-400 hover:bg-yellow-300 disabled:opacity-40 disabled:hover:bg-yellow-400 text-gray-950 transition-colors"
+              >
+                {t('oreFinder.confirmSend')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmOre && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setConfirmOre(null)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-72 flex flex-col items-center gap-4 shadow-xl shadow-black/50"
+          >
+            <p className="text-lg font-bold text-gray-100 text-center">{t('oreFinder.confirmStillThereTitle')}</p>
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={handleStillThereNo}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold bg-red-500 hover:bg-red-400 text-white transition-colors"
+              >
+                {t('oreFinder.confirmStillThereNo')}
+              </button>
+              <button
+                onClick={() => setConfirmOre(null)}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+              >
+                {t('oreFinder.confirmStillThereYes')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

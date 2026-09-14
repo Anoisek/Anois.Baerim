@@ -113,7 +113,8 @@
     "levelShort": "Επίπεδο {{level}}",
     "noDescriptionYet": "Δεν υπάρχει ακόμη περιγραφή.",
     "repositionHint": "Κάνε κλικ οπουδήποτε στον χάρτη για να μετακινήσεις εκεί αυτή τη σημαία. Πάτησε Esc για ακύρωση.",
-    "editLevelHint": "Κάνε κλικ σε μια σημαία για επεξεργασία, ή κράτησέ την πατημένη για να τη μετακινήσεις."
+    "editLevelHint": "Κάνε κλικ σε μια σημαία για επεξεργασία, ή κράτησέ την πατημένη για να τη μετακινήσεις.",
+    "oreFinder": "Ανιχνευτής Μεταλλεύματος"
   },
   "materials": {
     "title": "Υλικά",
@@ -264,6 +265,21 @@
     "confirmSelectAllWarning": "Αυτό θα σημειώσει όλα τα mokoko σε αυτόν τον χάρτη ως συλλεγμένα. Δεν μπορεί να αναιρεθεί.",
     "confirmDeselectAllWarning": "Αυτό θα αναιρέσει τη σήμανση όλων των mokoko σε αυτόν τον χάρτη ως συλλεγμένα. Δεν μπορεί να αναιρεθεί.",
     "confirmBulkMarkYes": "Ναι, κάν' το"
+  },
+  "oreFinder": {
+    "activeLabel": "Ενεργό μετάλλευμα",
+    "disappearsIn": "Εξαφανίζεται σε:",
+    "clickToMark": "Κάντε κλικ στον χάρτη για να σημειώσετε το μετάλλευμα.",
+    "addWindowClosed": "Η σήμανση μεταλλεύματος είναι δυνατή μόνο μεταξύ xx:58–xx:09 και xx:28–xx:39.",
+    "confirmTitle": "ΜΕΤΑΛΛΕΥΜΑ ΕΔΩ",
+    "confirmSend": "ΑΠΟΣΤΟΛΗ",
+    "confirmCancel": "ΑΚΥΡΩΣΗ",
+    "sendError": "Αποτυχία αναφοράς: {{message}}",
+    "removeTooltip": "Αφαίρεση",
+    "confirmStillThereTitle": "Υπάρχει ακόμα το μετάλλευμα εκεί;",
+    "confirmStillThereNo": "ΟΧΙ",
+    "confirmStillThereYes": "ΝΑΙ",
+    "commentPlaceholder": "Επιπλέον πληροφορίες (προαιρετικό)..."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

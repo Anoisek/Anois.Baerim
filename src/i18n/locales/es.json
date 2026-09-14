@@ -113,7 +113,8 @@
     "levelShort": "Nivel {{level}}",
     "noDescriptionYet": "Todavía no hay descripción.",
     "repositionHint": "Haz clic en cualquier parte del mapa para mover esta bandera allí. Pulsa Esc para cancelar.",
-    "editLevelHint": "Haz clic en una bandera para editarla, o mantenla pulsada para moverla."
+    "editLevelHint": "Haz clic en una bandera para editarla, o mantenla pulsada para moverla.",
+    "oreFinder": "Buscador de Mineral"
   },
   "materials": {
     "title": "Materiales",
@@ -264,6 +265,21 @@
     "confirmSelectAllWarning": "Esto marcará todos los mokoko de este mapa como recolectados. No se puede deshacer.",
     "confirmDeselectAllWarning": "Esto desmarcará todos los mokoko de este mapa como recolectados. No se puede deshacer.",
     "confirmBulkMarkYes": "Sí, hazlo"
+  },
+  "oreFinder": {
+    "activeLabel": "Mineral activo",
+    "disappearsIn": "Desaparece en:",
+    "clickToMark": "Haz clic en el mapa para marcar el mineral.",
+    "addWindowClosed": "Solo se puede marcar el mineral entre xx:58–xx:09 y xx:28–xx:39.",
+    "confirmTitle": "MINERAL AQUÍ",
+    "confirmSend": "ENVIAR",
+    "confirmCancel": "CANCELAR",
+    "sendError": "No se pudo enviar: {{message}}",
+    "removeTooltip": "Eliminar",
+    "confirmStillThereTitle": "¿Sigue ahí el mineral?",
+    "confirmStillThereNo": "NO",
+    "confirmStillThereYes": "SÍ",
+    "commentPlaceholder": "Información adicional (opcional)..."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

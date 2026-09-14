@@ -113,7 +113,8 @@
     "levelShort": "Poziom {{level}}",
     "noDescriptionYet": "Brak opisu.",
     "repositionHint": "Kliknij nowe miejsce na mapie, aby przenieść tam tę flagę. Esc, aby anulować.",
-    "editLevelHint": "Kliknij flagę, aby ją edytować, albo przytrzymaj, aby ją przesunąć."
+    "editLevelHint": "Kliknij flagę, aby ją edytować, albo przytrzymaj, aby ją przesunąć.",
+    "oreFinder": "Szukacz Rudy"
   },
   "materials": {
     "title": "Materiały",
@@ -264,6 +265,21 @@
     "confirmSelectAllWarning": "To oznaczy wszystkie mokoko na tej mapie jako zebrane. Tego nie da się cofnąć.",
     "confirmDeselectAllWarning": "To oznaczy wszystkie mokoko na tej mapie jako niezebrane. Tego nie da się cofnąć.",
     "confirmBulkMarkYes": "Tak, zrób to"
+  },
+  "oreFinder": {
+    "activeLabel": "Aktywna ruda",
+    "disappearsIn": "Znika za:",
+    "clickToMark": "Kliknij na mapę, aby zaznaczyć rudę.",
+    "addWindowClosed": "Zaznaczanie rudy możliwe tylko w oknie xx:58–xx:09 oraz xx:28–xx:39.",
+    "confirmTitle": "RUDA TUTAJ",
+    "confirmSend": "WYŚLIJ",
+    "confirmCancel": "ANULUJ",
+    "sendError": "Nie udało się zgłosić: {{message}}",
+    "removeTooltip": "Usuń",
+    "confirmStillThereTitle": "Czy ruda nadal tam jest?",
+    "confirmStillThereNo": "NIE",
+    "confirmStillThereYes": "TAK",
+    "commentPlaceholder": "Dodatkowe informacje (opcjonalnie)..."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

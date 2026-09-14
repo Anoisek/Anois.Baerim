@@ -17,6 +17,7 @@
 import { censorComment } from './profanity.js'
 import { broadcastToAll } from './webpush.js'
 import { sendDiscordDogAlert } from './discord.js'
+import { sendDiscordOreAlert } from './oreFinderDiscord.js'
 
 const TABLES = {
   categories: {
@@ -201,6 +202,72 @@ const TABLES = {
     deleteAuth: 'public',
     publicRead: false,
   },
+  // /systems/ore-finder: public live legendary-ore reports, one per map
+  // (Yongan, Joan, Pyungmoo - enforced by the DB's unique index on `map`).
+  // Same "no accounts, wide open" philosophy as dogtracker_dogs: anyone can
+  // report or clear a marker.
+  ore_finder_ores: {
+    columns: ['id', 'map', 'x', 'y', 'comment', 'created_at', 'expires_at', 'discord_message_id'],
+    pk: ['id'],
+    insertAuth: 'public',
+    deleteAuth: 'public',
+    beforeInsert: async function (row, env) {
+      const map = typeof row.map === 'string' ? row.map : ''
+      const x = Number(row.x)
+      const y = Number(row.y)
+      const rawComment = typeof row.comment === 'string' ? row.comment.trim().slice(0, 200) : ''
+      if (!ORE_FINDER_MAPS.has(map)) return { error: 'unknown map' }
+      if (!Number.isFinite(x) || x < 0 || x > 100) return { error: 'invalid x' }
+      if (!Number.isFinite(y) || y < 0 || y > 100) return { error: 'invalid y' }
+
+      const now = new Date()
+      const expiresAt = oreFinderExpiresAt(now)
+      if (!expiresAt) return { error: 'ore can only be marked xx:58-xx:09 or xx:28-xx:39' }
+
+      // Clear this map's marker if it's already expired (nobody's polled it
+      // away yet), then refuse a second active marker on the same map -
+      // only one legendary ore spawns per map per cycle.
+      const nowIso = now.toISOString()
+      await env.DB.prepare('DELETE FROM ore_finder_ores WHERE map = ? AND expires_at <= ?').bind(map, nowIso).run()
+      const existing = await env.DB.prepare('SELECT id FROM ore_finder_ores WHERE map = ?').bind(map).first()
+      if (existing) return { error: 'ore already marked on this map' }
+
+      return {
+        row: {
+          map: map,
+          x: x,
+          y: y,
+          comment: rawComment ? censorComment(rawComment) : null,
+          expires_at: expiresAt.toISOString(),
+        },
+      }
+    },
+  },
+}
+
+const ORE_FINDER_MAPS = new Set(['Yongan', 'Joan', 'Pyungmoo'])
+
+// Legendary ore can only be marked in the 12-minute window before each
+// disappearance mark (xx:58-xx:09 before xx:10, xx:28-xx:39 before xx:40) -
+// outside those windows this returns null and the report is rejected.
+function oreFinderExpiresAt(now) {
+  const minute = now.getUTCMinutes()
+  const expiry = new Date(now)
+  expiry.setUTCSeconds(0, 0)
+  if (minute >= 28 && minute <= 39) {
+    expiry.setUTCMinutes(40)
+    return expiry
+  }
+  if (minute >= 58) {
+    expiry.setUTCHours(expiry.getUTCHours() + 1)
+    expiry.setUTCMinutes(10)
+    return expiry
+  }
+  if (minute <= 9) {
+    expiry.setUTCMinutes(10)
+    return expiry
+  }
+  return null
 }
 
 const GUIDE_CATEGORIES = new Set(['zwoje', 'eventy', 'poziomy', 'yang', 'ekwipunek', 'techniczne', 'platnosci', 'skille', 'gildia'])
@@ -329,7 +396,7 @@ async function handlePost(env, table, cfg, request, searchParams, headers, ctx) 
   const inserted = []
   for (let row of rows) {
     if (cfg.beforeInsert) {
-      const result = cfg.beforeInsert(row)
+      const result = await cfg.beforeInsert(row, env)
       if (result.error) return errorResponse(result.error, 400, headers)
       row = result.row
     }
@@ -364,6 +431,10 @@ async function handlePost(env, table, cfg, request, searchParams, headers, ctx) 
   if (table === 'dogtracker_dogs' && inserted.length > 0 && ctx) {
     ctx.waitUntil(broadcastToAll(env, { type: 'dogtracker-dog-added', dogId: inserted[0].id }))
     ctx.waitUntil(sendDiscordDogAlert(env, inserted[0]))
+  }
+
+  if (table === 'ore_finder_ores' && inserted.length > 0 && ctx) {
+    ctx.waitUntil(sendDiscordOreAlert(env, inserted[0]))
   }
 
   return json({ data: inserted, error: null }, 200, headers)

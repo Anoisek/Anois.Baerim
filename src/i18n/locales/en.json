@@ -113,7 +113,8 @@
     "levelShort": "Level {{level}}",
     "noDescriptionYet": "No description yet.",
     "repositionHint": "Click anywhere on the map to move this flag there. Press Esc to cancel.",
-    "editLevelHint": "Click a flag to edit it, or press and hold to move it."
+    "editLevelHint": "Click a flag to edit it, or press and hold to move it.",
+    "oreFinder": "Ore Finder"
   },
   "materials": {
     "title": "Materials",
@@ -264,6 +265,21 @@
     "confirmSelectAllWarning": "This will mark every mokoko on this map as collected. This cannot be undone.",
     "confirmDeselectAllWarning": "This will mark every mokoko on this map as not collected. This cannot be undone.",
     "confirmBulkMarkYes": "Yes, do it"
+  },
+  "oreFinder": {
+    "activeLabel": "Active ore",
+    "disappearsIn": "Disappears in:",
+    "clickToMark": "Click on the map to mark the ore.",
+    "addWindowClosed": "Marking ore is only possible during xx:58–xx:09 and xx:28–xx:39.",
+    "confirmTitle": "ORE HERE",
+    "confirmSend": "SEND",
+    "confirmCancel": "CANCEL",
+    "sendError": "Failed to report: {{message}}",
+    "removeTooltip": "Remove",
+    "confirmStillThereTitle": "Is the ore still there?",
+    "confirmStillThereNo": "NO",
+    "confirmStillThereYes": "YES",
+    "commentPlaceholder": "Extra info (optional)..."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

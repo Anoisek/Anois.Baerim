@@ -56,6 +56,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import Suggestions from './pages/Suggestions'
 import CommunityGuide from './pages/CommunityGuide'
 import DogTracker from './pages/DogTracker'
+import OreFinder from './pages/OreFinder'
 import Spinner from './components/Spinner'
 
 // Lazy-loaded: pulls in three.js, which is heavy enough that every other page
@@ -133,6 +134,7 @@ export default function App() {
               <Route path="/suggestions" element={<Routed vertical={Suggestions} horizontal={SuggestionsH} />} />
               <Route path="/aiguide" element={<Routed vertical={CommunityGuide} horizontal={CommunityGuideH} />} />
               <Route path="/dogtracker" element={<DogTracker />} />
+              <Route path="/systems/ore-finder" element={<OreFinder />} />
               </Routes>
             </div>
             <AppFooter />

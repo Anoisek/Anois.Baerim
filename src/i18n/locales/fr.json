@@ -113,7 +113,8 @@
     "levelShort": "Niveau {{level}}",
     "noDescriptionYet": "Pas encore de description.",
     "repositionHint": "Clique n'importe où sur la carte pour y déplacer ce drapeau. Appuie sur Échap pour annuler.",
-    "editLevelHint": "Clique sur un drapeau pour le modifier, ou maintiens-le appuyé pour le déplacer."
+    "editLevelHint": "Clique sur un drapeau pour le modifier, ou maintiens-le appuyé pour le déplacer.",
+    "oreFinder": "Détecteur de Minerai"
   },
   "materials": {
     "title": "Matériaux",
@@ -264,6 +265,21 @@
     "confirmSelectAllWarning": "Cela marquera tous les mokoko de cette carte comme récupérés. Cette action est irréversible.",
     "confirmDeselectAllWarning": "Cela retirera le marquage « récupéré » de tous les mokoko de cette carte. Cette action est irréversible.",
     "confirmBulkMarkYes": "Oui, fais-le"
+  },
+  "oreFinder": {
+    "activeLabel": "Minerai actif",
+    "disappearsIn": "Disparaît dans :",
+    "clickToMark": "Cliquez sur la carte pour marquer le minerai.",
+    "addWindowClosed": "Le marquage du minerai n'est possible qu'entre xx:58–xx:09 et xx:28–xx:39.",
+    "confirmTitle": "MINERAI ICI",
+    "confirmSend": "ENVOYER",
+    "confirmCancel": "ANNULER",
+    "sendError": "Échec du signalement : {{message}}",
+    "removeTooltip": "Supprimer",
+    "confirmStillThereTitle": "Le minerai est-il toujours là ?",
+    "confirmStillThereNo": "NON",
+    "confirmStillThereYes": "OUI",
+    "commentPlaceholder": "Infos supplémentaires (facultatif)..."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

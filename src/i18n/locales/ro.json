@@ -113,7 +113,8 @@
     "levelShort": "Nivelul {{level}}",
     "noDescriptionYet": "Nicio descriere încă.",
     "repositionHint": "Fă clic oriunde pe hartă pentru a muta acest steag acolo. Apasă Esc pentru a anula.",
-    "editLevelHint": "Fă clic pe un steag pentru a-l edita, sau ține apăsat pentru a-l muta."
+    "editLevelHint": "Fă clic pe un steag pentru a-l edita, sau ține apăsat pentru a-l muta.",
+    "oreFinder": "Detector de Minereu"
   },
   "materials": {
     "title": "Materiale",
@@ -264,6 +265,21 @@
     "confirmSelectAllWarning": "Aceasta va marca toate mokoko de pe această hartă ca fiind colectate. Nu poate fi anulat.",
     "confirmDeselectAllWarning": "Aceasta va debifa toate mokoko de pe această hartă ca fiind colectate. Nu poate fi anulat.",
     "confirmBulkMarkYes": "Da, fă-o"
+  },
+  "oreFinder": {
+    "activeLabel": "Minereu activ",
+    "disappearsIn": "Dispare în:",
+    "clickToMark": "Apasă pe hartă pentru a marca minereul.",
+    "addWindowClosed": "Marcarea minereului este posibilă doar între xx:58–xx:09 și xx:28–xx:39.",
+    "confirmTitle": "MINEREU AICI",
+    "confirmSend": "TRIMITE",
+    "confirmCancel": "ANULEAZĂ",
+    "sendError": "Raportarea a eșuat: {{message}}",
+    "removeTooltip": "Elimină",
+    "confirmStillThereTitle": "Minereul mai este acolo?",
+    "confirmStillThereNo": "NU",
+    "confirmStillThereYes": "DA",
+    "commentPlaceholder": "Informații suplimentare (opțional)..."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -113,7 +113,8 @@
     "levelShort": "Úroveň {{level}}",
     "noDescriptionYet": "Zatiaľ žiadny popis.",
     "repositionHint": "Klikni kamkoľvek na mapu, kam chceš presunúť túto vlajku. Esc na zrušenie.",
-    "editLevelHint": "Klikni na vlajku a uprav ju, alebo ju podrž a presuň."
+    "editLevelHint": "Klikni na vlajku a uprav ju, alebo ju podrž a presuň.",
+    "oreFinder": "Hľadač Rudy"
   },
   "materials": {
     "title": "Materiály",
@@ -264,6 +265,21 @@
     "confirmSelectAllWarning": "Týmto označíš všetky mokoko na tejto mape ako nazbierané. Nedá sa to vrátiť späť.",
     "confirmDeselectAllWarning": "Týmto zrušíš označenie všetkých mokoko na tejto mape ako nazbieraných. Nedá sa to vrátiť späť.",
     "confirmBulkMarkYes": "Áno, urob to"
+  },
+  "oreFinder": {
+    "activeLabel": "Aktívna ruda",
+    "disappearsIn": "Zmizne za:",
+    "clickToMark": "Klikni na mapu, ak chceš označiť rudu.",
+    "addWindowClosed": "Označenie rudy je možné iba v okne xx:58–xx:09 a xx:28–xx:39.",
+    "confirmTitle": "RUDA TU",
+    "confirmSend": "ODOSLAŤ",
+    "confirmCancel": "ZRUŠIŤ",
+    "sendError": "Nahlásenie zlyhalo: {{message}}",
+    "removeTooltip": "Odstrániť",
+    "confirmStillThereTitle": "Je ruda stále tam?",
+    "confirmStillThereNo": "NIE",
+    "confirmStillThereYes": "ÁNO",
+    "commentPlaceholder": "Doplňujúce informácie (voliteľné)..."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

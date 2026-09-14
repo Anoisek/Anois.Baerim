@@ -27,6 +27,7 @@ export default function Systems() {
 
   const tileDefs = [
     { key: 'interactivemap', to: '/systems/interactive-map', emoji: '🗺️', defaultLabel: t('systems.interactiveMap') },
+    { key: 'orefinder', to: '/systems/ore-finder', emoji: '⛏️', defaultLabel: t('systems.oreFinder') },
     { key: 'exploration', to: '/systems/exploration', emoji: '🧭', defaultLabel: t('systems.exploration') },
     { key: 'metincalculator', to: '/systems/metin-calculator', emoji: '🪨', defaultLabel: t('systems.metinCalculator') },
     { key: 'colorsystem', to: '/systems/color-system', emoji: '🎨', defaultLabel: t('systems.colorSystem') },

@@ -113,7 +113,8 @@
     "levelShort": "Seviye {{level}}",
     "noDescriptionYet": "Henüz açıklama yok.",
     "repositionHint": "Bu bayrağı taşımak için haritada herhangi bir yere tıkla. İptal için Esc tuşuna bas.",
-    "editLevelHint": "Düzenlemek için bir bayrağa tıkla, taşımak için basılı tut."
+    "editLevelHint": "Düzenlemek için bir bayrağa tıkla, taşımak için basılı tut.",
+    "oreFinder": "Cevher Bulucu"
   },
   "materials": {
     "title": "Malzemeler",
@@ -264,6 +265,21 @@
     "confirmSelectAllWarning": "Bu, haritadaki tüm mokokoları toplanmış olarak işaretleyecek. Bu işlem geri alınamaz.",
     "confirmDeselectAllWarning": "Bu, haritadaki tüm mokokoların işaretini kaldıracak. Bu işlem geri alınamaz.",
     "confirmBulkMarkYes": "Evet, yap"
+  },
+  "oreFinder": {
+    "activeLabel": "Aktif cevher",
+    "disappearsIn": "Kaybolmasına kalan süre:",
+    "clickToMark": "Cevheri işaretlemek için haritaya tıkla.",
+    "addWindowClosed": "Cevher işaretleme yalnızca xx:58–xx:09 ve xx:28–xx:39 aralığında mümkündür.",
+    "confirmTitle": "CEVHER BURADA",
+    "confirmSend": "GÖNDER",
+    "confirmCancel": "İPTAL",
+    "sendError": "Bildirilemedi: {{message}}",
+    "removeTooltip": "Kaldır",
+    "confirmStillThereTitle": "Cevher hâlâ orada mı?",
+    "confirmStillThereNo": "HAYIR",
+    "confirmStillThereYes": "EVET",
+    "commentPlaceholder": "Ek bilgi (isteğe bağlı)..."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

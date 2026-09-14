@@ -68,6 +68,7 @@ export default function Maps() {
   const [addingMap, setAddingMap] = useState(false)
   const [repositioningMarker, setRepositioningMarker] = useState(null)
   const [confirmBulkMode, setConfirmBulkMode] = useState(null)
+  const [hoverMarker, setHoverMarker] = useState(null)
   const importInputRef = useRef(null)
   const longPressTimerRef = useRef(null)
   const longPressFiredRef = useRef(false)
@@ -149,6 +150,7 @@ export default function Maps() {
     setEditingMarker(null)
     setAddingAt(null)
     setRepositioningMarker(null)
+    setHoverMarker(null)
     setZoom(1)
     setPan({ x: 0, y: 0 })
     db.from('map_markers').select('*').eq('map_id', selectedMap.id).then(({ data }) => {
@@ -392,6 +394,18 @@ export default function Maps() {
     clearTimeout(longPressTimerRef.current)
   }
 
+  function handleMarkerMouseEnter(e, marker) {
+    setHoverMarker({ marker, clientX: e.clientX, clientY: e.clientY })
+  }
+
+  function handleMarkerMouseMove(e) {
+    setHoverMarker(prev => (prev ? { ...prev, clientX: e.clientX, clientY: e.clientY } : prev))
+  }
+
+  function handleMarkerMouseLeave() {
+    setHoverMarker(null)
+  }
+
   function handleMarkerClick(e, marker) {
     e.stopPropagation()
     if (suppressClickRef.current) { suppressClickRef.current = false; return }
@@ -618,7 +632,9 @@ export default function Maps() {
                               onPointerUp={cancelLongPress}
                               onPointerLeave={cancelLongPress}
                               onPointerCancel={cancelLongPress}
-                              title={marker.title || undefined}
+                              onMouseEnter={e => handleMarkerMouseEnter(e, marker)}
+                              onMouseMove={handleMarkerMouseMove}
+                              onMouseLeave={handleMarkerMouseLeave}
                               className={`relative block hover:scale-125 transition-transform ${isCollected ? 'opacity-40' : ''} ${
                                 isRepositioning ? 'animate-pulse ring-4 ring-yellow-400 rounded-full' : ''
                               }`}
@@ -690,6 +706,16 @@ export default function Maps() {
           )}
         </div>
       </div>
+
+      {hoverMarker && (
+        <div
+          className="fixed z-40 pointer-events-none rounded-md border border-gray-600 bg-gray-900/90 px-2 py-1 text-[11px] font-mono text-gray-100 shadow-lg whitespace-nowrap"
+          style={{ left: hoverMarker.clientX + 14, top: hoverMarker.clientY + 14 }}
+        >
+          <div className="font-sans font-semibold text-yellow-400">{hoverMarker.marker.title}</div>
+          <div>X: {hoverMarker.marker.x} Y: {hoverMarker.marker.y}</div>
+        </div>
+      )}
 
       {addingAt && selectedMap && (
         <AddMarkerModal
