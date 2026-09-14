@@ -280,7 +280,8 @@
     "confirmStillThereNo": "HAYIR",
     "confirmStillThereYes": "EVET",
     "commentPlaceholder": "Ek bilgi (isteğe bağlı)...",
-    "favoriteTooltip": "Varsayılan harita olarak hatırla"
+    "favoriteTooltip": "Varsayılan harita olarak hatırla",
+    "addBotButton": "Discord botunu sunucuna ekle"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

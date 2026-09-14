@@ -280,7 +280,8 @@
     "confirmStillThereNo": "NIE",
     "confirmStillThereYes": "TAK",
     "commentPlaceholder": "Dodatkowe informacje (opcjonalnie)...",
-    "favoriteTooltip": "Zapamiętaj jako domyślną mapę"
+    "favoriteTooltip": "Zapamiętaj jako domyślną mapę",
+    "addBotButton": "Dodaj bota Discord na swój serwer"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

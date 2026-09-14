@@ -280,7 +280,8 @@
     "confirmStillThereNo": "ΟΧΙ",
     "confirmStillThereYes": "ΝΑΙ",
     "commentPlaceholder": "Επιπλέον πληροφορίες (προαιρετικό)...",
-    "favoriteTooltip": "Απομνημόνευση ως προεπιλεγμένος χάρτης"
+    "favoriteTooltip": "Απομνημόνευση ως προεπιλεγμένος χάρτης",
+    "addBotButton": "Προσθήκη bot Discord στον διακομιστή σου"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

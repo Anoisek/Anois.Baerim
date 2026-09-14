@@ -280,7 +280,8 @@
     "confirmStillThereNo": "NIE",
     "confirmStillThereYes": "ÁNO",
     "commentPlaceholder": "Doplňujúce informácie (voliteľné)...",
-    "favoriteTooltip": "Zapamätať ako predvolenú mapu"
+    "favoriteTooltip": "Zapamätať ako predvolenú mapu",
+    "addBotButton": "Pridať Discord bota na svoj server"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

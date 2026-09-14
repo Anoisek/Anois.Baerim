@@ -280,7 +280,8 @@
     "confirmStillThereNo": "NU",
     "confirmStillThereYes": "DA",
     "commentPlaceholder": "Informații suplimentare (opțional)...",
-    "favoriteTooltip": "Reține ca hartă implicită"
+    "favoriteTooltip": "Reține ca hartă implicită",
+    "addBotButton": "Adaugă botul Discord pe serverul tău"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",
