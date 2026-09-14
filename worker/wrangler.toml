@@ -28,5 +28,15 @@ VAPID_SUBJECT = "mailto:anois131313@gmail.com"
 DISCORD_CHANNEL_ID = "1548329118213607514"
 DISCORD_ROLE_ID = "1548329137930772510"
 # Ore finder alert bot - separate bot/channel/role from the dogtracker ones above.
+# ORE_FINDER_DISCORD_CHANNEL_ID/ROLE_ID is the legacy single-server destination -
+# always sent to in addition to whatever servers have configured themselves via
+# the /orefinder-here and /orefinder-role slash commands (see ore_finder_discord_configs).
 ORE_FINDER_DISCORD_CHANNEL_ID = "1520001195840901240"
 ORE_FINDER_DISCORD_ROLE_ID = "1520010923815866409"
+# Application ID from the bot token (public, same value as in the invite link) -
+# needed to register the two slash commands with Discord's API.
+ORE_FINDER_DISCORD_APPLICATION_ID = "1549119137903812729"
+# Public key from the Discord Developer Portal (General Information page) -
+# used to verify that /discord/interactions requests really come from Discord.
+# Not a secret (it's the public half of the signing key), but not filled in yet.
+ORE_FINDER_DISCORD_PUBLIC_KEY = "76afdd66e3b76a5039fc318168ba5fea7fe358a149a49a49cee77fe3e8d918a3"

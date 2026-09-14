@@ -279,7 +279,8 @@
     "confirmStillThereTitle": "Je ruda stále tam?",
     "confirmStillThereNo": "NIE",
     "confirmStillThereYes": "ÁNO",
-    "commentPlaceholder": "Doplňujúce informácie (voliteľné)..."
+    "commentPlaceholder": "Doplňujúce informácie (voliteľné)...",
+    "favoriteTooltip": "Zapamätať ako predvolenú mapu"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

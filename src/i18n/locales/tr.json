@@ -279,7 +279,8 @@
     "confirmStillThereTitle": "Cevher hâlâ orada mı?",
     "confirmStillThereNo": "HAYIR",
     "confirmStillThereYes": "EVET",
-    "commentPlaceholder": "Ek bilgi (isteğe bağlı)..."
+    "commentPlaceholder": "Ek bilgi (isteğe bağlı)...",
+    "favoriteTooltip": "Varsayılan harita olarak hatırla"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

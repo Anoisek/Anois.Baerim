@@ -279,7 +279,8 @@
     "confirmStillThereTitle": "Is the ore still there?",
     "confirmStillThereNo": "NO",
     "confirmStillThereYes": "YES",
-    "commentPlaceholder": "Extra info (optional)..."
+    "commentPlaceholder": "Extra info (optional)...",
+    "favoriteTooltip": "Remember as default map"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

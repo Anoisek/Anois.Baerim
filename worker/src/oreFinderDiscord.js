@@ -60,8 +60,37 @@ async function buildOreMapImage(env, map, ore) {
   return png
 }
 
+async function postOreAlert(env, channelId, roleId, description, png, createdAt) {
+  const payload = {
+    content: roleId ? `<@&${roleId}>` : undefined,
+    embeds: [{
+      title: '🪨 Legendary ore found!',
+      description,
+      color: 15521848, // yellow-500-ish
+      image: { url: 'attachment://ore-map.png' },
+      timestamp: createdAt,
+    }],
+  }
+
+  const form = new FormData()
+  form.append('payload_json', JSON.stringify(payload))
+  form.append('files[0]', new Blob([png], { type: 'image/png' }), 'ore-map.png')
+
+  const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+    method: 'POST',
+    headers: { Authorization: `Bot ${env.ORE_FINDER_DISCORD_BOT_TOKEN}` },
+    body: form,
+  })
+  if (!res.ok) {
+    console.log('ore finder discord send failed', channelId, res.status, await res.text().catch(() => ''))
+  }
+}
+
+// Sends to every configured destination: the single legacy channel/role from
+// wrangler.toml vars (kept working as-is, no migration needed) plus every
+// server that has set itself up via /orefinder-here + /orefinder-role.
 async function sendDiscordOreAlert(env, ore) {
-  if (!env.ORE_FINDER_DISCORD_BOT_TOKEN || !env.ORE_FINDER_DISCORD_CHANNEL_ID) return
+  if (!env.ORE_FINDER_DISCORD_BOT_TOKEN) return
 
   try {
     const map = await env.DB.prepare('SELECT image_url, width, height FROM maps WHERE name = ?').bind(ore.map).first()
@@ -77,29 +106,14 @@ async function sendDiscordOreAlert(env, ore) {
       ore.comment ? `💬 ${ore.comment}` : null,
     ].filter(Boolean).join('\n')
 
-    const payload = {
-      content: env.ORE_FINDER_DISCORD_ROLE_ID ? `<@&${env.ORE_FINDER_DISCORD_ROLE_ID}>` : undefined,
-      embeds: [{
-        title: '🪨 Legendary ore found!',
-        description,
-        color: 15521848, // yellow-500-ish
-        image: { url: 'attachment://ore-map.png' },
-        timestamp: ore.created_at,
-      }],
+    const destinations = []
+    if (env.ORE_FINDER_DISCORD_CHANNEL_ID) {
+      destinations.push({ channelId: env.ORE_FINDER_DISCORD_CHANNEL_ID, roleId: env.ORE_FINDER_DISCORD_ROLE_ID })
     }
+    const configured = await env.DB.prepare('SELECT channel_id, role_id FROM ore_finder_discord_configs').all()
+    for (const row of configured.results) destinations.push({ channelId: row.channel_id, roleId: row.role_id })
 
-    const form = new FormData()
-    form.append('payload_json', JSON.stringify(payload))
-    form.append('files[0]', new Blob([png], { type: 'image/png' }), 'ore-map.png')
-
-    const res = await fetch(`https://discord.com/api/v10/channels/${env.ORE_FINDER_DISCORD_CHANNEL_ID}/messages`, {
-      method: 'POST',
-      headers: { Authorization: `Bot ${env.ORE_FINDER_DISCORD_BOT_TOKEN}` },
-      body: form,
-    })
-    if (!res.ok) {
-      console.log('ore finder discord send failed', res.status, await res.text().catch(() => ''))
-    }
+    await Promise.all(destinations.map(d => postOreAlert(env, d.channelId, d.roleId, description, png, ore.created_at)))
   } catch (err) {
     console.log('ore finder discord send error', err && err.message)
   }

@@ -279,7 +279,8 @@
     "confirmStillThereTitle": "Le minerai est-il toujours là ?",
     "confirmStillThereNo": "NON",
     "confirmStillThereYes": "OUI",
-    "commentPlaceholder": "Infos supplémentaires (facultatif)..."
+    "commentPlaceholder": "Infos supplémentaires (facultatif)...",
+    "favoriteTooltip": "Mémoriser comme carte par défaut"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

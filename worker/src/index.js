@@ -2,6 +2,7 @@ import { handleDbRequest } from './db.js'
 import { handleRpcRequest } from './rpc.js'
 import { handleAuthRequest, verifyToken, roleFlags } from './auth.js'
 import { handleIconDbSearch, handleIconDbIcon, handleIconDbImport } from './icondb.js'
+import { handleDiscordInteractions, registerOreFinderCommands } from './discordInteractions.js'
 
 const BUCKETS = new Set(['images', 'map-notes'])
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
@@ -128,6 +129,12 @@ export default {
       if (url.pathname.indexOf('/db/') === 0) return await handleDbRequest(request, env, url, headers, isAdmin, isEditor, ctx)
       if (request.method === 'POST' && url.pathname.indexOf('/rpc/') === 0) return await handleRpcRequest(request, env, url, headers)
       if (url.pathname.indexOf('/auth/') === 0) return await handleAuthRequest(request, env, url, headers)
+      if (request.method === 'POST' && url.pathname === '/discord/interactions') return await handleDiscordInteractions(request, env, headers)
+      if (request.method === 'POST' && url.pathname === '/discord/register-commands') {
+        if (!(await isAdmin(request, env))) return json({ error: 'forbidden' }, 403, headers)
+        const result = await registerOreFinderCommands(env)
+        return json({ ok: true, commands: result }, 200, headers)
+      }
     } catch (err) {
       return json({ error: (err && err.message) || 'internal error' }, 500, headers)
     }

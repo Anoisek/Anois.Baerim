@@ -279,7 +279,8 @@
     "confirmStillThereTitle": "¿Sigue ahí el mineral?",
     "confirmStillThereNo": "NO",
     "confirmStillThereYes": "SÍ",
-    "commentPlaceholder": "Información adicional (opcional)..."
+    "commentPlaceholder": "Información adicional (opcional)...",
+    "favoriteTooltip": "Recordar como mapa predeterminado"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -279,7 +279,8 @@
     "confirmStillThereTitle": "O minério ainda está lá?",
     "confirmStillThereNo": "NÃO",
     "confirmStillThereYes": "SIM",
-    "commentPlaceholder": "Informação adicional (opcional)..."
+    "commentPlaceholder": "Informação adicional (opcional)...",
+    "favoriteTooltip": "Lembrar como mapa padrão"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

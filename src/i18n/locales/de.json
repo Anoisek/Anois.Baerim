@@ -279,7 +279,8 @@
     "confirmStillThereTitle": "Ist das Erz noch dort?",
     "confirmStillThereNo": "NEIN",
     "confirmStillThereYes": "JA",
-    "commentPlaceholder": "Zusätzliche Infos (optional)..."
+    "commentPlaceholder": "Zusätzliche Infos (optional)...",
+    "favoriteTooltip": "Als Standardkarte merken"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

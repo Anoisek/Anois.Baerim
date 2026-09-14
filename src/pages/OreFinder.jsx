@@ -11,12 +11,23 @@ const ORE_MAP_NAMES = ['Yongan', 'Joan', 'Pyungmoo']
 // Polling only - no push infra here. Kept slow-ish and paused on a hidden
 // tab so this doesn't eat into the worker's shared daily request budget.
 const POLL_MS = 15000
+const FAVORITE_MAP_KEY = 'ore_finder_favorite_map'
+
+function loadFavoriteMap() {
+  try {
+    const stored = localStorage.getItem(FAVORITE_MAP_KEY)
+    return ORE_MAP_NAMES.includes(stored) ? stored : null
+  } catch {
+    return null
+  }
+}
 
 export default function OreFinder() {
   const { t } = useTranslation()
   const [maps, setMaps] = useState([])
   const [mapsLoading, setMapsLoading] = useState(true)
-  const [selectedName, setSelectedName] = useState(ORE_MAP_NAMES[0])
+  const [favoriteMap, setFavoriteMap] = useState(loadFavoriteMap)
+  const [selectedName, setSelectedName] = useState(() => loadFavoriteMap() || ORE_MAP_NAMES[0])
   const [ores, setOres] = useState([])
   const [pendingClick, setPendingClick] = useState(null)
   const [commentDraft, setCommentDraft] = useState('')
@@ -122,6 +133,18 @@ export default function OreFinder() {
     await db.from('ore_finder_ores').delete().eq('id', id)
   }
 
+  function toggleFavoriteMap(e, name) {
+    e.stopPropagation()
+    const next = favoriteMap === name ? null : name
+    setFavoriteMap(next)
+    try {
+      if (next) localStorage.setItem(FAVORITE_MAP_KEY, next)
+      else localStorage.removeItem(FAVORITE_MAP_KEY)
+    } catch {
+      // ignore - favorite just won't persist across visits
+    }
+  }
+
   return (
     <div className="text-white min-h-screen flex flex-col">
       <Navbar />
@@ -140,19 +163,32 @@ export default function OreFinder() {
                 {ORE_MAP_NAMES.map(name => {
                   const active = name === selectedName
                   const hasOre = ores.some(o => o.map === name)
+                  const isFavorite = favoriteMap === name
                   return (
-                    <button
-                      key={name}
-                      onClick={() => setSelectedName(name)}
-                      className={`shrink-0 flex items-center gap-1.5 text-left px-3 py-2 rounded-lg text-sm font-semibold border transition-colors whitespace-nowrap md:whitespace-normal ${
-                        active
-                          ? 'bg-yellow-400 border-yellow-400 text-gray-950'
-                          : 'bg-gray-800/60 border-gray-700 hover:bg-gray-800 text-gray-200'
-                      }`}
-                    >
-                      {hasOre && <span title={t('oreFinder.activeLabel')}>🪨</span>}
-                      <span>{name}</span>
-                    </button>
+                    <div key={name} className="relative shrink-0">
+                      <button
+                        onClick={() => setSelectedName(name)}
+                        className={`w-full flex items-center gap-1.5 text-left pl-3 pr-8 py-2 rounded-lg text-sm font-semibold border transition-colors whitespace-nowrap md:whitespace-normal ${
+                          active
+                            ? 'bg-yellow-400 border-yellow-400 text-gray-950'
+                            : 'bg-gray-800/60 border-gray-700 hover:bg-gray-800 text-gray-200'
+                        }`}
+                      >
+                        {hasOre && <span title={t('oreFinder.activeLabel')}>🪨</span>}
+                        <span>{name}</span>
+                      </button>
+                      <button
+                        onClick={e => toggleFavoriteMap(e, name)}
+                        title={t('oreFinder.favoriteTooltip')}
+                        className={`absolute right-1 top-1/2 -translate-y-1/2 text-xl leading-none transition-colors ${
+                          isFavorite
+                            ? (active ? 'text-gray-900' : 'text-yellow-400')
+                            : (active ? 'text-gray-800 hover:text-gray-950' : 'text-gray-500 hover:text-gray-300')
+                        }`}
+                      >
+                        {isFavorite ? '★' : '☆'}
+                      </button>
+                    </div>
                   )
                 })}
               </aside>

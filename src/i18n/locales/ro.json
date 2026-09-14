@@ -279,7 +279,8 @@
     "confirmStillThereTitle": "Minereul mai este acolo?",
     "confirmStillThereNo": "NU",
     "confirmStillThereYes": "DA",
-    "commentPlaceholder": "Informații suplimentare (opțional)..."
+    "commentPlaceholder": "Informații suplimentare (opțional)...",
+    "favoriteTooltip": "Reține ca hartă implicită"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -279,7 +279,8 @@
     "confirmStillThereTitle": "Υπάρχει ακόμα το μετάλλευμα εκεί;",
     "confirmStillThereNo": "ΟΧΙ",
     "confirmStillThereYes": "ΝΑΙ",
-    "commentPlaceholder": "Επιπλέον πληροφορίες (προαιρετικό)..."
+    "commentPlaceholder": "Επιπλέον πληροφορίες (προαιρετικό)...",
+    "favoriteTooltip": "Απομνημόνευση ως προεπιλεγμένος χάρτης"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

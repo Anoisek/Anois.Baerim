@@ -279,7 +279,8 @@
     "confirmStillThereTitle": "Czy ruda nadal tam jest?",
     "confirmStillThereNo": "NIE",
     "confirmStillThereYes": "TAK",
-    "commentPlaceholder": "Dodatkowe informacje (opcjonalnie)..."
+    "commentPlaceholder": "Dodatkowe informacje (opcjonalnie)...",
+    "favoriteTooltip": "Zapamiętaj jako domyślną mapę"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",
