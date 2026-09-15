@@ -326,7 +326,7 @@ export default function OreFinder() {
         </div>
       </div>
 
-      {hoverPos && !pendingClick && !confirmOre && (
+      {hoverPos && selectedMap && !pendingClick && !confirmOre && (
         <div
           className="fixed z-20 pointer-events-none rounded-md border border-gray-600 bg-gray-900/90 px-2 py-1 text-[11px] font-mono text-gray-100 shadow-lg whitespace-nowrap"
           style={{ left: hoverPos.clientX + 14, top: hoverPos.clientY + 14 }}
