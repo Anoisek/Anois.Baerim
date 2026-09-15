@@ -14,7 +14,17 @@ const MANAGE_GUILD = 0x20n
 const ROLE_OPTION_TYPE = 8
 const STRING_OPTION_TYPE = 3
 const ORE_MAP_NAMES = ['Yongan', 'Joan', 'Pyungmoo']
-const MAP_CHOICES = ORE_MAP_NAMES.map(name => ({ name, value: name }))
+// Each map also goes by its color name in-game - accepted as an equivalent
+// input for /orefinder-addmap and /orefinder-removemap alongside the map name.
+const MAP_COLORS = { Yongan: 'red', Joan: 'yellow', Pyungmoo: 'blue' }
+const MAP_CHOICES = ORE_MAP_NAMES.flatMap(name => [
+  { name: `${name} (${MAP_COLORS[name]})`, value: name },
+  { name: MAP_COLORS[name], value: name },
+])
+
+function mapLabel(name) {
+  return `${name} (${MAP_COLORS[name] || name})`
+}
 
 function parseExcludedMaps(raw) {
   if (!raw) return []
@@ -107,18 +117,18 @@ async function handleDiscordInteractions(request, env, headers) {
     const excluded = parseExcludedMaps(row.excluded_maps)
 
     if (name === 'orefinder-removemap') {
-      if (excluded.includes(mapName)) return ephemeral(`You are already not receiving alerts for **${mapName}**.`, headers)
+      if (excluded.includes(mapName)) return ephemeral(`You are already not receiving alerts for **${mapLabel(mapName)}**.`, headers)
       excluded.push(mapName)
       await env.DB.prepare('UPDATE ore_finder_discord_configs SET excluded_maps = ?, updated_at = ? WHERE guild_id = ?')
         .bind(JSON.stringify(excluded), nowIso, guildId).run()
-      return ephemeral(`✅ You will no longer receive alerts for **${mapName}**.`, headers)
+      return ephemeral(`✅ You will no longer receive alerts for **${mapLabel(mapName)}**.`, headers)
     }
 
-    if (!excluded.includes(mapName)) return ephemeral(`You are already receiving alerts for **${mapName}**.`, headers)
+    if (!excluded.includes(mapName)) return ephemeral(`You are already receiving alerts for **${mapLabel(mapName)}**.`, headers)
     const next = excluded.filter(m => m !== mapName)
     await env.DB.prepare('UPDATE ore_finder_discord_configs SET excluded_maps = ?, updated_at = ? WHERE guild_id = ?')
       .bind(next.length > 0 ? JSON.stringify(next) : null, nowIso, guildId).run()
-    return ephemeral(`✅ You will now receive alerts for **${mapName}**.`, headers)
+    return ephemeral(`✅ You will now receive alerts for **${mapLabel(mapName)}**.`, headers)
   }
 
   return json({ error: 'unknown command' }, 400, headers)

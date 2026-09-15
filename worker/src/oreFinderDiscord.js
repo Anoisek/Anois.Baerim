@@ -11,6 +11,9 @@ const MARKER_RADIUS = 16
 const MARKER_BORDER = 5
 const MARKER_FILL = [234, 179, 8, 255] // yellow-500
 const MARKER_BORDER_COLOR = [255, 255, 255, 255]
+// Each map also goes by its in-game color name - shown alongside the map
+// name in alerts, e.g. "Map: Yongan (red)".
+const MAP_COLORS = { Yongan: 'red', Joan: 'yellow', Pyungmoo: 'blue' }
 
 function paintFilledCircle(pixels, width, height, cx, cy, radius, rgba) {
   const r2 = radius * radius
@@ -101,7 +104,7 @@ async function sendDiscordOreAlert(env, ore) {
     const pixelX = Math.round((ore.x / 100) * map.width)
     const pixelY = Math.round((ore.y / 100) * map.height)
     const description = [
-      `🗺️ Map: **${ore.map}**`,
+      `🗺️ Map: **${ore.map} (${MAP_COLORS[ore.map] || ore.map})**`,
       `📍 Coords: **${pixelX}, ${pixelY}**`,
       ore.comment ? `💬 ${ore.comment}` : null,
     ].filter(Boolean).join('\n')
