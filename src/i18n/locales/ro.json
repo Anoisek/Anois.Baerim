@@ -289,7 +289,8 @@
     "manualImageSuccess": "Coordonate citite din imagine — verifică și confirmă",
     "manualImageError": "Coordonatele nu au putut fi citite din imagine — introdu-le manual",
     "manualOkButton": "OK",
-    "adminBypassHint": "Apasă pe hartă pentru a marca minereul (ca admin ocolești fereastra de timp)."
+    "adminBypassHint": "Apasă pe hartă pentru a marca minereul (ca admin ocolești fereastra de timp).",
+    "manualWindowClosed": "Vei putea adăuga în:"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

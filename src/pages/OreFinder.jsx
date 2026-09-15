@@ -234,7 +234,7 @@ export default function OreFinder() {
                     <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
                       <h2 className="text-sm font-bold text-gray-100">{selectedMap.name}</h2>
                       <div className="flex items-center gap-2">
-                        {!oreOnSelected && canAdd && (
+                        {!oreOnSelected && (
                           <button
                             onClick={() => setManualModalOpen(true)}
                             className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
@@ -376,6 +376,7 @@ export default function OreFinder() {
       {manualModalOpen && selectedMap && (
         <OreManualAddModal
           map={selectedMap}
+          isAdmin={isAdmin}
           onClose={() => setManualModalOpen(false)}
           onSubmit={handleManualSubmit}
           sending={sending}

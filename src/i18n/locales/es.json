@@ -289,7 +289,8 @@
     "manualImageSuccess": "Coordenadas leídas de la imagen — revisa y confirma",
     "manualImageError": "No se pudieron leer las coordenadas de la imagen — introdúcelas manualmente",
     "manualOkButton": "OK",
-    "adminBypassHint": "Haz clic en el mapa para marcar el mineral (como admin te saltas la franja horaria)."
+    "adminBypassHint": "Haz clic en el mapa para marcar el mineral (como admin te saltas la franja horaria).",
+    "manualWindowClosed": "Podrás añadir en:"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -289,7 +289,8 @@
     "manualImageSuccess": "Souřadnice načteny z obrázku — zkontroluj a potvrď",
     "manualImageError": "Nepodařilo se přečíst souřadnice z obrázku — zadej je ručně",
     "manualOkButton": "OK",
-    "adminBypassHint": "Klikni na mapu, chceš-li označit rudu (jako admin obcházíš časové okno)."
+    "adminBypassHint": "Klikni na mapu, chceš-li označit rudu (jako admin obcházíš časové okno).",
+    "manualWindowClosed": "Přidání bude možné za:"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

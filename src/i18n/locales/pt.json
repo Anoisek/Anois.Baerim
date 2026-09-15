@@ -289,7 +289,8 @@
     "manualImageSuccess": "Coordenadas lidas da imagem — verifica e confirma",
     "manualImageError": "Não foi possível ler as coordenadas da imagem — introduz-as manualmente",
     "manualOkButton": "OK",
-    "adminBypassHint": "Clica no mapa para marcar o minério (como admin ignoras a janela horária)."
+    "adminBypassHint": "Clica no mapa para marcar o minério (como admin ignoras a janela horária).",
+    "manualWindowClosed": "Poderás adicionar em:"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

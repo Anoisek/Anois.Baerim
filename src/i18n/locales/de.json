@@ -289,7 +289,8 @@
     "manualImageSuccess": "Koordinaten aus dem Bild gelesen — prüfen und bestätigen",
     "manualImageError": "Koordinaten konnten nicht aus dem Bild gelesen werden — bitte manuell eingeben",
     "manualOkButton": "OK",
-    "adminBypassHint": "Klicke auf die Karte, um das Erz zu markieren (als Admin ohne Zeitfenster)."
+    "adminBypassHint": "Klicke auf die Karte, um das Erz zu markieren (als Admin ohne Zeitfenster).",
+    "manualWindowClosed": "Hinzufügen möglich in:"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

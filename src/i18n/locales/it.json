@@ -289,7 +289,8 @@
     "manualImageSuccess": "Coordinate lette dall'immagine — controlla e conferma",
     "manualImageError": "Impossibile leggere le coordinate dall'immagine — inseriscile manualmente",
     "manualOkButton": "OK",
-    "adminBypassHint": "Clicca sulla mappa per segnare il minerale (come admin salti la finestra oraria)."
+    "adminBypassHint": "Clicca sulla mappa per segnare il minerale (come admin salti la finestra oraria).",
+    "manualWindowClosed": "Potrai aggiungere tra:"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

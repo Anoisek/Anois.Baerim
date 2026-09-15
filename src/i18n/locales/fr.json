@@ -289,7 +289,8 @@
     "manualImageSuccess": "Coordonnées lues depuis l'image — vérifiez et confirmez",
     "manualImageError": "Impossible de lire les coordonnées depuis l'image — saisissez-les manuellement",
     "manualOkButton": "OK",
-    "adminBypassHint": "Cliquez sur la carte pour marquer le minerai (en tant qu'admin, vous ignorez la plage horaire)."
+    "adminBypassHint": "Cliquez sur la carte pour marquer le minerai (en tant qu'admin, vous ignorez la plage horaire).",
+    "manualWindowClosed": "Ajout possible dans :"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

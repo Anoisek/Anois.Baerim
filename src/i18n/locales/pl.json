@@ -289,7 +289,8 @@
     "manualImageSuccess": "Odczytano koordynaty ze zdjęcia — sprawdź i zatwierdź",
     "manualImageError": "Nie udało się odczytać koordynatów ze zdjęcia — wpisz je ręcznie",
     "manualOkButton": "OK",
-    "adminBypassHint": "Kliknij na mapę, aby zaznaczyć rudę (pomijasz okno czasowe jako admin)."
+    "adminBypassHint": "Kliknij na mapę, aby zaznaczyć rudę (pomijasz okno czasowe jako admin).",
+    "manualWindowClosed": "Dodawanie możliwe za:"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

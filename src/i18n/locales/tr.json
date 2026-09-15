@@ -289,7 +289,8 @@
     "manualImageSuccess": "Koordinatlar görselden okundu — kontrol et ve onayla",
     "manualImageError": "Koordinatlar görselden okunamadı — manuel olarak gir",
     "manualOkButton": "OK",
-    "adminBypassHint": "Cevheri işaretlemek için haritaya tıkla (admin olarak zaman aralığını atlıyorsun)."
+    "adminBypassHint": "Cevheri işaretlemek için haritaya tıkla (admin olarak zaman aralığını atlıyorsun).",
+    "manualWindowClosed": "Ekleme şu kadar süre sonra mümkün:"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

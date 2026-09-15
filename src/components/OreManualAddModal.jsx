@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import TurnstileWidget from './TurnstileWidget'
+import { isOreAddWindowOpen, nextOreAddWindowOpensAt } from '../utils/oreFinderWindow'
 
 // In-game screenshots show a "Coordinates: X, Y" line under the minimap -
 // same pixel space as our stored ore positions (see the mococko-project
@@ -18,14 +19,20 @@ async function extractCoordinatesFromImage(file) {
   }
 }
 
-export default function OreManualAddModal({ map, onClose, onSubmit, sending, t }) {
+export default function OreManualAddModal({ map, isAdmin, onClose, onSubmit, sending, t }) {
   const [xInput, setXInput] = useState('')
   const [yInput, setYInput] = useState('')
   const [comment, setComment] = useState('')
   const [turnstileToken, setTurnstileToken] = useState('')
   const [imagePreview, setImagePreview] = useState(null)
   const [ocrStatus, setOcrStatus] = useState('idle') // idle | reading | done | error
+  const [windowOpen, setWindowOpen] = useState(() => isOreAddWindowOpen())
   const fileInputRef = useRef(null)
+
+  useEffect(() => {
+    const id = setInterval(() => setWindowOpen(isOreAddWindowOpen()), 1000)
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -75,7 +82,12 @@ export default function OreManualAddModal({ map, onClose, onSubmit, sending, t }
   const yNum = Number(yInput)
   const validX = xInput !== '' && Number.isFinite(xNum) && xNum >= 0 && xNum <= map.width
   const validY = yInput !== '' && Number.isFinite(yNum) && yNum >= 0 && yNum <= map.height
-  const canSubmit = validX && validY && !!turnstileToken && !sending
+  const canSubmitWindow = windowOpen || isAdmin
+  const canSubmit = validX && validY && !!turnstileToken && !sending && canSubmitWindow
+
+  const remainingMs = canSubmitWindow ? 0 : Math.max(0, nextOreAddWindowOpensAt().getTime() - Date.now())
+  const remainingMinutes = Math.floor(remainingMs / 60000)
+  const remainingSeconds = Math.floor((remainingMs % 60000) / 1000)
 
   function handleSubmit() {
     if (!canSubmit) return
@@ -144,6 +156,15 @@ export default function OreManualAddModal({ map, onClose, onSubmit, sending, t }
           maxLength={200}
           className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400 resize-none"
         />
+
+        {!canSubmitWindow && (
+          <p className="text-xs text-gray-500 text-center">
+            {t('oreFinder.manualWindowClosed')}{' '}
+            <span className="font-mono text-gray-300 font-semibold">
+              {remainingMinutes}:{String(remainingSeconds).padStart(2, '0')}
+            </span>
+          </p>
+        )}
 
         <TurnstileWidget onToken={setTurnstileToken} />
 

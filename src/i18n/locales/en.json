@@ -289,7 +289,8 @@
     "manualImageSuccess": "Coordinates read from image — check and confirm",
     "manualImageError": "Couldn't read coordinates from the image — enter them manually",
     "manualOkButton": "OK",
-    "adminBypassHint": "Click on the map to mark the ore (you skip the time window as admin)."
+    "adminBypassHint": "Click on the map to mark the ore (you skip the time window as admin).",
+    "manualWindowClosed": "You can add in:"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",
