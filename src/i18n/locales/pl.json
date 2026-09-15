@@ -290,7 +290,14 @@
     "manualImageError": "Nie udało się odczytać koordynatów ze zdjęcia — wpisz je ręcznie",
     "manualOkButton": "OK",
     "adminBypassHint": "Kliknij na mapę, aby zaznaczyć rudę (pomijasz okno czasowe jako admin).",
-    "manualWindowClosed": "Dodawanie możliwe za:"
+    "manualWindowClosed": "Dodawanie możliwe za:",
+    "guideButton": "Poradnik",
+    "guideTitle": "Jak podłączyć bota",
+    "guideStep1": "Dodaj bota na swój serwer (przycisk obok).",
+    "guideStep2": "Wejdź na kanał, na którym chcesz otrzymywać alerty, i wpisz:",
+    "guideStep3": "Jeśli chcesz, żeby bot oznaczał konkretną rolę, wpisz dodatkowo (podmień @rola na właściwą rolę):",
+    "guideExampleLabel": "Tak wygląda wiadomość od bota:",
+    "guideCloseButton": "Zamknij"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

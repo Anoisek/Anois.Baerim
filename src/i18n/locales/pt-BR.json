@@ -290,7 +290,14 @@
     "manualImageError": "Não foi possível ler as coordenadas da imagem — digite-as manualmente",
     "manualOkButton": "OK",
     "adminBypassHint": "Clique no mapa para marcar o minério (como admin você ignora a janela de horário).",
-    "manualWindowClosed": "Você poderá adicionar em:"
+    "manualWindowClosed": "Você poderá adicionar em:",
+    "guideButton": "Guia",
+    "guideTitle": "Como configurar o bot",
+    "guideStep1": "Adicione o bot ao seu servidor (botão ao lado).",
+    "guideStep2": "Vá até o canal onde quer receber os alertas e digite:",
+    "guideStep3": "Se quiser que o bot mencione um cargo específico, digite também (substitua @rola pelo cargo real):",
+    "guideExampleLabel": "É assim que fica a mensagem do bot:",
+    "guideCloseButton": "Fechar"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

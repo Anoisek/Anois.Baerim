@@ -290,7 +290,14 @@
     "manualImageError": "Couldn't read coordinates from the image — enter them manually",
     "manualOkButton": "OK",
     "adminBypassHint": "Click on the map to mark the ore (you skip the time window as admin).",
-    "manualWindowClosed": "You can add in:"
+    "manualWindowClosed": "You can add in:",
+    "guideButton": "Guide",
+    "guideTitle": "How to set up the bot",
+    "guideStep1": "Add the bot to your server (button next to this one).",
+    "guideStep2": "Go to the channel where you want to receive alerts and type:",
+    "guideStep3": "If you want the bot to mention a specific role, also type (replace @role with the actual role):",
+    "guideExampleLabel": "This is what the bot's message looks like:",
+    "guideCloseButton": "Close"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

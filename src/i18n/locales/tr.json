@@ -290,7 +290,14 @@
     "manualImageError": "Koordinatlar görselden okunamadı — manuel olarak gir",
     "manualOkButton": "OK",
     "adminBypassHint": "Cevheri işaretlemek için haritaya tıkla (admin olarak zaman aralığını atlıyorsun).",
-    "manualWindowClosed": "Ekleme şu kadar süre sonra mümkün:"
+    "manualWindowClosed": "Ekleme şu kadar süre sonra mümkün:",
+    "guideButton": "Kılavuz",
+    "guideTitle": "Botu nasıl kurarsın",
+    "guideStep1": "Botu sunucuna ekle (yanındaki buton).",
+    "guideStep2": "Uyarıları almak istediğin kanala git ve şunu yaz:",
+    "guideStep3": "Bot belirli bir rolü etiketlesin istiyorsan şunu da yaz (@rola yerine gerçek rolü koy):",
+    "guideExampleLabel": "Botun mesajı böyle görünür:",
+    "guideCloseButton": "Kapat"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

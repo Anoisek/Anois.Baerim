@@ -290,7 +290,14 @@
     "manualImageError": "Impossibile leggere le coordinate dall'immagine — inseriscile manualmente",
     "manualOkButton": "OK",
     "adminBypassHint": "Clicca sulla mappa per segnare il minerale (come admin salti la finestra oraria).",
-    "manualWindowClosed": "Potrai aggiungere tra:"
+    "manualWindowClosed": "Potrai aggiungere tra:",
+    "guideButton": "Guida",
+    "guideTitle": "Come configurare il bot",
+    "guideStep1": "Aggiungi il bot al tuo server (pulsante accanto).",
+    "guideStep2": "Vai nel canale in cui vuoi ricevere gli avvisi e scrivi:",
+    "guideStep3": "Se vuoi che il bot menzioni un ruolo specifico, scrivi anche (sostituisci @rola con il ruolo effettivo):",
+    "guideExampleLabel": "Ecco come appare il messaggio del bot:",
+    "guideCloseButton": "Chiudi"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

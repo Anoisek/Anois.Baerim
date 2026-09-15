@@ -290,7 +290,14 @@
     "manualImageError": "Nepodařilo se přečíst souřadnice z obrázku — zadej je ručně",
     "manualOkButton": "OK",
     "adminBypassHint": "Klikni na mapu, chceš-li označit rudu (jako admin obcházíš časové okno).",
-    "manualWindowClosed": "Přidání bude možné za:"
+    "manualWindowClosed": "Přidání bude možné za:",
+    "guideButton": "Návod",
+    "guideTitle": "Jak nastavit bota",
+    "guideStep1": "Přidej bota na svůj server (tlačítko vedle).",
+    "guideStep2": "Jdi na kanál, kde chceš dostávat upozornění, a napiš:",
+    "guideStep3": "Pokud chceš, aby bot označoval konkrétní roli, napiš navíc (nahraď @rola skutečnou rolí):",
+    "guideExampleLabel": "Takto vypadá zpráva od bota:",
+    "guideCloseButton": "Zavřít"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

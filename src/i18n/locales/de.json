@@ -290,7 +290,14 @@
     "manualImageError": "Koordinaten konnten nicht aus dem Bild gelesen werden — bitte manuell eingeben",
     "manualOkButton": "OK",
     "adminBypassHint": "Klicke auf die Karte, um das Erz zu markieren (als Admin ohne Zeitfenster).",
-    "manualWindowClosed": "Hinzufügen möglich in:"
+    "manualWindowClosed": "Hinzufügen möglich in:",
+    "guideButton": "Anleitung",
+    "guideTitle": "Bot einrichten",
+    "guideStep1": "Füge den Bot zu deinem Server hinzu (Button daneben).",
+    "guideStep2": "Gehe zum Kanal, in dem du Alerts erhalten möchtest, und gib ein:",
+    "guideStep3": "Wenn der Bot eine bestimmte Rolle erwähnen soll, gib zusätzlich ein (ersetze @rola durch die tatsächliche Rolle):",
+    "guideExampleLabel": "So sieht die Nachricht des Bots aus:",
+    "guideCloseButton": "Schließen"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -290,7 +290,14 @@
     "manualImageError": "Impossible de lire les coordonnées depuis l'image — saisissez-les manuellement",
     "manualOkButton": "OK",
     "adminBypassHint": "Cliquez sur la carte pour marquer le minerai (en tant qu'admin, vous ignorez la plage horaire).",
-    "manualWindowClosed": "Ajout possible dans :"
+    "manualWindowClosed": "Ajout possible dans :",
+    "guideButton": "Guide",
+    "guideTitle": "Comment configurer le bot",
+    "guideStep1": "Ajoutez le bot à votre serveur (bouton à côté).",
+    "guideStep2": "Allez sur le salon où vous voulez recevoir les alertes et tapez :",
+    "guideStep3": "Si vous voulez que le bot mentionne un rôle précis, tapez aussi (remplacez @rola par le rôle réel) :",
+    "guideExampleLabel": "Voici à quoi ressemble le message du bot :",
+    "guideCloseButton": "Fermer"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -290,7 +290,14 @@
     "manualImageError": "Coordonatele nu au putut fi citite din imagine — introdu-le manual",
     "manualOkButton": "OK",
     "adminBypassHint": "Apasă pe hartă pentru a marca minereul (ca admin ocolești fereastra de timp).",
-    "manualWindowClosed": "Vei putea adăuga în:"
+    "manualWindowClosed": "Vei putea adăuga în:",
+    "guideButton": "Ghid",
+    "guideTitle": "Cum configurezi botul",
+    "guideStep1": "Adaugă botul pe serverul tău (butonul de alături).",
+    "guideStep2": "Mergi pe canalul pe care vrei să primești alertele și scrie:",
+    "guideStep3": "Dacă vrei ca botul să menționeze un rol anume, scrie și (înlocuiește @rola cu rolul real):",
+    "guideExampleLabel": "Așa arată mesajul botului:",
+    "guideCloseButton": "Închide"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",
