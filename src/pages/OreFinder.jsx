@@ -6,6 +6,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import OreFinderCountdown from '../components/OreFinderCountdown'
 import OreFinderPipButton from '../components/OreFinderPipButton'
+import TurnstileWidget from '../components/TurnstileWidget'
 import { db } from '../dbClient'
 import { isOreAddWindowOpen } from '../utils/oreFinderWindow'
 
@@ -35,6 +36,7 @@ export default function OreFinder() {
   const [ores, setOres] = useState([])
   const [pendingClick, setPendingClick] = useState(null)
   const [commentDraft, setCommentDraft] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState('')
   const [sending, setSending] = useState(false)
   const [confirmOre, setConfirmOre] = useState(null)
   const [windowOpen, setWindowOpen] = useState(() => isOreAddWindowOpen())
@@ -91,6 +93,7 @@ export default function OreFinder() {
     const y = ((e.clientY - rect.top) / rect.height) * 100
     setHoverPos(null)
     setCommentDraft('')
+    setTurnstileToken('')
     setPendingClick({ x, y })
   }
 
@@ -109,17 +112,18 @@ export default function OreFinder() {
   function handleCancel() {
     setPendingClick(null)
     setCommentDraft('')
+    setTurnstileToken('')
   }
 
   // Shared by both the in-page confirm modal and OreFinderPipButton's own
   // copy of that flow (it renders into a separate popped-out document, so
   // it can't reuse the modal below directly - only this network logic).
-  async function sendOreReport(x, y, comment) {
+  async function sendOreReport(x, y, comment, turnstileTokenArg) {
     if (!selectedMap || sending) return false
     setSending(true)
     const { data, error } = await db
       .from('ore_finder_ores')
-      .insert({ map: selectedMap.name, x, y, comment })
+      .insert({ map: selectedMap.name, x, y, comment, turnstileToken: turnstileTokenArg })
       .select()
       .single()
     setSending(false)
@@ -137,11 +141,12 @@ export default function OreFinder() {
   }
 
   async function handleSend() {
-    if (!pendingClick) return
-    const ok = await sendOreReport(pendingClick.x, pendingClick.y, commentDraft.trim())
+    if (!pendingClick || !turnstileToken) return
+    const ok = await sendOreReport(pendingClick.x, pendingClick.y, commentDraft.trim(), turnstileToken)
     if (ok) {
       setPendingClick(null)
       setCommentDraft('')
+      setTurnstileToken('')
     }
   }
 
@@ -326,6 +331,7 @@ export default function OreFinder() {
               maxLength={200}
               className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400 resize-none"
             />
+            <TurnstileWidget onToken={setTurnstileToken} />
             <div className="flex gap-3 w-full">
               <button
                 onClick={handleCancel}
@@ -335,7 +341,7 @@ export default function OreFinder() {
               </button>
               <button
                 onClick={handleSend}
-                disabled={sending}
+                disabled={sending || !turnstileToken}
                 className="flex-1 py-2 rounded-lg text-sm font-semibold bg-yellow-400 hover:bg-yellow-300 disabled:opacity-40 disabled:hover:bg-yellow-400 text-gray-950 transition-colors"
               >
                 {t('oreFinder.confirmSend')}

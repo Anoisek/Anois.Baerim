@@ -211,7 +211,7 @@ const TABLES = {
     columns: ['id', 'map', 'x', 'y', 'comment', 'created_at', 'expires_at', 'discord_message_id'],
     pk: ['id'],
     insertAuth: 'public',
-    beforeInsert: async function (row, env) {
+    beforeInsert: async function (row, env, request) {
       const map = typeof row.map === 'string' ? row.map : ''
       const x = Number(row.x)
       const y = Number(row.y)
@@ -219,6 +219,9 @@ const TABLES = {
       if (!ORE_FINDER_MAPS.has(map)) return { error: 'unknown map' }
       if (!Number.isFinite(x) || x < 0 || x > 100) return { error: 'invalid x' }
       if (!Number.isFinite(y) || y < 0 || y > 100) return { error: 'invalid y' }
+
+      const turnstileOk = await verifyTurnstile(env, row.turnstileToken, request)
+      if (!turnstileOk) return { error: 'turnstile verification failed' }
 
       const now = new Date()
       const expiresAt = oreFinderExpiresAt(now)
@@ -246,6 +249,27 @@ const TABLES = {
 }
 
 const ORE_FINDER_MAPS = new Set(['Yongan', 'Joan', 'Pyungmoo'])
+
+// Cloudflare Turnstile check on ore reports - keeps reporting open to anyone
+// (no accounts) while blocking scripted/bot spam. Inert-safe by design: if
+// the secret isn't configured yet, verification is skipped rather than
+// locking everyone out.
+async function verifyTurnstile(env, token, request) {
+  if (!env.ORE_FINDER_TURNSTILE_SECRET_KEY) return true
+  if (!token || typeof token !== 'string') return false
+  try {
+    const body = new FormData()
+    body.append('secret', env.ORE_FINDER_TURNSTILE_SECRET_KEY)
+    body.append('response', token)
+    const ip = request && request.headers.get('CF-Connecting-IP')
+    if (ip) body.append('remoteip', ip)
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body })
+    const data = await res.json()
+    return !!data.success
+  } catch {
+    return false
+  }
+}
 
 // Legendary ore can only be marked in the 12-minute window before each
 // disappearance mark (xx:58-xx:09 before xx:10, xx:28-xx:39 before xx:40) -
@@ -396,7 +420,7 @@ async function handlePost(env, table, cfg, request, searchParams, headers, ctx) 
   const inserted = []
   for (let row of rows) {
     if (cfg.beforeInsert) {
-      const result = await cfg.beforeInsert(row, env)
+      const result = await cfg.beforeInsert(row, env, request)
       if (result.error) return errorResponse(result.error, 400, headers)
       row = result.row
     }

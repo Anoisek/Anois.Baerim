@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import TurnstileWidget from './TurnstileWidget'
 
 export function isPipSupported() {
   return typeof window !== 'undefined' && 'documentPictureInPicture' in window
@@ -33,6 +34,7 @@ export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSe
   const [pipWindow, setPipWindow] = useState(null)
   const [pendingClick, setPendingClick] = useState(null)
   const [commentDraft, setCommentDraft] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState('')
   const [confirmRemove, setConfirmRemove] = useState(false)
   const [sending, setSending] = useState(false)
   const [hoverPos, setHoverPos] = useState(null)
@@ -78,6 +80,7 @@ export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSe
     const y = ((e.clientY - rect.top) / rect.height) * 100
     setHoverPos(null)
     setCommentDraft('')
+    setTurnstileToken('')
     setPendingClick({ x, y })
   }
 
@@ -93,13 +96,14 @@ export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSe
   }
 
   async function handleSend() {
-    if (!pendingClick || sending) return
+    if (!pendingClick || sending || !turnstileToken) return
     setSending(true)
-    const ok = await onSend(pendingClick.x, pendingClick.y, commentDraft.trim())
+    const ok = await onSend(pendingClick.x, pendingClick.y, commentDraft.trim(), turnstileToken)
     setSending(false)
     if (ok) {
       setPendingClick(null)
       setCommentDraft('')
+      setTurnstileToken('')
     }
   }
 
@@ -167,7 +171,7 @@ export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSe
           {pendingClick && (
             <div
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-              onClick={() => setPendingClick(null)}
+              onClick={() => { setPendingClick(null); setTurnstileToken('') }}
             >
               <div
                 onClick={e => e.stopPropagation()}
@@ -182,16 +186,17 @@ export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSe
                   maxLength={200}
                   className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400 resize-none"
                 />
+                <TurnstileWidget onToken={setTurnstileToken} targetWindow={pipWindow} />
                 <div className="flex gap-2 w-full">
                   <button
-                    onClick={() => setPendingClick(null)}
+                    onClick={() => { setPendingClick(null); setTurnstileToken('') }}
                     className="flex-1 py-1.5 rounded-lg text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
                   >
                     {t('oreFinder.confirmCancel')}
                   </button>
                   <button
                     onClick={handleSend}
-                    disabled={sending}
+                    disabled={sending || !turnstileToken}
                     className="flex-1 py-1.5 rounded-lg text-sm font-semibold bg-yellow-400 hover:bg-yellow-300 disabled:opacity-40 disabled:hover:bg-yellow-400 text-gray-950 transition-colors"
                   >
                     {t('oreFinder.confirmSend')}
