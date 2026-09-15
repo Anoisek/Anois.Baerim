@@ -8,6 +8,7 @@ import OreFinderCountdown from '../components/OreFinderCountdown'
 import OreFinderPipButton from '../components/OreFinderPipButton'
 import OreManualAddModal from '../components/OreManualAddModal'
 import OreFinderBotGuideModal from '../components/OreFinderBotGuideModal'
+import OreFinderAdminLogModal from '../components/OreFinderAdminLogModal'
 import TurnstileWidget from '../components/TurnstileWidget'
 import { db } from '../dbClient'
 import { isOreAddWindowOpen } from '../utils/oreFinderWindow'
@@ -43,6 +44,7 @@ export default function OreFinder() {
   const [confirmOre, setConfirmOre] = useState(null)
   const [manualModalOpen, setManualModalOpen] = useState(false)
   const [guideModalOpen, setGuideModalOpen] = useState(false)
+  const [adminLogModalOpen, setAdminLogModalOpen] = useState(false)
   const [windowOpen, setWindowOpen] = useState(() => isOreAddWindowOpen())
   const [hoverPos, setHoverPos] = useState(null)
   const [showHistory, setShowHistory] = useState(false)
@@ -266,6 +268,14 @@ export default function OreFinder() {
                         >
                           🟡 {t('oreFinder.historyButton')}
                         </button>
+                        {isAdmin && (
+                          <button
+                            onClick={() => setAdminLogModalOpen(true)}
+                            className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+                          >
+                            🛡️ Report log
+                          </button>
+                        )}
                         <OreFinderPipButton
                           map={selectedMap}
                           ore={oreOnSelected}
@@ -425,6 +435,10 @@ export default function OreFinder() {
 
       {guideModalOpen && (
         <OreFinderBotGuideModal onClose={() => setGuideModalOpen(false)} t={t} />
+      )}
+
+      {adminLogModalOpen && (
+        <OreFinderAdminLogModal maps={maps} onClose={() => setAdminLogModalOpen(false)} />
       )}
 
       {confirmOre && (

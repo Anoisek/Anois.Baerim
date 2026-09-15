@@ -220,6 +220,12 @@ const TABLES = {
       if (!Number.isFinite(x) || x < 0 || x > 100) return { error: 'invalid x' }
       if (!Number.isFinite(y) || y < 0 || y > 100) return { error: 'invalid y' }
 
+      const ip = request && request.headers.get('CF-Connecting-IP')
+      if (ip) {
+        const blocked = await env.DB.prepare('SELECT ip FROM ore_finder_blocked_ips WHERE ip = ?').bind(ip).first()
+        if (blocked) return { error: 'blocked' }
+      }
+
       const turnstileOk = await verifyTurnstile(env, row.turnstileToken, request)
       if (!turnstileOk) return { error: 'turnstile verification failed' }
 
@@ -255,6 +261,25 @@ const TABLES = {
   ore_finder_spawn_history: {
     columns: ['id', 'map', 'x', 'y', 'created_at'],
     pk: ['id'],
+  },
+  // Admin-only moderation log (never public - has reporting IPs). Written
+  // only by the ore_finder_ores insert hook, same as spawn_history.
+  ore_finder_report_log: {
+    columns: ['id', 'ip', 'map', 'x', 'y', 'comment', 'created_at'],
+    pk: ['id'],
+    publicRead: false,
+  },
+  // Admin-managed IP blocklist for Ore Finder reporting - checked in
+  // ore_finder_ores' beforeInsert above.
+  ore_finder_blocked_ips: {
+    columns: ['ip', 'created_at', 'note'],
+    pk: ['ip'],
+    publicRead: false,
+    beforeInsert: function (row) {
+      const ip = typeof row.ip === 'string' ? row.ip.trim() : ''
+      if (!ip) return { error: 'ip is required' }
+      return { row: { ip: ip, note: typeof row.note === 'string' ? row.note.trim().slice(0, 200) : null } }
+    },
   },
 }
 
@@ -480,6 +505,14 @@ async function handlePost(env, table, cfg, request, searchParams, headers, ctx, 
     ctx.waitUntil(
       env.DB.prepare('INSERT INTO ore_finder_spawn_history (id, map, x, y, created_at) VALUES (?, ?, ?, ?, ?)')
         .bind(crypto.randomUUID(), ore.map, ore.x, ore.y, ore.created_at)
+        .run()
+    )
+    // Admin-only moderation log (with reporting IP) - separate table so the
+    // IP never surfaces through the public spawn_history read above.
+    const reporterIp = request && request.headers.get('CF-Connecting-IP')
+    ctx.waitUntil(
+      env.DB.prepare('INSERT INTO ore_finder_report_log (id, ip, map, x, y, comment, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        .bind(crypto.randomUUID(), reporterIp || null, ore.map, ore.x, ore.y, ore.comment, ore.created_at)
         .run()
     )
   }
