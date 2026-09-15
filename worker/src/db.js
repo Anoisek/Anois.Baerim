@@ -220,10 +220,17 @@ const TABLES = {
       if (!Number.isFinite(x) || x < 0 || x > 100) return { error: 'invalid x' }
       if (!Number.isFinite(y) || y < 0 || y > 100) return { error: 'invalid y' }
 
+      // Shadowban, not a hard block: a blocked IP passes every check below and
+      // gets back a normal-looking success (their own screen shows the marker,
+      // same expiry, same rules) - but see the `fake` branch below, nothing is
+      // actually written to ore_finder_ores/spawn_history and no Discord alert
+      // fires. This way a deliberate troll has no obvious signal they were cut
+      // off and no reason to switch IP or escalate.
       const ip = request && request.headers.get('CF-Connecting-IP')
+      let shadowBlocked = false
       if (ip) {
         const blocked = await env.DB.prepare('SELECT ip FROM ore_finder_blocked_ips WHERE ip = ?').bind(ip).first()
-        if (blocked) return { error: 'blocked' }
+        if (blocked) shadowBlocked = true
       }
 
       const turnstileOk = await verifyTurnstile(env, row.turnstileToken, request)
@@ -244,15 +251,14 @@ const TABLES = {
       const existing = await env.DB.prepare('SELECT id FROM ore_finder_ores WHERE map = ?').bind(map).first()
       if (existing) return { error: 'ore already marked on this map' }
 
-      return {
-        row: {
-          map: map,
-          x: x,
-          y: y,
-          comment: rawComment ? censorComment(rawComment) : null,
-          expires_at: expiresAt.toISOString(),
-        },
+      const resultRow = {
+        map: map,
+        x: x,
+        y: y,
+        comment: rawComment ? censorComment(rawComment) : null,
+        expires_at: expiresAt.toISOString(),
       }
+      return shadowBlocked ? { row: resultRow, fake: true } : { row: resultRow }
     },
   },
   // Read-only from the client's perspective (public GET) - rows are only
@@ -458,15 +464,26 @@ async function handlePost(env, table, cfg, request, searchParams, headers, ctx, 
   const isUpsert = searchParams.get('upsert') === '1'
 
   const inserted = []
+  let anyFake = false
   for (let row of rows) {
+    let isFake = false
     if (cfg.beforeInsert) {
       const result = await cfg.beforeInsert(row, env, request, isAdmin)
       if (result.error) return errorResponse(result.error, 400, headers)
       row = result.row
+      isFake = !!result.fake
     }
     const clean = rowToDb(cfg, row)
     if (cfg.columns.indexOf('id') !== -1 && !clean.id) clean.id = crypto.randomUUID()
     if (cfg.columns.indexOf('created_at') !== -1 && !clean.created_at) clean.created_at = nowIso
+
+    // Shadowban path (see ore_finder_ores' beforeInsert): looks exactly like
+    // a normal successful insert to the caller, but nothing is written.
+    if (isFake) {
+      inserted.push(rowToClient(cfg, clean))
+      anyFake = true
+      continue
+    }
 
     const cols = Object.keys(clean)
     if (cols.length === 0) return errorResponse('empty row', 400, headers)
@@ -498,17 +515,21 @@ async function handlePost(env, table, cfg, request, searchParams, headers, ctx, 
   }
 
   if (table === 'ore_finder_ores' && inserted.length > 0 && ctx) {
-    ctx.waitUntil(sendDiscordOreAlert(env, inserted[0]))
-    // Permanent spawn-location log for the "show past spawns" map toggle -
-    // no alert, no notification, just a row that outlives the report itself.
     const ore = inserted[0]
-    ctx.waitUntil(
-      env.DB.prepare('INSERT INTO ore_finder_spawn_history (id, map, x, y, created_at) VALUES (?, ?, ?, ?, ?)')
-        .bind(crypto.randomUUID(), ore.map, ore.x, ore.y, ore.created_at)
-        .run()
-    )
+    // Shadowbanned reports (see beforeInsert) never alert or join the public
+    // spawn history - only the admin-only log below sees them, so the troll
+    // gets a normal-looking success with zero real-world effect.
+    if (!anyFake) {
+      ctx.waitUntil(sendDiscordOreAlert(env, ore))
+      ctx.waitUntil(
+        env.DB.prepare('INSERT INTO ore_finder_spawn_history (id, map, x, y, created_at) VALUES (?, ?, ?, ?, ?)')
+          .bind(crypto.randomUUID(), ore.map, ore.x, ore.y, ore.created_at)
+          .run()
+      )
+    }
     // Admin-only moderation log (with reporting IP) - separate table so the
-    // IP never surfaces through the public spawn_history read above.
+    // IP never surfaces through the public spawn_history read above. Logged
+    // even for shadowbanned attempts, so the admin can see they kept trying.
     const reporterIp = request && request.headers.get('CF-Connecting-IP')
     ctx.waitUntil(
       env.DB.prepare('INSERT INTO ore_finder_report_log (id, ip, map, x, y, comment, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
