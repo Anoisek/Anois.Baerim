@@ -281,7 +281,15 @@
     "confirmStillThereYes": "JA",
     "commentPlaceholder": "Zusätzliche Infos (optional)...",
     "favoriteTooltip": "Als Standardkarte merken",
-    "addBotButton": "Discord-Bot zu deinem Server hinzufügen"
+    "addBotButton": "Discord-Bot zu deinem Server hinzufügen",
+    "addManuallyButton": "Manuell hinzufügen",
+    "manualTitle": "Erz manuell hinzufügen",
+    "manualImageHint": "Screenshot einfügen (Strg+V) oder klicken, um eine Datei auszuwählen",
+    "manualImageReading": "Koordinaten werden aus dem Bild gelesen...",
+    "manualImageSuccess": "Koordinaten aus dem Bild gelesen — prüfen und bestätigen",
+    "manualImageError": "Koordinaten konnten nicht aus dem Bild gelesen werden — bitte manuell eingeben",
+    "manualOkButton": "OK",
+    "adminBypassHint": "Klicke auf die Karte, um das Erz zu markieren (als Admin ohne Zeitfenster)."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

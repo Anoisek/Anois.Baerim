@@ -281,7 +281,15 @@
     "confirmStillThereYes": "SÍ",
     "commentPlaceholder": "Información adicional (opcional)...",
     "favoriteTooltip": "Recordar como mapa predeterminado",
-    "addBotButton": "Añade el bot de Discord a tu servidor"
+    "addBotButton": "Añade el bot de Discord a tu servidor",
+    "addManuallyButton": "Añadir manualmente",
+    "manualTitle": "Añadir mineral manualmente",
+    "manualImageHint": "Pega una captura de pantalla (Ctrl+V) o haz clic para elegir un archivo",
+    "manualImageReading": "Leyendo coordenadas de la imagen...",
+    "manualImageSuccess": "Coordenadas leídas de la imagen — revisa y confirma",
+    "manualImageError": "No se pudieron leer las coordenadas de la imagen — introdúcelas manualmente",
+    "manualOkButton": "OK",
+    "adminBypassHint": "Haz clic en el mapa para marcar el mineral (como admin te saltas la franja horaria)."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

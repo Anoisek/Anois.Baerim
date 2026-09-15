@@ -281,7 +281,15 @@
     "confirmStillThereYes": "TAK",
     "commentPlaceholder": "Dodatkowe informacje (opcjonalnie)...",
     "favoriteTooltip": "Zapamiętaj jako domyślną mapę",
-    "addBotButton": "Dodaj bota Discord na swój serwer"
+    "addBotButton": "Dodaj bota Discord na swój serwer",
+    "addManuallyButton": "Dodaj ręcznie",
+    "manualTitle": "Dodaj rudę ręcznie",
+    "manualImageHint": "Wklej zrzut ekranu (Ctrl+V) lub kliknij, aby wybrać plik",
+    "manualImageReading": "Odczytywanie koordynatów ze zdjęcia...",
+    "manualImageSuccess": "Odczytano koordynaty ze zdjęcia — sprawdź i zatwierdź",
+    "manualImageError": "Nie udało się odczytać koordynatów ze zdjęcia — wpisz je ręcznie",
+    "manualOkButton": "OK",
+    "adminBypassHint": "Kliknij na mapę, aby zaznaczyć rudę (pomijasz okno czasowe jako admin)."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

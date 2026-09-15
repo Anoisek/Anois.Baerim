@@ -281,7 +281,15 @@
     "confirmStillThereYes": "SIM",
     "commentPlaceholder": "Informação adicional (opcional)...",
     "favoriteTooltip": "Lembrar como mapa padrão",
-    "addBotButton": "Adiciona o bot do Discord ao teu servidor"
+    "addBotButton": "Adiciona o bot do Discord ao teu servidor",
+    "addManuallyButton": "Adicionar manualmente",
+    "manualTitle": "Adicionar minério manualmente",
+    "manualImageHint": "Cola uma captura de ecrã (Ctrl+V) ou clica para escolher um ficheiro",
+    "manualImageReading": "A ler coordenadas da imagem...",
+    "manualImageSuccess": "Coordenadas lidas da imagem — verifica e confirma",
+    "manualImageError": "Não foi possível ler as coordenadas da imagem — introduz-as manualmente",
+    "manualOkButton": "OK",
+    "adminBypassHint": "Clica no mapa para marcar o minério (como admin ignoras a janela horária)."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -281,7 +281,15 @@
     "confirmStillThereYes": "DA",
     "commentPlaceholder": "Informații suplimentare (opțional)...",
     "favoriteTooltip": "Reține ca hartă implicită",
-    "addBotButton": "Adaugă botul Discord pe serverul tău"
+    "addBotButton": "Adaugă botul Discord pe serverul tău",
+    "addManuallyButton": "Adaugă manual",
+    "manualTitle": "Adaugă minereu manual",
+    "manualImageHint": "Lipește o captură de ecran (Ctrl+V) sau apasă pentru a alege un fișier",
+    "manualImageReading": "Se citesc coordonatele din imagine...",
+    "manualImageSuccess": "Coordonate citite din imagine — verifică și confirmă",
+    "manualImageError": "Coordonatele nu au putut fi citite din imagine — introdu-le manual",
+    "manualOkButton": "OK",
+    "adminBypassHint": "Apasă pe hartă pentru a marca minereul (ca admin ocolești fereastra de timp)."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

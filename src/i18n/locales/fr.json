@@ -281,7 +281,15 @@
     "confirmStillThereYes": "OUI",
     "commentPlaceholder": "Infos supplémentaires (facultatif)...",
     "favoriteTooltip": "Mémoriser comme carte par défaut",
-    "addBotButton": "Ajouter le bot Discord à votre serveur"
+    "addBotButton": "Ajouter le bot Discord à votre serveur",
+    "addManuallyButton": "Ajouter manuellement",
+    "manualTitle": "Ajouter du minerai manuellement",
+    "manualImageHint": "Collez une capture d'écran (Ctrl+V) ou cliquez pour choisir un fichier",
+    "manualImageReading": "Lecture des coordonnées depuis l'image...",
+    "manualImageSuccess": "Coordonnées lues depuis l'image — vérifiez et confirmez",
+    "manualImageError": "Impossible de lire les coordonnées depuis l'image — saisissez-les manuellement",
+    "manualOkButton": "OK",
+    "adminBypassHint": "Cliquez sur la carte pour marquer le minerai (en tant qu'admin, vous ignorez la plage horaire)."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

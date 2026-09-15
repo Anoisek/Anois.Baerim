@@ -6,6 +6,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import OreFinderCountdown from '../components/OreFinderCountdown'
 import OreFinderPipButton from '../components/OreFinderPipButton'
+import OreManualAddModal from '../components/OreManualAddModal'
 import TurnstileWidget from '../components/TurnstileWidget'
 import { db } from '../dbClient'
 import { isOreAddWindowOpen } from '../utils/oreFinderWindow'
@@ -39,6 +40,7 @@ export default function OreFinder() {
   const [turnstileToken, setTurnstileToken] = useState('')
   const [sending, setSending] = useState(false)
   const [confirmOre, setConfirmOre] = useState(null)
+  const [manualModalOpen, setManualModalOpen] = useState(false)
   const [windowOpen, setWindowOpen] = useState(() => isOreAddWindowOpen())
   const [hoverPos, setHoverPos] = useState(null)
   const mapWrapRef = useRef(null)
@@ -79,6 +81,9 @@ export default function OreFinder() {
 
   const selectedMap = maps.find(m => m.name === selectedName) || null
   const oreOnSelected = ores.find(o => o.map === selectedName) || null
+  // Admin can report regardless of the time window - the worker enforces
+  // the same bypass server-side, this just keeps the UI from blocking them.
+  const canAdd = windowOpen || isAdmin
 
   function handleOreExpired(id) {
     setOres(prev => prev.filter(o => o.id !== id))
@@ -87,7 +92,7 @@ export default function OreFinder() {
 
   function handleMapClick(e) {
     if (!mapWrapRef.current || !selectedMap) return
-    if (!windowOpen || oreOnSelected) return
+    if (!canAdd || oreOnSelected) return
     const rect = mapWrapRef.current.getBoundingClientRect()
     const x = ((e.clientX - rect.left) / rect.width) * 100
     const y = ((e.clientY - rect.top) / rect.height) * 100
@@ -148,6 +153,11 @@ export default function OreFinder() {
       setCommentDraft('')
       setTurnstileToken('')
     }
+  }
+
+  async function handleManualSubmit(percentX, percentY, comment, token) {
+    const ok = await sendOreReport(percentX, percentY, comment, token)
+    if (ok) setManualModalOpen(false)
   }
 
   async function handleStillThereNo() {
@@ -221,17 +231,27 @@ export default function OreFinder() {
                   <p className="text-gray-500 text-sm p-6">{t('systems.noMapYet')}</p>
                 ) : (
                   <>
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
                       <h2 className="text-sm font-bold text-gray-100">{selectedMap.name}</h2>
-                      <OreFinderPipButton
-                        map={selectedMap}
-                        ore={oreOnSelected}
-                        windowOpen={windowOpen}
-                        isAdmin={isAdmin}
-                        onSend={sendOreReport}
-                        onRemove={() => oreOnSelected && removeOre(oreOnSelected)}
-                        t={t}
-                      />
+                      <div className="flex items-center gap-2">
+                        {!oreOnSelected && canAdd && (
+                          <button
+                            onClick={() => setManualModalOpen(true)}
+                            className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
+                          >
+                            ✏️ {t('oreFinder.addManuallyButton')}
+                          </button>
+                        )}
+                        <OreFinderPipButton
+                          map={selectedMap}
+                          ore={oreOnSelected}
+                          windowOpen={canAdd}
+                          isAdmin={isAdmin}
+                          onSend={sendOreReport}
+                          onRemove={() => oreOnSelected && removeOre(oreOnSelected)}
+                          t={t}
+                        />
+                      </div>
                     </div>
                     <div
                       className="relative w-full rounded-xl border border-gray-700 bg-gray-950 overflow-y-auto overflow-x-hidden"
@@ -242,7 +262,7 @@ export default function OreFinder() {
                         onClick={handleMapClick}
                         onMouseMove={handleMapMouseMove}
                         onMouseLeave={handleMapMouseLeave}
-                        className={`relative ${windowOpen && !oreOnSelected ? 'cursor-crosshair' : 'cursor-default'}`}
+                        className={`relative ${canAdd && !oreOnSelected ? 'cursor-crosshair' : 'cursor-default'}`}
                         style={{ width: '100%', aspectRatio: `${selectedMap.width} / ${selectedMap.height}` }}
                       >
                         <img
@@ -280,6 +300,8 @@ export default function OreFinder() {
                         </div>
                       ) : windowOpen ? (
                         <p className="text-yellow-400">{t('oreFinder.clickToMark')}</p>
+                      ) : isAdmin ? (
+                        <p className="text-cyan-400">⚙️ {t('oreFinder.adminBypassHint')}</p>
                       ) : (
                         <p className="text-gray-500">{t('oreFinder.addWindowClosed')}</p>
                       )}
@@ -349,6 +371,16 @@ export default function OreFinder() {
             </div>
           </div>
         </div>
+      )}
+
+      {manualModalOpen && selectedMap && (
+        <OreManualAddModal
+          map={selectedMap}
+          onClose={() => setManualModalOpen(false)}
+          onSubmit={handleManualSubmit}
+          sending={sending}
+          t={t}
+        />
       )}
 
       {confirmOre && (

@@ -281,7 +281,15 @@
     "confirmStillThereYes": "YES",
     "commentPlaceholder": "Extra info (optional)...",
     "favoriteTooltip": "Remember as default map",
-    "addBotButton": "Add Discord bot to your server"
+    "addBotButton": "Add Discord bot to your server",
+    "addManuallyButton": "Add manually",
+    "manualTitle": "Add ore manually",
+    "manualImageHint": "Paste a screenshot (Ctrl+V) or click to choose a file",
+    "manualImageReading": "Reading coordinates from image...",
+    "manualImageSuccess": "Coordinates read from image — check and confirm",
+    "manualImageError": "Couldn't read coordinates from the image — enter them manually",
+    "manualOkButton": "OK",
+    "adminBypassHint": "Click on the map to mark the ore (you skip the time window as admin)."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

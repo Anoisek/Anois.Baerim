@@ -281,7 +281,15 @@
     "confirmStillThereYes": "EVET",
     "commentPlaceholder": "Ek bilgi (isteğe bağlı)...",
     "favoriteTooltip": "Varsayılan harita olarak hatırla",
-    "addBotButton": "Discord botunu sunucuna ekle"
+    "addBotButton": "Discord botunu sunucuna ekle",
+    "addManuallyButton": "Manuel ekle",
+    "manualTitle": "Cevheri manuel ekle",
+    "manualImageHint": "Bir ekran görüntüsü yapıştır (Ctrl+V) veya dosya seçmek için tıkla",
+    "manualImageReading": "Koordinatlar görselden okunuyor...",
+    "manualImageSuccess": "Koordinatlar görselden okundu — kontrol et ve onayla",
+    "manualImageError": "Koordinatlar görselden okunamadı — manuel olarak gir",
+    "manualOkButton": "OK",
+    "adminBypassHint": "Cevheri işaretlemek için haritaya tıkla (admin olarak zaman aralığını atlıyorsun)."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

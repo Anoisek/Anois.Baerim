@@ -281,7 +281,15 @@
     "confirmStillThereYes": "ΝΑΙ",
     "commentPlaceholder": "Επιπλέον πληροφορίες (προαιρετικό)...",
     "favoriteTooltip": "Απομνημόνευση ως προεπιλεγμένος χάρτης",
-    "addBotButton": "Προσθήκη bot Discord στον διακομιστή σου"
+    "addBotButton": "Προσθήκη bot Discord στον διακομιστή σου",
+    "addManuallyButton": "Προσθήκη χειροκίνητα",
+    "manualTitle": "Προσθήκη μεταλλεύματος χειροκίνητα",
+    "manualImageHint": "Επικόλληση στιγμιότυπου (Ctrl+V) ή κλικ για επιλογή αρχείου",
+    "manualImageReading": "Ανάγνωση συντεταγμένων από την εικόνα...",
+    "manualImageSuccess": "Οι συντεταγμένες διαβάστηκαν από την εικόνα — έλεγξε και επιβεβαίωσε",
+    "manualImageError": "Δεν ήταν δυνατή η ανάγνωση συντεταγμένων από την εικόνα — εισήγαγέ τες χειροκίνητα",
+    "manualOkButton": "OK",
+    "adminBypassHint": "Κάντε κλικ στον χάρτη για να σημειώσετε το μετάλλευμα (ως admin παρακάμπτετε το χρονικό παράθυρο)."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

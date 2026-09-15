@@ -281,7 +281,15 @@
     "confirmStillThereYes": "ANO",
     "commentPlaceholder": "Doplňující informace (volitelné)...",
     "favoriteTooltip": "Zapamatovat jako výchozí mapu",
-    "addBotButton": "Přidat Discord bota na svůj server"
+    "addBotButton": "Přidat Discord bota na svůj server",
+    "addManuallyButton": "Přidat ručně",
+    "manualTitle": "Přidat rudu ručně",
+    "manualImageHint": "Vlož snímek obrazovky (Ctrl+V) nebo klikni pro výběr souboru",
+    "manualImageReading": "Čtení souřadnic z obrázku...",
+    "manualImageSuccess": "Souřadnice načteny z obrázku — zkontroluj a potvrď",
+    "manualImageError": "Nepodařilo se přečíst souřadnice z obrázku — zadej je ručně",
+    "manualOkButton": "OK",
+    "adminBypassHint": "Klikni na mapu, chceš-li označit rudu (jako admin obcházíš časové okno)."
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -211,7 +211,7 @@ const TABLES = {
     columns: ['id', 'map', 'x', 'y', 'comment', 'created_at', 'expires_at', 'discord_message_id'],
     pk: ['id'],
     insertAuth: 'public',
-    beforeInsert: async function (row, env, request) {
+    beforeInsert: async function (row, env, request, isAdminCheck) {
       const map = typeof row.map === 'string' ? row.map : ''
       const x = Number(row.x)
       const y = Number(row.y)
@@ -224,8 +224,11 @@ const TABLES = {
       if (!turnstileOk) return { error: 'turnstile verification failed' }
 
       const now = new Date()
-      const expiresAt = oreFinderExpiresAt(now)
-      if (!expiresAt) return { error: 'ore can only be marked xx:58-xx:09 or xx:28-xx:39' }
+      if (!isOreAddWindowOpen(now)) {
+        const admin = isAdminCheck ? await isAdminCheck(request, env) : false
+        if (!admin) return { error: 'ore can only be marked xx:58-xx:09 or xx:28-xx:39' }
+      }
+      const expiresAt = nextOreExpiryMark(now)
 
       // Clear this map's marker if it's already expired (nobody's polled it
       // away yet), then refuse a second active marker on the same map -
@@ -271,27 +274,32 @@ async function verifyTurnstile(env, token, request) {
   }
 }
 
-// Legendary ore can only be marked in the 12-minute window before each
-// disappearance mark (xx:58-xx:09 before xx:10, xx:28-xx:39 before xx:40) -
-// outside those windows this returns null and the report is rejected.
-function oreFinderExpiresAt(now) {
+// Legendary ore can normally only be marked in the 12-minute window before
+// each disappearance mark (xx:58-xx:09 before xx:10, xx:28-xx:39 before
+// xx:40) - admin bypasses this check (see beforeInsert below).
+function isOreAddWindowOpen(now) {
+  const minute = now.getUTCMinutes()
+  return (minute >= 28 && minute <= 39) || minute >= 58 || minute <= 9
+}
+
+// Next upcoming xx:10/xx:40 disappearance mark from `now` - always returns a
+// value (never null), used for both in-window reports and admin's
+// out-of-window override.
+function nextOreExpiryMark(now) {
   const minute = now.getUTCMinutes()
   const expiry = new Date(now)
   expiry.setUTCSeconds(0, 0)
-  if (minute >= 28 && minute <= 39) {
+  if (minute < 10) {
+    expiry.setUTCMinutes(10)
+    return expiry
+  }
+  if (minute < 40) {
     expiry.setUTCMinutes(40)
     return expiry
   }
-  if (minute >= 58) {
-    expiry.setUTCHours(expiry.getUTCHours() + 1)
-    expiry.setUTCMinutes(10)
-    return expiry
-  }
-  if (minute <= 9) {
-    expiry.setUTCMinutes(10)
-    return expiry
-  }
-  return null
+  expiry.setUTCHours(expiry.getUTCHours() + 1)
+  expiry.setUTCMinutes(10)
+  return expiry
 }
 
 const GUIDE_CATEGORIES = new Set(['zwoje', 'eventy', 'poziomy', 'yang', 'ekwipunek', 'techniczne', 'platnosci', 'skille', 'gildia'])
@@ -410,7 +418,7 @@ async function handleGet(env, table, cfg, searchParams, headers, callerIsAdmin) 
   return json({ data: rows, error: null }, 200, headers)
 }
 
-async function handlePost(env, table, cfg, request, searchParams, headers, ctx) {
+async function handlePost(env, table, cfg, request, searchParams, headers, ctx, isAdmin) {
   const body = await request.json().catch(function () { return null })
   if (body === null) return errorResponse('invalid JSON body', 400, headers)
   const rows = Array.isArray(body) ? body : [body]
@@ -420,7 +428,7 @@ async function handlePost(env, table, cfg, request, searchParams, headers, ctx) 
   const inserted = []
   for (let row of rows) {
     if (cfg.beforeInsert) {
-      const result = await cfg.beforeInsert(row, env, request)
+      const result = await cfg.beforeInsert(row, env, request, isAdmin)
       if (result.error) return errorResponse(result.error, 400, headers)
       row = result.row
     }
@@ -517,7 +525,7 @@ async function handleDbRequest(request, env, url, headers, isAdmin, isEditor, ct
       if (!(await isAdmin(request, env))) return errorResponse('forbidden', 403, headers)
     }
     // insertAuth === 'public' -> no check
-    return handlePost(env, table, cfg, request, url.searchParams, headers, ctx)
+    return handlePost(env, table, cfg, request, url.searchParams, headers, ctx, isAdmin)
   }
 
   if (request.method === 'PATCH') {
