@@ -297,7 +297,8 @@
     "guideStep2": "Vá até o canal onde quer receber os alertas e digite:",
     "guideStep3": "Se quiser que o bot mencione um cargo específico, digite também (substitua @rola pelo cargo real):",
     "guideExampleLabel": "É assim que fica a mensagem do bot:",
-    "guideCloseButton": "Fechar"
+    "guideCloseButton": "Fechar",
+    "historyButton": "Localizações anteriores"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

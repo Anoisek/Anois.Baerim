@@ -249,6 +249,13 @@ const TABLES = {
       }
     },
   },
+  // Read-only from the client's perspective (public GET) - rows are only
+  // ever written by the ore_finder_ores insert hook above, never via a
+  // direct POST here (default insertAuth 'admin' blocks that path).
+  ore_finder_spawn_history: {
+    columns: ['id', 'map', 'x', 'y', 'created_at'],
+    pk: ['id'],
+  },
 }
 
 const ORE_FINDER_MAPS = new Set(['Yongan', 'Joan', 'Pyungmoo'])
@@ -467,6 +474,14 @@ async function handlePost(env, table, cfg, request, searchParams, headers, ctx, 
 
   if (table === 'ore_finder_ores' && inserted.length > 0 && ctx) {
     ctx.waitUntil(sendDiscordOreAlert(env, inserted[0]))
+    // Permanent spawn-location log for the "show past spawns" map toggle -
+    // no alert, no notification, just a row that outlives the report itself.
+    const ore = inserted[0]
+    ctx.waitUntil(
+      env.DB.prepare('INSERT INTO ore_finder_spawn_history (id, map, x, y, created_at) VALUES (?, ?, ?, ?, ?)')
+        .bind(crypto.randomUUID(), ore.map, ore.x, ore.y, ore.created_at)
+        .run()
+    )
   }
 
   return json({ data: inserted, error: null }, 200, headers)

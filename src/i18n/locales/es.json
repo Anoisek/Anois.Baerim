@@ -297,7 +297,8 @@
     "guideStep2": "Ve al canal donde quieres recibir las alertas y escribe:",
     "guideStep3": "Si quieres que el bot mencione un rol concreto, escribe además (sustituye @rola por el rol real):",
     "guideExampleLabel": "Así se ve el mensaje del bot:",
-    "guideCloseButton": "Cerrar"
+    "guideCloseButton": "Cerrar",
+    "historyButton": "Ubicaciones anteriores"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

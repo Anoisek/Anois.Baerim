@@ -45,6 +45,8 @@ export default function OreFinder() {
   const [guideModalOpen, setGuideModalOpen] = useState(false)
   const [windowOpen, setWindowOpen] = useState(() => isOreAddWindowOpen())
   const [hoverPos, setHoverPos] = useState(null)
+  const [showHistory, setShowHistory] = useState(false)
+  const [spawnHistory, setSpawnHistory] = useState([])
   const mapWrapRef = useRef(null)
 
   useEffect(() => {
@@ -80,6 +82,16 @@ export default function OreFinder() {
     const id = setInterval(() => setWindowOpen(isOreAddWindowOpen()), 1000)
     return () => clearInterval(id)
   }, [])
+
+  // Past spawn locations - fetched lazily only while the toggle is on, and
+  // refetched whenever the selected map changes while it's on. Purely a
+  // read (own history table, never touches ore_finder_ores or any alert).
+  useEffect(() => {
+    if (!showHistory) return
+    db.from('ore_finder_spawn_history').select('*').eq('map', selectedName).then(({ data }) => {
+      setSpawnHistory(data ?? [])
+    })
+  }, [showHistory, selectedName])
 
   const selectedMap = maps.find(m => m.name === selectedName) || null
   const oreOnSelected = ores.find(o => o.map === selectedName) || null
@@ -244,6 +256,16 @@ export default function OreFinder() {
                             ✏️ {t('oreFinder.addManuallyButton')}
                           </button>
                         )}
+                        <button
+                          onClick={() => setShowHistory(v => !v)}
+                          className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                            showHistory
+                              ? 'bg-yellow-400 border-yellow-400 text-gray-950'
+                              : 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200'
+                          }`}
+                        >
+                          🟡 {t('oreFinder.historyButton')}
+                        </button>
                         <OreFinderPipButton
                           map={selectedMap}
                           ore={oreOnSelected}
@@ -273,6 +295,13 @@ export default function OreFinder() {
                           draggable="false"
                           className="w-full h-full object-contain select-none pointer-events-none"
                         />
+                        {showHistory && spawnHistory.map(spot => (
+                          <div
+                            key={spot.id}
+                            className="absolute w-10 h-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-yellow-400/30 border border-yellow-400/60 pointer-events-none"
+                            style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
+                          />
+                        ))}
                         {oreOnSelected && (
                           <button
                             onClick={e => { if (isAdmin) { e.stopPropagation(); setConfirmOre(oreOnSelected) } }}

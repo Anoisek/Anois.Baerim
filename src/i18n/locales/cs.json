@@ -297,7 +297,8 @@
     "guideStep2": "Jdi na kanál, kde chceš dostávat upozornění, a napiš:",
     "guideStep3": "Pokud chceš, aby bot označoval konkrétní roli, napiš navíc (nahraď @rola skutečnou rolí):",
     "guideExampleLabel": "Takto vypadá zpráva od bota:",
-    "guideCloseButton": "Zavřít"
+    "guideCloseButton": "Zavřít",
+    "historyButton": "Předchozí místa"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

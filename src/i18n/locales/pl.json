@@ -297,7 +297,8 @@
     "guideStep2": "Wejdź na kanał, na którym chcesz otrzymywać alerty, i wpisz:",
     "guideStep3": "Jeśli chcesz, żeby bot oznaczał konkretną rolę, wpisz dodatkowo (podmień @rola na właściwą rolę):",
     "guideExampleLabel": "Tak wygląda wiadomość od bota:",
-    "guideCloseButton": "Zamknij"
+    "guideCloseButton": "Zamknij",
+    "historyButton": "Poprzednie miejsca"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

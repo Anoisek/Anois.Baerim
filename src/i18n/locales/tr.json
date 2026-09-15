@@ -297,7 +297,8 @@
     "guideStep2": "Uyarıları almak istediğin kanala git ve şunu yaz:",
     "guideStep3": "Bot belirli bir rolü etiketlesin istiyorsan şunu da yaz (@rola yerine gerçek rolü koy):",
     "guideExampleLabel": "Botun mesajı böyle görünür:",
-    "guideCloseButton": "Kapat"
+    "guideCloseButton": "Kapat",
+    "historyButton": "Önceki konumlar"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

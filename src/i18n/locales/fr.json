@@ -297,7 +297,8 @@
     "guideStep2": "Allez sur le salon où vous voulez recevoir les alertes et tapez :",
     "guideStep3": "Si vous voulez que le bot mentionne un rôle précis, tapez aussi (remplacez @rola par le rôle réel) :",
     "guideExampleLabel": "Voici à quoi ressemble le message du bot :",
-    "guideCloseButton": "Fermer"
+    "guideCloseButton": "Fermer",
+    "historyButton": "Emplacements précédents"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

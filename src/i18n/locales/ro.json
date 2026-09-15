@@ -297,7 +297,8 @@
     "guideStep2": "Mergi pe canalul pe care vrei să primești alertele și scrie:",
     "guideStep3": "Dacă vrei ca botul să menționeze un rol anume, scrie și (înlocuiește @rola cu rolul real):",
     "guideExampleLabel": "Așa arată mesajul botului:",
-    "guideCloseButton": "Închide"
+    "guideCloseButton": "Închide",
+    "historyButton": "Locații anterioare"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",
