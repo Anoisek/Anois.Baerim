@@ -402,3 +402,27 @@ CREATE TABLE ore_finder_blocked_ips (
   created_at TEXT NOT NULL,
   note TEXT
 );
+
+-- /mokoko-finder (admin-only for now): players mark a mokoko sighting with a
+-- screenshot + exact coordinates, held here until an admin approves it.
+CREATE TABLE mokoko_finder_reports (
+  id TEXT PRIMARY KEY,
+  map TEXT NOT NULL,
+  x REAL NOT NULL,
+  y REAL NOT NULL,
+  screenshot_url TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX idx_mokoko_finder_reports_map ON mokoko_finder_reports(map);
+
+-- Approved mokoko sightings, shown permanently on the mokoko finder map with
+-- the same mokoko icon used on the interactive map.
+CREATE TABLE mokoko_finder_spots (
+  id TEXT PRIMARY KEY,
+  map TEXT NOT NULL,
+  x REAL NOT NULL,
+  y REAL NOT NULL,
+  screenshot_url TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX idx_mokoko_finder_spots_map ON mokoko_finder_spots(map);

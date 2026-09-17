@@ -287,9 +287,42 @@ const TABLES = {
       return { row: { ip: ip, note: typeof row.note === 'string' ? row.note.trim().slice(0, 200) : null } }
     },
   },
+  // /mokoko-finder (admin-only while testing): a report waits here until an
+  // admin approves it (copied into mokoko_finder_spots, see the page's
+  // approve flow) or rejects it (deleted outright). Never public - only the
+  // admin reviewing the queue needs to see pending screenshots/coordinates.
+  mokoko_finder_reports: {
+    columns: ['id', 'map', 'x', 'y', 'screenshot_url', 'created_at'],
+    pk: ['id'],
+    insertAuth: 'public',
+    publicRead: false,
+    beforeInsert: async function (row, env, request) {
+      const map = typeof row.map === 'string' ? row.map : ''
+      const x = Number(row.x)
+      const y = Number(row.y)
+      const screenshotUrl = typeof row.screenshot_url === 'string' ? row.screenshot_url.trim() : ''
+      if (!MOKOKO_FINDER_MAPS.has(map)) return { error: 'unknown map' }
+      if (!Number.isFinite(x) || x < 0 || x > 100) return { error: 'invalid x' }
+      if (!Number.isFinite(y) || y < 0 || y > 100) return { error: 'invalid y' }
+      if (!screenshotUrl) return { error: 'screenshot_url is required' }
+
+      const turnstileOk = await verifyTurnstile(env, row.turnstileToken, request)
+      if (!turnstileOk) return { error: 'turnstile verification failed' }
+
+      return { row: { map: map, x: x, y: y, screenshot_url: screenshotUrl } }
+    },
+  },
+  // Approved mokoko sightings - public read (shown on the map), but only ever
+  // written by the admin's approve action in the page (default insertAuth
+  // 'admin'), never directly from a report submission.
+  mokoko_finder_spots: {
+    columns: ['id', 'map', 'x', 'y', 'screenshot_url', 'created_at'],
+    pk: ['id'],
+  },
 }
 
 const ORE_FINDER_MAPS = new Set(['Yongan', 'Joan', 'Pyungmoo'])
+const MOKOKO_FINDER_MAPS = new Set(['Yongan'])
 
 // Cloudflare Turnstile check on ore reports - keeps reporting open to anyone
 // (no accounts) while blocking scripted/bot spam. Inert-safe by design: if
