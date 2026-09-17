@@ -300,7 +300,8 @@
     "guideCloseButton": "Zavrieť",
     "historyButton": "Predchádzajúce miesta",
     "pipVerifying": "Overovanie plávajúceho okna...",
-    "pipVerified": "Plávajúce okno overené"
+    "pipVerified": "Plávajúce okno overené",
+    "pipVerifyHint": "Overenie pre plávajúcu mapu"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

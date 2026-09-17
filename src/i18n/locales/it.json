@@ -300,7 +300,8 @@
     "guideCloseButton": "Chiudi",
     "historyButton": "Posizioni precedenti",
     "pipVerifying": "Verifica della finestra flottante...",
-    "pipVerified": "Finestra flottante verificata"
+    "pipVerified": "Finestra flottante verificata",
+    "pipVerifyHint": "Verifica per la mappa flottante"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

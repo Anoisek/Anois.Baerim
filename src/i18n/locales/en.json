@@ -300,7 +300,8 @@
     "guideCloseButton": "Close",
     "historyButton": "Past locations",
     "pipVerifying": "Verifying floating window...",
-    "pipVerified": "Floating window verified"
+    "pipVerified": "Floating window verified",
+    "pipVerifyHint": "Verification for the floating map"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import OreFinderCountdown from '../components/OreFinderCountdown'
-import OreFinderPipButton from '../components/OreFinderPipButton'
+import OreFinderPipButton, { isPipSupported } from '../components/OreFinderPipButton'
 import OreManualAddModal from '../components/OreManualAddModal'
 import OreFinderBotGuideModal from '../components/OreFinderBotGuideModal'
 import OreFinderAdminLogModal from '../components/OreFinderAdminLogModal'
@@ -47,8 +47,8 @@ export default function OreFinder() {
   const [adminLogModalOpen, setAdminLogModalOpen] = useState(false)
   const [windowOpen, setWindowOpen] = useState(() => isOreAddWindowOpen())
   const [hoverPos, setHoverPos] = useState(null)
-  const [pipOpen, setPipOpen] = useState(false)
   const [pipToken, setPipToken] = useState('')
+  const pipTokenAtRef = useRef(0)
   const [showHistory, setShowHistory] = useState(false)
   const [spawnHistory, setSpawnHistory] = useState([])
   const mapWrapRef = useRef(null)
@@ -87,9 +87,30 @@ export default function OreFinder() {
     return () => clearInterval(id)
   }, [])
 
+  // Turnstile can't resolve inside the popped-out Document PiP window (it's
+  // an auxiliary browsing context Cloudflare's checks reject), and once that
+  // window has focus the opener tab itself goes `document.visibilityState
+  // === 'hidden'` in this browser, which stalls the widget entirely - not
+  // just a slower solve, it never calls back. So this widget stays mounted
+  // in the main page the whole time (autoRenew keeps it fresh) and PiP just
+  // borrows whatever token is already warm from before it stole focus.
+  // Turnstile's own expiry callback can't be trusted to fire while hidden
+  // either, so track the token's age ourselves and drop it before Cloudflare
+  // would reject it server-side.
+  function handlePipToken(token) {
+    pipTokenAtRef.current = token ? Date.now() : 0
+    setPipToken(token)
+  }
+
   useEffect(() => {
-    if (!pipOpen) setPipToken('')
-  }, [pipOpen])
+    const id = setInterval(() => {
+      if (pipTokenAtRef.current && Date.now() - pipTokenAtRef.current > 280000) {
+        pipTokenAtRef.current = 0
+        setPipToken('')
+      }
+    }, 5000)
+    return () => clearInterval(id)
+  }, [])
 
   // Past spawn locations - fetched lazily only while the toggle is on, and
   // refetched whenever the selected map changes while it's on. Purely a
@@ -289,13 +310,13 @@ export default function OreFinder() {
                           isAdmin={isAdmin}
                           onSend={sendOreReport}
                           onRemove={() => oreOnSelected && removeOre(oreOnSelected)}
-                          onOpenChange={setPipOpen}
                           pipToken={pipToken}
                           t={t}
                         />
-                        {pipOpen && (
-                          <div className="fixed bottom-3 right-3 z-40 bg-gray-900/95 border border-gray-700 rounded-xl p-2 shadow-lg shadow-black/50">
-                            <TurnstileWidget onToken={setPipToken} autoRenew />
+                        {isPipSupported() && (
+                          <div className="fixed bottom-3 right-3 z-40 flex flex-col items-end gap-1 bg-gray-900/95 border border-gray-700 rounded-xl p-2 shadow-lg shadow-black/50">
+                            <span className="text-[10px] text-gray-500">{t('oreFinder.pipVerifyHint')}</span>
+                            <TurnstileWidget onToken={handlePipToken} autoRenew />
                           </div>
                         )}
                       </div>

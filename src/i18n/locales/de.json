@@ -300,7 +300,8 @@
     "guideCloseButton": "Schließen",
     "historyButton": "Frühere Orte",
     "pipVerifying": "Schwebendes Fenster wird verifiziert...",
-    "pipVerified": "Schwebendes Fenster verifiziert"
+    "pipVerified": "Schwebendes Fenster verifiziert",
+    "pipVerifyHint": "Verifizierung für das schwebende Fenster"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

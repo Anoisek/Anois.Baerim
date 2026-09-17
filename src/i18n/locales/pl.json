@@ -300,7 +300,8 @@
     "guideCloseButton": "Zamknij",
     "historyButton": "Poprzednie miejsca",
     "pipVerifying": "Weryfikacja wysuniętego okna...",
-    "pipVerified": "Wysunięte okno zweryfikowane"
+    "pipVerified": "Wysunięte okno zweryfikowane",
+    "pipVerifyHint": "Weryfikacja na potrzeby wysuniętej mapy"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

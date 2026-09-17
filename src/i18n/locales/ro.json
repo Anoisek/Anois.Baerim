@@ -300,7 +300,8 @@
     "guideCloseButton": "Închide",
     "historyButton": "Locații anterioare",
     "pipVerifying": "Se verifică fereastra plutitoare...",
-    "pipVerified": "Fereastră plutitoare verificată"
+    "pipVerified": "Fereastră plutitoare verificată",
+    "pipVerifyHint": "Verificare pentru harta plutitoare"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

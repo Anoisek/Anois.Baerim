@@ -300,7 +300,8 @@
     "guideCloseButton": "Fechar",
     "historyButton": "Localizações anteriores",
     "pipVerifying": "Verificando a janela flutuante...",
-    "pipVerified": "Janela flutuante verificada"
+    "pipVerified": "Janela flutuante verificada",
+    "pipVerifyHint": "Verificação para o mapa flutuante"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -300,7 +300,8 @@
     "guideCloseButton": "Kapat",
     "historyButton": "Önceki konumlar",
     "pipVerifying": "Kayan pencere doğrulanıyor...",
-    "pipVerified": "Kayan pencere doğrulandı"
+    "pipVerified": "Kayan pencere doğrulandı",
+    "pipVerifyHint": "Kayan harita için doğrulama"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

@@ -32,10 +32,13 @@ function copyStyles(pipWindow) {
 //
 // Turnstile is the one piece that can't be ported in: Cloudflare's checks
 // fail inside a Document PiP window (it's an auxiliary browsing context),
-// so the widget there always shows a red X and never yields a token. Instead
-// the parent solves it in the real page window and hands down `pipToken`,
-// which this component just waits on and uses for the send call.
-export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSend, onRemove, onOpenChange, pipToken, t }) {
+// and once that window has focus the opener tab itself goes
+// `document.visibilityState === 'hidden'` in this browser, which stalls the
+// widget outright rather than just slowing it down. So the parent keeps a
+// Turnstile widget solved and fresh in the real page window at all times and
+// hands down whatever token is currently warm as `pipToken` - this component
+// just waits on it and uses it for the send call.
+export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSend, onRemove, pipToken, t }) {
   const [pipWindow, setPipWindow] = useState(null)
   const [pendingClick, setPendingClick] = useState(null)
   const [commentDraft, setCommentDraft] = useState('')
@@ -52,10 +55,6 @@ export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSe
     pipWindow.addEventListener('pagehide', handlePageHide)
     return () => pipWindow.removeEventListener('pagehide', handlePageHide)
   }, [pipWindow])
-
-  useEffect(() => {
-    onOpenChange?.(!!pipWindow)
-  }, [pipWindow, onOpenChange])
 
   useEffect(() => {
     if (pipWindow) pipWindow.close()

@@ -300,7 +300,8 @@
     "guideCloseButton": "Κλείσιμο",
     "historyButton": "Προηγούμενες τοποθεσίες",
     "pipVerifying": "Επαλήθευση αιωρούμενου παραθύρου...",
-    "pipVerified": "Το αιωρούμενο παράθυρο επαληθεύτηκε"
+    "pipVerified": "Το αιωρούμενο παράθυρο επαληθεύτηκε",
+    "pipVerifyHint": "Επαλήθευση για τον αιωρούμενο χάρτη"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

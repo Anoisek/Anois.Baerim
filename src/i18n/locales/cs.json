@@ -300,7 +300,8 @@
     "guideCloseButton": "Zavřít",
     "historyButton": "Předchozí místa",
     "pipVerifying": "Ověřování plovoucího okna...",
-    "pipVerified": "Plovoucí okno ověřeno"
+    "pipVerified": "Plovoucí okno ověřeno",
+    "pipVerifyHint": "Ověření pro plovoucí mapu"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",
