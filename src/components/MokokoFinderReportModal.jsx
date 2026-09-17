@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import ImageUpload from './ImageUpload'
 import TurnstileWidget from './TurnstileWidget'
 
@@ -7,6 +8,7 @@ import TurnstileWidget from './TurnstileWidget'
 // proof - submitting drops it into the admin review queue, it doesn't appear
 // on the map right away.
 export default function MokokoFinderReportModal({ map, initialX, initialY, onClose, onSubmit, sending }) {
+  const { t } = useTranslation()
   const [xInput, setXInput] = useState(String(Math.round(initialX)))
   const [yInput, setYInput] = useState(String(Math.round(initialY)))
   const [screenshotUrl, setScreenshotUrl] = useState(null)
@@ -32,7 +34,7 @@ export default function MokokoFinderReportModal({ map, initialX, initialY, onClo
         onClick={e => e.stopPropagation()}
         className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-80 flex flex-col items-center gap-3 shadow-xl shadow-black/50 max-h-[90vh] overflow-y-auto"
       >
-        <p className="text-xl font-extrabold text-yellow-400 tracking-wide">🍀 Zgłoś mokoko</p>
+        <p className="text-xl font-extrabold text-yellow-400 tracking-wide">🍀 {t('mokokoFinder.reportTitle')}</p>
 
         <div className="grid grid-cols-2 gap-3 w-full">
           <label className="flex flex-col gap-1 text-xs text-gray-400">
@@ -60,7 +62,7 @@ export default function MokokoFinderReportModal({ map, initialX, initialY, onClo
         </div>
 
         <div className="w-full">
-          <p className="text-xs text-gray-400 mb-1.5">Zrzut ekranu (dowód)</p>
+          <p className="text-xs text-gray-400 mb-1.5">{t('mokokoFinder.screenshotLabel')}</p>
           <ImageUpload bucket="map-notes" onUploaded={setScreenshotUrl} />
         </div>
 
@@ -71,14 +73,14 @@ export default function MokokoFinderReportModal({ map, initialX, initialY, onClo
             onClick={onClose}
             className="flex-1 py-2 rounded-lg text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
           >
-            Anuluj
+            {t('mokokoFinder.cancelButton')}
           </button>
           <button
             onClick={handleSubmit}
             disabled={!canSubmit}
             className="flex-1 py-2 rounded-lg text-sm font-semibold bg-yellow-400 hover:bg-yellow-300 disabled:opacity-40 disabled:hover:bg-yellow-400 text-gray-950 transition-colors"
           >
-            Wyślij
+            {t('mokokoFinder.sendButton')}
           </button>
         </div>
       </div>

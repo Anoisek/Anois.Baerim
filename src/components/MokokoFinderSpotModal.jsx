@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import { deleteImages } from '../utils/imageStorage'
 
@@ -7,6 +8,7 @@ import { deleteImages } from '../utils/imageStorage'
 // MokokoFinderReviewModal's merge flow) - each one is a "comment" proving the
 // sighting. Deleting removes the spot, its notes, and every photo from R2.
 export default function MokokoFinderSpotModal({ spot, onClose, onDeleted }) {
+  const { t } = useTranslation()
   const [notes, setNotes] = useState([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
@@ -40,12 +42,12 @@ export default function MokokoFinderSpotModal({ spot, onClose, onDeleted }) {
         className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-md flex flex-col gap-3 shadow-xl shadow-black/50 max-h-[85vh]"
       >
         <div className="flex items-center justify-between">
-          <p className="text-lg font-extrabold text-yellow-400 tracking-wide">🍀 Mokoko</p>
+          <p className="text-lg font-extrabold text-yellow-400 tracking-wide">🍀 {t('mokokoFinder.spotTitle')}</p>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-200 text-xl leading-none">×</button>
         </div>
 
         {loading ? (
-          <p className="text-sm text-gray-400">Ładowanie...</p>
+          <p className="text-sm text-gray-400">{t('mokokoFinder.loading')}</p>
         ) : (
           <div className="flex flex-wrap gap-2 overflow-y-auto">
             {photos.map((url, i) => (
@@ -55,14 +57,14 @@ export default function MokokoFinderSpotModal({ spot, onClose, onDeleted }) {
             ))}
           </div>
         )}
-        {photos.length > 1 && <p className="text-xs text-gray-500">{photos.length} zdjęć (połączone zgłoszenia)</p>}
+        {photos.length > 1 && <p className="text-xs text-gray-500">{t('mokokoFinder.photoCount', { count: photos.length })}</p>}
 
         <button
           onClick={handleDelete}
           disabled={deleting}
           className="py-2 rounded-lg text-sm font-semibold bg-red-500 hover:bg-red-400 disabled:opacity-40 text-white transition-colors"
         >
-          Usuń tego mokoko
+          {t('mokokoFinder.deleteSpotButton')}
         </button>
       </div>
 

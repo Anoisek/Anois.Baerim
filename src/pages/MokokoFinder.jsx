@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -25,6 +26,7 @@ const POLL_MS = 20000
 // from the interactive map. The admin can merge several reports of the same
 // sighting into one spot (see MokokoFinderReviewModal).
 export default function MokokoFinder() {
+  const { t } = useTranslation()
   const { isAdmin } = useAuth()
   const [maps, setMaps] = useState([])
   const [mapsLoading, setMapsLoading] = useState(true)
@@ -103,7 +105,7 @@ export default function MokokoFinder() {
       .insert({ map: selectedName, x, y, screenshot_url: screenshotUrl, turnstileToken })
     setSending(false)
     if (error) {
-      alert('Nie udało się wysłać zgłoszenia: ' + error.message)
+      alert(t('mokokoFinder.sendError', { message: error.message }))
       return
     }
     setPendingClick(null)
@@ -125,8 +127,8 @@ export default function MokokoFinder() {
         <Navbar hideBanner />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="text-center">
-            <p className="text-3xl font-bold text-gray-600 mb-2">404</p>
-            <p className="text-gray-500 text-sm">Ta strona nie istnieje.</p>
+            <p className="text-3xl font-bold text-gray-600 mb-2">{t('mokokoFinder.notFoundTitle')}</p>
+            <p className="text-gray-500 text-sm">{t('mokokoFinder.notFoundBody')}</p>
           </div>
         </div>
       </div>
@@ -138,14 +140,14 @@ export default function MokokoFinder() {
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 py-10 w-full">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
-          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Mokoko Finder (admin)' }]} />
+          <Breadcrumbs items={[{ label: t('common.home'), to: '/' }, { label: `${t('mokokoFinder.title')} (admin)` }]} />
           <div className="flex items-center justify-between mb-6 gap-2 flex-wrap">
-            <h1 className="text-2xl font-bold text-gray-100">🍀 Mokoko Finder</h1>
+            <h1 className="text-2xl font-bold text-gray-100">🍀 {t('mokokoFinder.title')}</h1>
             <button
               onClick={() => setReviewOpen(true)}
               className="px-3 py-2 rounded-xl text-sm font-semibold border transition-colors bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200"
             >
-              🛡️ Zgłoszenia do przeglądu{reportCount > 0 ? ` (${reportCount})` : ''}
+              🛡️ {t('mokokoFinder.reviewButton')}{reportCount > 0 ? ` (${reportCount})` : ''}
             </button>
           </div>
 
@@ -168,7 +170,7 @@ export default function MokokoFinder() {
                       <div className="flex items-center justify-between gap-2">
                         <span className="flex items-center gap-1 min-w-0">
                           {!isSupported && (
-                            <span className={active ? 'text-gray-700' : 'text-gray-600'} title="Mokoko Finder jeszcze tu nie działa">⏳</span>
+                            <span className={active ? 'text-gray-700' : 'text-gray-600'} title={t('mokokoFinder.notSupportedTooltip')}>⏳</span>
                           )}
                           <span className="font-semibold truncate">{m.name}</span>
                         </span>
@@ -186,14 +188,14 @@ export default function MokokoFinder() {
 
               <div className="flex-1 min-w-0">
                 {!selectedMap ? (
-                  <p className="text-gray-500 text-sm p-6">Mapa nie znaleziona.</p>
+                  <p className="text-gray-500 text-sm p-6">{t('mokokoFinder.mapNotFound')}</p>
                 ) : (
                   <>
                     <h2 className="text-sm font-bold text-gray-100 mb-2">{selectedMap.name}</h2>
 
                     {!supported && (
                       <p className="text-xs text-gray-500 mb-2">
-                        Mokoko Finder nie jest jeszcze podłączony do tej mapy - zakładka na razie tylko pokazuje, jak to będzie wyglądać.
+                        {t('mokokoFinder.notSupportedNote')}
                       </p>
                     )}
 
@@ -219,7 +221,7 @@ export default function MokokoFinder() {
                           <button
                             key={spot.id}
                             onClick={e => { e.stopPropagation(); setOpenSpot(spot) }}
-                            title="Kliknij, aby zobaczyć / usunąć"
+                            title={t('mokokoFinder.spotTooltip')}
                             className="absolute z-10 -translate-x-1/2 -translate-y-1/2 hover:scale-125 transition-transform"
                             style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
                           >
@@ -230,7 +232,7 @@ export default function MokokoFinder() {
                     </div>
 
                     <p className="mt-3 text-xs text-yellow-400">
-                      {supported ? 'Kliknij na mapę, aby zgłosić mokoko.' : 'Zgłaszanie jest wyłączone dla tej mapy.'}
+                      {supported ? t('mokokoFinder.clickToMark') : t('mokokoFinder.addDisabled')}
                     </p>
                   </>
                 )}

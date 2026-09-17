@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import { deleteImages } from '../utils/imageStorage'
 
@@ -13,10 +14,9 @@ function formatTime(iso) {
 // selected report's screenshot becomes its own screenshot_url, and every
 // other selected report's screenshot is kept as a comment/photo via
 // mokoko_finder_spot_notes. Rejecting a single report just deletes it (and
-// its screenshot). Not translated - same convention as
-// OreFinderAdminLogModal/DogTracker, this is Bartek's own tooling, never
-// shown to regular visitors.
+// its screenshot).
 export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
+  const { t } = useTranslation()
   const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(true)
   const [busyId, setBusyId] = useState(null)
@@ -69,7 +69,7 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
       .select()
       .single()
     if (error) {
-      alert('Nie udało się zatwierdzić: ' + error.message)
+      alert(t('mokokoFinder.approveError', { message: error.message }))
       setMergeSending(false)
       return
     }
@@ -112,14 +112,14 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
         className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-2xl flex flex-col gap-4 shadow-xl shadow-black/50 max-h-[85vh]"
       >
         <div className="flex items-center justify-between">
-          <p className="text-xl font-extrabold text-yellow-400 tracking-wide">🍀 Zgłoszenia mokoko (admin)</p>
+          <p className="text-xl font-extrabold text-yellow-400 tracking-wide">🍀 {t('mokokoFinder.reviewTitle')}</p>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-200 text-xl leading-none">×</button>
         </div>
 
         {loading ? (
-          <p className="text-sm text-gray-400">Ładowanie...</p>
+          <p className="text-sm text-gray-400">{t('mokokoFinder.loading')}</p>
         ) : reports.length === 0 ? (
-          <p className="text-sm text-gray-500">Brak oczekujących zgłoszeń.</p>
+          <p className="text-sm text-gray-500">{t('mokokoFinder.noReports')}</p>
         ) : (
           <>
             <div className="overflow-y-auto flex-1 -mx-2 px-2 flex flex-col gap-2">
@@ -157,7 +157,7 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
                         disabled={busy}
                         className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-red-600 hover:bg-red-500 disabled:opacity-40 text-white transition-colors"
                       >
-                        Odrzuć
+                        {t('mokokoFinder.rejectButton')}
                       </button>
                     </div>
                   </div>
@@ -166,13 +166,15 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
             </div>
 
             <div className="flex items-center justify-between border-t border-gray-800 pt-3">
-              <p className="text-xs text-gray-400">Zaznaczono: {selectedReports.length}</p>
+              <p className="text-xs text-gray-400">{t('mokokoFinder.selectedCount', { count: selectedReports.length })}</p>
               <button
                 onClick={openMerge}
                 disabled={selectedReports.length === 0}
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-yellow-400 hover:bg-yellow-300 disabled:opacity-40 text-gray-950 transition-colors"
               >
-                {selectedReports.length > 1 ? `Połącz i zatwierdź (${selectedReports.length})` : 'Zatwierdź'}
+                {selectedReports.length > 1
+                  ? t('mokokoFinder.mergeApproveButton', { count: selectedReports.length })
+                  : t('mokokoFinder.approveButton')}
               </button>
             </div>
           </>
@@ -198,14 +200,16 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
             className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-80 flex flex-col items-center gap-3 shadow-xl shadow-black/50"
           >
             <p className="text-lg font-bold text-yellow-400 text-center">
-              {merging.reports.length > 1 ? `Łączenie ${merging.reports.length} zgłoszeń` : 'Zatwierdź zgłoszenie'}
+              {merging.reports.length > 1
+                ? t('mokokoFinder.mergeTitleMultiple', { count: merging.reports.length })
+                : t('mokokoFinder.mergeTitleSingle')}
             </p>
             <div className="flex gap-1.5 flex-wrap justify-center">
               {merging.reports.map(r => (
                 <img key={r.id} src={r.screenshot_url} alt="" className="w-14 h-14 object-cover rounded-lg border border-gray-600" />
               ))}
             </div>
-            <p className="text-xs text-gray-400 text-center">Podaj ostateczne, dokładne koordynaty:</p>
+            <p className="text-xs text-gray-400 text-center">{t('mokokoFinder.mergeCoordsHint')}</p>
             <div className="grid grid-cols-2 gap-3 w-full">
               <label className="flex flex-col gap-1 text-xs text-gray-400">
                 X
@@ -236,14 +240,14 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
                 disabled={mergeSending}
                 className="flex-1 py-2 rounded-lg text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 disabled:opacity-40 transition-colors"
               >
-                Anuluj
+                {t('mokokoFinder.cancelButton')}
               </button>
               <button
                 onClick={handleConfirmMerge}
                 disabled={mergeSending}
                 className="flex-1 py-2 rounded-lg text-sm font-semibold bg-yellow-400 hover:bg-yellow-300 disabled:opacity-40 text-gray-950 transition-colors"
               >
-                Zatwierdź
+                {t('mokokoFinder.approveButton')}
               </button>
             </div>
           </div>
