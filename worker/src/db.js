@@ -319,6 +319,13 @@ const TABLES = {
     columns: ['id', 'map', 'x', 'y', 'screenshot_url', 'created_at'],
     pk: ['id'],
   },
+  // Extra photos on an approved spot from merging several reports of the same
+  // sighting (see MokokoFinderReviewModal) - admin-only write, public read
+  // (shown alongside the spot, same convention as map_marker_notes).
+  mokoko_finder_spot_notes: {
+    columns: ['id', 'spot_id', 'image_url', 'created_at'],
+    pk: ['id'],
+  },
 }
 
 const ORE_FINDER_MAPS = new Set(['Yongan', 'Joan', 'Pyungmoo'])
