@@ -298,7 +298,9 @@
     "guideStep3": "Se quiser que o bot mencione um cargo específico, digite também (substitua @rola pelo cargo real):",
     "guideExampleLabel": "É assim que fica a mensagem do bot:",
     "guideCloseButton": "Fechar",
-    "historyButton": "Localizações anteriores"
+    "historyButton": "Localizações anteriores",
+    "pipVerifying": "Verificando a janela flutuante...",
+    "pipVerified": "Janela flutuante verificada"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

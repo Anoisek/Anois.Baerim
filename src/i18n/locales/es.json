@@ -298,7 +298,9 @@
     "guideStep3": "Si quieres que el bot mencione un rol concreto, escribe además (sustituye @rola por el rol real):",
     "guideExampleLabel": "Así se ve el mensaje del bot:",
     "guideCloseButton": "Cerrar",
-    "historyButton": "Ubicaciones anteriores"
+    "historyButton": "Ubicaciones anteriores",
+    "pipVerifying": "Verificando ventana flotante...",
+    "pipVerified": "Ventana flotante verificada"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

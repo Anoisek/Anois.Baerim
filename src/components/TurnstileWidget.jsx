@@ -3,10 +3,16 @@ import { useEffect, useRef } from 'react'
 const SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY
 
 // Renders a Cloudflare Turnstile challenge into `targetWindow` (defaults to
-// the main window; pass the popped-out Picture-in-Picture window to render
-// there instead - it's a separate document, so the script and the global
-// `turnstile` object have to be loaded into that same window, not this one).
-export default function TurnstileWidget({ onToken, targetWindow }) {
+// the main window). Turnstile's anti-bot checks fail when rendered inside a
+// Document Picture-in-Picture window (it's an auxiliary browsing context,
+// not a normal top-level one) - always render into the real page window and
+// hand the resulting token to whatever needs it instead.
+//
+// `autoRenew` keeps a token continuously available: on expiry/error it resets
+// the widget in place rather than just clearing the token, so a caller that
+// polls a token prop (e.g. the PiP flow, which can't show this widget itself)
+// gets a fresh one without the widget disappearing.
+export default function TurnstileWidget({ onToken, targetWindow, autoRenew }) {
   const win = targetWindow || (typeof window !== 'undefined' ? window : null)
   const containerRef = useRef(null)
   const widgetIdRef = useRef(null)
@@ -21,8 +27,14 @@ export default function TurnstileWidget({ onToken, targetWindow }) {
         sitekey: SITE_KEY,
         theme: 'dark',
         callback: onToken,
-        'expired-callback': () => onToken(''),
-        'error-callback': () => onToken(''),
+        'expired-callback': () => {
+          onToken('')
+          if (autoRenew) win.turnstile.reset(widgetIdRef.current)
+        },
+        'error-callback': () => {
+          onToken('')
+          if (autoRenew) win.turnstile.reset(widgetIdRef.current)
+        },
       })
     }
 

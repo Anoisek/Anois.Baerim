@@ -298,7 +298,9 @@
     "guideStep3": "Bot belirli bir rolü etiketlesin istiyorsan şunu da yaz (@rola yerine gerçek rolü koy):",
     "guideExampleLabel": "Botun mesajı böyle görünür:",
     "guideCloseButton": "Kapat",
-    "historyButton": "Önceki konumlar"
+    "historyButton": "Önceki konumlar",
+    "pipVerifying": "Kayan pencere doğrulanıyor...",
+    "pipVerified": "Kayan pencere doğrulandı"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

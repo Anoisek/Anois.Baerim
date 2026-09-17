@@ -298,7 +298,9 @@
     "guideStep3": "If you want the bot to mention a specific role, also type (replace @role with the actual role):",
     "guideExampleLabel": "This is what the bot's message looks like:",
     "guideCloseButton": "Close",
-    "historyButton": "Past locations"
+    "historyButton": "Past locations",
+    "pipVerifying": "Verifying floating window...",
+    "pipVerified": "Floating window verified"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

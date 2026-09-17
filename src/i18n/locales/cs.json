@@ -298,7 +298,9 @@
     "guideStep3": "Pokud chceš, aby bot označoval konkrétní roli, napiš navíc (nahraď @rola skutečnou rolí):",
     "guideExampleLabel": "Takto vypadá zpráva od bota:",
     "guideCloseButton": "Zavřít",
-    "historyButton": "Předchozí místa"
+    "historyButton": "Předchozí místa",
+    "pipVerifying": "Ověřování plovoucího okna...",
+    "pipVerified": "Plovoucí okno ověřeno"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

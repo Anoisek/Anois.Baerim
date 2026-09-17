@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import TurnstileWidget from './TurnstileWidget'
 
 export function isPipSupported() {
   return typeof window !== 'undefined' && 'documentPictureInPicture' in window
@@ -30,11 +29,16 @@ function copyStyles(pipWindow) {
 // full click-to-report flow (confirm+comment modal, remove confirm) ported
 // into the popped-out window too, since that content lives in a separate
 // document a plain portal to the main page's overlay can't reach.
-export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSend, onRemove, t }) {
+//
+// Turnstile is the one piece that can't be ported in: Cloudflare's checks
+// fail inside a Document PiP window (it's an auxiliary browsing context),
+// so the widget there always shows a red X and never yields a token. Instead
+// the parent solves it in the real page window and hands down `pipToken`,
+// which this component just waits on and uses for the send call.
+export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSend, onRemove, onOpenChange, pipToken, t }) {
   const [pipWindow, setPipWindow] = useState(null)
   const [pendingClick, setPendingClick] = useState(null)
   const [commentDraft, setCommentDraft] = useState('')
-  const [turnstileToken, setTurnstileToken] = useState('')
   const [confirmRemove, setConfirmRemove] = useState(false)
   const [sending, setSending] = useState(false)
   const [hoverPos, setHoverPos] = useState(null)
@@ -48,6 +52,10 @@ export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSe
     pipWindow.addEventListener('pagehide', handlePageHide)
     return () => pipWindow.removeEventListener('pagehide', handlePageHide)
   }, [pipWindow])
+
+  useEffect(() => {
+    onOpenChange?.(!!pipWindow)
+  }, [pipWindow, onOpenChange])
 
   useEffect(() => {
     if (pipWindow) pipWindow.close()
@@ -80,7 +88,6 @@ export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSe
     const y = ((e.clientY - rect.top) / rect.height) * 100
     setHoverPos(null)
     setCommentDraft('')
-    setTurnstileToken('')
     setPendingClick({ x, y })
   }
 
@@ -96,14 +103,13 @@ export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSe
   }
 
   async function handleSend() {
-    if (!pendingClick || sending || !turnstileToken) return
+    if (!pendingClick || sending || !pipToken) return
     setSending(true)
-    const ok = await onSend(pendingClick.x, pendingClick.y, commentDraft.trim(), turnstileToken)
+    const ok = await onSend(pendingClick.x, pendingClick.y, commentDraft.trim(), pipToken)
     setSending(false)
     if (ok) {
       setPendingClick(null)
       setCommentDraft('')
-      setTurnstileToken('')
     }
   }
 
@@ -171,7 +177,7 @@ export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSe
           {pendingClick && (
             <div
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-              onClick={() => { setPendingClick(null); setTurnstileToken('') }}
+              onClick={() => setPendingClick(null)}
             >
               <div
                 onClick={e => e.stopPropagation()}
@@ -186,17 +192,19 @@ export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSe
                   maxLength={200}
                   className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400 resize-none"
                 />
-                <TurnstileWidget onToken={setTurnstileToken} targetWindow={pipWindow} />
+                <p className={`text-xs ${pipToken ? 'text-green-400' : 'text-gray-500'}`}>
+                  {pipToken ? `✅ ${t('oreFinder.pipVerified')}` : t('oreFinder.pipVerifying')}
+                </p>
                 <div className="flex gap-2 w-full">
                   <button
-                    onClick={() => { setPendingClick(null); setTurnstileToken('') }}
+                    onClick={() => setPendingClick(null)}
                     className="flex-1 py-1.5 rounded-lg text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
                   >
                     {t('oreFinder.confirmCancel')}
                   </button>
                   <button
                     onClick={handleSend}
-                    disabled={sending || !turnstileToken}
+                    disabled={sending || !pipToken}
                     className="flex-1 py-1.5 rounded-lg text-sm font-semibold bg-yellow-400 hover:bg-yellow-300 disabled:opacity-40 disabled:hover:bg-yellow-400 text-gray-950 transition-colors"
                   >
                     {t('oreFinder.confirmSend')}

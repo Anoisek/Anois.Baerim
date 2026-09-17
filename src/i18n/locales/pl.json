@@ -298,7 +298,9 @@
     "guideStep3": "Jeśli chcesz, żeby bot oznaczał konkretną rolę, wpisz dodatkowo (podmień @rola na właściwą rolę):",
     "guideExampleLabel": "Tak wygląda wiadomość od bota:",
     "guideCloseButton": "Zamknij",
-    "historyButton": "Poprzednie miejsca"
+    "historyButton": "Poprzednie miejsca",
+    "pipVerifying": "Weryfikacja wysuniętego okna...",
+    "pipVerified": "Wysunięte okno zweryfikowane"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

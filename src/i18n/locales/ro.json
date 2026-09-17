@@ -298,7 +298,9 @@
     "guideStep3": "Dacă vrei ca botul să menționeze un rol anume, scrie și (înlocuiește @rola cu rolul real):",
     "guideExampleLabel": "Așa arată mesajul botului:",
     "guideCloseButton": "Închide",
-    "historyButton": "Locații anterioare"
+    "historyButton": "Locații anterioare",
+    "pipVerifying": "Se verifică fereastra plutitoare...",
+    "pipVerified": "Fereastră plutitoare verificată"
   },
   "hallOfFame": {
     "title": "🏆 Hall of Fame",

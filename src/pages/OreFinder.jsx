@@ -47,6 +47,8 @@ export default function OreFinder() {
   const [adminLogModalOpen, setAdminLogModalOpen] = useState(false)
   const [windowOpen, setWindowOpen] = useState(() => isOreAddWindowOpen())
   const [hoverPos, setHoverPos] = useState(null)
+  const [pipOpen, setPipOpen] = useState(false)
+  const [pipToken, setPipToken] = useState('')
   const [showHistory, setShowHistory] = useState(false)
   const [spawnHistory, setSpawnHistory] = useState([])
   const mapWrapRef = useRef(null)
@@ -84,6 +86,10 @@ export default function OreFinder() {
     const id = setInterval(() => setWindowOpen(isOreAddWindowOpen()), 1000)
     return () => clearInterval(id)
   }, [])
+
+  useEffect(() => {
+    if (!pipOpen) setPipToken('')
+  }, [pipOpen])
 
   // Past spawn locations - fetched lazily only while the toggle is on, and
   // refetched whenever the selected map changes while it's on. Purely a
@@ -283,8 +289,15 @@ export default function OreFinder() {
                           isAdmin={isAdmin}
                           onSend={sendOreReport}
                           onRemove={() => oreOnSelected && removeOre(oreOnSelected)}
+                          onOpenChange={setPipOpen}
+                          pipToken={pipToken}
                           t={t}
                         />
+                        {pipOpen && (
+                          <div className="fixed bottom-3 right-3 z-40 bg-gray-900/95 border border-gray-700 rounded-xl p-2 shadow-lg shadow-black/50">
+                            <TurnstileWidget onToken={setPipToken} autoRenew />
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div
