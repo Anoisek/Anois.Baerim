@@ -340,6 +340,11 @@
     "uploading": "Subiendo...",
     "chooseFile": "📁 Elegir foto"
   },
+  "moved": {
+    "title": "Este sitio ya no está disponible en esta dirección",
+    "body": "BaerimTools se ha mudado a baerimtools.com. Al continuar, se copiarán los ajustes y el progreso guardados en esta dirección. Lo que ya tengas en el sitio nuevo se mantiene sin cambios.",
+    "button": "Ir al sitio"
+  },
   "footer": {
     "privacyPolicy": "Política de privacidad",
     "suggestions": "Contacto"

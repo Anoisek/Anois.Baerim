@@ -340,6 +340,11 @@
     "uploading": "Nahrávanie...",
     "chooseFile": "📁 Vybrať fotku"
   },
+  "moved": {
+    "title": "Táto stránka už na tejto adrese nie je dostupná",
+    "body": "BaerimTools sa presunul na baerimtools.com. Po pokračovaní sa skopírujú nastavenia a postup uložené na tejto adrese. To, čo už máš na novej stránke, zostane bez zmeny.",
+    "button": "Prejsť na stránku"
+  },
   "footer": {
     "privacyPolicy": "Zásady ochrany osobných údajov",
     "suggestions": "Kontakt"

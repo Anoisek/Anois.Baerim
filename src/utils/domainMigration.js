@@ -9,7 +9,6 @@
 const OLD_HOSTS = ['anois-baerim.pages.dev', 'anois-baerim.vercel.app']
 const NEW_ORIGIN = 'https://baerimtools.com'
 const MIGRATE_PARAM = 'migrate'
-const MIGRATED_FLAG = 'migrated_to_baerimtools'
 
 const STATIC_KEYS = [
   'metin_nickname',
@@ -65,26 +64,22 @@ function applyPayload(data) {
   return applied
 }
 
-// Call once on app boot. Returns true if it triggered a redirect (caller should skip rendering).
-// Every visit to an old domain redirects to the new one; only the first visit (per browser)
-// carries the localStorage payload along — later redirects are plain, data's already there.
-export function redirectToNewDomain() {
-  if (!OLD_HOSTS.includes(location.hostname)) return false
+export function isOldHost() {
+  return OLD_HOSTS.includes(location.hostname)
+}
 
-  const alreadyMigrated = localStorage.getItem(MIGRATED_FLAG) === 'true'
+// Old domains no longer redirect on their own: they show a "moved" notice, and only
+// when the visitor clicks the button do they leave, carrying this browser's saved
+// data along. The new domain only fills in keys it doesn't already have, so it is
+// safe to send the payload every time — nothing on baerimtools.com gets overwritten.
+export function goToNewDomain() {
   const target = new URL(location.pathname + location.search, NEW_ORIGIN)
-
-  if (!alreadyMigrated) {
-    localStorage.setItem(MIGRATED_FLAG, 'true')
-    const payload = collectPayload()
-    if (Object.keys(payload).length > 0) {
-      target.searchParams.set(MIGRATE_PARAM, toBase64(JSON.stringify(payload)))
-    }
+  const payload = collectPayload()
+  if (Object.keys(payload).length > 0) {
+    target.searchParams.set(MIGRATE_PARAM, toBase64(JSON.stringify(payload)))
   }
   target.hash = location.hash
-
-  location.replace(target.toString())
-  return true
+  location.assign(target.toString())
 }
 
 // Call once on app boot, before anything reads localStorage.

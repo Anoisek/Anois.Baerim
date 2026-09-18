@@ -340,6 +340,11 @@
     "uploading": "Se încarcă...",
     "chooseFile": "📁 Alege fotografia"
   },
+  "moved": {
+    "title": "Acest site nu mai este disponibil la această adresă",
+    "body": "BaerimTools s-a mutat pe baerimtools.com. Dacă continui, setările și progresul salvate la această adresă vor fi copiate. Ce ai deja pe noul site rămâne neschimbat.",
+    "button": "Mergi pe site"
+  },
   "footer": {
     "privacyPolicy": "Politica de confidențialitate",
     "suggestions": "Contact"

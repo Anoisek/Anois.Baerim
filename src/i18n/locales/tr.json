@@ -340,6 +340,11 @@
     "uploading": "Yükleniyor...",
     "chooseFile": "📁 Fotoğraf seç"
   },
+  "moved": {
+    "title": "Bu site artık bu adreste mevcut değil",
+    "body": "BaerimTools baerimtools.com adresine taşındı. Devam ettiğinde bu adreste kayıtlı ayarların ve ilerlemen kopyalanır. Yeni sitede zaten sahip olduklarına dokunulmaz.",
+    "button": "Siteye git"
+  },
   "footer": {
     "privacyPolicy": "Gizlilik Politikası",
     "suggestions": "İletişim"

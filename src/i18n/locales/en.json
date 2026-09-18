@@ -424,6 +424,11 @@
       "body": ""
     }
   },
+  "moved": {
+    "title": "This site is no longer available at this address",
+    "body": "BaerimTools has moved to baerimtools.com. When you continue, the settings and progress saved on this address are copied over. Anything you already have on the new site is kept as it is.",
+    "button": "Go to the site"
+  },
   "footer": {
     "about": "About",
     "privacyPolicy": "Privacy Policy",

@@ -340,6 +340,11 @@
     "uploading": "Wird hochgeladen...",
     "chooseFile": "📁 Foto auswählen"
   },
+  "moved": {
+    "title": "Diese Website ist unter dieser Adresse nicht mehr verfügbar",
+    "body": "BaerimTools ist auf baerimtools.com umgezogen. Wenn du fortfährst, werden die unter dieser Adresse gespeicherten Einstellungen und Fortschritte übernommen. Was du auf der neuen Seite bereits hast, bleibt unverändert.",
+    "button": "Zur Website"
+  },
   "footer": {
     "privacyPolicy": "Datenschutzerklärung",
     "suggestions": "Kontakt"
