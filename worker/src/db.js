@@ -15,6 +15,7 @@
 // where map editors could only INSERT, never UPDATE/DELETE). DELETE follows deleteAuth.
 
 import { censorComment } from './profanity.js'
+import { hasDisallowedLink, LINKS_NOT_ALLOWED } from './links.js'
 import { broadcastToAll } from './webpush.js'
 import { sendDiscordDogAlert } from './discord.js'
 import { sendDiscordOreAlert } from './oreFinderDiscord.js'
@@ -84,6 +85,7 @@ const TABLES = {
       if (!hasComment && !hasImage) {
         return { error: 'comment must be 1-1000 characters, or image_url must be provided' }
       }
+      if (comment && hasDisallowedLink(comment)) return { error: LINKS_NOT_ALLOWED }
       const clean = Object.assign({}, row)
       clean.comment = comment ? censorComment(comment) : null
       return { row: clean }
@@ -160,6 +162,7 @@ const TABLES = {
       if (!GUIDE_LANGS.has(lang)) return { error: 'unknown lang' }
       if (!question || question.length > 500) return { error: 'question must be 1-500 characters' }
       if (!answer || answer.length > 2000) return { error: 'answer must be 1-2000 characters' }
+      if (hasDisallowedLink(question) || hasDisallowedLink(answer)) return { error: LINKS_NOT_ALLOWED }
       return {
         row: {
           category_id: categoryId,
@@ -216,6 +219,7 @@ const TABLES = {
       const x = Number(row.x)
       const y = Number(row.y)
       const rawComment = typeof row.comment === 'string' ? row.comment.trim().slice(0, 200) : ''
+      if (hasDisallowedLink(rawComment)) return { error: LINKS_NOT_ALLOWED }
       if (!ORE_FINDER_MAPS.has(map)) return { error: 'unknown map' }
       if (!Number.isFinite(x) || x < 0 || x > 100) return { error: 'invalid x' }
       if (!Number.isFinite(y) || y < 0 || y > 100) return { error: 'invalid y' }

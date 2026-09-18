@@ -78,11 +78,7 @@ export default function Navbar({ hideBanner = false }) {
                 {t('navbar.logOut')}
               </button>
             </>
-          ) : (
-            <Link to="/login" className="text-sm text-gray-500 hover:text-white transition-colors">
-              {t('navbar.adminLogin')}
-            </Link>
-          )}
+          ) : null}
         </div>
       </nav>
       {/* Home renders its own PromoBanner below the chapters box instead. */}

@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { hasDisallowedLink } from '../utils/linkFilter'
+import LinkifiedText from '../components/LinkifiedText'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -168,6 +170,10 @@ export default function OreFinder() {
   // it can't reuse the modal below directly - only this network logic).
   async function sendOreReport(x, y, comment, turnstileTokenArg) {
     if (!selectedMap || sending) return false
+    if (hasDisallowedLink(comment)) {
+      alert(t('linkFilter.notAllowed'))
+      return false
+    }
     setSending(true)
     const { data, error } = await db
       .from('ore_finder_ores')
@@ -370,7 +376,7 @@ export default function OreFinder() {
                             />
                           </div>
                           {oreOnSelected.comment && (
-                            <p className="text-gray-300">💬 {oreOnSelected.comment}</p>
+                            <p className="text-gray-300">💬 <LinkifiedText text={oreOnSelected.comment} /></p>
                           )}
                         </div>
                       ) : windowOpen ? (

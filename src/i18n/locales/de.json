@@ -345,6 +345,9 @@
     "body": "BaerimTools ist auf baerimtools.com umgezogen. Wenn du fortfährst, werden die unter dieser Adresse gespeicherten Einstellungen und Fortschritte übernommen. Was du auf der neuen Seite bereits hast, bleibt unverändert.",
     "button": "Zur Website"
   },
+  "linkFilter": {
+    "notAllowed": "Links sind nicht erlaubt. Nur YouTube-Links werden akzeptiert."
+  },
   "footer": {
     "privacyPolicy": "Datenschutzerklärung",
     "suggestions": "Kontakt"

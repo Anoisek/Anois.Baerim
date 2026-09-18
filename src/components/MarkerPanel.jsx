@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { hasDisallowedLink } from '../utils/linkFilter'
+import LinkifiedText from './LinkifiedText'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
@@ -84,6 +86,10 @@ export default function MarkerPanel({ marker, onClose }) {
       setCooldownUntil(startCooldown())
       setComment('')
       alert(t('markerPanel.bannedWordAlert'))
+      return
+    }
+    if (hasDisallowedLink(rawTrimmed)) {
+      alert(t('linkFilter.notAllowed'))
       return
     }
     const trimmed = censorText(rawTrimmed)
@@ -178,7 +184,7 @@ export default function MarkerPanel({ marker, onClose }) {
           <div className="flex flex-col gap-3">
             {notes.map(note => (
               <div key={note.id} className="bg-gray-800/60 border border-gray-700 rounded-lg p-3 relative">
-                {note.comment && <p className="text-sm text-gray-200 whitespace-pre-wrap pr-6">{note.comment}</p>}
+                {note.comment && <p className="text-sm text-gray-200 whitespace-pre-wrap pr-6"><LinkifiedText text={note.comment} /></p>}
                 {note.image_url && (
                   <img
                     src={note.image_url}

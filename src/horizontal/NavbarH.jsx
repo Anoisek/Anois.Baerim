@@ -147,11 +147,7 @@ export default function NavbarH() {
                 {t('navbar.logOut')}
               </button>
             </div>
-          ) : (
-            <NavLink to="/login" className="text-xs text-gray-500 hover:text-white transition-colors whitespace-nowrap">
-              {t('navbar.adminLogin')}
-            </NavLink>
-          )}
+          ) : null}
         </div>
       </div>
     </header>

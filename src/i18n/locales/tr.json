@@ -345,6 +345,9 @@
     "body": "BaerimTools baerimtools.com adresine taşındı. Devam ettiğinde bu adreste kayıtlı ayarların ve ilerlemen kopyalanır. Yeni sitede zaten sahip olduklarına dokunulmaz.",
     "button": "Siteye git"
   },
+  "linkFilter": {
+    "notAllowed": "Bağlantılara izin verilmez. Yalnızca YouTube bağlantıları kabul edilir."
+  },
   "footer": {
     "privacyPolicy": "Gizlilik Politikası",
     "suggestions": "İletişim"

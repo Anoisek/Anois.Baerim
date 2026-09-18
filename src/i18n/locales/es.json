@@ -345,6 +345,9 @@
     "body": "BaerimTools se ha mudado a baerimtools.com. Al continuar, se copiarán los ajustes y el progreso guardados en esta dirección. Lo que ya tengas en el sitio nuevo se mantiene sin cambios.",
     "button": "Ir al sitio"
   },
+  "linkFilter": {
+    "notAllowed": "No se permiten enlaces. Solo se aceptan enlaces de YouTube."
+  },
   "footer": {
     "privacyPolicy": "Política de privacidad",
     "suggestions": "Contacto"

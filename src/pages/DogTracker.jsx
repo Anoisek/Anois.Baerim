@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import Navbar from '../components/Navbar'
 import Spinner from '../components/Spinner'
 import { useAuth } from '../context/AuthContext'
@@ -240,6 +241,7 @@ function nearestTeleport(point, graph, teleports, walls) {
 
 export default function DogTracker() {
   const { isAdmin, isDogtrackerUser } = useAuth()
+  const { t: tr } = useTranslation()
   const [map, setMap] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(TABS[0])
@@ -650,7 +652,7 @@ export default function DogTracker() {
           ) : (
             <div className="text-center">
               <p className="text-3xl font-bold text-gray-600 mb-2">404</p>
-              <p className="text-gray-500 text-sm">Ta strona nie istnieje.</p>
+              <p className="text-gray-500 text-sm">{tr('mokokoFinder.notFoundBody')}</p>
             </div>
           )}
         </div>
