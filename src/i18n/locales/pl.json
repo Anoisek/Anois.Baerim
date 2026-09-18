@@ -340,6 +340,90 @@
     "uploading": "Wysyłanie...",
     "chooseFile": "📁 Wybierz zdjęcie"
   },
+  "pageInfo": {
+    "summary": "O tej stronie",
+    "siteTitle": "BaerimTools – kalkulatory, mapy i bazy danych do Metin2 Baerim",
+    "home": {
+      "title": "BaerimTools",
+      "description": "Darmowe narzędzia tworzone przez gracza dla graczy serwera Metin2 Baerim: kalkulatory kosztów craftingu i ulepszania, baza materiałów, kalkulator buildów, interaktywne mapy i przegląd systemów gry.",
+      "body": "BaerimTools zbiera praktyczne narzędzia dla graczy Baerim w jednym miejscu. Zacznij od Materiałów, żeby sprawdzić receptury i ceny, wejdź w Systemy po bonusy, alchemię, eksplorację, kamienie metin, system kolorów i interaktywne mapy albo zaplanuj postać w Kalkulatorze buildów."
+    },
+    "materials": {
+      "title": "Materiały i ceny",
+      "description": "Przeglądaj materiały Metin2 Baerim, sprawdź jak powstają te craftowalne i w jakich przedmiotach są używane, oraz wpisz własne ceny, żeby liczyć koszty craftingu.",
+      "body": "Ta lista zawiera materiały używane do craftingu i ulepszania na Baerim. Otwórz materiał, żeby zobaczyć jego recepturę (jeśli da się go wytworzyć) i przedmioty, które go używają. Wpisz własne ceny albo użyj wspólnych cen globalnych, żeby każdy kalkulator na stronie liczył według realnych cen na serwerze. Własne ceny zostają w Twojej przeglądarce, chyba że sam zdecydujesz się je wysłać."
+    },
+    "systems": {
+      "title": "Systemy gry",
+      "description": "Przegląd systemów Metin2 Baerim: bonusy, alchemia, poziomy eksploracji, interaktywna mapa Mokoko, kalkulator kamieni metin i system kolorów.",
+      "body": "Każdy kafelek otwiera osobne narzędzie: Bonusy pokazują przedmioty dające dany bonus, Alchemia liczy koszt łączenia kamieni alchemii, Eksploracja pokazuje poziomy eksploracji na mapie, Interaktywna mapa Mokoko oznacza miejsca do zebrania, Kalkulator Metinów szacuje co wypada z kamienia metin, a System kolorów pozwala podejrzeć kolory na postaciach."
+    },
+    "bonuses": {
+      "title": "Bonusy",
+      "description": "Bonusy Metin2 Baerim wraz z przedmiotami, które je dają, i maksymalną wartością, jaką można osiągnąć.",
+      "body": "Wybierz bonus, żeby zobaczyć przedmioty, które go dają, i maksymalną wartość bonusu. Możesz przełączać widok siatki i listy kontrolnej, żeby śledzić przedmioty, które już masz."
+    },
+    "alchemy": {
+      "title": "Kalkulator alchemii",
+      "description": "Policz koszt alchemii w Metin2 Baerim: wpisz cenę Cor Draconis i kamieni i porównaj tryb 100% oraz średni (50%).",
+      "body": "Wpisz cenę Cor Draconis i kamieni alchemii, żeby zobaczyć ile kosztuje dojście do docelowego stopnia kamienia. W trybie 100% dwa kamienie zawsze łączą się w jeden wyższego stopnia; w trybie średnim każda próba ma 50% szans i zużywa oba kamienie, więc kalkulator pokazuje oczekiwany koszt."
+    },
+    "exploration": {
+      "title": "Poziomy eksploracji",
+      "description": "Mapa poziomów eksploracji Metin2 Baerim z opisem i zrzutami ekranu dla każdego poziomu.",
+      "body": "Mapa pokazuje wszystkie poziomy eksploracji. Kliknij znacznik, żeby przeczytać co zrobić, dokąd iść i jak to wykonać, wraz ze zrzutami ekranu."
+    },
+    "interactiveMap": {
+      "title": "Interaktywna mapa Mokoko",
+      "description": "Interaktywne mapy Metin2 Baerim ze znacznikami mokoko i notatkami graczy. Oznaczaj zebrane miejsca, ukrywaj je i wysuwaj mapę do osobnego okna.",
+      "body": "Wybierz mapę i klikaj znaczniki, żeby zobaczyć notatki innych graczy. Możesz oznaczać mokoko jako zebrane, ukrywać zebrane i wysunąć mapę do osobnego okna (Picture-in-Picture), żeby miała ją na widoku podczas gry. Postępy zapisują się w Twojej przeglądarce."
+    },
+    "metinCalculator": {
+      "title": "Kalkulator Metinów",
+      "description": "Kalkulator kamieni metin Metin2 Baerim: sprawdź co wypada z każdego metina i oszacuj wartość runu według własnych cen materiałów.",
+      "body": "Wybierz kamień metin, żeby zobaczyć jego dropy. Włącz buffy dropu (głosowanie, casual, rękawica, gildia), a kalkulator oszacuje wartość dropu w yang według Twoich lub globalnych cen materiałów."
+    },
+    "colorSystem": {
+      "title": "System kolorów",
+      "description": "Podgląd kolorów broni, zbroi, kostiumów, fryzur i szarf Metin2 Baerim na modelu 3D, dla obu płci i każdej klasy.",
+      "body": "Wybierz płeć i klasę, a potem broń, zbroję, kostium, fryzurę lub szarfę, żeby zobaczyć ją na modelu 3D i przymierzyć kolory, zanim cokolwiek wydasz w grze."
+    },
+    "oreFinder": {
+      "title": "Wyszukiwarka rud",
+      "description": "Mapa aktywnych rud na Metin2 Baerim tworzona przez społeczność, z odliczaniem do zniknięcia każdej rudy.",
+      "body": "Gracze zgłaszają, gdzie pojawiła się ruda, a mapa pokazuje aktywne rudy wraz z czasem do ich zniknięcia. Zgłaszać można tylko w oknach xx:58–xx:09 oraz xx:28–xx:39. Mapę można wysunąć do osobnego okna."
+    },
+    "mokokoFinder": {
+      "title": "Wyszukiwarka mokoko",
+      "description": "Zgłoszenia lokalizacji mokoko na mapach Metin2 Baerim od społeczności, potwierdzane zrzutem ekranu i zatwierdzane przez admina.",
+      "body": "Kliknij mapę, żeby zgłosić mokoko wraz ze zrzutem ekranu jako dowodem. Zgłoszenia sprawdza admin, a duplikaty tego samego mokoko są łączone w jedno."
+    },
+    "buildCalculator": {
+      "title": "Kalkulator buildów",
+      "description": "Zaplanuj build w Metin2 Baerim: dodaj przedmioty i zobacz łączną sumę materiałów i yang potrzebnych do ich craftu i ulepszenia.",
+      "body": "Wyszukaj przedmioty i dodaj je do buildu. Kalkulator sumuje materiały i yang potrzebne do craftingu i ulepszenia wszystkiego. Ustaw poziom, który już posiadasz, żeby ukryć opłacone koszty, i zmieniaj pity dla wszystkich przedmiotów naraz."
+    },
+    "compendium": {
+      "title": "Kompendium Baerim",
+      "description": "Pytania i odpowiedzi społeczności Metin2 Baerim, zebrane z rozmów na Discordzie i uporządkowane tematycznie.",
+      "body": ""
+    },
+    "about": {
+      "title": "O BaerimTools",
+      "description": "BaerimTools to hobbystyczny projekt gracza Metin2 Baerim: kalkulatory, mapy i bazy danych, które ułatwiają codzienne rzeczy w grze.",
+      "body": ""
+    },
+    "contact": {
+      "title": "Kontakt i sugestie",
+      "description": "Wyślij sugestię lub zgłoś problem z BaerimTools.",
+      "body": ""
+    },
+    "privacyPolicy": {
+      "title": "Polityka prywatności",
+      "description": "Jak BaerimTools przechowuje dane w Twojej przeglądarce, jak działają reklamy (Google AdSense) i jak się z nami skontaktować w sprawie danych.",
+      "body": ""
+    }
+  },
   "footer": {
     "about": "O stronie",
     "privacyPolicy": "Polityka prywatności",

@@ -30,6 +30,8 @@ import FooterH from './horizontal/FooterH'
 import ScrollToTop from './components/ScrollToTop'
 import NicknamePrompt from './components/NicknamePrompt'
 import Footer from './components/Footer'
+import PageMeta from './components/PageMeta'
+import PageInfo from './components/PageInfo'
 import DomainChangeNotice from './components/DomainChangeNotice'
 import AdConsentBanner from './components/AdConsentBanner'
 import RestoreOldDataButton from './components/RestoreOldDataButton'
@@ -101,6 +103,7 @@ export default function App() {
         <LayoutStyleProvider>
         <ModalQueueProvider>
           <ScrollToTop />
+          <PageMeta />
           <NicknamePrompt />
           <DomainChangeNotice />
           <AdConsentBanner />
@@ -144,6 +147,7 @@ export default function App() {
               <Route path="/mokoko-finder" element={<MokokoFinder />} />
               </Routes>
             </div>
+            <PageInfo />
             <AppFooter />
           </AppShell>
         </ModalQueueProvider>
