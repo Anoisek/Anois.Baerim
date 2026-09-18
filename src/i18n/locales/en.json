@@ -341,8 +341,29 @@
     "chooseFile": "📁 Choose photo"
   },
   "footer": {
+    "about": "About",
     "privacyPolicy": "Privacy Policy",
     "suggestions": "Contact"
+  },
+  "about": {
+    "title": "About BaerimTools",
+    "whoTitle": "Who is behind this site",
+    "who": "Hi! I'm a player of the Baerim Metin2 server. BaerimTools is a hobby project that I build in my free time, because I wanted to make everyday things in the game simpler for myself and for other players.",
+    "whatTitle": "What you can find here",
+    "whatIntro": "BaerimTools is a set of practical tools for Baerim players:",
+    "items": [
+      "Material and item database with crafting and upgrade recipes, so you can see what you need and where it comes from.",
+      "Crafting and upgrade cost calculators that add up the required materials and yang for you.",
+      "Build calculator for planning your character.",
+      "Interactive maps with markers, notes and helpers, including finders for ores and mokoko.",
+      "Overviews of game systems such as bonuses, alchemy, exploration levels, metin stones and the color system."
+    ],
+    "dataTitle": "About the data",
+    "data": "The data on this site is collected and maintained manually by me with help from other players. The game changes over time, so some entries may be outdated or incomplete. If you notice a mistake, please let me know and I will fix it.",
+    "adsTitle": "Why there are ads",
+    "ads": "The site is free to use. If you accept the consent banner, ads (Google AdSense) are shown to help cover hosting costs. Details are in the Privacy Policy.",
+    "contactTitle": "Contact",
+    "contact": "Found a bug, have an idea or want to help with data? Write to me at"
   },
   "adsConsent": {
     "message": "This site uses local browser storage to remember your language, settings and progress. If you accept, we'll also show ads (Google AdSense) to help cover hosting costs.",

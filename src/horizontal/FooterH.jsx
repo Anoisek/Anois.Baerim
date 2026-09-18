@@ -15,6 +15,7 @@ export default function FooterH() {
         </div>
         <span>© {new Date().getFullYear()} BaerimTools — {t('navbar.tagline')}</span>
         <div className="flex items-center gap-4">
+          <Link to="/about" className="hover:text-gray-300 transition-colors underline">{t('footer.about')}</Link>
           <Link to="/suggestions" className="hover:text-gray-300 transition-colors underline">{t('footer.suggestions')}</Link>
           <Link to="/privacy-policy" className="hover:text-gray-300 transition-colors underline">{t('footer.privacyPolicy')}</Link>
         </div>

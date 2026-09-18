@@ -22,6 +22,7 @@ import ExplorationH from './horizontal/ExplorationH'
 import ExplorationLevelH from './horizontal/ExplorationLevelH'
 import MetinDetailH from './horizontal/MetinDetailH'
 import PrivacyPolicyH from './horizontal/PrivacyPolicyH'
+import AboutH from './horizontal/AboutH'
 import SuggestionsH from './horizontal/SuggestionsH'
 import CommunityGuideH from './horizontal/CommunityGuideH'
 import MapsH from './horizontal/MapsH'
@@ -54,6 +55,7 @@ import Subcategory from './pages/Subcategory'
 import ItemDetail from './pages/ItemDetail'
 import ItemUsage from './pages/ItemUsage'
 import PrivacyPolicy from './pages/PrivacyPolicy'
+import About from './pages/About'
 import Suggestions from './pages/Suggestions'
 import CommunityGuide from './pages/CommunityGuide'
 import DogTracker from './pages/DogTracker'
@@ -133,6 +135,7 @@ export default function App() {
               <Route path="/chapter/:categoryId/sub/:subcategoryId" element={<Routed vertical={Subcategory} horizontal={SubcategoryH} />} />
               <Route path="/chapter/:categoryId/item/:itemId" element={<Routed vertical={ItemDetail} horizontal={ItemDetailH} />} />
               <Route path="/items/:itemId/usage" element={<Routed vertical={ItemUsage} horizontal={ItemUsageH} />} />
+              <Route path="/about" element={<Routed vertical={About} horizontal={AboutH} />} />
               <Route path="/privacy-policy" element={<Routed vertical={PrivacyPolicy} horizontal={PrivacyPolicyH} />} />
               <Route path="/suggestions" element={<Routed vertical={Suggestions} horizontal={SuggestionsH} />} />
               <Route path="/aiguide" element={<Routed vertical={CommunityGuide} horizontal={CommunityGuideH} />} />

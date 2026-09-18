@@ -341,8 +341,29 @@
     "chooseFile": "📁 Wybierz zdjęcie"
   },
   "footer": {
+    "about": "O stronie",
     "privacyPolicy": "Polityka prywatności",
     "suggestions": "Kontakt"
+  },
+  "about": {
+    "title": "O BaerimTools",
+    "whoTitle": "Kto stoi za tą stroną",
+    "who": "Cześć! Jestem graczem serwera Baerim w Metin2. BaerimTools to hobbystyczny projekt, nad którym pracuję w wolnym czasie, bo chciałem ułatwić codzienne rzeczy w grze sobie i innym graczom.",
+    "whatTitle": "Co tu znajdziesz",
+    "whatIntro": "BaerimTools to zestaw praktycznych narzędzi dla graczy Baerim:",
+    "items": [
+      "Baza materiałów i przedmiotów z recepturami craftingu i ulepszania, żebyś wiedział, czego potrzebujesz i skąd to wziąć.",
+      "Kalkulatory kosztów craftingu i ulepszania, które za Ciebie zliczają wymagane materiały i yang.",
+      "Kalkulator buildów do planowania postaci.",
+      "Interaktywne mapy z markerami, notatkami i pomocnikami, w tym wyszukiwarki rud i mokoko.",
+      "Przegląd systemów gry, takich jak bonusy, alchemia, poziomy eksploracji, kamienie metin i system kolorów."
+    ],
+    "dataTitle": "O danych",
+    "data": "Dane na tej stronie zbieram i uzupełniam ręcznie, z pomocą innych graczy. Gra się zmienia, więc część wpisów może być nieaktualna lub niepełna. Jeśli zauważysz błąd, daj mi znać, a go poprawię.",
+    "adsTitle": "Dlaczego są reklamy",
+    "ads": "Strona jest darmowa. Jeśli zaakceptujesz baner zgody, wyświetlamy reklamy (Google AdSense), które pomagają pokryć koszty hostingu. Szczegóły w Polityce prywatności.",
+    "contactTitle": "Kontakt",
+    "contact": "Znalazłeś błąd, masz pomysł albo chcesz pomóc z danymi? Napisz do mnie na"
   },
   "adsConsent": {
     "message": "Ta strona wykorzystuje lokalną pamięć przeglądarki, żeby zapamiętać Twój język, ustawienia i postępy. Jeśli zaakceptujesz, wyświetlimy też reklamy (Google AdSense), żeby pomóc pokryć koszty hostingu.",
