@@ -7,7 +7,7 @@ import { PAGE_INFO, SITE_URL } from './src/seo/pageInfo.js'
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
-// Emits one static HTML file per route in PAGE_INFO (dist/<route>/index.html) with the
+// Emits one static HTML file per route in PAGE_INFO (dist/<route>.html, which Pages serves at /<route> without a redirect) with the
 // right <title>, meta description, canonical and a plain-text version of the page intro
 // inside #root. The SPA replaces #root on load, and the same text is shown to every
 // visitor in the collapsed "About this page" block — so crawlers and users get the
@@ -48,7 +48,7 @@ function prerenderPages() {
           .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${esc(info.description)}$2`)
           .replace('<div id="root"></div>', `<div id="root">${shell}</div>`)
 
-        const file = page.path === '/' ? path.join(outDir, 'index.html') : path.join(outDir, page.path, 'index.html')
+        const file = page.path === '/' ? path.join(outDir, 'index.html') : path.join(outDir, `${page.path}.html`)
         fs.mkdirSync(path.dirname(file), { recursive: true })
         fs.writeFileSync(file, html)
       }
