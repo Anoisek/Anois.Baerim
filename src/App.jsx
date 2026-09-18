@@ -34,7 +34,6 @@ import PageMeta from './components/PageMeta'
 import PageInfo from './components/PageInfo'
 import DomainChangeNotice from './components/DomainChangeNotice'
 import AdConsentBanner from './components/AdConsentBanner'
-import RestoreOldDataButton from './components/RestoreOldDataButton'
 import CommunityGuideLink from './components/CommunityGuideLink'
 import DogTrackerLink from './components/DogTrackerLink'
 import MokokoFinderLink from './components/MokokoFinderLink'
@@ -107,7 +106,6 @@ export default function App() {
           <NicknamePrompt />
           <DomainChangeNotice />
           <AdConsentBanner />
-          <RestoreOldDataButton />
           <CommunityGuideLink />
           <DogTrackerLink />
           <MokokoFinderLink />
