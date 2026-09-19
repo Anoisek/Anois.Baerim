@@ -77,6 +77,14 @@ export default function SubcategoryH() {
     persistItemOrder(b.id, a.sort_order)
   }
 
+  async function toggleHidden(item) {
+    const next = !item.maintenance_hidden
+    setItems(prev => prev.map(i => i.id === item.id ? { ...i, maintenance_hidden: next } : i))
+    await db.from('items').update({ maintenance_hidden: next }).eq('id', item.id)
+  }
+
+  const shownItems = isAdmin ? items : items.filter(i => !(i.maintenance && i.maintenance_hidden))
+
   async function toggleMaintenance(item) {
     const next = !item.maintenance
     setItems(prev => prev.map(i => i.id === item.id ? { ...i, maintenance: next } : i))
@@ -113,7 +121,7 @@ export default function SubcategoryH() {
           <EmptyState emoji="📭" text={t('subcategory.noItemsYet')} />
         ) : view === 'grid' ? (
           <GridWrap>
-            {items.map(item => {
+            {shownItems.map(item => {
               const blocked = item.maintenance && !isAdmin
               return (
                 <GridTile
@@ -126,13 +134,15 @@ export default function SubcategoryH() {
                   maintenance={item.maintenance}
                   blocked={blocked}
                   onToggleMaintenance={isAdmin && editMode ? () => toggleMaintenance(item) : undefined}
+                  hidden={item.maintenance_hidden}
+                  onToggleHidden={isAdmin && editMode ? () => toggleHidden(item) : undefined}
                 />
               )
             })}
           </GridWrap>
         ) : (
           <RowList>
-            {items.map((item, index) => {
+            {shownItems.map((item, index) => {
               const blocked = item.maintenance && !isAdmin
               return (
                 <Row
@@ -151,6 +161,8 @@ export default function SubcategoryH() {
                   maintenance={item.maintenance}
                   blocked={blocked}
                   onToggleMaintenance={isAdmin && editMode ? () => toggleMaintenance(item) : undefined}
+                  hidden={item.maintenance_hidden}
+                  onToggleHidden={isAdmin && editMode ? () => toggleHidden(item) : undefined}
                 >
                   {!editMode && usedInItemIds.has(item.id) && (
                     <button

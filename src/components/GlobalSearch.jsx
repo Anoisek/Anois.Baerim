@@ -62,17 +62,19 @@ export default function GlobalSearch() {
     setLoading(true)
     const timeout = setTimeout(() => {
       Promise.all([
-        db.from('categories').select('id, name, image_url').ilike('name', `%${q}%`).limit(5),
-        db.from('subcategories').select('id, name, image_url, category_id').ilike('name', `%${q}%`).limit(5),
+        db.from('categories').select('id, name, image_url, maintenance, maintenance_hidden').ilike('name', `%${q}%`).limit(isAdmin ? 5 : 30),
+        db.from('subcategories').select('id, name, image_url, category_id, maintenance, maintenance_hidden').ilike('name', `%${q}%`).limit(isAdmin ? 5 : 30),
         db.from('materials').select('id, name, image_url').ilike('name', `%${q}%`).limit(isAdmin ? 5 : 30),
         isAdmin ? Promise.resolve(new Set()) : fetchHiddenMaterialIds(),
-        db.from('items').select('id, name, image_url, category_id').ilike('name', `%${q}%`).limit(5),
+        db.from('items').select('id, name, image_url, category_id, maintenance, maintenance_hidden').ilike('name', `%${q}%`).limit(isAdmin ? 5 : 30),
       ]).then(([chaptersRes, categoriesRes, materialsRes, hiddenIds, itemsRes]) => {
+        // In-progress entries the admin marked "hidden" stay out of results for users.
+        const shown = rows => (rows ?? []).filter(r => isAdmin || !(r.maintenance && r.maintenance_hidden)).slice(0, 5)
         setResults({
-          chapters: chaptersRes.data ?? [],
-          categories: categoriesRes.data ?? [],
+          chapters: shown(chaptersRes.data),
+          categories: shown(categoriesRes.data),
           materials: (materialsRes.data ?? []).filter(m => !hiddenIds.has(m.id)).slice(0, 5),
-          items: itemsRes.data ?? [],
+          items: shown(itemsRes.data),
         })
         setLoading(false)
       })

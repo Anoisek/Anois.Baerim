@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import ReorderButtons from './ReorderButtons'
 
-export default function Tile({ to, image, emoji, label, sublabel, dashed, onClick, onEdit, reorder, maintenance, onToggleMaintenance, blocked }) {
+export default function Tile({ to, image, emoji, label, sublabel, dashed, onClick, onEdit, reorder, maintenance, onToggleMaintenance, blocked, hidden, onToggleHidden }) {
   const { t } = useTranslation()
   const cls = `group relative bg-gray-900/80 border ${dashed ? 'border-dashed border-gray-600' : 'border-gray-700'} rounded-2xl p-6 flex flex-col items-center gap-4 transition-all duration-200 ${
     blocked ? 'opacity-50 cursor-not-allowed' : 'hover:border-yellow-400/50 hover:bg-gray-800/80 hover:shadow-lg hover:shadow-black/40 hover:-translate-y-0.5'
@@ -22,10 +22,15 @@ export default function Tile({ to, image, emoji, label, sublabel, dashed, onClic
         <span className="text-xs text-gray-500 text-center -mt-3">{sublabel}</span>
       )}
       {maintenance && (
-        <span className="absolute inset-0 flex items-center justify-center bg-gray-950/70 rounded-2xl pointer-events-none">
+        <span className="absolute inset-0 flex flex-col gap-1.5 items-center justify-center bg-gray-950/70 rounded-2xl pointer-events-none">
           <span className="text-xs font-bold text-yellow-400 bg-gray-900 border border-yellow-400/40 px-2 py-1 rounded-full">
             🚧 {t('common.inProgress')}
           </span>
+          {hidden && (
+            <span className="text-xs font-bold text-gray-300 bg-gray-900 border border-gray-500/40 px-2 py-1 rounded-full">
+              🙈 Hidden from users
+            </span>
+          )}
         </span>
       )}
       {onEdit && (
@@ -47,6 +52,17 @@ export default function Tile({ to, image, emoji, label, sublabel, dashed, onClic
           title={maintenance ? t('common.endMaintenance') : t('common.markInProgress')}
         >
           🚧
+        </button>
+      )}
+      {maintenance && onToggleHidden && (
+        <button
+          onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleHidden() }}
+          className={`absolute bottom-2 left-2 text-xs px-1.5 py-1 rounded-full border transition-colors z-10 ${
+            hidden ? 'bg-yellow-400 text-gray-950 border-yellow-400' : 'bg-gray-800/90 border-gray-600 text-gray-300 hover:text-yellow-400'
+          }`}
+          title={hidden ? 'Hidden from users while in progress — click to show' : 'Visible to users while in progress — click to hide'}
+        >
+          {hidden ? '🙈' : '👁'}
         </button>
       )}
     </>

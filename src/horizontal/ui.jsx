@@ -88,7 +88,7 @@ export function ViewToggle({ view, onChange }) {
 
 // One full-width banded row: icon | label(+sublabel) | children (tags/price/etc,
 // flows in the middle) | admin controls | chevron. Used by every "list view" page.
-export function Row({ to, onClick, image, emoji, label, sublabel, dashed, blocked, onEdit, onToggleMaintenance, maintenance, reorder, children }) {
+export function Row({ to, onClick, image, emoji, label, sublabel, dashed, blocked, onEdit, onToggleMaintenance, maintenance, hidden, onToggleHidden, reorder, children }) {
   const { t } = useTranslation()
   const inner = (
     <>
@@ -113,10 +113,20 @@ export function Row({ to, onClick, image, emoji, label, sublabel, dashed, blocke
           🚧 {t('common.inProgress')}
         </span>
       )}
+      {maintenance && hidden && (
+        <span className="shrink-0 text-[11px] font-bold text-gray-300 bg-black/40 border border-white/20 px-2 py-1 rounded-full">🙈 Hidden</span>
+      )}
       {onToggleMaintenance && (
         <button onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleMaintenance() }}
           className={`shrink-0 text-[11px] px-1.5 py-1 rounded-full border transition-colors ${maintenance ? 'bg-yellow-400 text-gray-950 border-yellow-400' : 'bg-black/30 border-white/10 text-gray-400 hover:text-yellow-400'}`}>
           🚧
+        </button>
+      )}
+      {maintenance && onToggleHidden && (
+        <button onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleHidden() }}
+          title={hidden ? 'Hidden from users while in progress — click to show' : 'Visible to users while in progress — click to hide'}
+          className={`shrink-0 text-[11px] px-1.5 py-1 rounded-full border transition-colors ${hidden ? 'bg-yellow-400 text-gray-950 border-yellow-400' : 'bg-black/30 border-white/10 text-gray-400 hover:text-yellow-400'}`}>
+          {hidden ? '🙈' : '👁'}
         </button>
       )}
       {onEdit && (
@@ -139,7 +149,7 @@ export function Row({ to, onClick, image, emoji, label, sublabel, dashed, blocke
 }
 
 // Compact square tile for "grid view" — same data, denser browsing.
-export function GridTile({ to, onClick, image, emoji, label, dashed, blocked, onEdit, maintenance, onToggleMaintenance }) {
+export function GridTile({ to, onClick, image, emoji, label, dashed, blocked, onEdit, maintenance, onToggleMaintenance, hidden, onToggleHidden }) {
   const inner = (
     <>
       <div className="w-14 h-14 flex items-center justify-center rounded-lg bg-black/30 border border-white/5">
@@ -148,13 +158,20 @@ export function GridTile({ to, onClick, image, emoji, label, dashed, blocked, on
       <span className={`text-xs font-semibold text-center leading-tight line-clamp-2 ${dashed ? 'text-gray-500 group-hover:text-gray-300' : 'text-gray-200'}`}>{label}</span>
       {maintenance && (
         <span className="absolute inset-0 flex items-center justify-center bg-black/70 rounded-xl pointer-events-none">
-          <span className="text-[10px] font-bold text-yellow-400 bg-[#14110d] border border-yellow-400/40 px-1.5 py-0.5 rounded-full">🚧</span>
+          <span className="text-[10px] font-bold text-yellow-400 bg-[#14110d] border border-yellow-400/40 px-1.5 py-0.5 rounded-full">🚧{hidden && ' 🙈'}</span>
         </span>
       )}
       {onToggleMaintenance && (
         <button onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleMaintenance() }}
           className={`absolute bottom-1.5 right-1.5 text-[10px] px-1 py-0.5 rounded-full border transition-colors z-10 ${maintenance ? 'bg-yellow-400 text-gray-950 border-yellow-400' : 'bg-black/50 border-white/10 text-gray-300 hover:text-yellow-400'}`}>
           🚧
+        </button>
+      )}
+      {maintenance && onToggleHidden && (
+        <button onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleHidden() }}
+          title={hidden ? 'Hidden from users while in progress — click to show' : 'Visible to users while in progress — click to hide'}
+          className={`absolute bottom-1.5 left-1.5 text-[10px] px-1 py-0.5 rounded-full border transition-colors z-10 ${hidden ? 'bg-yellow-400 text-gray-950 border-yellow-400' : 'bg-black/50 border-white/10 text-gray-300 hover:text-yellow-400'}`}>
+          {hidden ? '🙈' : '👁'}
         </button>
       )}
       {onEdit && (

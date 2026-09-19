@@ -10,7 +10,8 @@ CREATE TABLE categories (
   image_url TEXT,
   created_at TEXT NOT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
-  maintenance INTEGER NOT NULL DEFAULT 0
+  maintenance INTEGER NOT NULL DEFAULT 0,
+  maintenance_hidden INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE subcategories (
@@ -20,7 +21,8 @@ CREATE TABLE subcategories (
   image_url TEXT,
   created_at TEXT NOT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
-  maintenance INTEGER NOT NULL DEFAULT 0
+  maintenance INTEGER NOT NULL DEFAULT 0,
+  maintenance_hidden INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX idx_subcategories_category_id ON subcategories(category_id);
 
@@ -33,7 +35,8 @@ CREATE TABLE items (
   subcategory_id TEXT REFERENCES subcategories(id),
   image_urls TEXT NOT NULL DEFAULT '[]',
   sort_order INTEGER NOT NULL DEFAULT 0,
-  maintenance INTEGER NOT NULL DEFAULT 0
+  maintenance INTEGER NOT NULL DEFAULT 0,
+  maintenance_hidden INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX idx_items_category_id ON items(category_id);
 CREATE INDEX idx_items_subcategory_id ON items(subcategory_id);

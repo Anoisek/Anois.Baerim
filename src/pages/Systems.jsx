@@ -38,6 +38,7 @@ export default function Systems() {
   const tiles = tileDefs.map(def => ({
     ...def,
     maintenance: settingsMap[`system_${def.key}_maintenance`] === 'true',
+    hidden: settingsMap[`system_${def.key}_maintenance_hidden`] === 'true',
     label: settingsMap[`system_${def.key}_name`] || def.defaultLabel,
     icon: settingsMap[`system_${def.key}_icon`] || '',
   }))
@@ -45,6 +46,13 @@ export default function Systems() {
   async function toggleMaintenance(tile) {
     const next = !tile.maintenance
     const key = `system_${tile.key}_maintenance`
+    setSettingsMap(prev => ({ ...prev, [key]: String(next) }))
+    await db.from('settings').upsert({ key, value: String(next) })
+  }
+
+  async function toggleHidden(tile) {
+    const next = !tile.hidden
+    const key = `system_${tile.key}_maintenance_hidden`
     setSettingsMap(prev => ({ ...prev, [key]: String(next) }))
     await db.from('settings').upsert({ key, value: String(next) })
   }
@@ -75,7 +83,7 @@ export default function Systems() {
 
           {loading ? <Spinner /> : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {tiles.map(tile => (
+              {(isAdmin ? tiles : tiles.filter(tile => !(tile.maintenance && tile.hidden))).map(tile => (
                 <Tile
                   key={tile.key}
                   to={tile.to}
@@ -86,6 +94,8 @@ export default function Systems() {
                   blocked={tile.maintenance && !isAdmin}
                   onEdit={isAdmin ? () => setEditingTileKey(tile.key) : undefined}
                   onToggleMaintenance={isAdmin && editMode ? () => toggleMaintenance(tile) : undefined}
+                  hidden={tile.hidden}
+                  onToggleHidden={isAdmin && editMode ? () => toggleHidden(tile) : undefined}
                 />
               ))}
             </div>

@@ -77,6 +77,14 @@ export default function Subcategory() {
     persistItemOrder(b.id, a.sort_order)
   }
 
+  async function toggleHidden(item) {
+    const next = !item.maintenance_hidden
+    setItems(prev => prev.map(i => i.id === item.id ? { ...i, maintenance_hidden: next } : i))
+    await db.from('items').update({ maintenance_hidden: next }).eq('id', item.id)
+  }
+
+  const shownItems = isAdmin ? items : items.filter(i => !(i.maintenance && i.maintenance_hidden))
+
   async function toggleMaintenance(item) {
     const next = !item.maintenance
     setItems(prev => prev.map(i => i.id === item.id ? { ...i, maintenance: next } : i))
@@ -125,7 +133,7 @@ export default function Subcategory() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {items.map((item, index) => {
+            {shownItems.map((item, index) => {
               const blocked = item.maintenance && !isAdmin
               const Wrapper = blocked ? 'div' : Link
               const wrapperProps = blocked ? {} : { to: `/chapter/${categoryId}/item/${slugify(item.name)}` }
@@ -146,10 +154,15 @@ export default function Subcategory() {
                   {formatItemName(item)}
                 </span>
                 {item.maintenance && (
-                  <span className="absolute inset-0 flex items-center justify-center bg-gray-950/70 rounded-2xl pointer-events-none">
+                  <span className="absolute inset-0 flex flex-col gap-1.5 items-center justify-center bg-gray-950/70 rounded-2xl pointer-events-none">
                     <span className="text-xs font-bold text-yellow-400 bg-gray-900 border border-yellow-400/40 px-2 py-1 rounded-full">
                       🚧 {t('common.inProgress')}
                     </span>
+                    {item.maintenance_hidden && (
+                      <span className="text-xs font-bold text-gray-300 bg-gray-900 border border-gray-500/40 px-2 py-1 rounded-full">
+                        🙈 Hidden from users
+                      </span>
+                    )}
                   </span>
                 )}
                 {isAdmin && editMode && (
@@ -178,6 +191,17 @@ export default function Subcategory() {
                     title={item.maintenance ? t('common.endMaintenance') : t('common.markInProgress')}
                   >
                     🚧
+                  </button>
+                )}
+                {isAdmin && editMode && item.maintenance && (
+                  <button
+                    onClick={e => { e.preventDefault(); e.stopPropagation(); toggleHidden(item) }}
+                    className={`absolute bottom-2 left-2 text-xs px-1.5 py-1 rounded-full border transition-colors z-10 ${
+                      item.maintenance_hidden ? 'bg-yellow-400 text-gray-950 border-yellow-400' : 'bg-gray-800/90 border-gray-600 text-gray-300 hover:text-yellow-400'
+                    }`}
+                    title={item.maintenance_hidden ? 'Hidden from users while in progress — click to show' : 'Visible to users while in progress — click to hide'}
+                  >
+                    {item.maintenance_hidden ? '🙈' : '👁'}
                   </button>
                 )}
                 {isAdmin && (

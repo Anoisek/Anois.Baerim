@@ -83,6 +83,7 @@ export default function Home() {
   const [materialsMaintenance, setMaterialsMaintenance] = useState(false)
   const [systemsMaintenance, setSystemsMaintenance] = useState(false)
   const [buildCalculatorMaintenance, setBuildCalculatorMaintenance] = useState(false)
+  const [hiddenMap, setHiddenMap] = useState({}) // { materials|systems|buildcalculator: bool } - hidden from users while in progress
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [editing, setEditing] = useState(null)
@@ -103,7 +104,9 @@ export default function Home() {
       db.from('settings').select('value').eq('key', 'buildcalculator_image_url').maybeSingle(),
       db.from('settings').select('value').eq('key', 'buildcalculator_sort_order').maybeSingle(),
       db.from('settings').select('value').eq('key', 'buildcalculator_maintenance').maybeSingle(),
-    ]).then(([catRes, materialsRes, systemsRes, materialsOrderRes, systemsOrderRes, materialsMaintRes, systemsMaintRes, buildCalculatorRes, buildCalculatorOrderRes, buildCalculatorMaintRes]) => {
+      db.from('settings').select('key, value').ilike('key', '%\\_maintenance\\_hidden'),
+    ]).then(([catRes, materialsRes, systemsRes, materialsOrderRes, systemsOrderRes, materialsMaintRes, systemsMaintRes, buildCalculatorRes, buildCalculatorOrderRes, buildCalculatorMaintRes, hiddenRes]) => {
+      setHiddenMap(Object.fromEntries((hiddenRes.data ?? []).map(r => [r.key.replace('_maintenance_hidden', ''), r.value === 'true'])))
       setCategories(catRes.data ?? [])
       setMaterialsImage(materialsRes.data?.value ?? null)
       setSystemsImage(systemsRes.data?.value ?? null)
@@ -119,10 +122,10 @@ export default function Home() {
   }, [])
 
   const tiles = [
-    { kind: 'materials', key: 'materials', sort_order: materialsOrder, maintenance: materialsMaintenance, to: '/materials', image: materialsImage, emoji: '⚗️', label: t('home.materials'), onEdit: () => setEditingMaterials(true) },
-    { kind: 'systems', key: 'systems', sort_order: systemsOrder, maintenance: systemsMaintenance, to: '/systems', image: systemsImage, emoji: '⚙️', label: t('home.systems'), onEdit: () => setEditingSystems(true) },
-    { kind: 'buildcalculator', key: 'buildcalculator', sort_order: buildCalculatorOrder, maintenance: buildCalculatorMaintenance, to: '/buildcalculator', image: buildCalculatorImage, emoji: '🛡️', label: t('home.buildCalculator'), onEdit: () => setEditingBuildCalculator(true) },
-    ...categories.map(cat => ({ kind: 'category', key: cat.id, sort_order: cat.sort_order, maintenance: cat.maintenance ?? false, to: `/chapter/${slugify(cat.name)}`, image: cat.image_url, emoji: '📦', label: cat.name, onEdit: () => setEditing(cat), raw: cat })),
+    { kind: 'materials', key: 'materials', sort_order: materialsOrder, maintenance: materialsMaintenance, hidden: hiddenMap.materials ?? false, to: '/materials', image: materialsImage, emoji: '⚗️', label: t('home.materials'), onEdit: () => setEditingMaterials(true) },
+    { kind: 'systems', key: 'systems', sort_order: systemsOrder, maintenance: systemsMaintenance, hidden: hiddenMap.systems ?? false, to: '/systems', image: systemsImage, emoji: '⚙️', label: t('home.systems'), onEdit: () => setEditingSystems(true) },
+    { kind: 'buildcalculator', key: 'buildcalculator', sort_order: buildCalculatorOrder, maintenance: buildCalculatorMaintenance, hidden: hiddenMap.buildcalculator ?? false, to: '/buildcalculator', image: buildCalculatorImage, emoji: '🛡️', label: t('home.buildCalculator'), onEdit: () => setEditingBuildCalculator(true) },
+    ...categories.map(cat => ({ kind: 'category', key: cat.id, sort_order: cat.sort_order, maintenance: cat.maintenance ?? false, hidden: cat.maintenance_hidden ?? false, to: `/chapter/${slugify(cat.name)}`, image: cat.image_url, emoji: '📦', label: cat.name, onEdit: () => setEditing(cat), raw: cat })),
   ].sort((a, b) => a.sort_order - b.sort_order)
 
   async function toggleMaintenance(tile) {
@@ -141,6 +144,19 @@ export default function Home() {
       await db.from('categories').update({ maintenance: next }).eq('id', tile.key)
     }
   }
+
+  async function toggleHidden(tile) {
+    const next = !tile.hidden
+    if (tile.kind === 'category') {
+      setCategories(prev => prev.map(c => c.id === tile.key ? { ...c, maintenance_hidden: next } : c))
+      await db.from('categories').update({ maintenance_hidden: next }).eq('id', tile.key)
+    } else {
+      setHiddenMap(prev => ({ ...prev, [tile.kind]: next }))
+      await db.from('settings').upsert({ key: `${tile.kind}_maintenance_hidden`, value: String(next) })
+    }
+  }
+
+  const shownTiles = isAdmin ? tiles : tiles.filter(tile => !(tile.maintenance && tile.hidden))
 
   async function persistOrder(tile, newOrder) {
     if (tile.kind === 'materials') {
@@ -190,7 +206,7 @@ export default function Home() {
 
           {loading ? <Spinner /> : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {tiles.map((tile, index) => (
+              {shownTiles.map((tile, index) => (
                 <Tile
                   key={tile.key}
                   to={tile.to}
@@ -207,6 +223,8 @@ export default function Home() {
                   maintenance={tile.maintenance}
                   blocked={tile.maintenance && !isAdmin}
                   onToggleMaintenance={isAdmin && editMode ? () => toggleMaintenance(tile) : undefined}
+                  hidden={tile.hidden}
+                  onToggleHidden={isAdmin && editMode ? () => toggleHidden(tile) : undefined}
                 />
               ))}
 

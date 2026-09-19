@@ -58,6 +58,14 @@ export default function Category() {
     persistSubOrder(b.id, a.sort_order)
   }
 
+  async function toggleHidden(sub) {
+    const next = !sub.maintenance_hidden
+    setSubcategories(prev => prev.map(s => s.id === sub.id ? { ...s, maintenance_hidden: next } : s))
+    await db.from('subcategories').update({ maintenance_hidden: next }).eq('id', sub.id)
+  }
+
+  const shownSubcategories = isAdmin ? subcategories : subcategories.filter(s => !(s.maintenance && s.maintenance_hidden))
+
   async function toggleMaintenance(sub) {
     const next = !sub.maintenance
     setSubcategories(prev => prev.map(s => s.id === sub.id ? { ...s, maintenance: next } : s))
@@ -102,7 +110,7 @@ export default function Category() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {subcategories.map((sub, index) => (
+            {shownSubcategories.map((sub, index) => (
               <Tile
                 key={sub.id}
                 to={`/chapter/${categoryId}/sub/${slugify(sub.name)}`}
@@ -119,6 +127,8 @@ export default function Category() {
                 maintenance={sub.maintenance}
                 blocked={sub.maintenance && !isAdmin}
                 onToggleMaintenance={isAdmin && editMode ? () => toggleMaintenance(sub) : undefined}
+                hidden={sub.maintenance_hidden}
+                onToggleHidden={isAdmin && editMode ? () => toggleHidden(sub) : undefined}
               />
             ))}
             {hasUncategorized && (

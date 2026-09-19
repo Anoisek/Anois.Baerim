@@ -22,18 +22,18 @@ import { sendDiscordOreAlert } from './oreFinderDiscord.js'
 
 const TABLES = {
   categories: {
-    columns: ['id', 'name', 'image_url', 'created_at', 'sort_order', 'maintenance'],
-    booleans: ['maintenance'],
+    columns: ['id', 'name', 'image_url', 'created_at', 'sort_order', 'maintenance', 'maintenance_hidden'],
+    booleans: ['maintenance', 'maintenance_hidden'],
     pk: ['id'],
   },
   subcategories: {
-    columns: ['id', 'category_id', 'name', 'image_url', 'created_at', 'sort_order', 'maintenance'],
-    booleans: ['maintenance'],
+    columns: ['id', 'category_id', 'name', 'image_url', 'created_at', 'sort_order', 'maintenance', 'maintenance_hidden'],
+    booleans: ['maintenance', 'maintenance_hidden'],
     pk: ['id'],
   },
   items: {
-    columns: ['id', 'category_id', 'name', 'image_url', 'created_at', 'subcategory_id', 'image_urls', 'sort_order', 'maintenance'],
-    booleans: ['maintenance'],
+    columns: ['id', 'category_id', 'name', 'image_url', 'created_at', 'subcategory_id', 'image_urls', 'sort_order', 'maintenance', 'maintenance_hidden'],
+    booleans: ['maintenance', 'maintenance_hidden'],
     jsonArrays: ['image_urls'],
     pk: ['id'],
   },
