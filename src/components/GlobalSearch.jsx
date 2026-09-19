@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
+import { useAuth } from '../context/AuthContext'
+import { fetchHiddenMaterialIds } from '../utils/materialChapters'
 import { formatItemName } from '../utils/itemName'
 import { slugify } from '../utils/slug'
 
@@ -29,6 +31,7 @@ const EMPTY_RESULTS = { chapters: [], categories: [], materials: [], items: [] }
 
 export default function GlobalSearch() {
   const { t } = useTranslation()
+  const { isAdmin } = useAuth()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState(EMPTY_RESULTS)
@@ -61,20 +64,21 @@ export default function GlobalSearch() {
       Promise.all([
         db.from('categories').select('id, name, image_url').ilike('name', `%${q}%`).limit(5),
         db.from('subcategories').select('id, name, image_url, category_id').ilike('name', `%${q}%`).limit(5),
-        db.from('materials').select('id, name, image_url').ilike('name', `%${q}%`).limit(5),
+        db.from('materials').select('id, name, image_url').ilike('name', `%${q}%`).limit(isAdmin ? 5 : 30),
+        isAdmin ? Promise.resolve(new Set()) : fetchHiddenMaterialIds(),
         db.from('items').select('id, name, image_url, category_id').ilike('name', `%${q}%`).limit(5),
-      ]).then(([chaptersRes, categoriesRes, materialsRes, itemsRes]) => {
+      ]).then(([chaptersRes, categoriesRes, materialsRes, hiddenIds, itemsRes]) => {
         setResults({
           chapters: chaptersRes.data ?? [],
           categories: categoriesRes.data ?? [],
-          materials: materialsRes.data ?? [],
+          materials: (materialsRes.data ?? []).filter(m => !hiddenIds.has(m.id)).slice(0, 5),
           items: itemsRes.data ?? [],
         })
         setLoading(false)
       })
     }, 250)
     return () => clearTimeout(timeout)
-  }, [query])
+  }, [query, isAdmin])
 
   const hasResults = results.chapters.length + results.categories.length + results.materials.length + results.items.length > 0
 

@@ -101,3 +101,14 @@ export async function saveMaterialChapters(materialId, chapterIds) {
   }
   return { error: null }
 }
+
+// Ids of materials in a hidden chapter, for places outside the materials page
+// (e.g. global search) that must not surface them to non-admins.
+export async function fetchHiddenMaterialIds() {
+  const [chRes, memRes] = await Promise.all([
+    db.from('material_chapters').select('id').eq('visible', false),
+    db.from('material_chapter_members').select('chapter_id, material_id'),
+  ])
+  const hiddenChapters = new Set((chRes.data ?? []).map(c => c.id))
+  return new Set((memRes.data ?? []).filter(r => hiddenChapters.has(r.chapter_id)).map(r => r.material_id))
+}
