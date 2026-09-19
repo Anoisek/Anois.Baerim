@@ -437,3 +437,22 @@ CREATE TABLE mokoko_finder_spot_notes (
   created_at TEXT NOT NULL
 );
 CREATE INDEX idx_mokoko_finder_spot_notes_spot_id ON mokoko_finder_spot_notes(spot_id);
+
+-- Chapter tabs on /materials (see migrations/0014_material_chapters.sql).
+CREATE TABLE material_chapters (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  visible INTEGER NOT NULL DEFAULT 1,
+  sort_order INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE material_chapter_members (
+  chapter_id TEXT NOT NULL REFERENCES material_chapters(id),
+  material_id TEXT NOT NULL,
+  PRIMARY KEY (chapter_id, material_id)
+);
+CREATE INDEX idx_material_chapter_members_material_id ON material_chapter_members(material_id);
+
+INSERT INTO material_chapters (id, name, visible, sort_order) VALUES
+  ('chapter-1', 'Chapter I', 1, 1),
+  ('chapter-2', 'Chapter II', 1, 2);

@@ -7,8 +7,11 @@ import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 import IconDbPicker from './IconDbPicker'
 import { deleteImages } from '../utils/imageStorage'
+import ChapterCheckboxes from './ChapterCheckboxes'
+import { saveMaterialChapters } from '../utils/materialChapters'
 
-export default function EditMaterialModal({ material, onClose, onUpdated, onDeleted }) {
+export default function EditMaterialModal({ material, onClose, onUpdated, onDeleted, chapters = [], initialChapterIds = [], onChaptersSaved }) {
+  const [chapterIds, setChapterIds] = useState(initialChapterIds)
   const [name, setName] = useState(material.name)
   const [imageUrls, setImageUrls] = useState(materialImages(material))
   const [tag, setTag] = useState(material.is_upgrade_scroll ? 'scroll' : material.is_seal ? 'seal' : material.is_item ? 'item' : '')
@@ -157,6 +160,10 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
       await db.from('material_craft_variant_yield').insert(yieldRows)
     }
 
+    const { error: chErr } = await saveMaterialChapters(material.id, chapterIds)
+    if (chErr) alert('Material saved, but chapters failed: ' + chErr.message)
+    else onChaptersSaved?.(material.id, chapterIds)
+
     onUpdated(data)
     onClose()
     setSaving(false)
@@ -184,6 +191,7 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
     }
 
     await deleteImages(imageUrls)
+    await db.from('material_chapter_members').delete().eq('material_id', material.id)
 
     const { error } = await db.from('materials').delete().eq('id', material.id)
     if (error) {
@@ -263,6 +271,8 @@ export default function EditMaterialModal({ material, onClose, onUpdated, onDele
             ))}
           </select>
         </div>
+
+        <ChapterCheckboxes chapters={chapters} selected={chapterIds} onChange={setChapterIds} />
 
         <label className="flex items-center gap-3 cursor-pointer select-none bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
           <input

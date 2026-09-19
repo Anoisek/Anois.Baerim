@@ -43,6 +43,14 @@ const TABLES = {
     jsonArrays: ['image_urls'],
     pk: ['id'],
   },
+  // Chapter tabs on /materials. Public read (the client filters hidden chapters
+  // out for non-admins), admin-only writes.
+  material_chapters: {
+    columns: ['id', 'name', 'visible', 'sort_order'],
+    booleans: ['visible'],
+    pk: ['id'],
+  },
+  material_chapter_members: { columns: ['chapter_id', 'material_id'], pk: ['chapter_id', 'material_id'] },
   item_materials: { columns: ['item_id', 'material_id', 'quantity', 'step', 'variant'], pk: ['item_id', 'material_id', 'step', 'variant'] },
   item_items: { columns: ['item_id', 'component_item_id', 'quantity', 'step', 'variant'], pk: ['item_id', 'component_item_id', 'step', 'variant'] },
   item_step_yang: { columns: ['item_id', 'step', 'yang_cost', 'max_pity', 'variant'], pk: ['item_id', 'step', 'variant'] },

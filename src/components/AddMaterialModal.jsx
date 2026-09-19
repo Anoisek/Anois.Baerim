@@ -5,8 +5,11 @@ import { CATEGORY_TAGS } from '../utils/materialCategoryTags'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
 import IconDbPicker from './IconDbPicker'
+import ChapterCheckboxes from './ChapterCheckboxes'
+import { saveMaterialChapters } from '../utils/materialChapters'
 
-export default function AddMaterialModal({ onClose, onAdded }) {
+export default function AddMaterialModal({ onClose, onAdded, chapters = [], initialChapterIds = [], onChaptersSaved }) {
+  const [chapterIds, setChapterIds] = useState(initialChapterIds)
   const [name, setName] = useState('')
   const [imageUrls, setImageUrls] = useState([])
   const [tag, setTag] = useState('')
@@ -123,6 +126,12 @@ export default function AddMaterialModal({ onClose, onAdded }) {
       }
     }
 
+    if (chapterIds.length > 0) {
+      const { error: chErr } = await saveMaterialChapters(data.id, chapterIds)
+      if (chErr) alert('Material saved, but chapters failed: ' + chErr.message)
+      else onChaptersSaved?.(data.id, chapterIds)
+    }
+
     onAdded(data)
     onClose()
     setSaving(false)
@@ -193,6 +202,8 @@ export default function AddMaterialModal({ onClose, onAdded }) {
             ))}
           </select>
         </div>
+
+        <ChapterCheckboxes chapters={chapters} selected={chapterIds} onChange={setChapterIds} />
 
         <label className="flex items-center gap-3 cursor-pointer select-none bg-gray-800 border border-gray-600 rounded-lg px-3 py-2">
           <input

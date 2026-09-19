@@ -15,6 +15,8 @@ import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   fetchGlobalPrices, submitPricesToGlobal, makeMaterialPriceFn, FIXED_MATERIAL_PRICES,
 } from '../utils/priceBook'
+import ChapterTabs from '../components/ChapterTabs'
+import { useMaterialChapters } from '../utils/materialChapters'
 import { sortByCategoryTag } from '../utils/materialCategoryTags'
 import { itemImages as materialImages } from '../utils/itemImages'
 import { slugify } from '../utils/slug'
@@ -61,6 +63,8 @@ export default function MaterialsH() {
   const [editing, setEditing] = useState(null)
   const [filter, setFilter] = useState('all')
   const [chapterTab, setChapterTab] = useState('chapter1')
+  const [activeChapter, setActiveChapter] = useState(null)
+  const ch = useMaterialChapters(isAdmin)
   const [search, setSearch] = useState('')
   const [globalPrices, setGlobalPrices] = useState({})
   const [submitting, setSubmitting] = useState(false)
@@ -144,7 +148,8 @@ export default function MaterialsH() {
   }
 
   const visible = sortByCategoryTag(materials.filter(mat =>
-    (chapterTab === 'pvp' ? mat.is_pvp : !mat.is_pvp) &&
+    !ch.hiddenMaterialIds.has(mat.id) &&
+    (activeChapter ? ch.members[activeChapter]?.has(mat.id) : (chapterTab === 'pvp' ? mat.is_pvp : !mat.is_pvp)) &&
     matchesFilter(mat, filter) &&
     mat.name.toLowerCase().includes(search.toLowerCase())
   ))
@@ -173,9 +178,20 @@ export default function MaterialsH() {
 
         {materials.length > 0 && (
           <div className="flex flex-col gap-3 mb-5">
+            <ChapterTabs
+              chapters={ch.visibleChapters}
+              active={activeChapter}
+              onSelect={setActiveChapter}
+              materials={materials}
+              members={ch.members}
+              onToggleMember={ch.toggleMember}
+              onUpdateChapter={ch.updateChapter}
+              isAdmin={isAdmin}
+              horizontal
+            />
             <div className="flex gap-1 bg-black/30 border border-white/10 rounded-xl p-1 self-start">
-              <PillButton active={chapterTab === 'chapter1'} onClick={() => setChapterTab('chapter1')} className="!rounded-lg">Materials</PillButton>
-              <PillButton active={chapterTab === 'pvp'} onClick={() => setChapterTab('pvp')} className="!rounded-lg">PVP</PillButton>
+              <PillButton active={!activeChapter && chapterTab === 'chapter1'} onClick={() => { setActiveChapter(null); setChapterTab('chapter1') }} className="!rounded-lg">Materials</PillButton>
+              <PillButton active={!activeChapter && chapterTab === 'pvp'} onClick={() => { setActiveChapter(null); setChapterTab('pvp') }} className="!rounded-lg">PVP</PillButton>
             </div>
             <input
               type="text"
@@ -192,7 +208,7 @@ export default function MaterialsH() {
           </div>
         )}
 
-        {loading ? (
+        {loading || !ch.loaded ? (
           <div className="py-16 flex justify-center"><Spinner /></div>
         ) : materials.length === 0 ? (
           <EmptyState emoji="🧪" text={t('materials.noMaterialsYet')} />
@@ -311,9 +327,17 @@ export default function MaterialsH() {
         )}
       </div>
 
-      {showAdd && <AddMaterialModal onClose={() => setShowAdd(false)} onAdded={handleAdded} />}
+      {showAdd && <AddMaterialModal onClose={() => setShowAdd(false)} onAdded={handleAdded} chapters={ch.chapters} initialChapterIds={activeChapter ? [activeChapter] : []} onChaptersSaved={ch.setMaterialChapters} />}
       {editing && (
-        <EditMaterialModal material={editing} onClose={() => setEditing(null)} onUpdated={handleUpdated} onDeleted={handleDeleted} />
+        <EditMaterialModal
+          material={editing}
+          onClose={() => setEditing(null)}
+          onUpdated={handleUpdated}
+          onDeleted={handleDeleted}
+          chapters={ch.chapters}
+          initialChapterIds={ch.chapters.filter(c => ch.members[c.id]?.has(editing.id)).map(c => c.id)}
+          onChaptersSaved={ch.setMaterialChapters}
+        />
       )}
     </div>
   )

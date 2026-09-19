@@ -15,6 +15,8 @@ import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
   fetchGlobalPrices, submitPricesToGlobal, makeMaterialPriceFn, FIXED_MATERIAL_PRICES,
 } from '../utils/priceBook'
+import ChapterTabs from '../components/ChapterTabs'
+import { useMaterialChapters } from '../utils/materialChapters'
 import { sortByCategoryTag } from '../utils/materialCategoryTags'
 import { itemImages as materialImages } from '../utils/itemImages'
 import { slugify } from '../utils/slug'
@@ -49,6 +51,8 @@ export default function Materials() {
   const [editing, setEditing] = useState(null)
   const [filter, setFilter] = useState('all')
   const [chapterTab, setChapterTab] = useState('chapter1')
+  const [activeChapter, setActiveChapter] = useState(null)
+  const ch = useMaterialChapters(isAdmin)
   const [search, setSearch] = useState('')
   const [globalPrices, setGlobalPrices] = useState({})
   const [submitting, setSubmitting] = useState(false)
@@ -174,16 +178,27 @@ export default function Materials() {
 
         {materials.length > 0 && (
           <div className="flex flex-col gap-3 mb-6">
+            <ChapterTabs
+              chapters={ch.visibleChapters}
+              active={activeChapter}
+              onSelect={setActiveChapter}
+              materials={materials}
+              members={ch.members}
+              onToggleMember={ch.toggleMember}
+              onUpdateChapter={ch.updateChapter}
+              isAdmin={isAdmin}
+              
+            />
             <div className="flex gap-1 bg-gray-800 border border-gray-600 rounded-xl p-1 self-start">
               <button
-                onClick={() => setChapterTab('chapter1')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${chapterTab === 'chapter1' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
+                onClick={() => { setActiveChapter(null); setChapterTab('chapter1') }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${!activeChapter && chapterTab === 'chapter1' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
               >
                 Materials
               </button>
               <button
-                onClick={() => setChapterTab('pvp')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${chapterTab === 'pvp' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
+                onClick={() => { setActiveChapter(null); setChapterTab('pvp') }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${!activeChapter && chapterTab === 'pvp' ? 'bg-yellow-400 text-gray-950' : 'text-gray-300 hover:bg-gray-700'}`}
               >
                 PVP
               </button>
@@ -213,11 +228,12 @@ export default function Materials() {
 
         {(() => {
           const visible = sortByCategoryTag(materials.filter(mat =>
-            (chapterTab === 'pvp' ? mat.is_pvp : !mat.is_pvp) &&
+            !ch.hiddenMaterialIds.has(mat.id) &&
+            (activeChapter ? ch.members[activeChapter]?.has(mat.id) : (chapterTab === 'pvp' ? mat.is_pvp : !mat.is_pvp)) &&
             matchesFilter(mat, filter) &&
             mat.name.toLowerCase().includes(search.toLowerCase())
           ))
-          if (loading) return <Spinner />
+          if (loading || !ch.loaded) return <Spinner />
           if (materials.length === 0) {
             return (
               <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
@@ -322,7 +338,7 @@ export default function Materials() {
 
         </div>
       {showAdd && (
-        <AddMaterialModal onClose={() => setShowAdd(false)} onAdded={handleAdded} />
+        <AddMaterialModal onClose={() => setShowAdd(false)} onAdded={handleAdded} chapters={ch.chapters} initialChapterIds={activeChapter ? [activeChapter] : []} onChaptersSaved={ch.setMaterialChapters} />
       )}
       {editing && (
         <EditMaterialModal
@@ -330,6 +346,9 @@ export default function Materials() {
           onClose={() => setEditing(null)}
           onUpdated={handleUpdated}
           onDeleted={handleDeleted}
+          chapters={ch.chapters}
+          initialChapterIds={ch.chapters.filter(c => ch.members[c.id]?.has(editing.id)).map(c => c.id)}
+          onChaptersSaved={ch.setMaterialChapters}
         />
       )}
     </div>
