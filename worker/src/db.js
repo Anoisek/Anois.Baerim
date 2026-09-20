@@ -76,6 +76,17 @@ const TABLES = {
     booleans: ['admin_only'],
     pk: ['id'],
   },
+  // Admin-only Item storage (see migrations/0017_item_storage.sql): reads are
+  // admin-only too, the data is private.
+  storage_tabs: { columns: ['id', 'chapter', 'name', 'sort_order'], pk: ['id'], publicRead: false },
+  storage_items: { columns: ['id', 'tab_id', 'name', 'sort_order', 'created_at'], pk: ['id'], publicRead: false },
+  storage_bonuses: { columns: ['id', 'name', 'created_at'], pk: ['id'], publicRead: false },
+  storage_item_bonuses: {
+    columns: ['id', 'item_id', 'bonus_id', 'level_values', 'sort_order'],
+    jsonArrays: ['level_values'],
+    pk: ['id'],
+    publicRead: false,
+  },
   map_markers: {
     columns: ['id', 'map_id', 'x', 'y', 'icon', 'title', 'created_at', 'copied_from', 'visible_at'],
     pk: ['id'],

@@ -37,6 +37,7 @@ import AdConsentBanner from './components/AdConsentBanner'
 import CommunityGuideLink from './components/CommunityGuideLink'
 import DogTrackerLink from './components/DogTrackerLink'
 import MokokoFinderLink from './components/MokokoFinderLink'
+import ItemStorageLink from './components/ItemStorageLink'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Materials from './pages/Materials'
@@ -62,6 +63,7 @@ import CommunityGuide from './pages/CommunityGuide'
 import DogTracker from './pages/DogTracker'
 import OreFinder from './pages/OreFinder'
 import MokokoFinder from './pages/MokokoFinder'
+import ItemStorage from './pages/ItemStorage'
 import Spinner from './components/Spinner'
 
 // Lazy-loaded: pulls in three.js, which is heavy enough that every other page
@@ -109,6 +111,7 @@ export default function App() {
           <CommunityGuideLink />
           <DogTrackerLink />
           <MokokoFinderLink />
+          <ItemStorageLink />
           <AppShell>
             <div className="flex-1 flex flex-col">
               <Routes>
@@ -143,6 +146,7 @@ export default function App() {
               <Route path="/dogtracker" element={<DogTracker />} />
               <Route path="/systems/ore-finder" element={<OreFinder />} />
               <Route path="/mokoko-finder" element={<MokokoFinder />} />
+              <Route path="/item-storage" element={<ItemStorage />} />
               </Routes>
             </div>
             <PageInfo />

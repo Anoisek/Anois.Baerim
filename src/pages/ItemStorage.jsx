@@ -1,0 +1,168 @@
+import { useCallback, useEffect, useState } from 'react'
+import { db } from '../dbClient'
+import { useAuth } from '../context/AuthContext'
+import Navbar from '../components/Navbar'
+import Breadcrumbs from '../components/Breadcrumbs'
+import Spinner from '../components/Spinner'
+import ItemStorageModal, { UPGRADE_LEVELS } from '../components/ItemStorageModal'
+import { MAP_CHAPTERS } from '../utils/mapChapters'
+
+// Admin-only. Chapter I / II -> subcategory tabs (a private copy of the public
+// ones, see migrations/0017_item_storage.sql) -> items with per-upgrade-level bonuses.
+export default function ItemStorage() {
+  const { isAdmin } = useAuth()
+  const [tabs, setTabs] = useState([])
+  const [items, setItems] = useState([])
+  const [bonuses, setBonuses] = useState([])
+  const [itemBonuses, setItemBonuses] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [chapter, setChapter] = useState(1)
+  const [tabId, setTabId] = useState(null)
+  const [modal, setModal] = useState(null) // { item } — item null = adding
+
+  const load = useCallback(async () => {
+    const [tabRes, itemRes, bonusRes, ibRes] = await Promise.all([
+      db.from('storage_tabs').select('*').order('sort_order'),
+      db.from('storage_items').select('*').order('sort_order'),
+      db.from('storage_bonuses').select('*'),
+      db.from('storage_item_bonuses').select('*').order('sort_order'),
+    ])
+    setTabs(tabRes.data ?? [])
+    setItems(itemRes.data ?? [])
+    setBonuses(bonusRes.data ?? [])
+    setItemBonuses(ibRes.data ?? [])
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    if (isAdmin) load()
+  }, [isAdmin, load])
+
+  const chapterTabs = tabs.filter(t => t.chapter === chapter)
+  const activeTab = chapterTabs.find(t => t.id === tabId) ?? chapterTabs[0] ?? null
+  const tabItems = activeTab ? items.filter(i => i.tab_id === activeTab.id) : []
+  const bonusName = id => bonuses.find(b => b.id === id)?.name ?? '?'
+
+  return (
+    <div className="text-white">
+      <Navbar />
+      <div className="max-w-5xl mx-auto px-6 py-10">
+        <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
+          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Item storage' }]} />
+          <h1 className="text-2xl font-bold text-gray-100 mb-6">Item storage</h1>
+
+          {!isAdmin ? (
+            <p className="text-gray-400 text-sm">This page is only available to admins.</p>
+          ) : loading ? <Spinner /> : (
+            <>
+              <div className="flex gap-2 mb-4">
+                {MAP_CHAPTERS.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => { setChapter(c.id); setTabId(null) }}
+                    className={`px-4 py-2 rounded-xl text-sm font-bold border transition-colors ${
+                      chapter === c.id
+                        ? 'bg-yellow-400 border-yellow-400 text-gray-950'
+                        : 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700'
+                    }`}
+                  >
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 mb-5">
+                {chapterTabs.map(tab => {
+                  const count = items.filter(i => i.tab_id === tab.id).length
+                  const active = tab.id === activeTab?.id
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setTabId(tab.id)}
+                      className={`px-3 py-1.5 rounded-lg text-sm transition-colors border ${
+                        active
+                          ? 'bg-yellow-400/15 border-yellow-400 text-yellow-300'
+                          : 'bg-gray-800/60 border-gray-700 hover:bg-gray-800 text-gray-200'
+                      }`}
+                    >
+                      {tab.name}
+                      {count > 0 && <span className="ml-1.5 text-[10px] font-mono text-gray-400">{count}</span>}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {activeTab && (
+                <div className="flex flex-col gap-3">
+                  {tabItems.length === 0 && <p className="text-sm text-gray-500">No items in {activeTab.name} yet.</p>}
+                  {tabItems.map(item => {
+                    const ibs = itemBonuses.filter(ib => ib.item_id === item.id)
+                    return (
+                      <div key={item.id} className="border border-gray-700 bg-gray-900/60 rounded-xl p-4">
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className="font-bold text-gray-100">{item.name}</h3>
+                          <button
+                            onClick={() => setModal({ item })}
+                            title="Edit item"
+                            className="text-sm opacity-60 hover:opacity-100"
+                          >
+                            ✏️
+                          </button>
+                        </div>
+                        {ibs.length === 0 ? (
+                          <p className="text-xs text-gray-500 mt-2">No bonuses.</p>
+                        ) : (
+                          <div className="overflow-x-auto mt-3">
+                            <table className="w-full text-sm border-collapse">
+                              <thead>
+                                <tr className="text-[11px] font-mono text-gray-500">
+                                  <th className="text-left font-normal pr-3 pb-1">Bonus</th>
+                                  {UPGRADE_LEVELS.map(l => <th key={l} className="font-normal px-2 pb-1 text-center">+{l}</th>)}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {ibs.map(ib => (
+                                  <tr key={ib.id} className="border-t border-gray-800">
+                                    <td className="pr-3 py-1 text-yellow-400 font-semibold whitespace-nowrap">{bonusName(ib.bonus_id)}</td>
+                                    {UPGRADE_LEVELS.map(l => (
+                                      <td key={l} className="px-2 py-1 text-center text-gray-200 whitespace-nowrap">
+                                        {ib.level_values?.[l] || <span className="text-gray-600">–</span>}
+                                      </td>
+                                    ))}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                  <button
+                    onClick={() => setModal({ item: null })}
+                    className="self-start px-3 py-2 rounded-lg text-sm border border-dashed border-gray-600 text-gray-400 hover:text-white hover:border-gray-400 transition-colors"
+                  >
+                    + Add item
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      {modal && activeTab && (
+        <ItemStorageModal
+          tabId={activeTab.id}
+          item={modal.item}
+          itemBonuses={modal.item ? itemBonuses.filter(ib => ib.item_id === modal.item.id) : []}
+          bonuses={bonuses}
+          nextSortOrder={Math.max(0, ...tabItems.map(i => i.sort_order)) + 10}
+          onClose={() => setModal(null)}
+          onSaved={load}
+          onBonusCreated={b => setBonuses(prev => [...prev, b])}
+        />
+      )}
+    </div>
+  )
+}
