@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { db } from '../dbClient'
 import Modal from './Modal'
+import IconDbPicker from './IconDbPicker'
+import ExistingImagePicker from './ExistingImagePicker'
+import { uploadImage } from '../utils/imageStorage'
 
 export const UPGRADE_LEVELS = Array.from({ length: 10 }, (_, i) => i) // +0 .. +9
 
@@ -8,8 +11,10 @@ const inputCls = 'bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-w
 
 // Add / edit one storage item: a name plus any number of bonuses, each with its
 // own free-text value for every upgrade level (+0..+9), e.g. "10", "+10", "-10", "20%".
-export default function ItemStorageModal({ tabId, item, itemBonuses, bonuses, nextSortOrder, onClose, onSaved, onBonusCreated }) {
+export default function ItemStorageModal({ tabId, item, itemBonuses, bonuses, existingImages, nextSortOrder, onClose, onSaved, onBonusCreated }) {
   const [name, setName] = useState(item?.name ?? '')
+  const [imageUrl, setImageUrl] = useState(item?.image_url ?? '')
+  const [uploading, setUploading] = useState(false)
   const [entries, setEntries] = useState(() =>
     (itemBonuses ?? []).map(ib => ({
       key: ib.id,
@@ -21,6 +26,27 @@ export default function ItemStorageModal({ tabId, item, itemBonuses, bonuses, ne
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
   const [creating, setCreating] = useState(false)
+
+  async function uploadFile(file) {
+    if (!file || !file.type?.startsWith('image/')) return
+    setUploading(true)
+    try {
+      setImageUrl(await uploadImage(file))
+    } catch (err) {
+      alert('Upload failed: ' + err.message)
+    }
+    setUploading(false)
+  }
+
+  // Document-level listener so Ctrl+V works wherever focus is inside the modal.
+  useEffect(() => {
+    function handlePaste(e) {
+      const pasted = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'))
+      if (pasted) { e.preventDefault(); uploadFile(pasted.getAsFile()) }
+    }
+    document.addEventListener('paste', handlePaste)
+    return () => document.removeEventListener('paste', handlePaste)
+  }, [])
 
   const bonusName = id => bonuses.find(b => b.id === id)?.name ?? '?'
   const usedIds = new Set(entries.map(e => e.bonusId))
@@ -69,11 +95,11 @@ export default function ItemStorageModal({ tabId, item, itemBonuses, bonuses, ne
     try {
       let itemId = item?.id
       if (itemId) {
-        const { error } = await db.from('storage_items').update({ name: name.trim() }).eq('id', itemId)
+        const { error } = await db.from('storage_items').update({ name: name.trim(), image_url: imageUrl || null }).eq('id', itemId)
         if (error) throw error
       } else {
         const { data, error } = await db.from('storage_items')
-          .insert({ tab_id: tabId, name: name.trim(), sort_order: nextSortOrder ?? 0 })
+          .insert({ tab_id: tabId, name: name.trim(), image_url: imageUrl || null, sort_order: nextSortOrder ?? 0 })
           .select().single()
         if (error) throw error
         itemId = data.id
@@ -123,6 +149,37 @@ export default function ItemStorageModal({ tabId, item, itemBonuses, bonuses, ne
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-400">Name</label>
           <input type="text" value={name} onChange={e => setName(e.target.value)} required autoFocus className={inputCls} />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-400">Icon</label>
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="w-16 h-16 shrink-0 bg-gray-800 border border-gray-600 rounded-lg flex items-center justify-center p-1">
+              {imageUrl
+                ? <img src={imageUrl} alt="" className="w-full h-full object-contain" />
+                : <span className="text-xl text-gray-600">{uploading ? '…' : '🖼️'}</span>}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <label className="cursor-pointer bg-gray-800 border border-dashed border-gray-500 hover:border-gray-300 rounded-lg px-4 py-3 text-sm text-gray-400 hover:text-white text-center transition-colors">
+                {uploading ? 'Uploading...' : 'Upload file'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={uploading}
+                  onChange={e => { const f = e.target.files[0]; e.target.value = ''; uploadFile(f) }}
+                />
+              </label>
+              <IconDbPicker onUploaded={setImageUrl} />
+              <ExistingImagePicker images={existingImages} onUploaded={setImageUrl} />
+              {imageUrl && (
+                <button type="button" onClick={() => setImageUrl('')} className="px-3 py-3 text-sm text-gray-400 hover:text-red-400">
+                  Remove
+                </button>
+              )}
+            </div>
+          </div>
+          <p className="text-xs text-gray-500">You can also paste an image with Ctrl+V.</p>
         </div>
 
         <div className="flex flex-col gap-3">

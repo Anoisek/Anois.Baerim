@@ -42,6 +42,7 @@ export default function ItemStorage() {
   const activeTab = chapterTabs.find(t => t.id === tabId) ?? chapterTabs[0] ?? null
   const tabItems = activeTab ? items.filter(i => i.tab_id === activeTab.id) : []
   const bonusName = id => bonuses.find(b => b.id === id)?.name ?? '?'
+  const usedImages = [...new Set(items.map(i => i.image_url).filter(Boolean))]
 
   return (
     <div className="text-white">
@@ -100,7 +101,10 @@ export default function ItemStorage() {
                     return (
                       <div key={item.id} className="border border-gray-700 bg-gray-900/60 rounded-xl p-4">
                         <div className="flex items-center justify-between gap-2">
-                          <h3 className="font-bold text-gray-100">{item.name}</h3>
+                          <div className="flex items-center gap-3 min-w-0">
+                            {item.image_url && <img src={item.image_url} alt="" className="w-10 h-10 shrink-0 object-contain" />}
+                            <h3 className="font-bold text-gray-100 truncate">{item.name}</h3>
+                          </div>
                           <button
                             onClick={() => setModal({ item })}
                             title="Edit item"
@@ -157,6 +161,7 @@ export default function ItemStorage() {
           item={modal.item}
           itemBonuses={modal.item ? itemBonuses.filter(ib => ib.item_id === modal.item.id) : []}
           bonuses={bonuses}
+          existingImages={usedImages.filter(url => url !== modal.item?.image_url)}
           nextSortOrder={Math.max(0, ...tabItems.map(i => i.sort_order)) + 10}
           onClose={() => setModal(null)}
           onSaved={load}

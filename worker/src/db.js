@@ -79,7 +79,7 @@ const TABLES = {
   // Admin-only Item storage (see migrations/0017_item_storage.sql): reads are
   // admin-only too, the data is private.
   storage_tabs: { columns: ['id', 'chapter', 'name', 'sort_order'], pk: ['id'], publicRead: false },
-  storage_items: { columns: ['id', 'tab_id', 'name', 'sort_order', 'created_at'], pk: ['id'], publicRead: false },
+  storage_items: { columns: ['id', 'tab_id', 'name', 'sort_order', 'created_at', 'image_url'], pk: ['id'], publicRead: false },
   storage_bonuses: { columns: ['id', 'name', 'created_at'], pk: ['id'], publicRead: false },
   storage_item_bonuses: {
     columns: ['id', 'item_id', 'bonus_id', 'level_values', 'sort_order'],
