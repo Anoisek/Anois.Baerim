@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { db } from '../dbClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
+import MapChapterSelect from './MapChapterSelect'
+import { mapChapterOf } from '../utils/mapChapters'
 
 export default function EditMapModal({ map, onClose, onUpdated }) {
   const [name, setName] = useState(map.name ?? '')
@@ -11,6 +13,7 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
   const [dimensions, setDimensions] = useState({ width: map.width, height: map.height })
   const [maxMokoko, setMaxMokoko] = useState(map.max_mokoko != null ? String(map.max_mokoko) : '')
   const [adminOnly, setAdminOnly] = useState(!!map.admin_only)
+  const [chapter, setChapter] = useState(mapChapterOf(map))
   const [saving, setSaving] = useState(false)
 
   function handleUploaded(url) {
@@ -38,6 +41,7 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
         height: dimensions.height,
         max_mokoko: maxMokoko.trim() === '' ? null : Number(maxMokoko),
         admin_only: adminOnly,
+        chapter,
       })
       .eq('id', map.id)
       .select()
@@ -111,6 +115,7 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
             className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
           />
         </div>
+        <MapChapterSelect value={chapter} onChange={setChapter} />
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-400">Map image</label>
           {imageUrl && (

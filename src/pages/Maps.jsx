@@ -11,8 +11,9 @@ import EditMarkerModal from '../components/EditMarkerModal'
 import MarkerPanel from '../components/MarkerPanel'
 import HallOfFameModal from '../components/HallOfFameModal'
 import AddMapModal from '../components/AddMapModal'
+import MapSidebar from '../components/MapSidebar'
+import { mapChapterOf } from '../utils/mapChapters'
 import EditMapModal from '../components/EditMapModal'
-import ReorderButtons from '../components/ReorderButtons'
 import MapPipButton from '../components/MapPipButton'
 import MokokoRevealCountdown from '../components/MokokoRevealCountdown'
 import MokokoCompletionModal from '../components/MokokoCompletionModal'
@@ -111,13 +112,13 @@ export default function Maps() {
     await db.from('maps').update({ sort_order: newOrder }).eq('id', id)
   }
 
-  function moveMap(index, delta) {
-    const targetIndex = index + delta
-    if (targetIndex < 0 || targetIndex >= maps.length) return
-    const a = maps[index]
-    const b = maps[targetIndex]
-    persistMapOrder(a.id, b.sort_order)
-    persistMapOrder(b.id, a.sort_order)
+  function moveMap(map, delta) {
+    const group = maps.filter(m => mapChapterOf(m) === mapChapterOf(map))
+    const index = group.findIndex(m => m.id === map.id)
+    const target = group[index + delta]
+    if (!target) return
+    persistMapOrder(map.id, target.sort_order)
+    persistMapOrder(target.id, map.sort_order)
   }
 
   function mapStats(id) {
@@ -137,7 +138,7 @@ export default function Maps() {
   useEffect(() => {
     if (mapsLoading || visibleMaps.length === 0) return
     if (!mapId || !findBySlugOrId(visibleMaps, mapId)) {
-      navigate(`/systems/interactive-map/${slugify(visibleMaps[0].name)}`, { replace: true })
+      navigate(`/systems/interactive-map/${slugify((visibleMaps.find(m => mapChapterOf(m) === 1) ?? visibleMaps[0]).name)}`, { replace: true })
     }
   }, [mapsLoading, visibleMaps, mapId, navigate])
 
@@ -472,70 +473,17 @@ export default function Maps() {
             </div>
           ) : (
             <div className="flex gap-4 flex-col md:flex-row">
-              <aside className="w-full md:w-56 shrink-0 flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible md:max-h-[70vh] md:overflow-y-auto pb-1 md:pb-0">
-                {visibleMaps.map((m, index) => {
-                  const active = m.id === selectedMap?.id
-                  const { total, done } = mapStats(m.id)
-                  const complete = total > 0 && done === total
-                  const statColor = total === 0
-                    ? (active ? 'text-gray-700' : 'text-gray-500')
-                    : complete
-                      ? (active ? 'text-green-700' : 'text-green-400')
-                      : (active ? 'text-red-700' : 'text-red-400')
-                  const isMaxed = m.max_mokoko != null && total >= m.max_mokoko
-                  return (
-                    <div key={m.id} className="relative shrink-0 md:shrink group">
-                      <button
-                        onClick={() => navigate(`/systems/interactive-map/${slugify(m.name)}`)}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors border whitespace-nowrap md:whitespace-normal ${
-                          active
-                            ? 'bg-yellow-400 border-yellow-400 text-gray-950'
-                            : 'bg-gray-800/60 border-gray-700 hover:bg-gray-800 text-gray-200'
-                        }`}
-                      >
-                        <div className={`flex items-center justify-between gap-2 ${isAdmin ? 'pr-5 pl-6' : ''}`}>
-                          <span className="flex items-center gap-1 min-w-0">
-                            {isMaxed && (
-                              <span className={active ? 'text-gray-900' : 'text-yellow-400'} title={t('maps.maxReachedTooltip')}>★</span>
-                            )}
-                            {m.admin_only && (
-                              <span className={active ? 'text-gray-900' : 'text-gray-500'} title={t('maps.adminOnlyTooltip')}>🔒</span>
-                            )}
-                            <span className="font-semibold truncate">{m.name}</span>
-                          </span>
-                          <span className={`text-[10px] font-mono font-bold shrink-0 ${statColor}`}>{done}/{total}</span>
-                        </div>
-                        <div className={`text-xs ${active ? 'text-gray-800' : 'text-gray-500'} ${isAdmin ? 'pl-6' : ''}`}>{m.region}</div>
-                      </button>
-                      {isAdmin && (
-                        <ReorderButtons
-                          onUp={() => moveMap(index, -1)}
-                          onDown={() => moveMap(index, 1)}
-                          disableUp={index === 0}
-                          disableDown={index === visibleMaps.length - 1}
-                        />
-                      )}
-                      {isAdmin && (
-                        <button
-                          onClick={e => { e.stopPropagation(); setEditingMap(m) }}
-                          title={t('maps.editMapTooltip')}
-                          className={`absolute top-1.5 right-1.5 text-xs opacity-60 hover:opacity-100 ${active ? 'text-gray-800' : 'text-gray-300'}`}
-                        >
-                          ✏️
-                        </button>
-                      )}
-                    </div>
-                  )
-                })}
-                {isAdmin && (
-                  <button
-                    onClick={() => setAddingMap(true)}
-                    className="shrink-0 md:shrink text-left px-3 py-2 rounded-lg text-sm border border-dashed border-gray-600 text-gray-400 hover:text-white hover:border-gray-400 transition-colors"
-                  >
-                    {t('maps.addMap')}
-                  </button>
-                )}
-              </aside>
+              <MapSidebar
+                maps={visibleMaps}
+                selectedMap={selectedMap}
+                mapStats={mapStats}
+                isAdmin={isAdmin}
+                horizontal={false}
+                onSelect={m => navigate(`/systems/interactive-map/${slugify(m.name)}`)}
+                onMove={moveMap}
+                onEdit={setEditingMap}
+                onAdd={() => setAddingMap(true)}
+              />
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
@@ -779,7 +727,7 @@ export default function Maps() {
       )}
 
       {addingMap && (
-        <AddMapModal
+        <AddMapModal defaultChapter={selectedMap ? mapChapterOf(selectedMap) : 1}
           nextSortOrder={Math.max(0, ...maps.map(m => m.sort_order)) + 10}
           onClose={() => setAddingMap(false)}
           onAdded={map => setMaps(prev => [...prev, map].sort((a, b) => a.sort_order - b.sort_order))}

@@ -160,7 +160,8 @@ CREATE TABLE maps (
   sort_order INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
   max_mokoko INTEGER,
-  admin_only INTEGER NOT NULL DEFAULT 0
+  admin_only INTEGER NOT NULL DEFAULT 0,
+  chapter INTEGER NOT NULL DEFAULT 1
 );
 
 CREATE TABLE map_markers (

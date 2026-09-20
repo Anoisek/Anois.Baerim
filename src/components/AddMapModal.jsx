@@ -2,14 +2,16 @@ import { useState } from 'react'
 import { db } from '../dbClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
+import MapChapterSelect from './MapChapterSelect'
 
-export default function AddMapModal({ nextSortOrder, onClose, onAdded }) {
+export default function AddMapModal({ defaultChapter = 1, nextSortOrder, onClose, onAdded }) {
   const [name, setName] = useState('')
   const [region, setRegion] = useState('')
   const [mark, setMark] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [dimensions, setDimensions] = useState(null)
   const [adminOnly, setAdminOnly] = useState(false)
+  const [chapter, setChapter] = useState(defaultChapter)
   const [saving, setSaving] = useState(false)
 
   function handleUploaded(url) {
@@ -35,6 +37,7 @@ export default function AddMapModal({ nextSortOrder, onClose, onAdded }) {
         height: dimensions.height,
         sort_order: nextSortOrder ?? 0,
         admin_only: adminOnly,
+        chapter,
       })
       .select()
       .single()
@@ -82,6 +85,7 @@ export default function AddMapModal({ nextSortOrder, onClose, onAdded }) {
             className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-400"
           />
         </div>
+        <MapChapterSelect value={chapter} onChange={setChapter} />
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-400">Map image</label>
           <ImageUpload onUploaded={handleUploaded} />
