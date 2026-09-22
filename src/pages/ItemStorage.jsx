@@ -86,6 +86,15 @@ export default function ItemStorage() {
     })
   }
 
+  function handleDragOverScroll(e) {
+    e.preventDefault()
+    const edge = 120
+    const y = e.clientY
+    const vh = window.innerHeight
+    if (y < edge) window.scrollBy(0, -Math.round((edge - y) / 4))
+    else if (y > vh - edge) window.scrollBy(0, Math.round((y - (vh - edge)) / 4))
+  }
+
   async function handleDragEnd() {
     if (!dragItemId) return
     setDragItemId(null)
@@ -189,7 +198,7 @@ export default function ItemStorage() {
               )}
 
               {activeTab && (
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3" onDragOver={reordering ? handleDragOverScroll : undefined}>
                   {tabItems.length === 0 && <p className="text-sm text-gray-500">No items{classFilter ? ` for ${classFilter}` : ''} in {activeTab.name} yet.</p>}
                   {tabItems.map((item, idx) => {
                     const ibs = itemBonuses.filter(ib => ib.item_id === item.id)
@@ -199,7 +208,7 @@ export default function ItemStorage() {
                         draggable={reordering}
                         onDragStart={reordering ? () => handleDragStart(item) : undefined}
                         onDragEnter={reordering ? () => handleDragEnter(item) : undefined}
-                        onDragOver={reordering ? e => e.preventDefault() : undefined}
+                        onDragOver={reordering ? handleDragOverScroll : undefined}
                         onDragEnd={reordering ? handleDragEnd : undefined}
                         className={`border rounded-xl p-4 transition-colors ${
                           dragItemId === item.id ? 'border-yellow-400 bg-gray-900/90 opacity-60' : 'border-gray-700 bg-gray-900/60'
