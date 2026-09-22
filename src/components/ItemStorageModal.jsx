@@ -20,6 +20,7 @@ export default function ItemStorageModal({ tabId, item, itemBonuses, bonuses, ex
       key: ib.id,
       bonusId: ib.bonus_id,
       values: UPGRADE_LEVELS.map(l => ib.level_values?.[l] ?? ''),
+      flagged: !!ib.flagged,
     })),
   )
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -57,7 +58,7 @@ export default function ItemStorageModal({ tabId, item, itemBonuses, bonuses, ex
   const exact = q && bonuses.find(b => b.name.toLowerCase() === q.toLowerCase())
 
   function addEntry(bonusId) {
-    setEntries(prev => [...prev, { key: crypto.randomUUID(), bonusId, values: UPGRADE_LEVELS.map(() => '') }])
+    setEntries(prev => [...prev, { key: crypto.randomUUID(), bonusId, values: UPGRADE_LEVELS.map(() => ''), flagged: false }])
     setSearch('')
     setPickerOpen(false)
   }
@@ -88,6 +89,10 @@ export default function ItemStorageModal({ tabId, item, itemBonuses, bonuses, ex
     setEntries(prev => prev.filter(e => e.key !== key))
   }
 
+  function toggleFlagged(key) {
+    setEntries(prev => prev.map(e => e.key === key ? { ...e, flagged: !e.flagged } : e))
+  }
+
   async function handleSave(e) {
     e.preventDefault()
     if (!name.trim()) return
@@ -109,7 +114,7 @@ export default function ItemStorageModal({ tabId, item, itemBonuses, bonuses, ex
       const oldIds = (itemBonuses ?? []).map(ib => ib.id)
       if (entries.length > 0) {
         const { error } = await db.from('storage_item_bonuses').insert(
-          entries.map((en, i) => ({ item_id: itemId, bonus_id: en.bonusId, level_values: en.values, sort_order: i })),
+          entries.map((en, i) => ({ item_id: itemId, bonus_id: en.bonusId, level_values: en.values, sort_order: i, flagged: en.flagged })),
         )
         if (error) throw error
       }
@@ -241,8 +246,12 @@ export default function ItemStorageModal({ tabId, item, itemBonuses, bonuses, ex
           {entries.map(en => (
             <div key={en.key} className="border border-gray-700 bg-gray-800/40 rounded-xl p-3 flex flex-col gap-2">
               <div className="flex items-center justify-between gap-2">
-                <span className="font-semibold text-yellow-400 text-sm">{bonusName(en.bonusId)}</span>
+                <span className={`font-semibold text-sm ${en.flagged ? 'text-red-400' : 'text-yellow-400'}`}>{bonusName(en.bonusId)}</span>
                 <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-400 cursor-pointer select-none">
+                    <input type="checkbox" checked={en.flagged} onChange={() => toggleFlagged(en.key)} className="accent-red-500" />
+                    Unverified
+                  </label>
                   <button type="button" onClick={() => fillFromFirst(en.key)} className="text-xs text-gray-400 hover:text-yellow-400">
                     Copy +0 to all
                   </button>

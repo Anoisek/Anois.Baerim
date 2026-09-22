@@ -127,9 +127,11 @@ export default function ItemStorage() {
                               <tbody>
                                 {ibs.map(ib => (
                                   <tr key={ib.id} className="border-t border-gray-800">
-                                    <td className="pr-3 py-1 text-yellow-400 font-semibold whitespace-nowrap">{bonusName(ib.bonus_id)}</td>
+                                    <td className={`pr-3 py-1 font-semibold whitespace-nowrap ${ib.flagged ? 'text-red-400' : 'text-yellow-400'}`}>
+                                      {bonusName(ib.bonus_id)}{ib.flagged && ' ⚠'}
+                                    </td>
                                     {UPGRADE_LEVELS.map(l => (
-                                      <td key={l} className="px-2 py-1 text-center text-gray-200 whitespace-nowrap">
+                                      <td key={l} className={`px-2 py-1 text-center whitespace-nowrap ${ib.flagged ? 'text-red-400' : 'text-gray-200'}`}>
                                         {ib.level_values?.[l] || <span className="text-gray-600">–</span>}
                                       </td>
                                     ))}
