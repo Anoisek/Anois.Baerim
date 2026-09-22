@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
@@ -23,6 +23,8 @@ export default function ItemStorage() {
   const [classFilter, setClassFilter] = useState(null)
   const [modal, setModal] = useState(null) // { item } — item null = adding
   const [reordering, setReordering] = useState(false)
+  const [dragItemId, setDragItemId] = useState(null)
+  const dragOrigValues = useRef([])
 
   const load = useCallback(async () => {
     const [tabRes, itemRes, bonusRes, ibRes] = await Promise.all([
@@ -64,6 +66,37 @@ export default function ItemStorage() {
       db.from('storage_items').update({ sort_order: b }).eq('id', item.id),
       db.from('storage_items').update({ sort_order: a }).eq('id', swapWith.id),
     ])
+  }
+
+  function handleDragStart(item) {
+    dragOrigValues.current = tabItems.map(i => i.sort_order)
+    setDragItemId(item.id)
+  }
+
+  function handleDragEnter(overItem) {
+    if (!dragItemId || dragItemId === overItem.id) return
+    setItems(prev => {
+      const list = [...prev]
+      const fromIdx = list.findIndex(i => i.id === dragItemId)
+      const toIdx = list.findIndex(i => i.id === overItem.id)
+      if (fromIdx === -1 || toIdx === -1) return prev
+      const [moved] = list.splice(fromIdx, 1)
+      list.splice(toIdx, 0, moved)
+      return list
+    })
+  }
+
+  async function handleDragEnd() {
+    if (!dragItemId) return
+    setDragItemId(null)
+    const values = dragOrigValues.current
+    const updates = tabItems.map((item, idx) => ({ id: item.id, sort_order: values[idx] })).filter((u, idx) => u.sort_order !== tabItems[idx].sort_order)
+    if (updates.length === 0) return
+    setItems(prev => prev.map(i => {
+      const u = updates.find(u => u.id === i.id)
+      return u ? { ...i, sort_order: u.sort_order } : i
+    }))
+    await Promise.all(updates.map(u => db.from('storage_items').update({ sort_order: u.sort_order }).eq('id', u.id)))
   }
 
   return (
@@ -161,25 +194,40 @@ export default function ItemStorage() {
                   {tabItems.map((item, idx) => {
                     const ibs = itemBonuses.filter(ib => ib.item_id === item.id)
                     return (
-                      <div key={item.id} className="border border-gray-700 bg-gray-900/60 rounded-xl p-4">
+                      <div
+                        key={item.id}
+                        draggable={reordering}
+                        onDragStart={reordering ? () => handleDragStart(item) : undefined}
+                        onDragEnter={reordering ? () => handleDragEnter(item) : undefined}
+                        onDragOver={reordering ? e => e.preventDefault() : undefined}
+                        onDragEnd={reordering ? handleDragEnd : undefined}
+                        className={`border rounded-xl p-4 transition-colors ${
+                          dragItemId === item.id ? 'border-yellow-400 bg-gray-900/90 opacity-60' : 'border-gray-700 bg-gray-900/60'
+                        }`}
+                      >
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-3 min-w-0">
                             {reordering && (
-                              <div className="flex flex-col shrink-0">
-                                <button
-                                  onClick={() => moveItem(item, -1)}
-                                  disabled={idx === 0}
-                                  className="text-xs leading-none px-1 text-gray-400 hover:text-yellow-400 disabled:opacity-20 disabled:hover:text-gray-400"
-                                >
-                                  ▲
-                                </button>
-                                <button
-                                  onClick={() => moveItem(item, 1)}
-                                  disabled={idx === tabItems.length - 1}
-                                  className="text-xs leading-none px-1 text-gray-400 hover:text-yellow-400 disabled:opacity-20 disabled:hover:text-gray-400"
-                                >
-                                  ▼
-                                </button>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <span className="cursor-grab active:cursor-grabbing text-gray-500 hover:text-yellow-400 text-base leading-none select-none" title="Drag to reorder">
+                                  ⠿
+                                </span>
+                                <div className="flex flex-col">
+                                  <button
+                                    onClick={() => moveItem(item, -1)}
+                                    disabled={idx === 0}
+                                    className="text-xs leading-none px-1 text-gray-400 hover:text-yellow-400 disabled:opacity-20 disabled:hover:text-gray-400"
+                                  >
+                                    ▲
+                                  </button>
+                                  <button
+                                    onClick={() => moveItem(item, 1)}
+                                    disabled={idx === tabItems.length - 1}
+                                    className="text-xs leading-none px-1 text-gray-400 hover:text-yellow-400 disabled:opacity-20 disabled:hover:text-gray-400"
+                                  >
+                                    ▼
+                                  </button>
+                                </div>
                               </div>
                             )}
                             {item.image_url && <img src={item.image_url} alt="" className="w-10 h-10 shrink-0 object-contain" />}
