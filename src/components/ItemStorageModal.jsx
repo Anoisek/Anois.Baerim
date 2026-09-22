@@ -6,6 +6,7 @@ import ExistingImagePicker from './ExistingImagePicker'
 import { uploadImage } from '../utils/imageStorage'
 
 export const UPGRADE_LEVELS = Array.from({ length: 10 }, (_, i) => i) // +0 .. +9
+const CLASSES = ['Warrior', 'Ninja', 'Sura', 'Shaman']
 
 const inputCls = 'bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-yellow-400'
 
@@ -13,6 +14,7 @@ const inputCls = 'bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-w
 // own free-text value for every upgrade level (+0..+9), e.g. "10", "+10", "-10", "20%".
 export default function ItemStorageModal({ tabId, item, itemBonuses, bonuses, existingImages, nextSortOrder, onClose, onSaved, onBonusCreated }) {
   const [name, setName] = useState(item?.name ?? '')
+  const [classes, setClasses] = useState(item?.classes ?? [])
   const [imageUrl, setImageUrl] = useState(item?.image_url ?? '')
   const [uploading, setUploading] = useState(false)
   const [entries, setEntries] = useState(() =>
@@ -100,11 +102,11 @@ export default function ItemStorageModal({ tabId, item, itemBonuses, bonuses, ex
     try {
       let itemId = item?.id
       if (itemId) {
-        const { error } = await db.from('storage_items').update({ name: name.trim(), image_url: imageUrl || null }).eq('id', itemId)
+        const { error } = await db.from('storage_items').update({ name: name.trim(), image_url: imageUrl || null, classes }).eq('id', itemId)
         if (error) throw error
       } else {
         const { data, error } = await db.from('storage_items')
-          .insert({ tab_id: tabId, name: name.trim(), image_url: imageUrl || null, sort_order: nextSortOrder ?? 0 })
+          .insert({ tab_id: tabId, name: name.trim(), image_url: imageUrl || null, classes, sort_order: nextSortOrder ?? 0 })
           .select().single()
         if (error) throw error
         itemId = data.id
@@ -154,6 +156,27 @@ export default function ItemStorageModal({ tabId, item, itemBonuses, bonuses, ex
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-400">Name</label>
           <input type="text" value={name} onChange={e => setName(e.target.value)} required autoFocus className={inputCls} />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-400">Classes</label>
+          <div className="flex flex-wrap gap-2">
+            {CLASSES.map(cls => {
+              const active = classes.includes(cls)
+              return (
+                <button
+                  key={cls}
+                  type="button"
+                  onClick={() => setClasses(prev => active ? prev.filter(c => c !== cls) : [...prev, cls])}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors ${
+                    active ? 'bg-yellow-400 border-yellow-400 text-gray-950' : 'bg-gray-800 border-gray-600 text-gray-300 hover:border-yellow-400/50'
+                  }`}
+                >
+                  {cls}
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         <div className="flex flex-col gap-1">

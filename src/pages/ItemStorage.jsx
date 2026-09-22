@@ -7,6 +7,8 @@ import Spinner from '../components/Spinner'
 import ItemStorageModal, { UPGRADE_LEVELS } from '../components/ItemStorageModal'
 import { MAP_CHAPTERS } from '../utils/mapChapters'
 
+const CLASSES = ['Warrior', 'Ninja', 'Sura', 'Shaman']
+
 // Admin-only. Chapter I / II -> subcategory tabs (a private copy of the public
 // ones, see migrations/0017_item_storage.sql) -> items with per-upgrade-level bonuses.
 export default function ItemStorage() {
@@ -18,7 +20,9 @@ export default function ItemStorage() {
   const [loading, setLoading] = useState(true)
   const [chapter, setChapter] = useState(1)
   const [tabId, setTabId] = useState(null)
+  const [classFilter, setClassFilter] = useState(null)
   const [modal, setModal] = useState(null) // { item } — item null = adding
+  const [reordering, setReordering] = useState(false)
 
   const load = useCallback(async () => {
     const [tabRes, itemRes, bonusRes, ibRes] = await Promise.all([
@@ -40,9 +44,27 @@ export default function ItemStorage() {
 
   const chapterTabs = tabs.filter(t => t.chapter === chapter)
   const activeTab = chapterTabs.find(t => t.id === tabId) ?? chapterTabs[0] ?? null
-  const tabItems = activeTab ? items.filter(i => i.tab_id === activeTab.id) : []
+  const allTabItems = activeTab ? items.filter(i => i.tab_id === activeTab.id) : []
+  const tabItems = classFilter ? allTabItems.filter(i => (i.classes ?? []).includes(classFilter)) : allTabItems
   const bonusName = id => bonuses.find(b => b.id === id)?.name ?? '?'
   const usedImages = [...new Set(items.map(i => i.image_url).filter(Boolean))]
+
+  async function moveItem(item, direction) {
+    const idx = tabItems.findIndex(i => i.id === item.id)
+    const swapWith = tabItems[idx + direction]
+    if (!swapWith) return
+    const a = item.sort_order
+    const b = swapWith.sort_order
+    setItems(prev => prev.map(i => {
+      if (i.id === item.id) return { ...i, sort_order: b }
+      if (i.id === swapWith.id) return { ...i, sort_order: a }
+      return i
+    }))
+    await Promise.all([
+      db.from('storage_items').update({ sort_order: b }).eq('id', item.id),
+      db.from('storage_items').update({ sort_order: a }).eq('id', swapWith.id),
+    ])
+  }
 
   return (
     <div className="text-white">
@@ -60,7 +82,7 @@ export default function ItemStorage() {
                 {MAP_CHAPTERS.map(c => (
                   <button
                     key={c.id}
-                    onClick={() => { setChapter(c.id); setTabId(null) }}
+                    onClick={() => { setChapter(c.id); setTabId(null); setClassFilter(null) }}
                     className={`px-4 py-2 rounded-xl text-sm font-bold border transition-colors ${
                       chapter === c.id
                         ? 'bg-yellow-400 border-yellow-400 text-gray-950'
@@ -79,7 +101,7 @@ export default function ItemStorage() {
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setTabId(tab.id)}
+                      onClick={() => { setTabId(tab.id); setClassFilter(null) }}
                       className={`px-3 py-1.5 rounded-lg text-sm transition-colors border ${
                         active
                           ? 'bg-yellow-400/15 border-yellow-400 text-yellow-300'
@@ -94,16 +116,77 @@ export default function ItemStorage() {
               </div>
 
               {activeTab && (
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <div className="flex flex-wrap gap-1.5">
+                    <button
+                      onClick={() => setClassFilter(null)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                        !classFilter
+                          ? 'bg-white/10 border-white/40 text-white'
+                          : 'bg-gray-800/40 border-gray-700 text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      All
+                    </button>
+                    {CLASSES.map(cls => (
+                      <button
+                        key={cls}
+                        onClick={() => setClassFilter(cls)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                          classFilter === cls
+                            ? 'bg-white/10 border-white/40 text-white'
+                            : 'bg-gray-800/40 border-gray-700 text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        {cls}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setReordering(r => !r)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors shrink-0 ${
+                      reordering
+                        ? 'bg-yellow-400 border-yellow-400 text-gray-950'
+                        : 'bg-gray-800/40 border-gray-700 text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    {reordering ? 'Done reordering' : 'Reorder'}
+                  </button>
+                </div>
+              )}
+
+              {activeTab && (
                 <div className="flex flex-col gap-3">
-                  {tabItems.length === 0 && <p className="text-sm text-gray-500">No items in {activeTab.name} yet.</p>}
-                  {tabItems.map(item => {
+                  {tabItems.length === 0 && <p className="text-sm text-gray-500">No items{classFilter ? ` for ${classFilter}` : ''} in {activeTab.name} yet.</p>}
+                  {tabItems.map((item, idx) => {
                     const ibs = itemBonuses.filter(ib => ib.item_id === item.id)
                     return (
                       <div key={item.id} className="border border-gray-700 bg-gray-900/60 rounded-xl p-4">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-3 min-w-0">
+                            {reordering && (
+                              <div className="flex flex-col shrink-0">
+                                <button
+                                  onClick={() => moveItem(item, -1)}
+                                  disabled={idx === 0}
+                                  className="text-xs leading-none px-1 text-gray-400 hover:text-yellow-400 disabled:opacity-20 disabled:hover:text-gray-400"
+                                >
+                                  ▲
+                                </button>
+                                <button
+                                  onClick={() => moveItem(item, 1)}
+                                  disabled={idx === tabItems.length - 1}
+                                  className="text-xs leading-none px-1 text-gray-400 hover:text-yellow-400 disabled:opacity-20 disabled:hover:text-gray-400"
+                                >
+                                  ▼
+                                </button>
+                              </div>
+                            )}
                             {item.image_url && <img src={item.image_url} alt="" className="w-10 h-10 shrink-0 object-contain" />}
                             <h3 className="font-bold text-gray-100 truncate">{item.name}</h3>
+                            {(item.classes ?? []).length > 0 && (
+                              <span className="text-[10px] font-mono text-gray-500 shrink-0">{item.classes.join(' ')}</span>
+                            )}
                           </div>
                           <button
                             onClick={() => setModal({ item })}
