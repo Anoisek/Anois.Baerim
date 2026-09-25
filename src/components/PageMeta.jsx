@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { findPageInfo, SITE_URL } from '../seo/pageInfo'
 
 // Pages that exist for people who have the link (or an account) and must not be indexed.
-const NOINDEX_PATHS = ['/login', '/dogtracker', '/item-storage']
+const NOINDEX_PATHS = ['/login', '/dogtracker', '/item-storage', '/mokoko-finder']
 
 function setMeta(selector, create, value) {
   let el = document.head.querySelector(selector)

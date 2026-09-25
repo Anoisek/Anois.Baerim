@@ -19,7 +19,8 @@ const SUPPORTED_MAPS = new Set(['Yongan'])
 // to the worker's shared daily request budget.
 const POLL_MS = 20000
 
-// /mokoko-finder (admin-only while testing, see MokokoFinderLink): works like
+// /mokoko-finder (unlisted - reachable by direct link only, the navbar
+// shortcut in MokokoFinderLink stays admin-only; noindex in PageMeta): works like
 // Dog Tracker's click-to-report, but instead of appearing live it goes into
 // an admin review queue with a screenshot as proof (like Ore Finder's manual
 // add) - only after approval does it show up on the map with the mokoko icon
@@ -121,34 +122,22 @@ export default function MokokoFinder() {
     setOpenSpot(null)
   }
 
-  if (!isAdmin) {
-    return (
-      <div className="text-white min-h-screen flex flex-col">
-        <Navbar hideBanner />
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="text-center">
-            <p className="text-3xl font-bold text-gray-600 mb-2">{t('mokokoFinder.notFoundTitle')}</p>
-            <p className="text-gray-500 text-sm">{t('mokokoFinder.notFoundBody')}</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="text-white min-h-screen flex flex-col">
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 py-10 w-full">
         <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6">
-          <Breadcrumbs items={[{ label: t('common.home'), to: '/' }, { label: `${t('mokokoFinder.title')} (admin)` }]} />
+          <Breadcrumbs items={[{ label: t('common.home'), to: '/' }, { label: isAdmin ? `${t('mokokoFinder.title')} (admin)` : t('mokokoFinder.title') }]} />
           <div className="flex items-center justify-between mb-6 gap-2 flex-wrap">
             <h1 className="text-2xl font-bold text-gray-100">🍀 {t('mokokoFinder.title')}</h1>
+            {isAdmin && (
             <button
               onClick={() => setReviewOpen(true)}
               className="px-3 py-2 rounded-xl text-sm font-semibold border transition-colors bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200"
             >
               🛡️ {t('mokokoFinder.reviewButton')}{reportCount > 0 ? ` (${reportCount})` : ''}
             </button>
+            )}
           </div>
 
           {mapsLoading ? <Spinner /> : (
@@ -262,7 +251,7 @@ export default function MokokoFinder() {
         />
       )}
 
-      {reviewOpen && selectedMap && (
+      {isAdmin && reviewOpen && selectedMap && (
         <MokokoFinderReviewModal
           map={selectedMap}
           onClose={() => { setReviewOpen(false); loadReportCount() }}
@@ -273,6 +262,7 @@ export default function MokokoFinder() {
       {openSpot && (
         <MokokoFinderSpotModal
           spot={openSpot}
+          isAdmin={isAdmin}
           onClose={() => setOpenSpot(null)}
           onDeleted={handleSpotDeleted}
         />

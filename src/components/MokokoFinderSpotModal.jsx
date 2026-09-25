@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import { deleteImages } from '../utils/imageStorage'
 
-// Admin-only view of an approved mokoko spot: its own screenshot plus any
+// Public view of an approved mokoko spot (delete is admin-only): its own screenshot plus any
 // extra photos merged in from other reports of the same sighting (see
 // MokokoFinderReviewModal's merge flow) - each one is a "comment" proving the
 // sighting. Deleting removes the spot, its notes, and every photo from R2.
-export default function MokokoFinderSpotModal({ spot, onClose, onDeleted }) {
+export default function MokokoFinderSpotModal({ spot, isAdmin, onClose, onDeleted }) {
   const { t } = useTranslation()
   const [notes, setNotes] = useState([])
   const [loading, setLoading] = useState(true)
@@ -59,6 +59,7 @@ export default function MokokoFinderSpotModal({ spot, onClose, onDeleted }) {
         )}
         {photos.length > 1 && <p className="text-xs text-gray-500">{t('mokokoFinder.photoCount', { count: photos.length })}</p>}
 
+        {isAdmin && (
         <button
           onClick={handleDelete}
           disabled={deleting}
@@ -66,6 +67,7 @@ export default function MokokoFinderSpotModal({ spot, onClose, onDeleted }) {
         >
           {t('mokokoFinder.deleteSpotButton')}
         </button>
+        )}
       </div>
 
       {zoomUrl && (
