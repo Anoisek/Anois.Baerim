@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { db } from '../dbClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
+import IconDbPicker from './IconDbPicker'
 
 export default function AddCategoryModal({ nextSortOrder, onClose, onAdded }) {
   const [name, setName] = useState('')
@@ -41,7 +42,9 @@ export default function AddCategoryModal({ nextSortOrder, onClose, onAdded }) {
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-400">Image (optional)</label>
+          {imageUrl && <img src={imageUrl} alt="" className="w-16 h-16 object-contain rounded-lg border border-gray-600 mb-1" />}
           <ImageUpload onUploaded={setImageUrl} />
+          <IconDbPicker onUploaded={setImageUrl} />
         </div>
         <button
           type="submit"

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { db } from '../dbClient'
 import Modal from './Modal'
 import ImageUpload from './ImageUpload'
+import IconDbPicker from './IconDbPicker'
 import { deleteImages } from '../utils/imageStorage'
 
 export default function EditCategoryModal({ category, onClose, onUpdated }) {
@@ -64,12 +65,16 @@ export default function EditCategoryModal({ category, onClose, onUpdated }) {
               </button>
             </div>
           ) : (
-            <ImageUpload onUploaded={handleNewImage} />
+            <>
+              <ImageUpload onUploaded={handleNewImage} />
+              <IconDbPicker onUploaded={handleNewImage} />
+            </>
           )}
           {imageUrl && (
             <div className="mt-1">
               <p className="text-xs text-gray-500 mb-1">Replace with new image:</p>
               <ImageUpload onUploaded={handleNewImage} />
+              <div className="mt-2"><IconDbPicker onUploaded={handleNewImage} /></div>
             </div>
           )}
         </div>
