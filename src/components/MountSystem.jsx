@@ -10,6 +10,7 @@ import {
 import {
   MAT, MOUNT_TABS_BY_CATEGORY, LEVEL_STAGES, BONUS_ENCHANTS, DEFAULT_ENCHANT_QTY,
   MOUNT_SKILLS, SKILL_LEVELS, DEFAULT_BOOKS_PER_LEVEL,
+  RUNES, RUNE_STEPS, RUNE_MAX_PITY, runeStepMats,
 } from '../utils/mountSystem'
 import MatRow from './MatRow'
 import PriceModeToggle from './PriceModeToggle'
@@ -23,6 +24,7 @@ function defaultChoices() {
     stages: Object.fromEntries(LEVEL_STAGES.map(s => [s.key, true])),
     enchantQty: Object.fromEntries(BONUS_ENCHANTS.map(k => [k, String(DEFAULT_ENCHANT_QTY)])),
     skills: Object.fromEntries(MOUNT_SKILLS.map(s => [s.key, { enabled: true, books: String(DEFAULT_BOOKS_PER_LEVEL), reading: false }])),
+    runes: Object.fromEntries(RUNES.map(r => [r.key, { owned: 0, pity: {}, excluded: {} }])),
   }
 }
 
@@ -35,6 +37,7 @@ function loadChoices() {
       stages: { ...base.stages, ...saved.stages },
       enchantQty: { ...base.enchantQty, ...saved.enchantQty },
       skills: Object.fromEntries(MOUNT_SKILLS.map(s => [s.key, { ...base.skills[s.key], ...saved.skills?.[s.key] }])),
+      runes: Object.fromEntries(RUNES.map(r => [r.key, { ...base.runes[r.key], ...saved.runes?.[r.key] }])),
     }
   } catch {
     return base
@@ -42,6 +45,27 @@ function loadChoices() {
 }
 
 const toQty = raw => Math.max(0, parseInt(raw) || 0)
+
+// Steps a rune still needs (above the owned level, not excluded), with the
+// pity multiplier applied: pity N = the step is paid N+1 times.
+function runeActiveSteps(rune, c) {
+  const steps = []
+  for (let step = c.owned + 1; step <= RUNE_STEPS; step++) {
+    if (c.excluded[step]) continue
+    const mult = Math.min(RUNE_MAX_PITY, Math.max(0, c.pity[step] ?? 0)) + 1
+    steps.push({ step, mult })
+  }
+  return steps
+}
+
+function addRune(acc, rune, c) {
+  let fee = 0
+  for (const { step, mult } of runeActiveSteps(rune, c)) {
+    addMats(acc, runeStepMats(rune, step), mult)
+    fee += rune.yang[step - 1] * mult
+  }
+  return fee
+}
 
 // Adds [matKey, qty] pairs into an { materialId: qty } accumulator.
 function addMats(acc, pairs, factor = 1) {
@@ -105,6 +129,11 @@ export default function MountSystem({ categoryId, horizontal = false }) {
       }
     } else if (tab === 'bonus') {
       for (const key of BONUS_ENCHANTS) addMats(acc, [[key, toQty(choices.enchantQty[key])]])
+    } else if (tab === 'all') {
+      for (const rune of RUNES) fee += addRune(acc, rune, choices.runes[rune.key])
+    } else if (RUNES.some(r => r.key === tab)) {
+      const rune = RUNES.find(r => r.key === tab)
+      fee += addRune(acc, rune, choices.runes[rune.key])
     } else if (tab === 'skills') {
       for (const skill of MOUNT_SKILLS) {
         const c = choices.skills[skill.key]
@@ -163,19 +192,126 @@ export default function MountSystem({ categoryId, horizontal = false }) {
                   : horizontal ? 'bg-black/30 border-white/10 text-gray-300 hover:text-yellow-400' : 'bg-gray-800 border-gray-600 text-gray-300 hover:text-yellow-400'
               }`}
             >
-              {t(`mount.tab.${key}`)}
+              {RUNES.some(r => r.key === key) ? (
+                <span className="flex items-center gap-1.5">
+                  <img src={RUNES.find(r => r.key === key).image} alt="" className="w-5 h-5" />
+                  {key.charAt(0).toUpperCase() + key.slice(1)}
+                </span>
+              ) : t(`mount.tab.${key}`)}
             </button>
           ))}
         </div>
-        {tab !== 'runes' && <PriceModeToggle mode={mode} setMode={setMode} horizontal={horizontal} />}
+        <PriceModeToggle mode={mode} setMode={setMode} horizontal={horizontal} />
       </div>
 
-      {tab === 'runes' && (
-        <div className={`${panel} flex flex-col items-center py-16 text-gray-500 gap-3`}>
-          <span className="text-5xl">🚧</span>
-          <p className="text-sm">{t('mount.comingSoon')}</p>
+      {tab === 'all' && (
+        <div className={`${panel} divide-y ${horizontal ? 'divide-white/10' : 'divide-gray-700'}`}>
+          {RUNES.map(rune => {
+            const c = choices.runes[rune.key]
+            const acc = {}
+            const fee = addRune(acc, rune, c)
+            const cost = fee + Object.entries(acc).reduce((sum, [id, qty]) => sum + priceFn(id) * qty, 0)
+            return (
+              <button
+                key={rune.key}
+                type="button"
+                onClick={() => setSearchParams({ tab: rune.key }, { replace: true })}
+                className={`w-full flex items-center gap-3 px-5 py-3 text-left transition-colors ${horizontal ? 'hover:bg-white/5' : 'hover:bg-gray-800'}`}
+              >
+                <img src={rune.image} alt={rune.name} className="w-8 h-8 shrink-0" />
+                <span className="flex-1 text-sm font-semibold text-gray-100">{rune.name}</span>
+                <span className="text-xs text-gray-500">+{c.owned} → +{RUNE_STEPS}</span>
+                <span className="text-yellow-400 text-sm w-32 text-right font-mono shrink-0">{formatYang(cost)}</span>
+              </button>
+            )
+          })}
         </div>
       )}
+
+      {RUNES.filter(r => r.key === tab).map(rune => {
+        const c = choices.runes[rune.key]
+        const setRune = fn => updateChoices(prev => ({ ...prev, runes: { ...prev.runes, [rune.key]: fn(prev.runes[rune.key]) } }))
+        const stepperBtn = horizontal
+          ? 'w-6 h-6 rounded-md bg-black/30 border border-white/10 text-gray-300 hover:text-yellow-400 disabled:opacity-30'
+          : 'w-6 h-6 rounded-md bg-gray-800 border border-gray-600 text-gray-300 hover:text-yellow-400 disabled:opacity-30'
+        return (
+          <div key={rune.key} className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <img src={rune.image} alt={rune.name} className="w-10 h-10" />
+              <h2 className="text-lg font-bold text-gray-100 flex-1">{rune.name}</h2>
+              <label className="flex items-center gap-2 text-sm text-gray-400">
+                {t('mount.ownedLevel')}
+                <select
+                  value={c.owned}
+                  onChange={e => setRune(r => ({ ...r, owned: Number(e.target.value) }))}
+                  className={`${horizontal ? 'bg-black/25 border-white/10' : 'bg-gray-800 border-gray-600'} border rounded-lg px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-yellow-400`}
+                >
+                  {Array.from({ length: RUNE_STEPS }, (_, n) => <option key={n} value={n}>+{n}</option>)}
+                </select>
+              </label>
+            </div>
+            {Array.from({ length: RUNE_STEPS }, (_, i) => i + 1).map(step => {
+              const owned = step <= c.owned
+              const excluded = !!c.excluded[step]
+              const pity = Math.min(RUNE_MAX_PITY, c.pity[step] ?? 0)
+              const mult = pity + 1
+              const stepMats = runeStepMats(rune, step)
+              const subtotal = (stepMats.reduce((sum, [key, qty]) => sum + priceFn(MAT[key]) * qty, 0) + rune.yang[step - 1]) * mult
+              return (
+                <div key={step} className={`${panel} ${owned ? 'opacity-40' : ''}`}>
+                  <div className={`flex flex-wrap items-center gap-4 px-5 py-3 border-b ${horizontal ? 'border-white/10' : 'border-gray-700'}`}>
+                    <span className="text-sm font-bold text-gray-100 flex-1">+{step - 1} → +{step}</span>
+                    {!owned && (
+                      <>
+                        <span className="flex items-center gap-1.5 text-xs text-gray-400" title={t('mount.pityHint', { max: RUNE_MAX_PITY })}>
+                          {t('mount.pity')}
+                          <button
+                            type="button"
+                            disabled={pity <= 0}
+                            onClick={() => setRune(r => ({ ...r, pity: { ...r.pity, [step]: pity - 1 } }))}
+                            className={stepperBtn}
+                          >−</button>
+                          <span className="w-4 text-center text-gray-100 font-semibold">{pity}</span>
+                          <button
+                            type="button"
+                            disabled={pity >= RUNE_MAX_PITY}
+                            onClick={() => setRune(r => ({ ...r, pity: { ...r.pity, [step]: pity + 1 } }))}
+                            className={stepperBtn}
+                          >+</button>
+                          <span className="text-gray-500">/ {RUNE_MAX_PITY}</span>
+                        </span>
+                        <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={!excluded}
+                            onChange={() => setRune(r => ({ ...r, excluded: { ...r.excluded, [step]: !excluded } }))}
+                            className="accent-yellow-400 w-3.5 h-3.5"
+                          />
+                          {t('itemDetail.includeStep')}
+                        </label>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-x-6 gap-y-2 px-5 py-3">
+                    {stepMats.map(([key, qty]) => <MatChip key={key} matKey={key} qty={qty * mult} />)}
+                    <span className="flex items-center gap-1.5 text-sm text-gray-200">
+                      <span className="w-7 h-7 flex items-center justify-center">💰</span>
+                      {formatYang(rune.yang[step - 1] * mult)}
+                    </span>
+                  </div>
+                  <div className={`flex justify-between items-center px-5 py-2.5 border-t ${horizontal ? 'border-white/10' : 'border-gray-700'}`}>
+                    <span className="text-xs text-gray-500 uppercase tracking-wider">
+                      {owned ? t('mount.alreadyOwned') : `${t('itemDetail.subtotal')}${mult > 1 ? ` ×${mult}` : ''}`}
+                      {!owned && excluded && ` (${t('itemDetail.excludedFromTotal')})`}
+                    </span>
+                    <span className={`text-sm font-bold font-mono ${owned || excluded ? 'text-gray-600 line-through' : 'text-yellow-400'}`}>{formatYang(subtotal)}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )
+      })}
 
       {tab === 'level' && (
         <div className={`${panel} divide-y ${horizontal ? 'divide-white/10' : 'divide-gray-700'}`}>
@@ -283,7 +419,7 @@ export default function MountSystem({ categoryId, horizontal = false }) {
         </div>
       )}
 
-      {tab !== 'runes' && (
+      {(
         <>
           <div className={panel}>
             <h2 className={`px-5 py-3 text-sm font-semibold text-gray-300 border-b ${horizontal ? 'border-white/10' : 'border-gray-700'}`}>
@@ -307,8 +443,8 @@ export default function MountSystem({ categoryId, horizontal = false }) {
               {yang > 0 && (
                 <div className="flex items-center gap-3 pt-2">
                   <span className="w-8 h-8 shrink-0 flex items-center justify-center text-lg">💰</span>
-                  <span className="flex-1 text-sm text-gray-200">{t('mount.yangFees')}</span>
-                  <span className="text-yellow-400 text-sm w-24 text-right font-mono shrink-0">{formatYang(yang)}</span>
+                  <span className="flex-1 text-sm text-gray-200">{t(tab === 'level' ? 'mount.yangFees' : 'mount.upgradeFees')}</span>
+                  <span className="text-yellow-400 text-sm text-right font-mono shrink-0 whitespace-nowrap">{formatYang(yang)}</span>
                 </div>
               )}
             </div>

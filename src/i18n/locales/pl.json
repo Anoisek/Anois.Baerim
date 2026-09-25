@@ -738,9 +738,8 @@
       "level": "Mount Level",
       "bonus": "Mount Bonus",
       "skills": "Mount Skills",
-      "runes": "Mount Runes"
+      "all": "Wszystkie"
     },
-    "comingSoon": "Wkrótce",
     "levels": "Levelowanie",
     "evolution": "Ewolucja {{n}}",
     "levelRange": "Poziom {{range}}",
@@ -750,6 +749,11 @@
     "booksPerLevelTotal": "na poziom × {{levels}} = {{total}}",
     "readingHint": "Używaj jednego Focused Mount Reading z każdą Mount Skill Book",
     "readingOff": "wył.",
-    "yangFees": "Opłaty za ewolucje"
+    "yangFees": "Opłaty za ewolucje",
+    "ownedLevel": "Obecny poziom",
+    "pity": "Pity",
+    "pityHint": "Nieudane próby przed sukcesem na tym kroku (max {{max}}). Każda kosztuje cały krok od nowa.",
+    "alreadyOwned": "Już osiągnięte",
+    "upgradeFees": "Opłaty za ulepszenia"
   }
 }
