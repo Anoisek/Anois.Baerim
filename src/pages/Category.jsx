@@ -10,6 +10,7 @@ import AddSubcategoryModal from '../components/AddSubcategoryModal'
 import EditSubcategoryModal from '../components/EditSubcategoryModal'
 import Spinner from '../components/Spinner'
 import { slugify, findBySlugOrId } from '../utils/slug'
+import { directItemFor } from '../utils/directSubItem'
 
 export default function Category() {
   const { categoryId } = useParams()
@@ -18,6 +19,7 @@ export default function Category() {
   const [category, setCategory] = useState(null)
   const [subcategories, setSubcategories] = useState([])
   const [hasUncategorized, setHasUncategorized] = useState(false)
+  const [categoryItems, setCategoryItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editing, setEditing] = useState(null)
@@ -33,11 +35,12 @@ export default function Category() {
       setCategory(resolved)
       Promise.all([
         db.from('subcategories').select('*').eq('category_id', resolved.id).order('sort_order'),
-        db.from('items').select('id').eq('category_id', resolved.id).is('subcategory_id', null),
-      ]).then(([subRes, uncatRes]) => {
+        db.from('items').select('id, name, subcategory_id').eq('category_id', resolved.id),
+      ]).then(([subRes, itemsRes]) => {
         if (cancelled) return
         setSubcategories(subRes.data ?? [])
-        setHasUncategorized((uncatRes.data ?? []).length > 0)
+        setCategoryItems(itemsRes.data ?? [])
+        setHasUncategorized((itemsRes.data ?? []).some(i => i.subcategory_id == null))
         setLoading(false)
       })
     })
@@ -62,6 +65,11 @@ export default function Category() {
     const next = !sub.maintenance_hidden
     setSubcategories(prev => prev.map(s => s.id === sub.id ? { ...s, maintenance_hidden: next } : s))
     await db.from('subcategories').update({ maintenance_hidden: next }).eq('id', sub.id)
+  }
+
+  function subLink(sub) {
+    const direct = directItemFor(sub, categoryItems)
+    return direct ? `/chapter/${categoryId}/item/${slugify(direct.name)}` : `/chapter/${categoryId}/sub/${slugify(sub.name)}`
   }
 
   const shownSubcategories = isAdmin ? subcategories : subcategories.filter(s => !(s.maintenance && s.maintenance_hidden))
@@ -113,7 +121,7 @@ export default function Category() {
             {shownSubcategories.map((sub, index) => (
               <Tile
                 key={sub.id}
-                to={`/chapter/${categoryId}/sub/${slugify(sub.name)}`}
+                to={subLink(sub)}
                 image={sub.image_url}
                 emoji="📦"
                 label={sub.name}

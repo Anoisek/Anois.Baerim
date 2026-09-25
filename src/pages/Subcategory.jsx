@@ -14,11 +14,12 @@ import { itemImages } from '../utils/itemImages'
 import { formatItemName } from '../utils/itemName'
 import { slugify, findBySlugOrId } from '../utils/slug'
 import { isMountSubcategory } from '../utils/mountSystem'
+import { directItemFor } from '../utils/directSubItem'
 import MountSystem from '../components/MountSystem'
 
 export default function Subcategory() {
   const { categoryId, subcategoryId } = useParams()
-  const { isAdmin } = useAuth()
+  const { isAdmin, session } = useAuth()
   const { t } = useTranslation()
   const isUncategorized = subcategoryId === 'none'
   const [category, setCategory] = useState(null)
@@ -57,13 +58,15 @@ export default function Subcategory() {
         itemsQuery = isUncategorized ? itemsQuery.is('subcategory_id', null) : itemsQuery.eq('subcategory_id', sub.id)
         itemsQuery.then(({ data }) => {
           if (cancelled) return
+          const direct = session !== undefined && !isAdmin && directItemFor(sub, data)
+          if (direct) { navigate(`/chapter/${categoryId}/item/${slugify(direct.name)}`, { replace: true }); return }
           setItems(data ?? [])
           setLoading(false)
         })
       })
     })
     return () => { cancelled = true }
-  }, [categoryId, subcategoryId, isUncategorized])
+  }, [categoryId, subcategoryId, isUncategorized, session, isAdmin, navigate])
 
   async function persistItemOrder(id, newOrder) {
     setItems(prev => prev.map(i => i.id === id ? { ...i, sort_order: newOrder } : i).sort((a, b) => a.sort_order - b.sort_order))
