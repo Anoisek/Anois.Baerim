@@ -8,6 +8,7 @@
 //   insertAuth: 'editor'     -> POST allowed for admin OR map editor (default 'admin' = admin only)
 //   insertAuth: 'public'     -> POST allowed with no auth at all
 //   visibilityFilter: true   -> GET hides rows with a future visible_at unless caller is admin
+//   hiddenWhere: 'sql'       -> extra WHERE condition on GETs unless caller is admin
 //   beforeInsert: fn(row)    -> return { row } (possibly transformed) or { error } to reject
 //   deleteAuth: 'public'     -> DELETE allowed with no auth at all (default 'admin' = admin only)
 //
@@ -19,6 +20,16 @@ import { hasDisallowedLink, LINKS_NOT_ALLOWED } from './links.js'
 import { broadcastToAll } from './webpush.js'
 import { sendDiscordDogAlert } from './discord.js'
 import { sendDiscordOreAlert } from './oreFinderDiscord.js'
+
+// Unreleased content (hiddenWhere): non-admin GETs never receive items inside an
+// "In progress" category/subcategory, nor materials in a hidden material chapter
+// (e.g. Chapter II before launch), so search, usage pages and the build
+// calculator can't leak them - not even through devtools.
+const HIDDEN_ITEMS_SQL =
+  'SELECT id FROM items WHERE category_id IN (SELECT id FROM categories WHERE maintenance = 1)' +
+  ' OR subcategory_id IN (SELECT id FROM subcategories WHERE maintenance = 1)'
+const HIDDEN_MATERIALS_SQL =
+  'SELECT m.material_id FROM material_chapter_members m JOIN material_chapters c ON c.id = m.chapter_id WHERE c.visible = 0'
 
 const TABLES = {
   categories: {
@@ -36,12 +47,14 @@ const TABLES = {
     booleans: ['maintenance', 'maintenance_hidden'],
     jsonArrays: ['image_urls'],
     pk: ['id'],
+    hiddenWhere: 'id NOT IN (' + HIDDEN_ITEMS_SQL + ')',
   },
   materials: {
     columns: ['id', 'name', 'image_url', 'created_at', 'is_upgrade_scroll', 'is_seal', 'is_item', 'is_craftable', 'craft_yang_cost', 'is_pvp', 'is_pvp_only', 'category_tag', 'image_urls', 'no_price'],
     booleans: ['is_upgrade_scroll', 'is_seal', 'is_item', 'is_craftable', 'is_pvp', 'is_pvp_only', 'no_price'],
     jsonArrays: ['image_urls'],
     pk: ['id'],
+    hiddenWhere: 'id NOT IN (' + HIDDEN_MATERIALS_SQL + ')',
   },
   // Chapter tabs on /materials. Public read (the client filters hidden chapters
   // out for non-admins), admin-only writes.
@@ -51,10 +64,26 @@ const TABLES = {
     pk: ['id'],
   },
   material_chapter_members: { columns: ['chapter_id', 'material_id'], pk: ['chapter_id', 'material_id'] },
-  item_materials: { columns: ['item_id', 'material_id', 'quantity', 'step', 'variant'], pk: ['item_id', 'material_id', 'step', 'variant'] },
-  item_items: { columns: ['item_id', 'component_item_id', 'quantity', 'step', 'variant'], pk: ['item_id', 'component_item_id', 'step', 'variant'] },
-  item_step_yang: { columns: ['item_id', 'step', 'yang_cost', 'max_pity', 'variant'], pk: ['item_id', 'step', 'variant'] },
-  material_materials: { columns: ['material_id', 'component_id', 'quantity', 'variant'], pk: ['material_id', 'component_id', 'variant'] },
+  item_materials: {
+    columns: ['item_id', 'material_id', 'quantity', 'step', 'variant'],
+    pk: ['item_id', 'material_id', 'step', 'variant'],
+    hiddenWhere: 'item_id NOT IN (' + HIDDEN_ITEMS_SQL + ') AND material_id NOT IN (' + HIDDEN_MATERIALS_SQL + ')',
+  },
+  item_items: {
+    columns: ['item_id', 'component_item_id', 'quantity', 'step', 'variant'],
+    pk: ['item_id', 'component_item_id', 'step', 'variant'],
+    hiddenWhere: 'item_id NOT IN (' + HIDDEN_ITEMS_SQL + ')',
+  },
+  item_step_yang: {
+    columns: ['item_id', 'step', 'yang_cost', 'max_pity', 'variant'],
+    pk: ['item_id', 'step', 'variant'],
+    hiddenWhere: 'item_id NOT IN (' + HIDDEN_ITEMS_SQL + ')',
+  },
+  material_materials: {
+    columns: ['material_id', 'component_id', 'quantity', 'variant'],
+    pk: ['material_id', 'component_id', 'variant'],
+    hiddenWhere: 'material_id NOT IN (' + HIDDEN_MATERIALS_SQL + ')',
+  },
   material_craft_variant_yield: { columns: ['material_id', 'variant', 'yield'], pk: ['material_id', 'variant'] },
   exploration_levels: {
     columns: ['level', 'title', 'description', 'x_percent', 'y_percent', 'image_urls'],
@@ -487,8 +516,9 @@ function parseOrder(searchParams, cfg) {
 async function handleGet(env, table, cfg, searchParams, headers, callerIsAdmin) {
   const filters = parseFilters(searchParams, cfg)
   if (filters.error) return errorResponse(filters.error, 400, headers)
+  if (cfg.hiddenWhere && !callerIsAdmin) filters.where.push('(' + cfg.hiddenWhere + ')')
 
-  const isCount = searchParams.get('count') === 'exact' && searchParams.get('head') === '1'
+  const isCount =searchParams.get('count') === 'exact' && searchParams.get('head') === '1'
   const whereClause = filters.where.length > 0 ? ' WHERE ' + filters.where.join(' AND ') : ''
 
   if (isCount) {
@@ -651,7 +681,7 @@ async function handleDbRequest(request, env, url, headers, isAdmin, isEditor, ct
 
   if (request.method === 'GET') {
     if (cfg.publicRead === false && !(await isAdmin(request, env))) return errorResponse('forbidden', 403, headers)
-    const callerIsAdmin = cfg.visibilityFilter ? await isAdmin(request, env) : false
+    const callerIsAdmin = cfg.visibilityFilter || cfg.hiddenWhere ? await isAdmin(request, env) : false
     return handleGet(env, table, cfg, url.searchParams, headers, callerIsAdmin)
   }
 
