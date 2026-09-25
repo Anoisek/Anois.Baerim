@@ -13,6 +13,8 @@ import Spinner from '../components/Spinner'
 import { itemImages } from '../utils/itemImages'
 import { formatItemName } from '../utils/itemName'
 import { slugify, findBySlugOrId } from '../utils/slug'
+import { isMountSubcategory } from '../utils/mountSystem'
+import MountSystem from '../components/MountSystem'
 
 export default function Subcategory() {
   const { categoryId, subcategoryId } = useParams()
@@ -83,6 +85,7 @@ export default function Subcategory() {
     await db.from('items').update({ maintenance_hidden: next }).eq('id', item.id)
   }
 
+  const isMount = isMountSubcategory(subcategory)
   const shownItems = isAdmin ? items : items.filter(i => !(i.maintenance && i.maintenance_hidden))
 
   async function toggleMaintenance(item) {
@@ -108,7 +111,7 @@ export default function Subcategory() {
             )}
             <h1 className="text-2xl font-bold text-gray-100">{isUncategorized ? t('category.uncategorized') : (subcategory?.name ?? t('common.category'))}</h1>
           </div>
-          {isAdmin && (
+          {isAdmin && !isMount && (
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setEditMode(v => !v)}
@@ -126,7 +129,9 @@ export default function Subcategory() {
           )}
         </div>
 
-        {loading ? <Spinner /> : items.length === 0 ? (
+        {loading ? <Spinner /> : isMount ? (
+          <MountSystem categoryId={category.id} />
+        ) : items.length === 0 ? (
           <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
             <span className="text-5xl">📭</span>
             <p className="text-sm">{t('subcategory.noItemsYet')}</p>

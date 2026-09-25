@@ -723,5 +723,24 @@
     "spotTitle": "Mokoko",
     "photoCount": "{{count}} photos (merged reports)",
     "deleteSpotButton": "Delete this mokoko"
+  },
+  "mount": {
+    "tab": {
+      "level": "Mount Level",
+      "bonus": "Mount Bonus",
+      "skills": "Mount Skills",
+      "runes": "Mount Runes"
+    },
+    "comingSoon": "Coming soon",
+    "levels": "Levelling",
+    "evolution": "Evolution {{n}}",
+    "levelRange": "Level {{range}}",
+    "bonusHint": "Mount bonuses are rolled with enchant items. Enter how many of each you plan to use.",
+    "skillsHint": "Each skill is unlocked once with a Horse Skill Unlocker, then upgraded {{levels}} times with Mount Skill Books. Upgrades can fail, so enter how many books you expect per level. Focused Mount Reading is optional: it raises the chance and is used once per book.",
+    "booksPerLevel": "Mount Skill Books per level",
+    "booksPerLevelTotal": "per level × {{levels}} = {{total}}",
+    "readingHint": "Use one Focused Mount Reading with every Mount Skill Book",
+    "readingOff": "off",
+    "yangFees": "Evolution fees"
   }
 }

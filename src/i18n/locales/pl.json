@@ -732,5 +732,24 @@
     "spotTitle": "Mokoko",
     "photoCount": "{{count}} zdjęć (połączone zgłoszenia)",
     "deleteSpotButton": "Usuń tego mokoko"
+  },
+  "mount": {
+    "tab": {
+      "level": "Mount Level",
+      "bonus": "Mount Bonus",
+      "skills": "Mount Skills",
+      "runes": "Mount Runes"
+    },
+    "comingSoon": "Wkrótce",
+    "levels": "Levelowanie",
+    "evolution": "Ewolucja {{n}}",
+    "levelRange": "Poziom {{range}}",
+    "bonusHint": "Bonusy wierzchowca losuje się zmiankami. Wpisz, ile każdej planujesz zużyć.",
+    "skillsHint": "Każdy skill odblokowuje się raz przez Horse Skill Unlocker, potem ulepsza {{levels}} razy za pomocą Mount Skill Book. Ulepszenie może się nie udać, więc wpisz, ile książek zakładasz na poziom. Focused Mount Reading jest opcjonalny: zwiększa szansę i zużywa się jeden na każdą książkę.",
+    "booksPerLevel": "Mount Skill Book na poziom",
+    "booksPerLevelTotal": "na poziom × {{levels}} = {{total}}",
+    "readingHint": "Używaj jednego Focused Mount Reading z każdą Mount Skill Book",
+    "readingOff": "wył.",
+    "yangFees": "Opłaty za ewolucje"
   }
 }
