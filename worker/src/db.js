@@ -374,7 +374,7 @@ const TABLES = {
   // written by the admin's approve action in the page (default insertAuth
   // 'admin'), never directly from a report submission.
   mokoko_finder_spots: {
-    columns: ['id', 'map', 'x', 'y', 'screenshot_url', 'created_at'],
+    columns: ['id', 'map', 'x', 'y', 'screenshot_url', 'created_at', 'marker_id'],
     pk: ['id'],
   },
   // Extra photos on an approved spot from merging several reports of the same

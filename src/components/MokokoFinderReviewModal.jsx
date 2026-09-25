@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import { deleteImages } from '../utils/imageStorage'
+import { createMarkerForSpot, deleteMarkerForSpot } from '../utils/mokokoFinderMarkers'
 
 function formatTime(iso) {
   return new Date(iso).toLocaleString()
@@ -13,8 +14,9 @@ function formatTime(iso) {
 // other) - that creates one mokoko_finder_spots row there, the first
 // selected report's screenshot becomes its own screenshot_url, and every
 // other selected report's screenshot is kept as a comment/photo via
-// mokoko_finder_spot_notes. Rejecting a single report just deletes it (and
-// its screenshot).
+// mokoko_finder_spot_notes. Approving also puts the spot on the interactive
+// map as a marker with every screenshot as a comment (mokokoFinderMarkers).
+// Rejecting a single report just deletes it (and its screenshot).
 export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
   const { t } = useTranslation()
   const [reports, setReports] = useState([])
@@ -58,17 +60,29 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
 
     setMergeSending(true)
     const [primary, ...rest] = merging.reports
+    const x = (xNum / map.width) * 100
+    const y = (yNum / map.height) * 100
+    let markerId = null
+    try {
+      markerId = await createMarkerForSpot(map.name, x, y, merging.reports.map(r => r.screenshot_url))
+    } catch (err) {
+      alert(t('mokokoFinder.approveError', { message: err.message }))
+      setMergeSending(false)
+      return
+    }
     const { data: spot, error } = await db
       .from('mokoko_finder_spots')
       .insert({
         map: map.name,
-        x: (xNum / map.width) * 100,
-        y: (yNum / map.height) * 100,
+        x,
+        y,
         screenshot_url: primary.screenshot_url,
+        marker_id: markerId,
       })
       .select()
       .single()
     if (error) {
+      await deleteMarkerForSpot(markerId)
       alert(t('mokokoFinder.approveError', { message: error.message }))
       setMergeSending(false)
       return

@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import { deleteImages } from '../utils/imageStorage'
+import { deleteMarkerForSpot } from '../utils/mokokoFinderMarkers'
 
 // Public view of an approved mokoko spot (delete is admin-only): its own screenshot plus any
 // extra photos merged in from other reports of the same sighting (see
 // MokokoFinderReviewModal's merge flow) - each one is a "comment" proving the
-// sighting. Deleting removes the spot, its notes, and every photo from R2.
+// sighting. Deleting removes the spot, its notes, its interactive-map marker,
+// and every photo from R2.
 export default function MokokoFinderSpotModal({ spot, isAdmin, onClose, onDeleted }) {
   const { t } = useTranslation()
   const [notes, setNotes] = useState([])
@@ -23,6 +25,7 @@ export default function MokokoFinderSpotModal({ spot, isAdmin, onClose, onDelete
 
   async function handleDelete() {
     setDeleting(true)
+    await deleteMarkerForSpot(spot.marker_id)
     await db.from('mokoko_finder_spot_notes').delete().eq('spot_id', spot.id)
     await db.from('mokoko_finder_spots').delete().eq('id', spot.id)
     await deleteImages([spot.screenshot_url, ...notes.map(n => n.image_url)], 'map-notes')
