@@ -131,10 +131,10 @@ export const RUNES = [
     image: IMG + '1790378574954-rune-metin.png',
     rows: [
       EMBLEMS,
-      ['mythril', [80, 100, 120, 100, _, _, _, _, _, _]],
+      ['mythril', [80, 100, 120, 150, _, _, _, _, _, _]],
       ['soulOfTruth', [_, _, _, _, 1, 2, 3, 3, 4, 5]],
       ['goldDye', [2, 2, 3, 3, _, _, _, _, _, _]],
-      ['dragonWings', [_, _, _, _, 1, 2, 3, 3, 1, 5]],
+      ['dragonWings', [_, _, _, _, 1, 2, 3, 3, 4, 5]],
       ['agate', [1, 1, 2, 2, _, _, _, _, _, _]],
       ['titaniumDioxide', [_, _, _, _, 1, 2, 3, 3, 4, 5]],
       HORN_5_10,
