@@ -387,7 +387,7 @@ const TABLES = {
 }
 
 const ORE_FINDER_MAPS = new Set(['Yongan', 'Joan', 'Pyungmoo'])
-const MOKOKO_FINDER_MAPS = new Set(['Yongan'])
+const MOKOKO_FINDER_MAPS = new Set(['Thunder Mountains', 'Enchanted Forest'])
 
 // Cloudflare Turnstile check on ore reports - keeps reporting open to anyone
 // (no accounts) while blocking scripted/bot spam. Inert-safe by design: if

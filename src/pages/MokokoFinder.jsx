@@ -3,18 +3,20 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
-import Spinner from '../components/Spinner'
 import MokokoFinderReportModal from '../components/MokokoFinderReportModal'
 import MokokoFinderReviewModal from '../components/MokokoFinderReviewModal'
 import MokokoFinderSpotModal from '../components/MokokoFinderSpotModal'
 import { db } from '../dbClient'
 
-// Only this one map actually has report/spot data for now - no new map to
-// dedicate to this yet, so it borrows an existing one for testing (see
-// mokoko_finder_reports/spots in worker/src/db.js, which validate against
-// this same name). The map tab list itself still lists every map, same look
-// as the interactive map, so the layout is ready once more maps are wired in.
-const SUPPORTED_MAPS = new Set(['Yongan'])
+// Mokoko Finder's own map list - deliberately separate from the interactive
+// map's `maps` table (the finder must never touch that data). Names must match
+// MOKOKO_FINDER_MAPS in worker/src/db.js, which validates reports against them.
+// width/height = the map image's pixel size, used for the X/Y shown to users.
+// A map with image_url null is listed but disabled until its image is added.
+const FINDER_MAPS = [
+  { id: 'thunder-mountains', name: 'Thunder Mountains', image_url: '/mokoko-finder/thunder-mountains.png', width: 1254, height: 1254 },
+  { id: 'enchanted-forest', name: 'Enchanted Forest', image_url: null, width: 1254, height: 1254 },
+]
 // Same shape as OreFinder's poll: paused on a hidden tab so this doesn't add
 // to the worker's shared daily request budget.
 const POLL_MS = 20000
@@ -29,9 +31,7 @@ const POLL_MS = 20000
 export default function MokokoFinder() {
   const { t } = useTranslation()
   const { isAdmin } = useAuth()
-  const [maps, setMaps] = useState([])
-  const [mapsLoading, setMapsLoading] = useState(true)
-  const [selectedName, setSelectedName] = useState('Yongan')
+  const [selectedName, setSelectedName] = useState(FINDER_MAPS[0].name)
   const [spots, setSpots] = useState([])
   const [pendingClick, setPendingClick] = useState(null)
   const [sending, setSending] = useState(false)
@@ -41,15 +41,8 @@ export default function MokokoFinder() {
   const [reportCount, setReportCount] = useState(0)
   const mapWrapRef = useRef(null)
 
-  useEffect(() => {
-    db.from('maps').select('*').order('sort_order').then(({ data }) => {
-      setMaps(data ?? [])
-      setMapsLoading(false)
-    })
-  }, [])
-
-  const selectedMap = maps.find(m => m.name === selectedName) || null
-  const supported = SUPPORTED_MAPS.has(selectedName)
+  const selectedMap = FINDER_MAPS.find(m => m.name === selectedName) || null
+  const supported = !!selectedMap?.image_url
 
   function loadSpots() {
     if (!supported) { setSpots([]); return }
@@ -140,12 +133,11 @@ export default function MokokoFinder() {
             )}
           </div>
 
-          {mapsLoading ? <Spinner /> : (
-            <div className="flex gap-4 flex-col md:flex-row">
+          <div className="flex gap-4 flex-col md:flex-row">
               <aside className="w-full md:w-56 shrink-0 flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible md:max-h-[70vh] md:overflow-y-auto pb-1 md:pb-0">
-                {maps.map(m => {
+                {FINDER_MAPS.map(m => {
                   const active = m.name === selectedName
-                  const isSupported = SUPPORTED_MAPS.has(m.name)
+                  const isSupported = !!m.image_url
                   return (
                     <button
                       key={m.id}
@@ -163,13 +155,7 @@ export default function MokokoFinder() {
                           )}
                           <span className="font-semibold truncate">{m.name}</span>
                         </span>
-                        {m.max_mokoko != null && (
-                          <span className={`text-[10px] font-mono font-bold shrink-0 ${active ? 'text-gray-800' : 'text-gray-500'}`}>
-                            🍀×{m.max_mokoko}
-                          </span>
-                        )}
                       </div>
-                      <div className={`text-xs ${active ? 'text-gray-800' : 'text-gray-500'}`}>{m.region}</div>
                     </button>
                   )
                 })}
@@ -188,6 +174,9 @@ export default function MokokoFinder() {
                       </p>
                     )}
 
+                    {!supported ? (
+                      <div className="w-full aspect-square max-h-[70vh] rounded-xl border border-dashed border-gray-700 bg-gray-950 flex items-center justify-center text-5xl">⏳</div>
+                    ) : (
                     <div
                       className="relative w-full rounded-xl border border-gray-700 bg-gray-950 overflow-y-auto overflow-x-hidden"
                       style={{ maxHeight: '70vh' }}
@@ -219,6 +208,7 @@ export default function MokokoFinder() {
                         ))}
                       </div>
                     </div>
+                    )}
 
                     <p className="mt-3 text-xs text-yellow-400">
                       {supported ? t('mokokoFinder.clickToMark') : t('mokokoFinder.addDisabled')}
@@ -227,7 +217,6 @@ export default function MokokoFinder() {
                 )}
               </div>
             </div>
-          )}
         </div>
       </div>
 
