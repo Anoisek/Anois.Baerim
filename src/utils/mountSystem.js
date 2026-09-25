@@ -18,14 +18,14 @@ export const MOUNT_TABS_BY_CATEGORY = {
 }
 
 export const MAT = {
-  horseMedal: '6b28aff9-74f1-4b3d-8c28-b024971ca88d',
-  horseEmblem: '0bfc5e74-8641-4131-bfc4-fbf95fc45230',
-  enchantMount1: 'd1e61f87-833f-4a8f-8b1d-3d65f0c2f885',
-  enchantMount2: '0113c392-4862-4185-8734-7e1f50a194e4',
-  enchantMount3: '9a8cb0ea-4bdf-4b2f-abc5-c28f7cc668fa',
-  skillUnlocker: '99ac4333-5f73-44a8-bcee-9f707965f94e',
-  skillBook: '2f82cd28-b9c8-4532-9ce8-830ff270fbf6',
-  focusedReading: '9922c464-14d2-4cb4-9c7a-72c616c164fc',
+  horseMedal: '0238801e-d0d2-4e49-95ba-5261185761a2',
+  horseEmblem: '89a0cbe3-4d9a-4e52-9d6f-2cbadd1e00af',
+  enchantMount1: '3c0d360b-176c-4f1f-86dd-e594d6b5cc55',
+  enchantMount2: 'b0955d69-5570-4ac7-86ef-e06774858000',
+  enchantMount3: 'b7f7d9ab-9ac7-4051-970b-f7cf13ede5ee',
+  skillUnlocker: '21e95fb7-8d0f-4aa6-9b04-0d73f0939a91',
+  skillBook: 'fbb7e775-de1a-496f-a215-198726202a8b',
+  focusedReading: '38acac05-c80c-4806-9e4b-cc757dd70318',
   snakeTail: 'e6b9aa52-0fbe-4711-82c1-ee094a94d3d6',
   spiderLegs: '15069cb0-e647-4954-b52d-61cc711fba46',
 }
