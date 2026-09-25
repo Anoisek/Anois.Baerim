@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -6,7 +6,7 @@ import { db } from '../dbClient'
 import { formatYang } from '../utils/formatYang'
 import { slugify } from '../utils/slug'
 import {
-  usePriceBook, buildRecipeMap, buildYangCostMap, fetchGlobalPrices, makeMaterialPriceFn,
+  usePriceBook, buildRecipeMap, buildYangCostMap, fetchGlobalPrices, makeMaterialPriceFn, FIXED_MATERIAL_PRICES,
 } from '../utils/priceBook'
 import {
   MAT, MOUNT_TABS_BY_CATEGORY, LEVEL_STAGES, BONUS_ENCHANTS, DEFAULT_ENCHANT_QTY,
@@ -17,6 +17,8 @@ import MatRow from './MatRow'
 import MaterialTile from './MaterialTile'
 import Modal from './Modal'
 import CraftOverviewPanel from './CraftOverviewPanel'
+import MaterialPriceCell from './MaterialPriceCell'
+import { MatTag, PityStepper } from '../horizontal/ui'
 import PriceModeToggle from './PriceModeToggle'
 import StickyTotalBar, { useStickyTotal } from './StickyTotalBar'
 import Spinner from './Spinner'
@@ -95,6 +97,7 @@ export default function MountSystem({ categoryId, horizontal = false }) {
   const [stickyTotal, setStickyTotal] = useStickyTotal()
   const [choices, setChoices] = useState(loadChoices)
   const [showSummary, setShowSummary] = useState(false)
+  const [showPriceAdjust, setShowPriceAdjust] = useState(false)
   const isRuneTab = RUNES.some(r => r.key === tab)
 
   useEffect(() => {
@@ -207,7 +210,7 @@ export default function MountSystem({ categoryId, horizontal = false }) {
             </button>
           ))}
         </div>
-        <PriceModeToggle mode={mode} setMode={setMode} horizontal={horizontal} />
+        {!isRuneTab && <PriceModeToggle mode={mode} setMode={setMode} horizontal={horizontal} />}
       </div>
 
       {tab === 'all' && (
@@ -244,59 +247,231 @@ export default function MountSystem({ categoryId, horizontal = false }) {
         ]))
         const yangCosts = Object.fromEntries(steps.map(step => [step, rune.yang[step - 1]]))
         const pityOf = step => Math.min(RUNE_MAX_PITY, Math.max(0, parseInt(c.pity[step]) || 0))
+        const setPityOf = (step, value) => setRune(r => ({ ...r, pity: { ...r.pity, [step]: Math.min(RUNE_MAX_PITY, Math.max(0, parseInt(value) || 0)) } }))
         const stepTotal = step => (grouped[step].reduce((sum, r) => sum + priceFn(r.material.id) * r.quantity, 0) + yangCosts[step]) * (pityOf(step) + 1)
         const setAllPity = value => setRune(r => ({ ...r, pity: Object.fromEntries(steps.map(s => [s, value])) }))
-        const toolBtn = horizontal
-          ? 'bg-black/30 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors'
-          : 'bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors'
-        const card = horizontal ? 'bg-black/30 border border-white/10 rounded-xl' : 'bg-gray-900 border border-gray-700 rounded-2xl'
-        const cardHead = horizontal ? 'bg-black/30 border-white/10' : 'bg-gray-800/60 border-gray-700'
-        const cardFoot = horizontal ? 'bg-black/20 border-white/10' : 'bg-gray-800/40 border-gray-700'
-        const fieldCls = horizontal
-          ? 'bg-black/25 border border-white/10 rounded-lg text-white focus:outline-none focus:border-yellow-400'
-          : 'bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-yellow-400'
+        const isOwned = step => step <= c.owned
+        const isExcluded = step => !isOwned(step) && !!c.excluded[step]
+        const toggleIncluded = step => setRune(r => ({ ...r, excluded: { ...r.excluded, [step]: !r.excluded[step] } }))
+        const ownedSelect = cls => (
+          <select value={c.owned} onChange={e => setRune(r => ({ ...r, owned: Number(e.target.value) }))} title={t('itemDetail.ownedLevelTooltip')} className={cls}>
+            {Array.from({ length: RUNE_STEPS }, (_, n) => <option key={n} value={n}>+{n}</option>)}
+          </select>
+        )
+        const summaryRows = mats.filter(([id]) => materialsById[id])
+
+        const summaryModal = showSummary && createPortal(
+          <Modal title={t('itemDetail.materialsSummaryTitle')} onClose={() => setShowSummary(false)} horizontal={horizontal}>
+            {summaryRows.length === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-6">{t('itemDetail.noMaterialsDefined')}</p>
+            ) : (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                {summaryRows.map(([id, qty]) => <MaterialTile key={id} mat={materialsById[id]} quantity={qty} />)}
+              </div>
+            )}
+          </Modal>,
+          document.body,
+        )
+
+        // Horizontal design: 1:1 with ItemDetailH (header band, step table,
+        // side summary panel with total / materials summary / adjust prices).
+        if (horizontal) {
+          return (
+            <div key={rune.key}>
+              <div className="flex items-center gap-5 mb-4 px-5 py-4 rounded-xl border border-white/10 bg-gradient-to-r from-yellow-400/[0.06] to-transparent flex-wrap">
+                <div className="w-16 h-16 shrink-0 flex items-center justify-center rounded-xl bg-black/30 border border-yellow-400/20 shadow-[0_0_20px_-4px_rgba(250,204,21,0.25)]">
+                  <img src={rune.image} alt={rune.name} className="w-11 h-11 object-contain drop-shadow-lg" />
+                </div>
+                <div className="flex-1 min-w-0 flex items-center gap-3 flex-wrap">
+                  <h1 className="text-xl font-bold text-yellow-400 truncate">{rune.name}</h1>
+                  {ownedSelect('bg-black/40 border border-white/10 rounded-lg px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-yellow-400 shrink-0')}
+                </div>
+              </div>
+
+              <div className="lg:pr-[21.5rem]">
+                <CraftOverviewPanel allSteps={steps} grouped={grouped} yangCosts={yangCosts} horizontal skipCraftSection />
+              </div>
+
+              <div className="flex flex-wrap gap-2 mb-4">
+                <button type="button" onClick={() => setAllPity(0)}
+                  className="bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
+                  {t('itemDetail.resetPityAllSteps')}
+                </button>
+                <button type="button" onClick={() => setAllPity(RUNE_MAX_PITY)}
+                  className="bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
+                  {t('itemDetail.maxPityAllSteps')}
+                </button>
+              </div>
+
+              <div className="flex flex-col lg:flex-row gap-6 items-start">
+                <div className="flex-1 min-w-0 w-full flex flex-col rounded-xl border border-white/10 bg-black/20">
+                  <div className="hidden md:grid grid-cols-[13rem_1fr_6rem] gap-4 px-5 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest border-b border-white/10">
+                    <div>+N</div>
+                    <div>{t('common.material')}</div>
+                    <div className="text-right">Fails</div>
+                  </div>
+                  <div className="divide-y divide-white/5">
+                    {steps.map(step => {
+                      const owned = isOwned(step)
+                      const excluded = isExcluded(step)
+                      const mult = pityOf(step) + 1
+                      return (
+                        <div key={step} className={`grid grid-cols-1 md:grid-cols-[13rem_1fr_6rem] gap-x-4 gap-y-2 items-center px-5 py-3.5 transition-colors hover:bg-white/[0.03] ${owned || excluded ? 'opacity-40' : ''}`}>
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-9 h-9 shrink-0 rounded-lg bg-yellow-400/10 border border-yellow-400/25 flex items-center justify-center text-yellow-400 font-bold text-xs">
+                              +{step}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-xs font-semibold text-gray-400 truncate">+{step - 1} → +{step}</span>
+                              <span className={`text-sm font-bold font-mono ${owned || excluded ? 'text-gray-600 line-through' : 'text-gray-200'}`}>
+                                {formatYang(stepTotal(step))}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2 min-w-0 py-1">
+                            <div className="flex items-center gap-2 shrink-0" title={t('itemDetail.yangFee')}>
+                              <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-black/25 shrink-0">
+                                <span className="text-sm">💰</span>
+                              </div>
+                              <span className="text-xs text-yellow-400 font-mono">{formatYang(yangCosts[step] * mult)}</span>
+                            </div>
+                            <div className="flex flex-wrap items-start gap-3">
+                              {grouped[step].map(row => (
+                                <MatTag key={row.material.id} mat={row.material} quantity={row.quantity * mult} kind="material" hidePrice />
+                              ))}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 md:justify-end">
+                            {!owned && (
+                              <label className="flex items-center gap-1 text-gray-500 cursor-pointer select-none shrink-0" title={t('itemDetail.includeStepTooltip')}>
+                                <input type="checkbox" checked={!excluded} onChange={() => toggleIncluded(step)} className="accent-yellow-400 w-3.5 h-3.5" />
+                              </label>
+                            )}
+                            <PityStepper
+                              value={pityOf(step)}
+                              max={RUNE_MAX_PITY}
+                              onChange={next => setPityOf(step, next)}
+                              title={t('itemDetail.pityMax', { max: RUNE_MAX_PITY })}
+                            />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <div className="w-full lg:w-80 shrink-0 lg:sticky lg:top-24 rounded-xl border border-yellow-400/20 bg-gradient-to-b from-yellow-400/[0.06] to-black/30 overflow-hidden">
+                  <div className="px-6 py-5">
+                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{t('itemDetail.totalCost')}</span>
+                    <div className="text-3xl font-bold text-yellow-400 font-mono mt-1">{formatYang(total)}</div>
+                  </div>
+                  <button type="button" onClick={() => setShowSummary(true)}
+                    className="w-full flex items-center justify-center gap-1.5 border-t border-yellow-400/20 bg-black/20 hover:bg-yellow-400/10 text-yellow-300 hover:text-yellow-200 text-sm font-semibold px-4 py-3 transition-colors">
+                    📋 {t('itemDetail.materialsSummary')}
+                  </button>
+                  <button type="button" onClick={() => setShowPriceAdjust(true)}
+                    className="w-full flex items-center justify-center gap-1.5 border-t border-yellow-400/20 bg-black/20 hover:bg-yellow-400/10 text-yellow-300 hover:text-yellow-200 text-sm font-semibold px-4 py-3 transition-colors">
+                    💲 Adjust prices
+                  </button>
+                </div>
+              </div>
+
+              {summaryModal}
+              {showPriceAdjust && createPortal(
+                <Modal title="Adjust prices" onClose={() => setShowPriceAdjust(false)} maxWidthClass="max-w-xl" horizontal>
+                  <div className="flex justify-center mb-4">
+                    <PriceModeToggle mode={mode} setMode={setMode} horizontal />
+                  </div>
+                  {summaryRows.length === 0 ? (
+                    <p className="text-sm text-gray-500 text-center py-6">{t('itemDetail.noMaterialsDefined')}</p>
+                  ) : (
+                    <div className="grid grid-cols-[2.25rem_1fr_1.25rem_7.5rem] gap-x-3">
+                      {summaryRows.map(([id]) => {
+                        const mat = materialsById[id]
+                        const manualOverride = manualOverrides?.has(id) ?? false
+                        const canOverride = !mat.no_price && !FIXED_MATERIAL_PRICES[id]
+                        return (
+                          <Fragment key={id}>
+                            <div className="flex items-center border-t border-white/10 py-2.5">
+                              <div className="w-9 h-9 shrink-0 rounded-lg bg-black/25 flex items-center justify-center overflow-hidden">
+                                {mat.image_url
+                                  ? <img src={mat.image_url} alt={mat.name} className="w-6 h-6 object-contain" />
+                                  : <span className="text-sm">🧪</span>}
+                              </div>
+                            </div>
+                            <div className="flex items-center min-w-0 border-t border-white/10 py-2.5">
+                              <span className="truncate text-sm text-gray-200">{mat.name}</span>
+                            </div>
+                            <div className="flex items-center justify-center border-t border-white/10 py-2.5">
+                              {canOverride && (
+                                <label className="flex items-center cursor-pointer select-none" title={t('materials.manualPrice')}>
+                                  <input type="checkbox" checked={manualOverride} onChange={() => toggleManualOverride(id)} className="accent-yellow-400 w-3 h-3" />
+                                </label>
+                              )}
+                            </div>
+                            <div className="flex items-center border-t border-white/10 py-2.5">
+                              <MaterialPriceCell
+                                material={mat}
+                                rawValue={rawInputs[id]}
+                                computedValue={priceFn(id)}
+                                onPriceChange={setPrice}
+                                computed={manualOverride ? false : (mode === 'global' ? true : undefined)}
+                                manualOverride={manualOverride}
+                              />
+                            </div>
+                          </Fragment>
+                        )
+                      })}
+                    </div>
+                  )}
+                </Modal>,
+                document.body,
+              )}
+            </div>
+          )
+        }
+
+        // Vertical design: 1:1 with ItemDetail (header card, overview table,
+        // step cards with per-material prices, sticky total + materials summary).
         return (
-          <div key={rune.key} className="flex flex-col">
-            <div className="flex flex-wrap items-center gap-3 mb-5">
-              <img src={rune.image} alt={rune.name} className="w-10 h-10" />
-              <h2 className="text-lg font-bold text-gray-100 flex-1">{rune.name}</h2>
-              <label className="flex items-center gap-2 text-sm text-gray-400" title={t('itemDetail.ownedLevelTooltip')}>
-                {t('mount.ownedLevel')}
-                <select
-                  value={c.owned}
-                  onChange={e => setRune(r => ({ ...r, owned: Number(e.target.value) }))}
-                  className={`${fieldCls} px-2 py-1 text-sm`}
-                >
-                  {Array.from({ length: RUNE_STEPS }, (_, n) => <option key={n} value={n}>+{n}</option>)}
-                </select>
-              </label>
+          <div key={rune.key}>
+            <div className="flex items-center gap-5 mb-6 p-5 bg-gray-900 border border-gray-700 rounded-2xl flex-wrap">
+              <div className="w-20 h-20 shrink-0 flex items-center justify-center">
+                <img src={rune.image} alt={rune.name} className="w-full h-full object-contain drop-shadow-lg" />
+              </div>
+              <div className="flex-1 min-w-0 flex items-center gap-3 flex-wrap">
+                <h1 className="text-2xl font-bold text-yellow-400">{rune.name}</h1>
+                {ownedSelect('bg-gray-800 border border-gray-600 rounded-lg px-2 py-1 text-sm text-gray-200 focus:outline-none focus:border-yellow-400 shrink-0')}
+              </div>
+              <PriceModeToggle mode={mode} setMode={setMode} />
             </div>
 
-            <CraftOverviewPanel allSteps={steps} grouped={grouped} yangCosts={yangCosts} horizontal={horizontal} skipCraftSection />
+            <CraftOverviewPanel allSteps={steps} grouped={grouped} yangCosts={yangCosts} skipCraftSection />
 
             <div className="flex flex-wrap gap-2 mb-6">
-              <button type="button" onClick={() => setAllPity(0)} className={toolBtn}>{t('itemDetail.resetPityAllSteps')}</button>
-              <button type="button" onClick={() => setAllPity(RUNE_MAX_PITY)} className={toolBtn}>{t('itemDetail.maxPityAllSteps')}</button>
+              <button type="button" onClick={() => setAllPity(0)}
+                className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
+                {t('itemDetail.resetPityAllSteps')}
+              </button>
+              <button type="button" onClick={() => setAllPity(RUNE_MAX_PITY)}
+                className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 hover:text-yellow-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
+                {t('itemDetail.maxPityAllSteps')}
+              </button>
             </div>
 
             <div className="flex flex-col gap-3">
               {steps.map(step => {
-                const owned = step <= c.owned
-                const excluded = !owned && !!c.excluded[step]
-                const pity = pityOf(step)
+                const owned = isOwned(step)
+                const excluded = isExcluded(step)
+                const mult = pityOf(step) + 1
                 return (
-                  <div key={step} className={`${card} overflow-hidden${owned || excluded ? ' opacity-50' : ''}`}>
-                    <div className={`flex items-center justify-between px-5 py-3 border-b flex-wrap gap-2 ${cardHead}`}>
-                      <h3 className="text-xs font-bold text-yellow-400 uppercase tracking-widest">+{step - 1} → +{step}</h3>
+                  <div key={step} className={`bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden${owned || excluded ? ' opacity-50' : ''}`}>
+                    <div className="flex items-center justify-between px-5 py-3 bg-gray-800/60 border-b border-gray-700 flex-wrap gap-2">
+                      <h2 className="text-xs font-bold text-yellow-400 uppercase tracking-widest">+{step - 1} → +{step}</h2>
                       <div className="flex items-center gap-2 flex-wrap">
                         {!owned && (
                           <label className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer select-none" title={t('itemDetail.includeStepTooltip')}>
-                            <input
-                              type="checkbox"
-                              checked={!excluded}
-                              onChange={() => setRune(r => ({ ...r, excluded: { ...r.excluded, [step]: !excluded } }))}
-                              className="accent-yellow-400 w-3.5 h-3.5"
-                            />
+                            <input type="checkbox" checked={!excluded} onChange={() => toggleIncluded(step)} className="accent-yellow-400 w-3.5 h-3.5" />
                             {t('itemDetail.includeStep')}
                           </label>
                         )}
@@ -306,11 +481,11 @@ export default function MountSystem({ categoryId, horizontal = false }) {
                             type="number"
                             min="0"
                             max={RUNE_MAX_PITY}
-                            value={pity}
-                            onChange={e => setRune(r => ({ ...r, pity: { ...r.pity, [step]: Math.min(RUNE_MAX_PITY, Math.max(0, parseInt(e.target.value) || 0)) } }))}
-                            className={`${fieldCls} px-2 py-1 w-14 text-center text-xs`}
+                            value={pityOf(step)}
+                            onChange={e => setPityOf(step, e.target.value)}
+                            className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 w-14 text-center text-xs text-white focus:outline-none focus:border-yellow-400"
                           />
-                          <span className={`text-yellow-400 font-bold min-w-[1.75rem] shrink-0 ${pity > 0 ? '' : 'opacity-0'}`}>×{pity + 1}</span>
+                          <span className={`text-yellow-400 font-bold min-w-[1.75rem] shrink-0 ${mult > 1 ? '' : 'opacity-0'}`}>×{mult}</span>
                         </label>
                       </div>
                     </div>
@@ -336,9 +511,9 @@ export default function MountSystem({ categoryId, horizontal = false }) {
                       ))}
                     </div>
 
-                    <div className={`flex justify-between items-center px-5 py-3 border-t ${cardFoot}`}>
+                    <div className="flex justify-between items-center px-5 py-3 bg-gray-800/40 border-t border-gray-700">
                       <span className="text-xs text-gray-500 uppercase tracking-wider">
-                        {owned ? t('mount.alreadyOwned') : `${t('itemDetail.subtotal')}${pity > 0 ? ` ×${pity + 1}` : ''}`}
+                        {owned ? t('mount.alreadyOwned') : `${t('itemDetail.subtotal')}${mult > 1 ? ` ×${mult}` : ''}`}
                         {excluded && ` (${t('itemDetail.excludedFromTotal')})`}
                       </span>
                       <span className={`text-sm font-bold font-mono ${owned || excluded ? 'text-gray-600 line-through' : 'text-yellow-400'}`}>{formatYang(stepTotal(step))}</span>
@@ -355,39 +530,20 @@ export default function MountSystem({ categoryId, horizontal = false }) {
                 >
                   {t('itemDetail.materialsSummary')}
                 </button>
-                <div className={`${horizontal ? 'bg-black/40 rounded-xl' : 'bg-gray-900 rounded-2xl'} border border-yellow-400/20 px-6 py-5 mt-1`}>
+                <div className="bg-gray-900 border border-yellow-400/20 rounded-2xl px-6 py-5 mt-1">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-300 font-semibold">{t('itemDetail.totalCost')}</span>
                     <span className="text-3xl font-bold text-yellow-400 font-mono">{formatYang(total)}</span>
                   </div>
                   <label className="flex items-center gap-1.5 text-xs text-gray-500 mt-3 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={stickyTotal}
-                      onChange={e => setStickyTotal(e.target.checked)}
-                      className="accent-yellow-400 w-3.5 h-3.5"
-                    />
+                    <input type="checkbox" checked={stickyTotal} onChange={e => setStickyTotal(e.target.checked)} className="accent-yellow-400 w-3.5 h-3.5" />
                     {t('common.stickToBottom')}
                   </label>
                 </div>
               </StickyTotalBar>
             </div>
 
-            {/* Portalled: the subcategory page wraps its content in a backdrop-blur
-                box, which would otherwise become the containing block for this
-                fixed-position modal and push it far off-screen on a long page. */}
-            {showSummary && createPortal(
-              <Modal title={t('itemDetail.materialsSummaryTitle')} onClose={() => setShowSummary(false)} horizontal={horizontal}>
-                {mats.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-6">{t('itemDetail.noMaterialsDefined')}</p>
-                ) : (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                    {mats.map(([id, qty]) => materialsById[id] && <MaterialTile key={id} mat={materialsById[id]} quantity={qty} />)}
-                  </div>
-                )}
-              </Modal>,
-              document.body,
-            )}
+            {summaryModal}
           </div>
         )
       })}
