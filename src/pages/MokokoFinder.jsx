@@ -11,10 +11,14 @@ import { db } from '../dbClient'
 // Mokoko Finder's own map list - deliberately separate from the interactive
 // map's `maps` table (the finder must never touch that data). Names must match
 // MOKOKO_FINDER_MAPS in worker/src/db.js, which validates reports against them.
-// width/height = the map image's pixel size, used for the X/Y shown to users.
+// width/height = the map's in-game coordinate range (not the image's pixel
+// size), so the X/Y shown to users match what the game shows - positions are
+// stored as percentages, so changing this never moves existing spots.
 // A map with image_url null is listed but disabled until its image is added.
 const FINDER_MAPS = [
-  { id: 'thunder-mountains', name: 'Thunder Mountains', image_url: '/mokoko-finder/thunder-mountains.png', width: 1254, height: 1254 },
+  // In-game 0-2048 (image is 1254px): checked against in-game points near the
+  // corners, (235, 395) top-left and (1920, 1910) bottom-right.
+  { id: 'thunder-mountains', name: 'Thunder Mountains', image_url: '/mokoko-finder/thunder-mountains.png', width: 2048, height: 2048 },
   { id: 'enchanted-forest', name: 'Enchanted Forest', image_url: null, width: 1254, height: 1254 },
 ]
 // Same shape as OreFinder's poll: paused on a hidden tab so this doesn't add
