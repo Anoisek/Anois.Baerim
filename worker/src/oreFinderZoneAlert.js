@@ -10,6 +10,7 @@
 
 import { PhotonImage } from '@cf-wasm/photon/workerd'
 import { nextOreExpiryMark } from './db.js'
+import { pauseReportChannel } from './oreFinderDiscordReport.js'
 
 const DISCORD_API = 'https://discord.com/api/v10'
 const MAP_COLORS = { Yongan: 'red', Joan: 'yellow', Pyungmoo: 'blue' }
@@ -177,9 +178,15 @@ export async function handleZoneAlert(request, env, headers) {
     return json({ ok: true, dryRun: true, destinations: destinations.length }, 200)
   }
 
-  // One zone alert per map per ore cycle - a second report of the same map is refused.
+  // One zone alert per map per ore cycle - a second report of the same map is
+  // refused, and so is one for a map that already has an exact ore marked.
   const now = new Date()
   const nowIso = now.toISOString()
+  const marked = await env.DB.prepare('SELECT id FROM ore_finder_ores WHERE map = ? AND expires_at > ?').bind(zone.map, nowIso).first()
+  if (marked) {
+    await reply(`ℹ️ An ore is already marked on **${mapLabel(zone.map)}** this cycle.`)
+    return json({ ok: false, reason: 'already marked' }, 200)
+  }
   const existing = await env.DB.prepare('SELECT zone_name FROM ore_finder_zone_alerts WHERE map = ? AND expires_at > ?').bind(zone.map, nowIso).first()
   if (existing) {
     await reply(`ℹ️ ${mapLabel(zone.map)} was already reported this cycle (around **${existing.zone_name}**).`)
@@ -197,6 +204,7 @@ export async function handleZoneAlert(request, env, headers) {
     embeds: [zoneEmbed(zone.map, zone)],
   }, png)))
   const sent = results.filter(Boolean).length
+  await pauseReportChannel(env, body.reportChannelId, now)
   await reply(`✅ Sent to ${sent} channel(s): **${mapLabel(zone.map)}** - around **${zone.name}**.`)
   return json({ ok: true, sent }, 200)
 }

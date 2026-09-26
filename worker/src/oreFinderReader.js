@@ -4,6 +4,11 @@ import { matchZone, zoneHelp } from './oreFinderZoneAlert.js'
 // Ore Finder channel reader - an extra, independent feature on top of the
 // existing Ore Finder bot (alerts and the other slash commands are untouched).
 //
+// A channel is skipped (not even read) while its map already has an ore or a
+// zone alert this cycle, and after it reported one it stays paused until the
+// next report window (paused_until). Mentions older than the current window
+// (or than the pause) are ignored, so nothing stale is picked up later.
+//
 // Channels are set up with /orefinder-reportmap <map>: each takes reports for
 // one map, made by mentioning the bot with the coordinates ("@Ore Finder 512
 // 734") or with the name of one of the admin's circles ("@Ore Finder bio" ->
@@ -53,16 +58,46 @@ function chunk(list, size) {
 const newerId = (a, b) => (BigInt(a) > BigInt(b) ? a : b)
 const mapLabel = name => `${name} (${MAP_COLORS[name] || name})`
 
-// Channels set up with /orefinder-reportmap (test mode: just the test channel).
+// Start of the report window `now` is in (xx:58 or xx:28), or null outside one.
+function windowStart(now) {
+  const m = now.getUTCMinutes()
+  const start = new Date(now)
+  start.setUTCSeconds(0, 0)
+  if (m >= 58) { start.setUTCMinutes(58); return start }
+  if (m <= 9) { start.setUTCHours(start.getUTCHours() - 1, 58); return start }
+  if (m >= 28 && m <= 39) { start.setUTCMinutes(28); return start }
+  return null
+}
+
+// Channels set up with /orefinder-reportmap that should be read right now
+// (test mode: just the test channel).
 async function readerChannels(env) {
+  const now = new Date()
+  const nowIso = now.toISOString()
   const testId = env.ORE_FINDER_READER_TEST_CHANNEL_ID
   const rows = testId
-    ? await env.DB.prepare('SELECT channel_id, guild_id, map FROM ore_finder_report_channels WHERE channel_id = ?').bind(testId).all()
-    : await env.DB.prepare('SELECT channel_id, guild_id, map FROM ore_finder_report_channels').all()
-  const channels = rows.results.map(r => ({ channelId: r.channel_id, guildId: r.guild_id, map: r.map }))
-  if (testId && channels.length === 0) channels.push({ channelId: testId, guildId: null, map: null })
-  return channels
+    ? await env.DB.prepare('SELECT channel_id, guild_id, map, paused_until FROM ore_finder_report_channels WHERE channel_id = ?').bind(testId).all()
+    : await env.DB.prepare('SELECT channel_id, guild_id, map, paused_until FROM ore_finder_report_channels').all()
+  if (testId && rows.results.length === 0) return [{ channelId: testId, guildId: null, map: null }]
+
+  // Maps already reported this cycle (exact ore or zone alert) - nothing to listen for.
+  const [ores, zoneAlerts] = await Promise.all([
+    env.DB.prepare('SELECT map FROM ore_finder_ores WHERE expires_at > ?').bind(nowIso).all(),
+    env.DB.prepare('SELECT map FROM ore_finder_zone_alerts WHERE expires_at > ?').bind(nowIso).all(),
+  ])
+  const reported = new Set([...ores.results, ...zoneAlerts.results].map(r => r.map))
+
+  const start = testId ? null : windowStart(now)
+  return rows.results
+    .filter(r => !(r.paused_until && r.paused_until > nowIso) && !reported.has(r.map))
+    .map(r => {
+      const ignoreBefore = [start && start.toISOString(), r.paused_until].filter(Boolean).sort().pop() || null
+      return { channelId: r.channel_id, guildId: r.guild_id, map: r.map, ignoreBefore }
+    })
 }
+
+// Discord snowflake -> creation time (ms).
+const snowflakeTime = id => Number((BigInt(id) >> 22n) + 1420070400000n)
 
 async function dispatchRound(env) {
   const channels = await readerChannels(env)
@@ -135,7 +170,8 @@ async function readChannel(env, channel, lastId) {
     ).bind(channel.channelId, newest, new Date().toISOString()).run()
     if (!lastId) return { channelId: channel.channelId, read: 0 }
 
-    const report = latestMention(env, messages)
+    const minTime = channel.ignoreBefore ? Date.parse(channel.ignoreBefore) : 0
+    const report = latestMention(env, messages.filter(m => snowflakeTime(m.id) >= minTime))
     if (report) await handleReport(env, channel, report)
     return { channelId: channel.channelId, read: messages.length, report: report ? report.id : null }
   } catch (err) {
@@ -202,8 +238,19 @@ async function handleReport(env, channel, message) {
       (notes.length ? `\n${notes.map(n => `• ${n}`).join('\n')}` : '\n✅ Would be added to the Ore Finder.'))
   }
 
-  // Live reporting isn't switched on yet - kept as a dry run until tested.
-  return reply(env, message, `Read: **${mapLabel(channel.map)}** - **${coords.x}, ${coords.y}** (live reporting isn't enabled yet).`)
+  if (!windowOpen) {
+    return reply(env, message, '⏰ Ores can only be reported xx:58-xx:09 and xx:28-xx:39.')
+  }
+  // Adding + the alert to every server run in their own invocation (own subrequest budget).
+  await env.SELF.fetch('https://internal/discord/ore-report', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Internal-Key': env.AUTH_SECRET },
+    body: JSON.stringify({
+      map: channel.map, x: coords.x, y: coords.y,
+      channelId: message.channel_id, messageId: message.id,
+      guildId: channel.guildId, userId: message.author?.id,
+    }),
+  })
 }
 
 // No coordinates in the message - look for one of the map's circles instead
