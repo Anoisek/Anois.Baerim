@@ -13,9 +13,9 @@ binding = "SELF"
 service = "baerim-images-worker"
 
 # Ore Finder channel reader: runs every minute; outside test mode the code
-# itself only reads during xx:58-xx:10 and xx:29-xx:40 (UTC minutes are the
-# same in every whole-hour timezone). After testing this can go back to
-# "58,59,0-10,29-40 * * * *" to skip the idle invocations.
+# itself only reads during the website's ore-report windows xx:58-xx:09 and
+# xx:28-xx:39 (UTC minutes are the same in every whole-hour timezone). After
+# testing this can become "58,59,0-9,28-39 * * * *" to skip idle invocations.
 [triggers]
 crons = ["* * * * *"]
 

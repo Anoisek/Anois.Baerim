@@ -413,7 +413,7 @@ async function verifyTurnstile(env, token, request) {
 // Legendary ore can normally only be marked in the 12-minute window before
 // each disappearance mark (xx:58-xx:09 before xx:10, xx:28-xx:39 before
 // xx:40) - admin bypasses this check (see beforeInsert below).
-function isOreAddWindowOpen(now) {
+export function isOreAddWindowOpen(now) {
   const minute = now.getUTCMinutes()
   return (minute >= 28 && minute <= 39) || minute >= 58 || minute <= 9
 }

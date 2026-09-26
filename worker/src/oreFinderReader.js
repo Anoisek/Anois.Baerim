@@ -1,8 +1,11 @@
+import { isOreAddWindowOpen } from './db.js'
+
 // Ore Finder channel reader - an extra, independent feature on top of the
 // existing Ore Finder bot (alerts and slash commands are untouched).
 //
-// A Cron Trigger fires every minute inside the windows xx:58-xx:10 and
-// xx:29-xx:40 and reads new messages from every channel the bot posts ore
+// A Cron Trigger fires every minute; inside the same windows in which ores can
+// be reported on the website (xx:58-xx:09 and xx:28-xx:39, isOreAddWindowOpen
+// in db.js) it reads new messages from every channel the bot posts ore
 // alerts to (the legacy channel + each server's /orefinder-here channel),
 // twice per minute (at :00 and ~:30). No Gateway connection is needed - it
 // polls Discord's REST API.
@@ -42,10 +45,6 @@ function chunk(list, size) {
 // Discord snowflakes are 64-bit - compare as BigInt, never as numbers.
 const newerId = (a, b) => (BigInt(a) > BigInt(b) ? a : b)
 
-export function inReadWindow(date) {
-  const m = date.getUTCMinutes()
-  return m >= 58 || m <= 10 || (m >= 29 && m <= 40)
-}
 
 // Same destinations as the ore alerts: legacy channel + every configured server.
 async function readerChannels(env) {
@@ -76,7 +75,7 @@ async function dispatchRound(env) {
 // Cron entry point.
 export async function runOreFinderReader(env) {
   if (env.ORE_FINDER_READER_ENABLED !== '1' || !env.ORE_FINDER_DISCORD_BOT_TOKEN) return
-  if (!env.ORE_FINDER_READER_TEST_CHANNEL_ID && !inReadWindow(new Date())) return
+  if (!env.ORE_FINDER_READER_TEST_CHANNEL_ID && !isOreAddWindowOpen(new Date())) return
   await dispatchRound(env)
   await sleep(SECOND_ROUND_DELAY_MS)
   await dispatchRound(env)
