@@ -771,6 +771,9 @@
       "skills": "Umiejętności"
     },
     "comingSoon": "Wkrótce.",
+    "orbHint": "Ulepsza peta od razu do Typu 6 — ulepszanie typu nie jest liczone. Mikstury wchodzą w {{chance}}%. Dodawany automatycznie przez Pet PvP.",
+    "potionsOrbHint": "Użyty Pet Orb PvP: mikstury wchodzą w {{chance}}%, więc liczone jest {{n}} na rozmiar.",
+    "orbPrice": "Z orbem ({{chance}}%)",
     "editIcons": "Edytuj ikonki",
     "clear": "Wyczyść",
     "pvmPet": "Pet PvM",

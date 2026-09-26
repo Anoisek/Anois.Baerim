@@ -50,6 +50,7 @@ export const PET_MAT = {
   book_humanHunter: 'f0e030cd-090a-4d41-ae9b-9f9da8b099c0',
   book_meleeMagicBoost: 'ea566ef8-5823-46e4-be7e-fb504167b78f',
   unlocker: 'e674505b-18e1-43e3-86bf-9cbb04fe4326',
+  petOrbPvp: 'f037158f-1080-40e9-9836-2a456d186824',
 }
 
 // Evolutions can't fail — every stage is paid exactly once.
@@ -117,6 +118,22 @@ export const bookKey = skill => `book_${skill}`
 // Power+ + 5 Jungle Grimoire) — its price comes from that recipe.
 export const UNLOCKER_KEY = 'unlocker'
 
+// Pet Orb PvP: upgrades the pet straight to type 6 (no type steps are paid) and
+// raises every potion's success chance to 80%. Used by the PvP preset.
+export const ORB_KEY = 'petOrbPvp'
+export const ORB_DEFAULT_PRICE = 7_500_000_000 // used until the user or the global pool has a price
+export const ORB_POTION_CHANCE = 0.8
+export const ORB_POTION_QTY = Math.ceil(POTION_SUCCESSES_PER_SIZE / ORB_POTION_CHANCE) // 25 successes at 80% → 32
+export const DEFAULT_POTION_QTY = POTION_SUCCESSES_PER_SIZE * POTION_DEFAULT_FACTOR
+
+// Material prices with pet-specific fallbacks for materials nobody has priced yet.
+export function withPetDefaults(priceFn) {
+  return id => {
+    const price = priceFn(id)
+    return !price && id === PET_MAT[ORB_KEY] ? ORB_DEFAULT_PRICE : price
+  }
+}
+
 export const PET_PRESETS = {
   pvm: {
     skills: ['monsterHunter', 'criticalMastery', 'meleeMagicBoost', 'drill', 'elementalPower', 'bossGuard'],
@@ -136,6 +153,7 @@ export function defaultPetChoices() {
   return {
     evolutions: Object.fromEntries(EVOLUTIONS.map(e => [e.key, true])),
     type: { owned: TYPE_MIN, pity: {}, excluded: {} },
+    orb: false,
     potions: {
       groups: Object.fromEntries(POTION_GROUPS.map(g => [g.key, true])),
       qty: Object.fromEntries(POTION_GROUPS.flatMap(g => POTION_SIZES.map(s => [
@@ -154,6 +172,7 @@ export function loadPetChoices() {
     return {
       evolutions: { ...base.evolutions, ...saved.evolutions },
       type: { ...base.type, ...saved.type },
+      orb: saved.orb ?? false,
       potions: {
         groups: { ...base.potions.groups, ...saved.potions?.groups },
         qty: { ...base.potions.qty, ...saved.potions?.qty },
@@ -195,7 +214,9 @@ export function petPartCost(part, c) {
       yang += evo.yang
     }
   }
-  if (part === 'type' || part === 'all') {
+  if ((part === 'type' || part === 'all') && c.orb) {
+    addMats(acc, [[ORB_KEY, 1]])
+  } else if (part === 'type' || part === 'all') {
     for (const step of TYPE_STEPS) {
       if (step.type <= c.type.owned || c.type.excluded[step.type]) continue
       addMats(acc, step.mats, typePityOf(c, step.type) + 1)

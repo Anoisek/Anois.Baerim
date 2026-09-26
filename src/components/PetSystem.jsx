@@ -13,6 +13,7 @@ import {
   PET_TABS, PET_MAT, EVOLUTIONS, TYPE_MIN, TYPE_MAX, TYPE_MAX_PITY, TYPE_STEPS,
   POTION_SUCCESSES_PER_SIZE, POTION_DEFAULT_FACTOR, POTION_SIZES, POTION_GROUPS, potionKey,
   SKILL_SLOTS, MIN_BOOKS, PET_SKILLS, bookKey, UNLOCKER_KEY, PET_PRESETS,
+  ORB_KEY, ORB_POTION_CHANCE, ORB_POTION_QTY, DEFAULT_POTION_QTY, withPetDefaults,
   PET_CHOICES_KEY, defaultPetChoices, loadPetChoices, booksOf, potionsOf, typePityOf, petPartCost,
 } from '../utils/petSystem'
 import MatRow from './MatRow'
@@ -71,16 +72,24 @@ export default function PetSystem({ horizontal = false }) {
     })
   }
 
+  // Turning the orb on/off also re-bases every potion count: 80% success needs
+  // far fewer potions than the default one-in-three estimate.
+  function withOrb(c, orb) {
+    const qty = String(orb ? ORB_POTION_QTY : DEFAULT_POTION_QTY)
+    return { ...c, orb, potions: { ...c.potions, qty: Object.fromEntries(Object.keys(c.potions.qty).map(k => [k, qty])) } }
+  }
+
   // Clear / presets only touch this pet's choices — typed prices live in the price book.
   function applyPreset(preset) {
     updateChoices(prev => {
       if (!preset) return defaultPetChoices()
       const p = PET_PRESETS[preset]
-      return {
+      const orb = preset === 'pvp'
+      return withOrb({
         ...prev,
         potions: { ...prev.potions, groups: Object.fromEntries(POTION_GROUPS.map(g => [g.key, p.potions.includes(g.key)])) },
         skills: { ...prev.skills, slots: [...p.skills] },
-      }
+      }, orb)
     })
   }
 
@@ -95,7 +104,7 @@ export default function PetSystem({ horizontal = false }) {
     }
   }
 
-  const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides, noPriceIds })
+  const priceFn = withPetDefaults(makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides, noPriceIds }))
   const costOf = part => {
     const { mats, yang } = petPartCost(part, choices)
     return { mats, yang, total: yang + mats.reduce((sum, [id, qty]) => sum + priceFn(id) * qty, 0) }
@@ -170,7 +179,7 @@ export default function PetSystem({ horizontal = false }) {
           ))}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          {isAdmin && (tab === 'potions' || tab === 'skills') && (
+          {isAdmin && ['type', 'potions', 'skills'].includes(tab) && (
             <button type="button" onClick={() => setEditIcons(v => !v)} className={`${smallBtn} ${editIcons ? '!bg-yellow-400 !text-gray-950 !border-yellow-400' : ''}`}>
               {t('pet.editIcons')}
             </button>
@@ -231,7 +240,7 @@ export default function PetSystem({ horizontal = false }) {
 
       {tab === 'type' && (
         <>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className={`flex flex-wrap items-center gap-2 ${choices.orb ? 'opacity-40 pointer-events-none' : ''}`}>
             <label className="flex items-center gap-2 text-sm text-gray-300">
               {t('pet.currentType')}
               <select
@@ -247,7 +256,21 @@ export default function PetSystem({ horizontal = false }) {
             <button type="button" onClick={() => updateChoices(c => ({ ...c, type: { ...c.type, pity: {} } }))} className={smallBtn}>{t('itemDetail.resetPityAllSteps')}</button>
             <button type="button" onClick={() => updateChoices(c => ({ ...c, type: { ...c.type, pity: Object.fromEntries(TYPE_STEPS.map(s => [s.type, TYPE_MAX_PITY])) } }))} className={smallBtn}>{t('itemDetail.maxPityAllSteps')}</button>
           </div>
-          <div className={`${panel} divide-y ${divider}`}>
+          <label className={`${panel} flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3 cursor-pointer ${choices.orb ? '!border-yellow-400/60' : ''}`}>
+            <input
+              type="checkbox"
+              checked={choices.orb}
+              onChange={() => updateChoices(c => withOrb(c, !c.orb))}
+              className="accent-yellow-400 w-4 h-4 shrink-0"
+            />
+            <MatIcon matKey={ORB_KEY} editable />
+            <span className="flex-1 min-w-0">
+              <span className="block text-sm font-semibold text-gray-100">{materialsById[PET_MAT[ORB_KEY]]?.name ?? 'Pet Orb PvP'}</span>
+              <span className="block text-xs text-gray-500">{t('pet.orbHint', { chance: ORB_POTION_CHANCE * 100 })}</span>
+            </span>
+            <span className="text-yellow-400 text-sm font-mono">{formatYang(priceFn(PET_MAT[ORB_KEY]))}</span>
+          </label>
+          <div className={`${panel} divide-y ${divider} ${choices.orb ? 'opacity-40 pointer-events-none' : ''}`}>
             {TYPE_STEPS.map(step => {
               const owned = step.type <= choices.type.owned
               const excluded = !owned && !!choices.type.excluded[step.type]
@@ -287,12 +310,13 @@ export default function PetSystem({ horizontal = false }) {
       {tab === 'potions' && (
         <>
           <p className="text-xs text-gray-500">{t('pet.potionsHint', { n: POTION_SUCCESSES_PER_SIZE, avg: POTION_SUCCESSES_PER_SIZE * POTION_DEFAULT_FACTOR })}</p>
+          {choices.orb && <p className="text-xs text-yellow-300">{t('pet.potionsOrbHint', { chance: ORB_POTION_CHANCE * 100, n: ORB_POTION_QTY })}</p>}
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={() => updateChoices(c => ({ ...c, potions: { ...c.potions, qty: Object.fromEntries(Object.keys(c.potions.qty).map(k => [k, String(POTION_SUCCESSES_PER_SIZE)])) } }))} className={smallBtn}>
               {t('pet.minimalPrice')}
             </button>
-            <button type="button" onClick={() => updateChoices(c => ({ ...c, potions: { ...c.potions, qty: defaultPetChoices().potions.qty } }))} className={smallBtn}>
-              {t('pet.averagePrice')}
+            <button type="button" onClick={() => updateChoices(c => withOrb(c, c.orb))} className={smallBtn}>
+              {choices.orb ? t('pet.orbPrice', { chance: ORB_POTION_CHANCE * 100 }) : t('pet.averagePrice')}
             </button>
             <button type="button" onClick={() => setPriceModal({ title: t('pet.potionPrices'), keys: POTION_GROUPS.flatMap(g => POTION_SIZES.map(s => potionKey(g.key, s.key))) })} className={smallBtn}>
               💲 {t('pet.potionPrices')}

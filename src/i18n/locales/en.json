@@ -762,6 +762,9 @@
       "skills": "Skills"
     },
     "comingSoon": "Coming soon.",
+    "orbHint": "Upgrades the pet straight to Type 6 — no type upgrades are counted. Potions succeed {{chance}}% of the time. Added automatically by PvP Pet.",
+    "potionsOrbHint": "Pet Orb PvP is used: potions succeed {{chance}}% of the time, so {{n}} per size are counted.",
+    "orbPrice": "With orb ({{chance}}%)",
     "editIcons": "Edit icons",
     "clear": "Clear",
     "pvmPet": "PvM Pet",
