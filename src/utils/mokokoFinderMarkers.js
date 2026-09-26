@@ -25,14 +25,17 @@ export async function createMarkerForSpot(mapName, x, y, screenshotUrls) {
   const { data: map } = await db.from('maps').select('id, width, height').eq('name', mapName).maybeSingle()
   if (!map) return null
   const { data: markers } = await db.from('map_markers').select('title').eq('map_id', map.id)
+  const px = Math.round((x / 100) * map.width)
+  const py = Math.round((y / 100) * map.height)
   const { data: marker, error } = await db
     .from('map_markers')
     .insert({
       map_id: map.id,
-      x: Math.round((x / 100) * map.width),
-      y: Math.round((y / 100) * map.height),
+      x: px,
+      y: py,
       icon: MARKER_ICON,
-      title: `Mokoko #${nextMokokoNumber(markers ?? [])}`,
+      // Same "Mokoko #N (x, y)" convention as the hand-named markers on other maps.
+      title: `Mokoko #${nextMokokoNumber(markers ?? [])} (${px}, ${py})`,
     })
     .select()
     .single()

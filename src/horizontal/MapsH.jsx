@@ -34,7 +34,7 @@ const MAX_ZOOM = 10
 function getNextMokokoNumber(markers) {
   const used = new Set()
   for (const m of markers) {
-    const match = /^Mokoko #(\d+)$/.exec(m.title ?? '')
+    const match = /^Mokoko #(\d+)\b/.exec(m.title ?? '')
     if (match) used.add(Number(match[1]))
   }
   let n = 1
