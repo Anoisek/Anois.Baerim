@@ -428,7 +428,7 @@ export function isOreAddWindowOpen(now) {
 // Next upcoming xx:10/xx:40 disappearance mark from `now` - always returns a
 // value (never null), used for both in-window reports and admin's
 // out-of-window override.
-function nextOreExpiryMark(now) {
+export function nextOreExpiryMark(now) {
   const minute = now.getUTCMinutes()
   const expiry = new Date(now)
   expiry.setUTCSeconds(0, 0)

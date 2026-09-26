@@ -4,6 +4,7 @@ import { handleAuthRequest, verifyToken, roleFlags } from './auth.js'
 import { handleIconDbSearch, handleIconDbIcon, handleIconDbImport } from './icondb.js'
 import { handleDiscordInteractions, registerOreFinderCommands } from './discordInteractions.js'
 import { runOreFinderReader, handleReadBatch } from './oreFinderReader.js'
+import { handleZoneAlert } from './oreFinderZoneAlert.js'
 
 const BUCKETS = new Set(['images', 'map-notes'])
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
@@ -132,6 +133,7 @@ export default {
       if (url.pathname.indexOf('/auth/') === 0) return await handleAuthRequest(request, env, url, headers)
       if (request.method === 'POST' && url.pathname === '/discord/interactions') return await handleDiscordInteractions(request, env, headers)
       if (request.method === 'POST' && url.pathname === '/discord/read-batch') return await handleReadBatch(request, env, headers)
+      if (request.method === 'POST' && url.pathname === '/discord/zone-alert') return await handleZoneAlert(request, env, headers)
       if (request.method === 'POST' && url.pathname === '/discord/register-commands') {
         if (!(await isAdmin(request, env))) return json({ error: 'forbidden' }, 403, headers)
         const result = await registerOreFinderCommands(env)

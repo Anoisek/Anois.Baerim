@@ -1,11 +1,13 @@
 import { isOreAddWindowOpen } from './db.js'
+import { matchZone, zoneHelp } from './oreFinderZoneAlert.js'
 
 // Ore Finder channel reader - an extra, independent feature on top of the
 // existing Ore Finder bot (alerts and the other slash commands are untouched).
 //
 // Channels are set up with /orefinder-reportmap <map>: each takes reports for
 // one map, made by mentioning the bot with the coordinates ("@Ore Finder 512
-// 734"). A Cron Trigger fires every minute; inside the same windows in which
+// 734") or with the name of one of the admin's circles ("@Ore Finder bio" ->
+// zone alert with that circle, see oreFinderZoneAlert.js). A Cron Trigger fires every minute; inside the same windows in which
 // ores can be reported on the website (xx:58-xx:09 and xx:28-xx:39,
 // isOreAddWindowOpen in db.js) it reads those channels twice per minute (at
 // :00 and ~:30) over Discord's REST API - no Gateway connection. From each
@@ -177,9 +179,7 @@ async function handleReport(env, channel, message) {
     return reply(env, message, '⚠️ This channel has no report map yet - set one with `/orefinder-reportmap`.')
   }
   const coords = parseCoords(message.content)
-  if (!coords) {
-    return reply(env, message, `❌ Couldn't read coordinates. Write them like \`@Ore Finder 512 734\` (map: **${mapLabel(channel.map)}**).`)
-  }
+  if (!coords) return handleZoneReport(env, channel, message)
 
   const map = await env.DB.prepare('SELECT width, height FROM maps WHERE name = ?').bind(channel.map).first()
   if (!map) return reply(env, message, `❌ Map **${mapLabel(channel.map)}** isn't on the Ore Finder map.`)
@@ -204,4 +204,30 @@ async function handleReport(env, channel, message) {
 
   // Live reporting isn't switched on yet - kept as a dry run until tested.
   return reply(env, message, `Read: **${mapLabel(channel.map)}** - **${coords.x}, ${coords.y}** (live reporting isn't enabled yet).`)
+}
+
+// No coordinates in the message - look for one of the map's circles instead
+// ("bio", "guard"...). The alert itself is sent from its own invocation.
+async function handleZoneReport(env, channel, message) {
+  const zones = (await env.DB.prepare('SELECT id, name FROM ore_finder_zones WHERE map = ?').bind(channel.map).all()).results
+  const match = matchZone(zones, message.content)
+  if (!match) {
+    return reply(env, message,
+      `❌ Couldn't read that. Write coordinates like \`@Ore Finder 512 734\`` +
+      (zones.length ? ` or a place on **${mapLabel(channel.map)}**: ${zoneHelp(zones)}.` : ` (map: **${mapLabel(channel.map)}**).`))
+  }
+  if (match.ambiguous) {
+    return reply(env, message, `❓ Which one did you mean: ${match.ambiguous.map(z => `**${z.name}**`).join(', ')}?`)
+  }
+  if (!env.ORE_FINDER_READER_TEST_CHANNEL_ID && !isOreAddWindowOpen(new Date())) return
+  await env.SELF.fetch('https://internal/discord/zone-alert', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Internal-Key': env.AUTH_SECRET },
+    body: JSON.stringify({
+      zoneId: match.zone.id,
+      reportChannelId: message.channel_id,
+      reportMessageId: message.id,
+      dryRun: env.ORE_FINDER_READER_DRY_RUN === '1',
+    }),
+  })
 }
