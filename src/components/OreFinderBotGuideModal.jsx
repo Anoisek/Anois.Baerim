@@ -35,6 +35,35 @@ export default function OreFinderBotGuideModal({ onClose, t }) {
           />
         </div>
 
+        <div className="border-t border-gray-700 pt-4 flex flex-col gap-3">
+          <p className="text-base font-extrabold text-yellow-400">{t('oreFinder.guideReportTitle')}</p>
+          <ol className="flex flex-col gap-3 text-sm text-gray-200 list-decimal list-inside">
+            <li>
+              {t('oreFinder.guideReportStep1')}
+              <code className="block mt-1.5 bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-yellow-300 font-mono text-xs w-fit">
+                /orefinder-reportmap Yongan (red)
+              </code>
+            </li>
+            <li>
+              {t('oreFinder.guideReportStep2')}
+              <code className="block mt-1.5 bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-yellow-300 font-mono text-xs w-fit">
+                @Ore Finder 512 734
+              </code>
+            </li>
+            <li>
+              {t('oreFinder.guideReportStep3')}
+              <code className="block mt-1.5 bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-yellow-300 font-mono text-xs w-fit">
+                @Ore Finder bio
+              </code>
+            </li>
+          </ol>
+          <ul className="flex flex-col gap-1.5 text-xs text-gray-400 list-disc list-inside">
+            <li>{t('oreFinder.guideReportWindow')}</li>
+            <li>{t('oreFinder.guideReportOnce')}</li>
+            <li>{t('oreFinder.guideReportPermission')}</li>
+          </ul>
+        </div>
+
         <button
           onClick={onClose}
           className="w-full py-2 rounded-lg text-sm font-semibold bg-yellow-400 hover:bg-yellow-300 text-gray-950 transition-colors"

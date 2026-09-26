@@ -21,7 +21,7 @@ const ORE_MAP_NAMES = ['Yongan', 'Joan', 'Pyungmoo']
 // tab so this doesn't eat into the worker's shared daily request budget.
 const POLL_MS = 15000
 const FAVORITE_MAP_KEY = 'ore_finder_favorite_map'
-const DISCORD_INVITE_URL = 'https://discord.com/oauth2/authorize?client_id=1549119137903812729&permissions=183296&scope=bot%20applications.commands'
+const DISCORD_INVITE_URL = 'https://discord.com/oauth2/authorize?client_id=1549119137903812729&permissions=248832&scope=bot%20applications.commands'
 
 function loadFavoriteMap() {
   try {
