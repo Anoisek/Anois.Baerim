@@ -18,7 +18,7 @@ import {
   computeItemPrice, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
   fetchGlobalPrices, makeMaterialPriceFn,
 } from '../utils/priceBook'
-import { scrollsForItem, defaultScrollsForItem, sanitizeScrollChoices, sanitizeSealChoices } from '../utils/itemUpgradeRules'
+import { scrollsForItem, defaultScrollsForItem, sanitizeScrollChoices, sanitizeSealChoices, selectedUnlockers } from '../utils/itemUpgradeRules'
 
 const LIST_KEY = 'build_calculator_list'
 
@@ -168,6 +168,10 @@ export default function BuildCalculator() {
             if (sealMat) addRow(sealMat, 'material', pity)
           }
         }
+      }
+      for (const id of selectedUnlockers(item.id, choices?.unlockers)) {
+        const unlockerMat = materialsById[id]
+        if (unlockerMat) addRow(unlockerMat, 'material', 1)
       }
     }
 

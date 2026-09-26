@@ -50,3 +50,24 @@ export function sanitizeScrollChoices(itemId, selected, globalDefaults) {
 export function sanitizeSealChoices(itemId, selected) {
   return isEnergyItem(itemId) ? {} : (selected ?? {})
 }
+
+// One-time unlockers an item can optionally include (each is used at most once,
+// independent of upgrade steps/pity). Shown as checkboxes above the step list.
+const ITEM_UNLOCKERS = {
+  '6bdb36f4-c937-451b-8fd3-54cccb680771': [
+    'acc35b0d-21fc-4496-8b30-8e9150747e44', // Erebus Unlocker
+    'a015fa32-7282-400a-ad6a-d6bef4798aa2', // Dungeon Unlocker
+    '20a0b53e-39d2-4512-bb6b-e194460ffb81', // Meley Unlocker
+    'e193660c-35d5-4d78-9aba-8b99697bdefa', // Average PvM Damage Unlocker
+  ],
+}
+
+export function unlockersForItem(itemId) {
+  return ITEM_UNLOCKERS[itemId] ?? []
+}
+
+// Selected unlocker ids from saved choices, limited to the ones this item offers.
+export function selectedUnlockers(itemId, chosen) {
+  const allowed = unlockersForItem(itemId)
+  return (chosen ?? []).filter(id => allowed.includes(id))
+}

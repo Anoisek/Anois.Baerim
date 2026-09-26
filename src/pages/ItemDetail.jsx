@@ -12,11 +12,13 @@ import { formatYang } from '../utils/formatYang'
 import { itemImages } from '../utils/itemImages'
 import ItemImage from '../components/ItemImage'
 import MatRow from '../components/MatRow'
+import MaterialPriceCell from '../components/MaterialPriceCell'
 import MaterialTile from '../components/MaterialTile'
 import CraftOverviewPanel from '../components/CraftOverviewPanel'
 import PriceModeToggle from '../components/PriceModeToggle'
 import { formatItemName, PVP_CATEGORY_ID, ENIGMA_POTION_ID, NO_DEFAULT_SCROLL_ITEM_IDS } from '../utils/itemName'
-import { scrollsForItem, sealsForItem, defaultScrollsForItem, sanitizeScrollChoices, sanitizeSealChoices } from '../utils/itemUpgradeRules'
+import { scrollsForItem, sealsForItem, defaultScrollsForItem, sanitizeScrollChoices, sanitizeSealChoices, unlockersForItem, selectedUnlockers } from '../utils/itemUpgradeRules'
+import UnlockerPicker from '../components/UnlockerPicker'
 import { slugify, findBySlugOrId } from '../utils/slug'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
@@ -66,6 +68,8 @@ export default function ItemDetail() {
   const [defaultScrollByStep, setDefaultScrollByStep] = useState({})
   const [selectedScroll, setSelectedScroll] = useState({})
   const [selectedSeals, setSelectedSeals] = useState({})
+  const [unlockerMats, setUnlockerMats] = useState([])
+  const [chosenUnlockers, setChosenUnlockers] = useState([])
   const [pity, setPity] = useState({})
   const [ownedLevel, setOwnedLevel] = useState('-')
   const [manualExcludedSteps, setManualExcludedSteps] = useState({})
@@ -159,6 +163,7 @@ export default function ItemDetail() {
       const globalDefaultScrolls = buildDefaultScrollMap(scrollsForItem(null, allScrolls))
       setScrolls(sorted)
       setSeals(sealsForItem(itemId, sealsRes.data ?? []))
+      setUnlockerMats(unlockersForItem(itemId).map(id => materialsById[id]).filter(Boolean))
       setRecipes(buildRecipeMap(recipeRes.data))
       setCraftYangCosts(buildYangCostMap(allMatsRes.data))
       setAllItemMaterials(buildItemStepMap(allItemMatsRes.data))
@@ -180,6 +185,7 @@ export default function ItemDetail() {
         // selection a browser saved before this item was added to that list.
         setSelectedScroll(NO_DEFAULT_SCROLL_ITEM_IDS.has(itemId) ? {} : sanitizeScrollChoices(itemId, savedChoices.selectedScroll, globalDefaultScrolls))
         setSelectedSeals(sanitizeSealChoices(itemId, savedChoices.selectedSeals))
+        setChosenUnlockers(selectedUnlockers(itemId, savedChoices.unlockers))
         setPity(savedChoices.pity ?? {})
         // Legacy choices saved before this selector existed only had the craft
         // checkbox — map "craft unchecked" to owning +0.
@@ -187,6 +193,7 @@ export default function ItemDetail() {
         setSelectedVariant(savedChoices.variantByStep ?? {})
       } else {
         setSelectedVariant({})
+        setChosenUnlockers([])
         if (!NO_DEFAULT_SCROLL_ITEM_IDS.has(itemId)) {
           const defaults = defaultScrollsForItem(itemId, globalDefaultScrolls)
           if (Object.values(defaults).some(Boolean)) {
@@ -219,8 +226,8 @@ export default function ItemDetail() {
     if (loading) return
     const includeCraft = ownedLevel === '-'
     const excludedSteps = excludedStepsForOwnedLevel(ownedLevel)
-    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll, selectedSeals, pity, includeCraft, excludedSteps, ownedLevel, variantByStep: selectedVariant }))
-  }, [itemId, loading, selectedScroll, selectedSeals, pity, ownedLevel, selectedVariant])
+    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll, selectedSeals, pity, includeCraft, excludedSteps, ownedLevel, variantByStep: selectedVariant, unlockers: chosenUnlockers }))
+  }, [itemId, loading, selectedScroll, selectedSeals, pity, ownedLevel, selectedVariant, chosenUnlockers])
 
   function clearAllScrolls() {
     setSelectedScroll(prev => {
@@ -347,7 +354,13 @@ export default function ItemDetail() {
 
   const excludedSteps = { ...excludedStepsForOwnedLevel(ownedLevel), ...manualExcludedSteps }
   function isStepIncluded(step) { return !excludedSteps[step] }
-  const total = allSteps.reduce((s, step) => isStepIncluded(step) ? s + stepTotal(step) : s, 0)
+  // One-time unlockers (checked above the step list) count once, outside any step/pity.
+  const unlockersTotal = chosenUnlockers.reduce((s, id) => s + priceOf(id), 0)
+  const total = allSteps.reduce((s, step) => isStepIncluded(step) ? s + stepTotal(step) : s, 0) + unlockersTotal
+
+  function toggleUnlocker(id) {
+    setChosenUnlockers(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }
 
   function buildMaterialsSummary() {
     const map = new Map()
@@ -375,6 +388,10 @@ export default function ItemDetail() {
       }
     }
 
+    for (const id of chosenUnlockers) {
+      const mat = unlockerMats.find(m => m.id === id)
+      if (mat) addRow(mat, 'material', 1)
+    }
     const rows = [...map.values()].sort((a, b) => a.material.name.localeCompare(b.material.name))
     return { rows }
   }
@@ -501,6 +518,22 @@ export default function ItemDetail() {
               </div>
             )}
 
+            <UnlockerPicker
+              mats={unlockerMats}
+              selected={chosenUnlockers}
+              onToggle={toggleUnlocker}
+              priceOf={priceOf}
+              renderPrice={mat => (
+                <MaterialPriceCell
+                  material={mat}
+                  rawValue={rawInputs[mat.id]}
+                  computedValue={priceOf(mat.id)}
+                  onPriceChange={setPrice}
+                  computed={manualOverrides.has(mat.id) ? false : (mode === 'global' ? true : undefined)}
+                  manualOverride={manualOverrides.has(mat.id)}
+                />
+              )}
+            />
             {allSteps.length === 0 ? (
               <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
                 <span className="text-5xl">📭</span>

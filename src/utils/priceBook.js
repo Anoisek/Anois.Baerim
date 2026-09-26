@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { parseYang } from './formatYang'
 import { db } from '../dbClient'
-import { defaultScrollsForItem, sanitizeScrollChoices, sanitizeSealChoices } from './itemUpgradeRules'
+import { defaultScrollsForItem, sanitizeScrollChoices, sanitizeSealChoices, selectedUnlockers } from './itemUpgradeRules'
 
 const KEY = 'material_prices'
 const MODE_KEY = 'price_mode'
@@ -314,5 +314,6 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
 
     total += stepCost
   }
+  for (const id of selectedUnlockers(itemId, choices?.unlockers)) total += ctx.materialPriceFn(id)
   return total
 }
