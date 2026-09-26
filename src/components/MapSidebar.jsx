@@ -3,24 +3,47 @@ import { useTranslation } from 'react-i18next'
 import ReorderButtons from './ReorderButtons'
 import { MAP_CHAPTERS, mapChapterOf } from '../utils/mapChapters'
 
-// Map list grouped into collapsible Chapter I / Chapter II sections. The chapter
-// holding the selected map opens automatically, the others stay collapsed until
-// clicked. Shared by the regular and the horizontal Maps pages.
+const OPEN_CHAPTERS_KEY = 'baerim_map_open_chapters'
+
+// null = the visitor never toggled a chapter yet.
+function loadOpenChapters() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(OPEN_CHAPTERS_KEY))
+    return Array.isArray(saved) ? new Set(saved) : null
+  } catch {
+    return null
+  }
+}
+
+function saveOpenChapters(open) {
+  try {
+    localStorage.setItem(OPEN_CHAPTERS_KEY, JSON.stringify([...open]))
+  } catch {
+    // storage unavailable (private mode etc.) - the choice just isn't remembered
+  }
+}
+
+// Map list grouped into collapsible Chapter I / Chapter II sections. Which
+// chapters are open is remembered in localStorage once the visitor toggles one;
+// until then the chapter holding the selected map opens automatically and the
+// others stay collapsed. Shared by the regular and the horizontal Maps pages.
 export default function MapSidebar({ maps, selectedMap, mapStats, isAdmin, onSelect, onMove, onEdit, onAdd, horizontal }) {
   const { t } = useTranslation()
-  const [open, setOpen] = useState(() => new Set())
+  const [saved] = useState(loadOpenChapters)
+  const [open, setOpen] = useState(() => saved ?? new Set())
   const selectedChapter = selectedMap ? mapChapterOf(selectedMap) : null
 
   useEffect(() => {
-    if (selectedChapter == null) return
+    if (saved || selectedChapter == null) return
     setOpen(prev => (prev.has(selectedChapter) ? prev : new Set(prev).add(selectedChapter)))
-  }, [selectedChapter, selectedMap?.id])
+  }, [saved, selectedChapter, selectedMap?.id])
 
   function toggle(id) {
     setOpen(prev => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
+      saveOpenChapters(next)
       return next
     })
   }
