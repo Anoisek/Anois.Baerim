@@ -12,6 +12,7 @@ import OreManualAddModal from '../components/OreManualAddModal'
 import OreFinderBotGuideModal from '../components/OreFinderBotGuideModal'
 import OreFinderAdminLogModal from '../components/OreFinderAdminLogModal'
 import TurnstileWidget from '../components/TurnstileWidget'
+import { OreFinderZonesLayer, OreFinderZonePanel, DEFAULT_ZONE_RADIUS } from '../components/OreFinderZones'
 import { db } from '../dbClient'
 import { isOreAddWindowOpen } from '../utils/oreFinderWindow'
 
@@ -54,6 +55,14 @@ export default function OreFinder() {
   const [showHistory, setShowHistory] = useState(false)
   const [spawnHistory, setSpawnHistory] = useState([])
   const mapWrapRef = useRef(null)
+  // Admin-only circles (ore_finder_zones) - hidden until the admin opens them.
+  const [showZones, setShowZones] = useState(false)
+  const [zones, setZones] = useState([])
+  const [addingZone, setAddingZone] = useState(false)
+  const [selectedZoneId, setSelectedZoneId] = useState(null)
+  const zoneDragRef = useRef(null) // { id, moved } while a circle is being dragged
+  const skipMapClickRef = useRef(false) // releasing a drag also fires a click on the map
+  const zoneSaveTimers = useRef({})
 
   useEffect(() => {
     db.from('maps').select('*').then(({ data }) => {
@@ -125,6 +134,71 @@ export default function OreFinder() {
   }, [showHistory, selectedName])
 
   const selectedMap = maps.find(m => m.name === selectedName) || null
+  const zonesRef = useRef(zones)
+  useEffect(() => { zonesRef.current = zones }, [zones])
+  const zonesOnSelected = zones.filter(z => z.map === selectedName)
+  const selectedZone = zones.find(z => z.id === selectedZoneId) || null
+
+  useEffect(() => {
+    if (!isAdmin || !showZones) return
+    db.from('ore_finder_zones').select('*').then(({ data }) => setZones(data ?? []))
+  }, [isAdmin, showZones])
+
+  function mapPercent(e) {
+    const rect = mapWrapRef.current.getBoundingClientRect()
+    return {
+      x: Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100)),
+      y: Math.min(100, Math.max(0, ((e.clientY - rect.top) / rect.height) * 100)),
+    }
+  }
+
+  async function addZone(x, y) {
+    setAddingZone(false)
+    const { data, error } = await db.from('ore_finder_zones').insert({ map: selectedName, x, y, r: DEFAULT_ZONE_RADIUS, name: '' })
+    if (error) { alert('Error: ' + error.message); return }
+    const zone = Array.isArray(data) ? data[0] : data
+    if (zone) {
+      setZones(prev => [...prev, zone])
+      setSelectedZoneId(zone.id)
+    }
+  }
+
+  // Local update right away, saved to the server shortly after the last change.
+  function updateZone(id, patch) {
+    setZones(prev => prev.map(z => (z.id === id ? { ...z, ...patch } : z)))
+    clearTimeout(zoneSaveTimers.current[id])
+    zoneSaveTimers.current[id] = setTimeout(() => {
+      const zone = zonesRef.current.find(z => z.id === id)
+      // The query builder only sends on .then() - it's lazy.
+      if (zone) db.from('ore_finder_zones').update({ x: zone.x, y: zone.y, r: zone.r, name: zone.name }).eq('id', id).then(({ error }) => {
+        if (error) alert('Error saving circle: ' + error.message)
+      })
+    }, 500)
+  }
+
+  async function deleteZone(id) {
+    if (!window.confirm('Delete this circle?')) return
+    clearTimeout(zoneSaveTimers.current[id])
+    setZones(prev => prev.filter(z => z.id !== id))
+    setSelectedZoneId(null)
+    await db.from('ore_finder_zones').delete().eq('id', id)
+  }
+
+  function handleZoneDragStart(id, e) {
+    zoneDragRef.current = { id, moved: false }
+    mapWrapRef.current?.setPointerCapture?.(e.pointerId)
+  }
+
+  function handleZonePointerMove(e) {
+    if (!zoneDragRef.current || !mapWrapRef.current) return
+    zoneDragRef.current.moved = true
+    updateZone(zoneDragRef.current.id, mapPercent(e))
+  }
+
+  function handleZonePointerUp() {
+    if (zoneDragRef.current) skipMapClickRef.current = true
+    zoneDragRef.current = null
+  }
   const oreOnSelected = ores.find(o => o.map === selectedName) || null
   // Admin can report regardless of the time window - the worker enforces
   // the same bypass server-side, this just keeps the UI from blocking them.
@@ -137,6 +211,12 @@ export default function OreFinder() {
 
   function handleMapClick(e) {
     if (!mapWrapRef.current || !selectedMap) return
+    if (showZones) {
+      if (skipMapClickRef.current) { skipMapClickRef.current = false; return }
+      // Circles editing takes over the map - no ore reports meanwhile.
+      if (addingZone) { const { x, y } = mapPercent(e); addZone(x, y) } else setSelectedZoneId(null)
+      return
+    }
     if (!canAdd || oreOnSelected) return
     const rect = mapWrapRef.current.getBoundingClientRect()
     const x = ((e.clientX - rect.left) / rect.width) * 100
@@ -303,6 +383,26 @@ export default function OreFinder() {
                         </button>
                         {isAdmin && (
                           <button
+                            onClick={() => { setShowZones(v => !v); setAddingZone(false); setSelectedZoneId(null) }}
+                            className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                              showZones ? 'bg-red-500 border-red-500 text-white' : 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200'
+                            }`}
+                          >
+                            ⭕ Circles{showZones ? ` (${zonesOnSelected.length})` : ''}
+                          </button>
+                        )}
+                        {isAdmin && showZones && (
+                          <button
+                            onClick={() => { setAddingZone(v => !v); setSelectedZoneId(null) }}
+                            className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                              addingZone ? 'bg-yellow-400 border-yellow-400 text-gray-950' : 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200'
+                            }`}
+                          >
+                            ➕ Add circle
+                          </button>
+                        )}
+                        {isAdmin && (
+                          <button
                             onClick={() => setAdminLogModalOpen(true)}
                             className="px-3 py-2 rounded-xl text-sm font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 transition-colors"
                           >
@@ -336,7 +436,10 @@ export default function OreFinder() {
                         onClick={handleMapClick}
                         onMouseMove={handleMapMouseMove}
                         onMouseLeave={handleMapMouseLeave}
-                        className={`relative ${canAdd && !oreOnSelected ? 'cursor-crosshair' : 'cursor-default'}`}
+                        onPointerMove={handleZonePointerMove}
+                        onPointerUp={handleZonePointerUp}
+                        onPointerCancel={handleZonePointerUp}
+                        className={`relative ${(showZones ? addingZone : canAdd && !oreOnSelected) ? 'cursor-crosshair' : 'cursor-default'}`}
                         style={{ width: '100%', aspectRatio: `${selectedMap.width} / ${selectedMap.height}` }}
                       >
                         <img
@@ -352,6 +455,14 @@ export default function OreFinder() {
                             style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
                           />
                         ))}
+                        {isAdmin && showZones && (
+                          <OreFinderZonesLayer
+                            zones={zonesOnSelected}
+                            selectedId={selectedZoneId}
+                            onSelect={setSelectedZoneId}
+                            onDragStart={handleZoneDragStart}
+                          />
+                        )}
                         {oreOnSelected && (
                           <button
                             onClick={e => { if (isAdmin) { e.stopPropagation(); setConfirmOre(oreOnSelected) } }}
@@ -364,6 +475,21 @@ export default function OreFinder() {
                         )}
                       </div>
                     </div>
+
+                    {isAdmin && showZones && (
+                      addingZone
+                        ? <p className="mt-3 text-xs text-yellow-400">Click on the map to place a new circle.</p>
+                        : selectedZone
+                          ? (
+                            <OreFinderZonePanel
+                              zone={selectedZone}
+                              onChange={patch => updateZone(selectedZone.id, patch)}
+                              onDelete={() => deleteZone(selectedZone.id)}
+                              onClose={() => setSelectedZoneId(null)}
+                            />
+                          )
+                          : <p className="mt-3 text-xs text-gray-400">Only you (admin) can see these circles. Click one to rename or resize it, drag it to move.</p>
+                    )}
 
                     <div className="mt-3 text-xs">
                       {oreOnSelected ? (

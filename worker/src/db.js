@@ -333,6 +333,13 @@ const TABLES = {
     pk: ['id'],
     publicRead: false,
   },
+  // Admin-only circles on the Ore Finder maps (named, resizable) - never
+  // public, not shown to regular users anywhere.
+  ore_finder_zones: {
+    columns: ['id', 'map', 'x', 'y', 'r', 'name', 'created_at'],
+    pk: ['id'],
+    publicRead: false,
+  },
   // Admin-managed IP blocklist for Ore Finder reporting - checked in
   // ore_finder_ores' beforeInsert above.
   ore_finder_blocked_ips: {
