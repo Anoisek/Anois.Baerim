@@ -105,6 +105,7 @@ export default function BuildCalculator() {
     defaultScrollByStep,
     manualOverrides,
     rawInputs,
+    itemCategoryById: Object.fromEntries(allItems.map(i => [i.id, i.category_id])),
   }
 
   const selectedItems = selectedIds.map(id => allItems.find(i => i.id === id)).filter(Boolean)
@@ -159,11 +160,11 @@ export default function BuildCalculator() {
         }
 
         if (step !== 0) {
-          const scrollId = choices ? (sanitizeScrollChoices(item.id, choices.selectedScroll, defaultScrollByStep)[step] ?? '') : defaultScrollsForItem(item.id, defaultScrollByStep)[step]
+          const scrollId = choices ? (sanitizeScrollChoices(item, choices.selectedScroll, defaultScrollByStep)[step] ?? '') : defaultScrollsForItem(item, defaultScrollByStep)[step]
           const scrollMat = scrollId ? materialsById[scrollId] : null
           if (scrollMat) addRow(scrollMat, 'material', pity)
 
-          for (const sealId of sanitizeSealChoices(item.id, choices?.selectedSeals)[step] ?? []) {
+          for (const sealId of sanitizeSealChoices(item, choices?.selectedSeals)[step] ?? []) {
             const sealMat = materialsById[sealId]
             if (sealMat) addRow(sealMat, 'material', pity)
           }

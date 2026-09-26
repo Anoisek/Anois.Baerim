@@ -34,6 +34,7 @@ const STEP_LABEL_KEYS = {
 const SCROLL_ORDER = [
   'Blessing Scroll', 'Dragon Scroll', 'Scroll of Honor',
   'Blacksmith Handbook', 'Scroll of War', 'Magic Stone',
+  'Scroll of Ascension', 'Ritual Stone',
 ]
 
 function excludedStepsForOwnedLevel(level) {
@@ -62,6 +63,7 @@ export default function ItemDetailH() {
   const [allItemYang, setAllItemYang] = useState({})
   const [allItemMaxPity, setAllItemMaxPity] = useState({})
   const [defaultScrollByStep, setDefaultScrollByStep] = useState({})
+  const [itemCategoryById, setItemCategoryById] = useState({})
   const [selectedScroll, setSelectedScroll] = useState({})
   const [selectedSeals, setSelectedSeals] = useState({})
   const [unlockerMats, setUnlockerMats] = useState([])
@@ -153,10 +155,10 @@ export default function ItemDetailH() {
         const bi = SCROLL_ORDER.findIndex(n => b.name.toLowerCase().includes(n.toLowerCase()))
         return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi)
       })
-      const sorted = scrollsForItem(itemId, allScrolls)
+      const sorted = scrollsForItem(itemRes.data, allScrolls)
       const globalDefaultScrolls = buildDefaultScrollMap(scrollsForItem(null, allScrolls))
       setScrolls(sorted)
-      setSeals(sealsForItem(itemId, sealsRes.data ?? []))
+      setSeals(sealsForItem(itemRes.data, sealsRes.data ?? []))
       setUnlockerMats(unlockersForItem(itemId).map(id => materialsById[id]).filter(Boolean))
       setRecipes(buildRecipeMap(recipeRes.data))
       setCraftYangCosts(buildYangCostMap(allMatsRes.data))
@@ -165,6 +167,7 @@ export default function ItemDetailH() {
       setAllItemYang(buildItemYangMap(allItemYangRes.data))
       setAllItemMaxPity(buildItemMaxPityMap(allItemYangRes.data))
       setDefaultScrollByStep(globalDefaultScrolls)
+      setItemCategoryById(Object.fromEntries((allItemsRes.data ?? []).map(i => [i.id, i.category_id])))
       setGlobalPrices(globalPricesMap)
       setNoPriceIds(new Set((allMatsRes.data ?? []).filter(m => m.no_price).map(m => m.id)))
 
@@ -175,8 +178,8 @@ export default function ItemDetailH() {
       const savedChoices = saved ? JSON.parse(saved) : null
 
       if (savedChoices) {
-        setSelectedScroll(NO_DEFAULT_SCROLL_ITEM_IDS.has(itemId) ? {} : sanitizeScrollChoices(itemId, savedChoices.selectedScroll, globalDefaultScrolls))
-        setSelectedSeals(sanitizeSealChoices(itemId, savedChoices.selectedSeals))
+        setSelectedScroll(NO_DEFAULT_SCROLL_ITEM_IDS.has(itemId) ? {} : sanitizeScrollChoices(itemRes.data, savedChoices.selectedScroll, globalDefaultScrolls))
+        setSelectedSeals(sanitizeSealChoices(itemRes.data, savedChoices.selectedSeals))
         setChosenUnlockers(selectedUnlockers(itemId, savedChoices.unlockers))
         setPity(savedChoices.pity ?? {})
         setOwnedLevel(savedChoices.ownedLevel ?? (savedChoices.includeCraft === false ? '0' : '-'))
@@ -185,7 +188,7 @@ export default function ItemDetailH() {
         setSelectedVariant({})
         setChosenUnlockers([])
         if (!NO_DEFAULT_SCROLL_ITEM_IDS.has(itemId)) {
-          const defaults = defaultScrollsForItem(itemId, globalDefaultScrolls)
+          const defaults = defaultScrollsForItem(itemRes.data, globalDefaultScrolls)
           if (Object.values(defaults).some(Boolean)) {
             setSelectedScroll(Object.fromEntries(Object.entries(defaults).map(([step, id]) => [step, id ?? ''])))
           }
@@ -288,7 +291,7 @@ export default function ItemDetailH() {
   function itemIngredientCtx() {
     return {
       materialPriceFn: priceFn, itemMaterials: allItemMaterials, itemItems: allItemItems,
-      itemYang: allItemYang, itemMaxPity: allItemMaxPity, defaultScrollByStep, manualOverrides, rawInputs,
+      itemYang: allItemYang, itemMaxPity: allItemMaxPity, defaultScrollByStep, manualOverrides, rawInputs, itemCategoryById,
     }
   }
   function rowPrice(row) { return row.kind === 'item' ? computeItemPrice(row.material.id, itemIngredientCtx()) : priceOf(row.material.id) }

@@ -264,6 +264,7 @@ function loadItemChoices(itemId) {
 // scroll auto-selection, pity=0 (×1 materials), no seals, craft included — only if
 // the item was never opened/configured, matching what its page would show on first visit.
 // ctx.materialPriceFn: (materialId) => number — supplied by the caller, own- or global-mode aware.
+// ctx.itemCategoryById: { itemId: category_id } — picks the item's scroll/seal rules (itemUpgradeRules).
 export function computeItemPrice(itemId, ctx, visited = new Set()) {
   if (visited.has(itemId)) return 0
   if (ctx.manualOverrides?.has(itemId)) return parseYang(ctx.rawInputs?.[itemId] ?? '') || 0
@@ -282,6 +283,7 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
   const choices = loadItemChoices(itemId)
   const includeCraft = choices?.includeCraft ?? true
   const excludedSteps = choices?.excludedSteps ?? {}
+  const ruleItem = { id: itemId, category_id: ctx.itemCategoryById?.[itemId] }
 
   let total = 0
   for (const step of steps) {
@@ -300,10 +302,10 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
     stepCost += yangSteps[step]?.[variant] ?? 0
 
     if (step !== 0) {
-      const scrollId = choices ? (sanitizeScrollChoices(itemId, choices.selectedScroll, ctx.defaultScrollByStep)[step] ?? '') : defaultScrollsForItem(itemId, ctx.defaultScrollByStep)[step]
+      const scrollId = choices ? (sanitizeScrollChoices(ruleItem, choices.selectedScroll, ctx.defaultScrollByStep)[step] ?? '') : defaultScrollsForItem(ruleItem, ctx.defaultScrollByStep)[step]
       if (scrollId) stepCost += ctx.materialPriceFn(scrollId)
 
-      const sealIds = sanitizeSealChoices(itemId, choices?.selectedSeals)[step] ?? []
+      const sealIds = sanitizeSealChoices(ruleItem, choices?.selectedSeals)[step] ?? []
       for (const sealId of sealIds) stepCost += ctx.materialPriceFn(sealId)
     }
 
