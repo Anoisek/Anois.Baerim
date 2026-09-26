@@ -32,10 +32,7 @@ export function sealsForItem(itemId, seals) {
 // globalDefaults: the regular step → scroll map (see buildDefaultScrollMap).
 export function defaultScrollsForItem(itemId, globalDefaults) {
   if (!isEnergyItem(itemId)) return globalDefaults
-  return {
-    1: ENERGY_BLESSING_SCROLL_ID, 2: ENERGY_BLESSING_SCROLL_ID, 3: ENERGY_BLESSING_SCROLL_ID, 4: ENERGY_BLESSING_SCROLL_ID,
-    5: ENERGY_MAGIC_STONE_ID, 6: ENERGY_MAGIC_STONE_ID, 7: ENERGY_MAGIC_STONE_ID, 8: ENERGY_MAGIC_STONE_ID, 9: ENERGY_MAGIC_STONE_ID,
-  }
+  return Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8, 9].map(step => [step, ENERGY_MAGIC_STONE_ID]))
 }
 
 // Saved per-item choices can predate these rules — a scroll that the item
