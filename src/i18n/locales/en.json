@@ -225,6 +225,8 @@
     "mountIconHint": "Icon shown in the mount slot when at least one part is ticked (admin only).",
     "alchemyHint": "Click a stone to choose its grade.",
     "enterPrice": "enter price",
+    "reset": "Reset",
+    "resetConfirm": "Remove everything from the build calculator?",
     "equippedItems": "Equipped items",
     "pickerSearch": "Search...",
     "clearSlot": "Remove",

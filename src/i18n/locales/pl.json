@@ -225,6 +225,8 @@
     "mountIconHint": "Ikonka w slocie mounta, gdy zaznaczona jest choć jedna część (tylko admin).",
     "alchemyHint": "Kliknij kamień, żeby wybrać jego szlif.",
     "enterPrice": "wpisz cenę",
+    "reset": "Resetuj",
+    "resetConfirm": "Wyczyścić wszystko w kalkulatorze buildów?",
     "equippedItems": "Założone przedmioty",
     "pickerSearch": "Szukaj...",
     "clearSlot": "Usuń",

@@ -506,6 +506,19 @@ export default function EquipmentBoard({ horizontal = false }) {
     try { localStorage.setItem(MOUNT_KEY, JSON.stringify(next)) } catch { /* storage unavailable */ }
   }
 
+  // Empties every slot so the build can be put together from scratch. Prices the
+  // user typed (own prices, hand-typed sash/alchemy prices) are kept.
+  function resetBuild() {
+    if (!window.confirm(t('buildCalculator.resetConfirm'))) return
+    update({})
+    setMountParts([])
+    saveJson(MOUNT_KEY, null)
+    choosePet(null)
+    chooseSash(null)
+    setAlchemyChoice({})
+    saveJson(ALCHEMY_KEY, null)
+  }
+
   const pickerSlot = SLOTS.find(s => s.id === openSlot)
 
   // Equipped items in board order, each priced like on its own item page
@@ -585,6 +598,15 @@ export default function EquipmentBoard({ horizontal = false }) {
 
   return (
     <>
+      <div className="w-full max-w-md mx-auto flex justify-end mb-2">
+        <button
+          type="button"
+          onClick={resetBuild}
+          className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors text-gray-300 hover:text-red-300 hover:border-red-400/50 ${horizontal ? 'bg-white/5 border-white/10' : 'bg-gray-800 border-gray-600'}`}
+        >
+          ↺ {t('buildCalculator.reset')}
+        </button>
+      </div>
       <div className="relative w-full max-w-md mx-auto select-none" style={{ aspectRatio: `${BG_W} / ${BG_H}` }}>
         <img src="/equipment_bg.webp" alt="" draggable={false} className="absolute inset-0 w-full h-full rounded-lg" />
         {SLOTS.map(slot => {
