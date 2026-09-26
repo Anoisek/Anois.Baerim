@@ -9,6 +9,10 @@
 // default). All four require the "Manage Server" permission (enforced by
 // Discord itself via each command's default_member_permissions at
 // registration time - see registerOreFinderCommands).
+//
+// /orefinder-reportmap (separate feature): makes the invoking channel a report
+// channel for one map - the channel reader (oreFinderReader.js) then takes
+// "@Ore Finder <x> <y>" messages there as reports for that map.
 
 const MANAGE_GUILD = 0x20n
 const ROLE_OPTION_TYPE = 8
@@ -17,6 +21,7 @@ const ORE_MAP_NAMES = ['Yongan', 'Joan', 'Pyungmoo']
 // Each map also goes by its color name in-game - accepted as an equivalent
 // input for /orefinder-addmap and /orefinder-removemap alongside the map name.
 const MAP_COLORS = { Yongan: 'red', Joan: 'yellow', Pyungmoo: 'blue' }
+const REPORT_MAP_OFF = 'off'
 const MAP_CHOICES = ORE_MAP_NAMES.flatMap(name => [
   { name: `${name} (${MAP_COLORS[name]})`, value: name },
   { name: MAP_COLORS[name], value: name },
@@ -131,6 +136,25 @@ async function handleDiscordInteractions(request, env, headers) {
     return ephemeral(`✅ You will now receive alerts for **${mapLabel(mapName)}**.`, headers)
   }
 
+  if (name === 'orefinder-reportmap') {
+    const channelId = interaction.channel_id
+    const mapName = interaction.data?.options?.find(o => o.name === 'map')?.value
+    if (mapName === REPORT_MAP_OFF) {
+      await env.DB.prepare('DELETE FROM ore_finder_report_channels WHERE channel_id = ?').bind(channelId).run()
+      return ephemeral(`✅ <#${channelId}> no longer takes ore reports.`, headers)
+    }
+    if (!ORE_MAP_NAMES.includes(mapName)) return ephemeral('Unknown map.', headers)
+    await env.DB.prepare(
+      'INSERT INTO ore_finder_report_channels (channel_id, guild_id, map, updated_at) VALUES (?, ?, ?, ?) ' +
+      'ON CONFLICT(channel_id) DO UPDATE SET guild_id = excluded.guild_id, map = excluded.map, updated_at = excluded.updated_at'
+    ).bind(channelId, guildId, mapName, nowIso).run()
+    return ephemeral(
+      `✅ <#${channelId}> now takes ore reports for **${mapLabel(mapName)}**.\n` +
+      `Report an ore by mentioning the bot with the coordinates, e.g. \`@Ore Finder 512 734\`.`,
+      headers
+    )
+  }
+
   return json({ error: 'unknown command' }, 400, headers)
 }
 
@@ -175,6 +199,21 @@ async function registerOreFinderCommands(env) {
       dm_permission: false,
       options: [
         { type: STRING_OPTION_TYPE, name: 'map', description: 'Map to stop alerts for', required: true, choices: MAP_CHOICES },
+      ],
+    },
+    {
+      name: 'orefinder-reportmap',
+      description: 'Take ore reports for one map in this channel (@Ore Finder <x> <y>)',
+      default_member_permissions: String(MANAGE_GUILD),
+      dm_permission: false,
+      options: [
+        {
+          type: STRING_OPTION_TYPE,
+          name: 'map',
+          description: 'Map reported in this channel, or "off" to stop',
+          required: true,
+          choices: [...ORE_MAP_NAMES.map(name => ({ name: mapLabel(name), value: name })), { name: 'off (stop taking reports here)', value: REPORT_MAP_OFF }],
+        },
       ],
     },
   ]

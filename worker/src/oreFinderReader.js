@@ -1,31 +1,36 @@
 import { isOreAddWindowOpen } from './db.js'
 
 // Ore Finder channel reader - an extra, independent feature on top of the
-// existing Ore Finder bot (alerts and slash commands are untouched).
+// existing Ore Finder bot (alerts and the other slash commands are untouched).
 //
-// A Cron Trigger fires every minute; inside the same windows in which ores can
-// be reported on the website (xx:58-xx:09 and xx:28-xx:39, isOreAddWindowOpen
-// in db.js) it reads new messages from every channel the bot posts ore
-// alerts to (the legacy channel + each server's /orefinder-here channel),
-// twice per minute (at :00 and ~:30). No Gateway connection is needed - it
-// polls Discord's REST API.
+// Channels are set up with /orefinder-reportmap <map>: each takes reports for
+// one map, made by mentioning the bot with the coordinates ("@Ore Finder 512
+// 734"). A Cron Trigger fires every minute; inside the same windows in which
+// ores can be reported on the website (xx:58-xx:09 and xx:28-xx:39,
+// isOreAddWindowOpen in db.js) it reads those channels twice per minute (at
+// :00 and ~:30) over Discord's REST API - no Gateway connection. From each
+// channel only the newest message that mentions the bot is taken. Messages
+// that mention the bot always include their text, so the privileged Message
+// Content Intent isn't needed.
 //
 // Batching: a Workers Free invocation may make only 50 external subrequests,
 // so channels are split into batches of BATCH_SIZE and each batch is handled
 // in its own invocation of this same Worker (via the SELF service binding),
 // each with its own 50-subrequest budget. One request can fan out to at most
 // 32 invocations, and there are two rounds per minute, so up to 16 batches
-// (~400 channels) fit before this needs to change.
+// (~320 channels) fit before this needs to change.
 //
-// Turned on/off with ORE_FINDER_READER_ENABLED ("1" = on) in wrangler.toml.
-// Test mode: with ORE_FINDER_READER_TEST_CHANNEL_ID set, only that channel is
-// read, every 30 s around the clock (time windows ignored).
+// ORE_FINDER_READER_ENABLED ("1" = on) turns it on/off. Test mode:
+// ORE_FINDER_READER_TEST_CHANNEL_ID reads only that channel, around the
+// clock (windows ignored). Dry run: ORE_FINDER_READER_DRY_RUN = "1" only
+// replies with what would be reported - nothing is written to the Ore Finder.
 
-const BATCH_SIZE = 25 // leaves ~half the 50-subrequest budget for acting on what was read
+const BATCH_SIZE = 20 // 2 subrequests per channel (read + reply) → 40 of the 50 allowed
 const MAX_BATCHES_PER_ROUND = 16
 const SECOND_ROUND_DELAY_MS = 30_000
 const CONCURRENCY = 5 // Workers allow 6 simultaneous outgoing connections
 const DISCORD_API = 'https://discord.com/api/v10'
+const MAP_COLORS = { Yongan: 'red', Joan: 'yellow', Pyungmoo: 'blue' }
 
 function json(data, status, headers) {
   return new Response(JSON.stringify(data), {
@@ -44,17 +49,17 @@ function chunk(list, size) {
 
 // Discord snowflakes are 64-bit - compare as BigInt, never as numbers.
 const newerId = (a, b) => (BigInt(a) > BigInt(b) ? a : b)
+const mapLabel = name => `${name} (${MAP_COLORS[name] || name})`
 
-
-// Same destinations as the ore alerts: legacy channel + every configured server.
+// Channels set up with /orefinder-reportmap (test mode: just the test channel).
 async function readerChannels(env) {
-  if (env.ORE_FINDER_READER_TEST_CHANNEL_ID) return [{ channelId: env.ORE_FINDER_READER_TEST_CHANNEL_ID, guildId: null }]
-  const channels = []
-  if (env.ORE_FINDER_DISCORD_CHANNEL_ID) channels.push({ channelId: env.ORE_FINDER_DISCORD_CHANNEL_ID, guildId: null })
-  const configured = await env.DB.prepare('SELECT guild_id, channel_id FROM ore_finder_discord_configs').all()
-  for (const row of configured.results) channels.push({ channelId: row.channel_id, guildId: row.guild_id })
-  const seen = new Set()
-  return channels.filter(c => c.channelId && !seen.has(c.channelId) && seen.add(c.channelId))
+  const testId = env.ORE_FINDER_READER_TEST_CHANNEL_ID
+  const rows = testId
+    ? await env.DB.prepare('SELECT channel_id, guild_id, map FROM ore_finder_report_channels WHERE channel_id = ?').bind(testId).all()
+    : await env.DB.prepare('SELECT channel_id, guild_id, map FROM ore_finder_report_channels').all()
+  const channels = rows.results.map(r => ({ channelId: r.channel_id, guildId: r.guild_id, map: r.map }))
+  if (testId && channels.length === 0) channels.push({ channelId: testId, guildId: null, map: null })
+  return channels
 }
 
 async function dispatchRound(env) {
@@ -118,27 +123,85 @@ async function readChannel(env, channel, lastId) {
     const res = await fetch(url, { headers: { Authorization: `Bot ${env.ORE_FINDER_DISCORD_BOT_TOKEN}` } })
     if (!res.ok) return { channelId: channel.channelId, error: res.status }
 
-    const messages = (await res.json()).sort((a, b) => (BigInt(a.id) < BigInt(b.id) ? -1 : 1))
+    const messages = await res.json()
     if (messages.length === 0) return { channelId: channel.channelId, read: 0 }
 
     const newest = messages.reduce((id, m) => newerId(id, m.id), messages[0].id)
-    if (lastId) await processChannelMessages(env, channel, messages)
     await env.DB.prepare(
       'INSERT INTO ore_finder_read_cursors (channel_id, last_message_id, updated_at) VALUES (?, ?, ?) ' +
       'ON CONFLICT(channel_id) DO UPDATE SET last_message_id = excluded.last_message_id, updated_at = excluded.updated_at'
     ).bind(channel.channelId, newest, new Date().toISOString()).run()
-    return { channelId: channel.channelId, read: lastId ? messages.length : 0 }
+    if (!lastId) return { channelId: channel.channelId, read: 0 }
+
+    const report = latestMention(env, messages)
+    if (report) await handleReport(env, channel, report)
+    return { channelId: channel.channelId, read: messages.length, report: report ? report.id : null }
   } catch (err) {
     return { channelId: channel.channelId, error: (err && err.message) || 'failed' }
   }
 }
 
-// What to do with newly read messages (oldest first). Placeholder until the
-// feature is defined - for now reading only advances each channel's cursor.
-// Message text needs the "Message Content Intent" enabled in the Discord
-// Developer Portal; without it `content` comes back empty.
-async function processChannelMessages(env, channel, messages) {
+// Newest message that mentions the bot (and isn't from a bot).
+function latestMention(env, messages) {
+  const botId = env.ORE_FINDER_DISCORD_APPLICATION_ID
+  let latest = null
   for (const m of messages) {
-    console.log('ore finder reader:', channel.channelId, m.author?.username, JSON.stringify(m.content ?? ''))
+    if (m.author?.bot) continue
+    if (!(m.mentions ?? []).some(u => u.id === botId)) continue
+    if (!latest || BigInt(m.id) > BigInt(latest.id)) latest = m
   }
+  return latest
+}
+
+// "<@bot> 512 734" → { x: 512, y: 734 } (in-game coordinates), or null.
+function parseCoords(content) {
+  const text = (content ?? '').replace(/<[@#][!&]?\d+>/g, ' ')
+  const match = text.match(/(\d{1,5})\D+(\d{1,5})/)
+  return match ? { x: parseInt(match[1], 10), y: parseInt(match[2], 10) } : null
+}
+
+async function reply(env, message, content) {
+  await fetch(`${DISCORD_API}/channels/${message.channel_id}/messages`, {
+    method: 'POST',
+    headers: { Authorization: `Bot ${env.ORE_FINDER_DISCORD_BOT_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      content,
+      message_reference: { message_id: message.id, fail_if_not_exists: false },
+      allowed_mentions: { parse: [] },
+    }),
+  })
+}
+
+async function handleReport(env, channel, message) {
+  if (!channel.map) {
+    return reply(env, message, '⚠️ This channel has no report map yet - set one with `/orefinder-reportmap`.')
+  }
+  const coords = parseCoords(message.content)
+  if (!coords) {
+    return reply(env, message, `❌ Couldn't read coordinates. Write them like \`@Ore Finder 512 734\` (map: **${mapLabel(channel.map)}**).`)
+  }
+
+  const map = await env.DB.prepare('SELECT width, height FROM maps WHERE name = ?').bind(channel.map).first()
+  if (!map) return reply(env, message, `❌ Map **${mapLabel(channel.map)}** isn't on the Ore Finder map.`)
+  if (coords.x > map.width || coords.y > map.height) {
+    return reply(env, message, `❌ **${coords.x}, ${coords.y}** is outside ${mapLabel(channel.map)} (max ${map.width}, ${map.height}).`)
+  }
+
+  const now = new Date()
+  const windowOpen = isOreAddWindowOpen(now)
+  const existing = await env.DB.prepare('SELECT id FROM ore_finder_ores WHERE map = ? AND expires_at > ?')
+    .bind(channel.map, now.toISOString()).first()
+
+  if (env.ORE_FINDER_READER_DRY_RUN === '1') {
+    const notes = [
+      !windowOpen ? 'outside the report window (xx:58-xx:09 / xx:28-xx:39) - would be refused' : null,
+      existing ? 'an ore is already marked on this map - would be refused' : null,
+    ].filter(Boolean)
+    return reply(env, message,
+      `🧪 **Test mode** - nothing was added.\nRead: **${mapLabel(channel.map)}** - **${coords.x}, ${coords.y}**` +
+      (notes.length ? `\n${notes.map(n => `• ${n}`).join('\n')}` : '\n✅ Would be added to the Ore Finder.'))
+  }
+
+  // Live reporting isn't switched on yet - kept as a dry run until tested.
+  return reply(env, message, `Read: **${mapLabel(channel.map)}** - **${coords.x}, ${coords.y}** (live reporting isn't enabled yet).`)
 }

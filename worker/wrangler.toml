@@ -57,3 +57,5 @@ ORE_FINDER_DISCORD_PUBLIC_KEY = "76afdd66e3b76a5039fc318168ba5fea7fe358a149a49a4
 ORE_FINDER_READER_ENABLED = "1"
 # Test mode: only this channel, every 30 s around the clock. Remove to go live.
 ORE_FINDER_READER_TEST_CHANNEL_ID = "1256227856904618094"
+# Dry run: the reader only replies with what it would report, nothing is added.
+ORE_FINDER_READER_DRY_RUN = "1"
