@@ -36,8 +36,9 @@ const PAD = 14 // gap between a slot's frame and the item icon, in image pixels
 const SLOTS = [
   // Equipment (left panel)
   { id: 'weapon', x: 22, y: 4, w: 148, h: 446, cells: 3, emptyBg: '/equipment_slot_empty_1x3.webp', subcategory: 'Weapons' },
-  { id: 'armor', x: 191, y: 4, w: 148, h: 446, cells: 3, center: true, subcategory: 'Armor' },
-  { id: 'helmet', x: 361, y: 4, w: 146, h: 147 },
+  { id: 'helmet', x: 191, y: 4, w: 148, h: 147, subcategory: 'Helmets' },
+  { id: 'armor', x: 191, y: 154, w: 148, h: 296, cells: 2, subcategory: 'Armor' },
+  { id: 'headband', x: 361, y: 4, w: 146, h: 147 },
   { id: 'shield', x: 361, y: 154, w: 146, h: 147, subcategory: 'Shields' },
   { id: 'bracelet', x: 361, y: 302, w: 146, h: 148, subcategory: 'Bracelets' },
   { id: 'earrings', x: 548, y: 154, w: 147, h: 147, subcategory: 'Earrings' },
