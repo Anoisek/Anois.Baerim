@@ -227,7 +227,7 @@
     "pickerSearch": "Szukaj...",
     "clearSlot": "Usuń",
     "noItems": "Brak przedmiotów dla tego slotu.",
-    "slots": { "weapon": "Broń", "armor": "Zbroja", "shield": "Tarcza", "bracelet": "Bransoleta", "necklace": "Naszyjnik", "belt": "Pas", "boots": "Buty", "earrings": "Kolczyki", "mount": "Mount" },
+    "slots": { "weapon": "Broń", "armor": "Zbroja", "shield": "Tarcza", "bracelet": "Bransoleta", "necklace": "Naszyjnik", "belt": "Pas", "boots": "Buty", "earrings": "Kolczyki", "mount": "Mount", "pet": "Pet" },
     "searchPlaceholder": "Szukaj przedmiotu do dodania...",
     "addItem": "+ Dodaj",
     "resetPityAll": "🔄 Zresetuj pity do 1 (wszystkie przedmioty)",

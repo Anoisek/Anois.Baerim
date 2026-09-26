@@ -198,6 +198,24 @@ function addMats(acc, pairs, factor = 1) {
   }
 }
 
+// Turning the orb on/off also re-bases every potion count: 80% success needs
+// far fewer potions than the default one-in-three estimate.
+export function withOrb(c, orb) {
+  const qty = String(orb ? ORB_POTION_QTY : DEFAULT_POTION_QTY)
+  return { ...c, orb, potions: { ...c.potions, qty: Object.fromEntries(Object.keys(c.potions.qty).map(k => [k, qty])) } }
+}
+
+// 'pvm' / 'pvp' preset applied over the user's choices (null = back to defaults).
+export function applyPetPreset(c, preset) {
+  if (!preset) return defaultPetChoices()
+  const p = PET_PRESETS[preset]
+  return withOrb({
+    ...c,
+    potions: { ...c.potions, groups: Object.fromEntries(POTION_GROUPS.map(g => [g.key, p.potions.includes(g.key)])) },
+    skills: { ...c.skills, slots: [...p.skills] },
+  }, preset === 'pvp')
+}
+
 export function typePityOf(c, type) {
   return Math.min(TYPE_MAX_PITY, Math.max(0, parseInt(c.type.pity[type]) || 0))
 }

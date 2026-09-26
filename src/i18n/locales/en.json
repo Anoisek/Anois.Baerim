@@ -227,7 +227,7 @@
     "pickerSearch": "Search...",
     "clearSlot": "Remove",
     "noItems": "No items for this slot yet.",
-    "slots": { "weapon": "Weapon", "armor": "Armor", "shield": "Shield", "bracelet": "Bracelet", "necklace": "Necklace", "belt": "Belt", "boots": "Shoes", "earrings": "Earrings", "mount": "Mount" },
+    "slots": { "weapon": "Weapon", "armor": "Armor", "shield": "Shield", "bracelet": "Bracelet", "necklace": "Necklace", "belt": "Belt", "boots": "Shoes", "earrings": "Earrings", "mount": "Mount", "pet": "Pet" },
     "searchPlaceholder": "Search item to add...",
     "addItem": "+ Add",
     "resetPityAll": "🔄 Reset pity to 1 (all items)",

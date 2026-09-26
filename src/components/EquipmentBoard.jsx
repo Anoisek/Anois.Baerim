@@ -19,6 +19,7 @@ import {
 } from '../utils/priceBook'
 import { scrollsForItem } from '../utils/itemUpgradeRules'
 import { MAT, RUNES, CHAPTER_1_ID, CHAPTER_2_ID, loadMountChoices, mountPartCost } from '../utils/mountSystem'
+import { isPetSubcategory, loadPetChoices, applyPetPreset, petPartCost, withPetDefaults } from '../utils/petSystem'
 
 // Equipment window for the build calculator, drawn over public/equipment_bg.webp.
 // Slot rectangles are in the background image's own pixels (724×1093) and get
@@ -48,7 +49,7 @@ const SLOTS = [
   { id: 'boots', x: 191, y: 673, w: 148, h: 147, subcategory: 'Shoes' },
   { id: 'talisman', x: 361, y: 673, w: 146, h: 147 },
   // Bottom row
-  { id: 'extra1', x: 32, y: 913, w: 148, h: 150 },
+  { id: 'pet', x: 32, y: 913, w: 148, h: 150, pet: true },
   { id: 'extra2', x: 202, y: 913, w: 148, h: 150 },
   { id: 'mount', x: 371, y: 913, w: 148, h: 150, mount: true },
   { id: 'extra4', x: 542, y: 913, w: 148, h: 150 },
@@ -57,6 +58,8 @@ const SLOTS = [
 const STORAGE_KEY = 'build_planner_slots'
 const MOUNT_KEY = 'build_planner_mount'
 const MOUNT_ICON_SETTING = 'build_planner_mount_icon' // settings row, chosen by an admin
+const PET_KEY = 'build_planner_pet' // 'pvm' | 'pvp' | absent
+const PET_BUILDS = ['pvm', 'pvp']
 const INNER_INSET = 12 // how far inside a slot's frame its dark interior starts, in image pixels
 
 // Mount slot: several parts of the Mount calculator can be ticked at once, each
@@ -127,7 +130,8 @@ function SlotIcon({ slot, equip, onSize }) {
   )
 }
 
-function MountSlotIcon({ slot, icon }) {
+// Covers the slot's baked-in background icon with an empty interior, then draws `icon`.
+function SlotOverlayIcon({ slot, icon }) {
   const inset = { x: (INNER_INSET / slot.w) * 100, y: (INNER_INSET / slot.h) * 100 }
   return (
     <>
@@ -142,9 +146,36 @@ function MountSlotIcon({ slot, icon }) {
         }}
       />
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ padding: `${(PAD / slot.h) * 100}% ${(PAD / slot.w) * 100}%` }}>
-        <img src={icon} alt="Mount" draggable={false} className="w-full h-full object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" />
+        <img src={icon} alt="" draggable={false} className="w-full h-full object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" />
       </div>
     </>
+  )
+}
+
+function PetPicker({ selected, onSelect, onClose, icon, horizontal }) {
+  const { t } = useTranslation()
+  const tile = horizontal ? 'bg-black/30 border-white/10' : 'bg-gray-800 border-gray-700'
+  return (
+    <Modal title={t('buildCalculator.slots.pet')} onClose={onClose} horizontal={horizontal}>
+      <div className="grid grid-cols-2 gap-3">
+        {PET_BUILDS.map(build => (
+          <button
+            key={build}
+            type="button"
+            onClick={() => onSelect(build)}
+            className={`flex flex-col items-center gap-2 rounded-xl border px-4 py-5 transition-colors hover:border-yellow-300 ${selected === build ? '!border-yellow-400 bg-yellow-400/10' : tile}`}
+          >
+            {icon && <img src={icon} alt="" className="w-10 h-10 object-contain" />}
+            <span className="text-sm font-bold text-gray-100">{t(`pet.${build}Pet`)}</span>
+          </button>
+        ))}
+      </div>
+      {selected && (
+        <button type="button" onClick={() => onSelect(null)} className="mt-4 w-full px-3 py-2 rounded-lg text-sm font-semibold text-red-300 border border-red-400/40 hover:bg-red-500/10">
+          {t('buildCalculator.clearSlot')}
+        </button>
+      )}
+    </Modal>
   )
 }
 
@@ -258,12 +289,16 @@ export default function EquipmentBoard({ horizontal = false }) {
   const [chapterNames, setChapterNames] = useState({})
   const [materialsById, setMaterialsById] = useState({})
   const [mountIcon, setMountIcon] = useState(null)
+  const [petBuild, setPetBuild] = useState(() => {
+    try { return PET_BUILDS.find(b => b === localStorage.getItem(PET_KEY)) ?? null } catch { return null }
+  })
+  const [petSub, setPetSub] = useState(null) // the Pet subcategory: its icon + link target
   const { rawInputs, mode, setMode, manualOverrides } = usePriceBook()
 
   useEffect(() => {
     Promise.all([
       db.from('categories').select('id, name, sort_order').order('sort_order'),
-      db.from('subcategories').select('id, name'),
+      db.from('subcategories').select('id, name, image_url, category_id'),
       db.from('items').select('id, name, image_url, image_urls, category_id, subcategory_id, sort_order').order('sort_order'),
       db.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
       db.from('materials').select('id, image_url, craft_yang_cost, no_price'),
@@ -295,6 +330,7 @@ export default function EquipmentBoard({ horizontal = false }) {
       const chapterOrder = Object.fromEntries(categories.map((c, i) => [c.id, i]))
       const chapterName = Object.fromEntries(categories.map(c => [c.id, c.name]))
       const subName = Object.fromEntries((subRes.data ?? []).map(s => [s.id, s.name]))
+      setPetSub((subRes.data ?? []).find(isPetSubcategory) ?? null)
       const grouped = {}
       for (const item of itemRes.data ?? []) {
         if (!(item.category_id in chapterOrder) || itemImages(item).length === 0) continue
@@ -346,6 +382,12 @@ export default function EquipmentBoard({ horizontal = false }) {
     }
   }
 
+  function choosePet(build) {
+    setPetBuild(build)
+    try { build ? localStorage.setItem(PET_KEY, build) : localStorage.removeItem(PET_KEY) } catch { /* storage unavailable */ }
+    setOpenSlot(null)
+  }
+
   function toggleMountPart(key) {
     const next = mountParts.includes(key) ? mountParts.filter(k => k !== key) : [...mountParts, key]
     setMountParts(next)
@@ -364,6 +406,21 @@ export default function EquipmentBoard({ horizontal = false }) {
     })
     const ctx = { ...pricing, materialPriceFn: priceFn, manualOverrides, rawInputs }
     for (const slot of SLOTS) {
+      if (slot.pet) {
+        if (!petBuild) continue
+        // Priced like the Pet page's All tab after pressing the PvM / PvP preset,
+        // on top of the user's own pet choices (evolutions, type, books...).
+        const { mats, yang } = petPartCost('all', applyPetPreset(loadPetChoices(), petBuild))
+        const petPriceFn = withPetDefaults(priceFn)
+        rows.push({
+          key: 'pet',
+          image: petSub?.image_url,
+          label: t(`pet.${petBuild}Pet`),
+          to: petSub ? `/chapter/${petSub.category_id}/sub/${slugify(petSub.name)}?tab=all` : '#',
+          price: yang + mats.reduce((sum, [id, qty]) => sum + petPriceFn(id) * qty, 0),
+        })
+        continue
+      }
       if (slot.mount) {
         const mountChoices = loadMountChoices()
         for (const part of MOUNT_PARTS.filter(p => mountParts.includes(p.key))) {
@@ -406,7 +463,7 @@ export default function EquipmentBoard({ horizontal = false }) {
               type="button"
               aria-label={slot.id}
               title={equip?.name}
-              onClick={() => (slot.subcategory || slot.mount) && setOpenSlot(slot.id)}
+              onClick={() => (slot.subcategory || slot.mount || slot.pet) && setOpenSlot(slot.id)}
               className="group absolute cursor-pointer focus:outline-none"
               style={{
                 left: `${(slot.x / BG_W) * 100}%`,
@@ -416,7 +473,8 @@ export default function EquipmentBoard({ horizontal = false }) {
               }}
             >
               {equip && <SlotIcon slot={slot} equip={equip} onSize={cells => setCells(slot, cells)} />}
-              {slot.mount && mountIcon && mountParts.length > 0 && <MountSlotIcon slot={slot} icon={mountIcon} />}
+              {slot.mount && mountIcon && mountParts.length > 0 && <SlotOverlayIcon slot={slot} icon={mountIcon} />}
+              {slot.pet && petBuild && petSub?.image_url && <SlotOverlayIcon slot={slot} icon={petSub.image_url} />}
               <svg viewBox={`0 0 ${slot.w} ${slot.h}`} className="absolute inset-0 w-full h-full overflow-visible">
                 <polygon
                   points={outline(slot)}
@@ -433,6 +491,10 @@ export default function EquipmentBoard({ horizontal = false }) {
         })}
       </div>
       {/* Portalled: the vertical page's backdrop-blur card would otherwise trap the fixed modal. */}
+      {pickerSlot?.pet && createPortal(
+        <PetPicker selected={petBuild} onSelect={choosePet} onClose={() => setOpenSlot(null)} icon={petSub?.image_url} horizontal={horizontal} />,
+        document.body,
+      )}
       {pickerSlot?.mount && createPortal(
         <MountPicker
           selected={mountParts}
