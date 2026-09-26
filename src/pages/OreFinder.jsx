@@ -600,7 +600,7 @@ export default function OreFinder() {
       )}
 
       {guideModalOpen && (
-        <OreFinderBotGuideModal onClose={() => setGuideModalOpen(false)} t={t} />
+        <OreFinderBotGuideModal maps={maps} onClose={() => setGuideModalOpen(false)} t={t} />
       )}
 
       {adminLogModalOpen && (

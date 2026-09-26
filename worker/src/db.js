@@ -333,12 +333,12 @@ const TABLES = {
     pk: ['id'],
     publicRead: false,
   },
-  // Admin-only circles on the Ore Finder maps (named, resizable) - never
-  // public, not shown to regular users anywhere.
+  // Named circles on the Ore Finder maps (the places "@Ore Finder bio" reports
+  // refer to). Public read - shown in the bot guide; only the admin edits them
+  // (and only the admin sees them on the Ore Finder map itself).
   ore_finder_zones: {
     columns: ['id', 'map', 'x', 'y', 'r', 'name', 'created_at'],
     pk: ['id'],
-    publicRead: false,
   },
   // Admin-managed IP blocklist for Ore Finder reporting - checked in
   // ore_finder_ores' beforeInsert above.

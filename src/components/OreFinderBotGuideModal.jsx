@@ -1,5 +1,10 @@
-export default function OreFinderBotGuideModal({ onClose, t }) {
+import { useState } from 'react'
+import OreFinderReportPlacesModal from './OreFinderReportPlacesModal'
+
+export default function OreFinderBotGuideModal({ maps = [], onClose, t }) {
+  const [showPlaces, setShowPlaces] = useState(false)
   return (
+    <>
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
       onClick={onClose}
@@ -57,6 +62,13 @@ export default function OreFinderBotGuideModal({ onClose, t }) {
               </code>
             </li>
           </ol>
+          <button
+            type="button"
+            onClick={() => setShowPlaces(true)}
+            className="w-fit px-3 py-2 rounded-xl text-sm font-semibold bg-red-500/15 hover:bg-red-500/25 border border-red-500/50 text-red-200 transition-colors"
+          >
+            ⭕ {t('oreFinder.reportPlacesButton')}
+          </button>
           <ul className="flex flex-col gap-1.5 text-xs text-gray-400 list-disc list-inside">
             <li>{t('oreFinder.guideReportWindow')}</li>
             <li>{t('oreFinder.guideReportOnce')}</li>
@@ -72,5 +84,7 @@ export default function OreFinderBotGuideModal({ onClose, t }) {
         </button>
       </div>
     </div>
+    {showPlaces && <OreFinderReportPlacesModal maps={maps} onClose={() => setShowPlaces(false)} t={t} />}
+    </>
   )
 }
