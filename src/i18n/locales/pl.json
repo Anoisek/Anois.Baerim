@@ -223,11 +223,12 @@
   "buildCalculator": {
     "title": "Kalkulator buildów",
     "mountIconHint": "Ikonka w slocie mounta, gdy zaznaczona jest choć jedna część (tylko admin).",
+    "alchemyHint": "Kliknij kamień, żeby wybrać jego szlif.",
     "equippedItems": "Założone przedmioty",
     "pickerSearch": "Szukaj...",
     "clearSlot": "Usuń",
     "noItems": "Brak przedmiotów dla tego slotu.",
-    "slots": { "weapon": "Broń", "armor": "Zbroja", "shield": "Tarcza", "bracelet": "Bransoleta", "necklace": "Naszyjnik", "belt": "Pas", "boots": "Buty", "earrings": "Kolczyki", "mount": "Mount", "pet": "Pet", "helmet": "Hełm" },
+    "slots": { "weapon": "Broń", "armor": "Zbroja", "shield": "Tarcza", "bracelet": "Bransoleta", "necklace": "Naszyjnik", "belt": "Pas", "boots": "Buty", "earrings": "Kolczyki", "mount": "Mount", "pet": "Pet", "helmet": "Hełm", "sash": "Szarfa", "alchemy": "Alchemia" },
     "searchPlaceholder": "Szukaj przedmiotu do dodania...",
     "addItem": "+ Dodaj",
     "resetPityAll": "🔄 Zresetuj pity do 1 (wszystkie przedmioty)",

@@ -5,6 +5,9 @@ import { db } from '../dbClient'
 import Modal from './Modal'
 import IconDbPicker from './IconDbPicker'
 import PasteImageButton from './PasteImageButton'
+import MaterialPriceCell from './MaterialPriceCell'
+import AlchemyPicker, { ALCHEMY_POSITIONS, alchemyKey, gradeLabel } from './AlchemyPicker'
+import { useAlchemyPriceBook, fetchAlchemyGlobalPrices, resolvePrice } from '../utils/alchemyPriceBook'
 import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
 import PriceModeToggle from './PriceModeToggle'
@@ -38,14 +41,14 @@ const SLOTS = [
   { id: 'weapon', x: 22, y: 4, w: 148, h: 446, cells: 3, emptyBg: '/equipment_slot_empty_1x3.webp', subcategory: 'Weapons' },
   { id: 'helmet', x: 191, y: 4, w: 148, h: 147, subcategory: 'Helmets' },
   { id: 'armor', x: 191, y: 154, w: 148, h: 296, cells: 2, subcategory: 'Armor' },
-  { id: 'headband', x: 361, y: 4, w: 146, h: 147 },
+  { id: 'sash', x: 361, y: 4, w: 146, h: 147, sash: true },
   { id: 'shield', x: 361, y: 154, w: 146, h: 147, subcategory: 'Shields' },
   { id: 'bracelet', x: 361, y: 302, w: 146, h: 148, subcategory: 'Bracelets' },
   { id: 'earrings', x: 548, y: 154, w: 147, h: 147, subcategory: 'Earrings' },
   { id: 'necklace', x: 548, y: 302, w: 147, h: 148, subcategory: 'Necklaces' },
   { id: 'ring1', x: 22, y: 489, w: 148, h: 147 },
   { id: 'belt', x: 191, y: 489, w: 148, h: 147, subcategory: 'Belts' },
-  { id: 'crystal', x: 533, y: 503, w: 160, h: 144, shape: 'hex' },
+  { id: 'alchemy', x: 533, y: 503, w: 160, h: 144, shape: 'hex', alchemy: true },
   { id: 'ring2', x: 22, y: 673, w: 148, h: 147 },
   { id: 'boots', x: 191, y: 673, w: 148, h: 147, subcategory: 'Shoes' },
   { id: 'talisman', x: 361, y: 673, w: 146, h: 147 },
@@ -61,6 +64,25 @@ const MOUNT_KEY = 'build_planner_mount'
 const MOUNT_ICON_SETTING = 'build_planner_mount_icon' // settings row, chosen by an admin
 const PET_KEY = 'build_planner_pet' // 'pvm' | 'pvp' | absent
 const PET_BUILDS = ['pvm', 'pvp']
+const SASH_KEY = 'build_planner_sash' // chosen sash material id
+// Temporary sash options until a proper sash system exists — regular materials
+// (own/global prices, icons editable by an admin from the picker).
+const SASH_IDS = [
+  'cfec4be9-f992-477a-b797-0cfc29757bb7', // Custom 25% abs Sash
+  'd4a5d85c-1049-4aa8-8d18-eb8fa4fe8e94', // Custom 30% abs Sash
+]
+const ALCHEMY_KEY = 'build_planner_alchemy' // { stoneId: grade }
+const ALCHEMY_ICONS_SETTING = 'alchemy_grade_icons' // { '<stoneId>:<grade>': url }, chosen by an admin
+
+function loadJson(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback } catch { return fallback }
+}
+
+function saveJson(key, value) {
+  try {
+    value == null ? localStorage.removeItem(key) : localStorage.setItem(key, JSON.stringify(value))
+  } catch { /* storage unavailable */ }
+}
 const INNER_INSET = 12 // how far inside a slot's frame its dark interior starts, in image pixels
 
 // Mount slot: several parts of the Mount calculator can be ticked at once, each
@@ -150,6 +172,55 @@ function SlotOverlayIcon({ slot, icon }) {
         <img src={icon} alt="" draggable={false} className="w-full h-full object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" />
       </div>
     </>
+  )
+}
+
+function SashPicker({ selected, onSelect, onClose, materialsById, priceFn, rawInputs, setPrice, mode, onIconChange, horizontal }) {
+  const { t } = useTranslation()
+  const { isAdmin } = useAuth()
+  const tile = horizontal ? 'bg-black/30 border-white/10' : 'bg-gray-800 border-gray-700'
+  const editBtn = 'text-[10px] leading-none px-1.5 py-0.5 rounded border border-dashed border-yellow-400/50 text-yellow-300 hover:bg-yellow-400/10 disabled:opacity-50'
+  return (
+    <Modal title={t('buildCalculator.slots.sash')} onClose={onClose} horizontal={horizontal}>
+      <div className="flex flex-col gap-2">
+        {SASH_IDS.map(id => {
+          const mat = materialsById[id]
+          if (!mat) return null
+          const active = selected === id
+          return (
+            <div key={id} className={`flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${active ? 'border-yellow-400 bg-yellow-400/10' : `${tile} hover:border-yellow-300`}`}>
+              <label className="flex flex-1 min-w-0 items-center gap-3 cursor-pointer">
+                <input type="radio" name="sash" checked={active} onChange={() => onSelect(id)} className="accent-yellow-400 w-4 h-4 shrink-0" />
+                <span className="w-8 h-8 shrink-0 flex items-center justify-center">
+                  {mat.image_url ? <img src={mat.image_url} alt="" className="max-w-full max-h-full object-contain" /> : <span>🎗️</span>}
+                </span>
+                <span className="flex-1 min-w-0 truncate text-sm font-semibold text-gray-100">{mat.name}</span>
+              </label>
+              {isAdmin && (
+                <span className="flex gap-1 shrink-0">
+                  <IconDbPicker onUploaded={url => onIconChange(id, url)} buttonLabel="✎" buttonClassName={editBtn} />
+                  <PasteImageButton onUploaded={url => onIconChange(id, url)} className={editBtn} />
+                </span>
+              )}
+              <div className="w-32 shrink-0">
+                <MaterialPriceCell
+                  material={mat}
+                  rawValue={rawInputs[id]}
+                  computedValue={priceFn(id)}
+                  onPriceChange={setPrice}
+                  computed={mode === 'global' && priceFn(id) > 0 ? true : undefined} // no global price yet → let the user type one
+                />
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      {selected && (
+        <button type="button" onClick={() => onSelect(null)} className="mt-4 w-full px-3 py-2 rounded-lg text-sm font-semibold text-red-300 border border-red-400/40 hover:bg-red-500/10">
+          {t('buildCalculator.clearSlot')}
+        </button>
+      )}
+    </Modal>
   )
 }
 
@@ -294,7 +365,13 @@ export default function EquipmentBoard({ horizontal = false }) {
     try { return PET_BUILDS.find(b => b === localStorage.getItem(PET_KEY)) ?? null } catch { return null }
   })
   const [petSub, setPetSub] = useState(null) // the Pet subcategory: its icon + link target
-  const { rawInputs, mode, setMode, manualOverrides } = usePriceBook()
+  const { rawInputs, setPrice, mode, setMode, manualOverrides } = usePriceBook()
+  const { rawInputs: alchemyRaw } = useAlchemyPriceBook()
+  const [sashId, setSashId] = useState(() => SASH_IDS.find(id => id === loadJson(SASH_KEY, null)) ?? null)
+  const [alchemyChoice, setAlchemyChoice] = useState(() => loadJson(ALCHEMY_KEY, {}))
+  const [alchemyStones, setAlchemyStones] = useState([])
+  const [alchemyGlobal, setAlchemyGlobal] = useState({})
+  const [alchemyIcons, setAlchemyIcons] = useState({})
 
   useEffect(() => {
     Promise.all([
@@ -302,15 +379,21 @@ export default function EquipmentBoard({ horizontal = false }) {
       db.from('subcategories').select('id, name, image_url, category_id'),
       db.from('items').select('id, name, image_url, image_urls, category_id, subcategory_id, sort_order').order('sort_order'),
       db.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
-      db.from('materials').select('id, image_url, craft_yang_cost, no_price'),
+      db.from('materials').select('id, name, image_url, craft_yang_cost, no_price'),
       db.from('item_materials').select('item_id, material_id, quantity, step, variant'),
       db.from('item_items').select('item_id, component_item_id, quantity, step, variant'),
       db.from('item_step_yang').select('item_id, step, yang_cost, max_pity, variant'),
       db.from('materials').select('id, name').eq('is_upgrade_scroll', true).order('name'),
       fetchGlobalPrices(),
       db.from('settings').select('value').eq('key', MOUNT_ICON_SETTING).maybeSingle(),
-    ]).then(([catRes, subRes, itemRes, recipeRes, matsRes, itemMatsRes, itemItemsRes, itemYangRes, scrollsRes, globalPrices, mountIconRes]) => {
+      db.from('alchemy_stones').select('id, name, image_url').order('sort_order'),
+      fetchAlchemyGlobalPrices(),
+      db.from('settings').select('value').eq('key', ALCHEMY_ICONS_SETTING).maybeSingle(),
+    ]).then(([catRes, subRes, itemRes, recipeRes, matsRes, itemMatsRes, itemItemsRes, itemYangRes, scrollsRes, globalPrices, mountIconRes, stonesRes, alchemyGlobalMap, alchemyIconsRes]) => {
       setMountIcon(mountIconRes.data?.value || null)
+      setAlchemyStones(stonesRes.data ?? [])
+      setAlchemyGlobal(alchemyGlobalMap)
+      try { setAlchemyIcons(JSON.parse(alchemyIconsRes.data?.value || '{}')) } catch { setAlchemyIcons({}) }
       setItemsById(Object.fromEntries((itemRes.data ?? []).map(i => [i.id, i])))
       setChapterNames(Object.fromEntries((catRes.data ?? []).map(c => [c.id, c.name])))
       setMaterialsById(Object.fromEntries((matsRes.data ?? []).map(m => [m.id, m])))
@@ -373,6 +456,41 @@ export default function EquipmentBoard({ horizontal = false }) {
     })
   }
 
+  function chooseSash(id) {
+    setSashId(id)
+    saveJson(SASH_KEY, id)
+    setOpenSlot(null)
+  }
+
+  function chooseAlchemy(stoneId, grade) {
+    const next = { ...alchemyChoice }
+    if (grade) next[stoneId] = grade
+    else delete next[stoneId]
+    setAlchemyChoice(next)
+    saveJson(ALCHEMY_KEY, next)
+  }
+
+  async function changeMaterialIcon(id, url) {
+    const prev = materialsById[id]?.image_url
+    setMaterialsById(m => ({ ...m, [id]: { ...m[id], image_url: url } }))
+    const { error } = await db.from('materials').update({ image_url: url }).eq('id', id)
+    if (error) {
+      setMaterialsById(m => ({ ...m, [id]: { ...m[id], image_url: prev } }))
+      alert('Error: ' + error.message)
+    }
+  }
+
+  async function changeAlchemyIcon(key, url) {
+    const next = { ...alchemyIcons, [key]: url }
+    setAlchemyIcons(next)
+    const { error } = await db.from('settings').upsert({ key: ALCHEMY_ICONS_SETTING, value: JSON.stringify(next) })
+    if (error) alert('Error: ' + error.message)
+  }
+
+  const alchemyIconOf = (stone, grade) => alchemyIcons[alchemyKey(stone.id, grade)] || stone.image_url
+  const alchemyPriceOf = key => resolvePrice(key, mode, alchemyRaw, alchemyGlobal)
+  const stonesByName = Object.fromEntries(alchemyStones.map(st => [st.name, st]))
+
   async function changeMountIcon(url) {
     const prev = mountIcon
     setMountIcon(url)
@@ -407,6 +525,26 @@ export default function EquipmentBoard({ horizontal = false }) {
     })
     const ctx = { ...pricing, materialPriceFn: priceFn, manualOverrides, rawInputs }
     for (const slot of SLOTS) {
+      if (slot.sash) {
+        const mat = materialsById[sashId]
+        if (mat) rows.push({ key: 'sash', image: mat.image_url, label: mat.name, to: `/materials/${slugify(mat.name)}`, price: priceFn(sashId) })
+        continue
+      }
+      if (slot.alchemy) {
+        for (const pos of ALCHEMY_POSITIONS) {
+          const stone = stonesByName[pos.name]
+          const grade = stone && alchemyChoice[stone.id]
+          if (!grade) continue
+          rows.push({
+            key: `alchemy-${stone.id}`,
+            image: alchemyIconOf(stone, grade),
+            label: `${stone.name} (${gradeLabel(grade)})`,
+            to: '/systems/alchemy',
+            price: alchemyPriceOf(alchemyKey(stone.id, grade)),
+          })
+        }
+        continue
+      }
       if (slot.pet) {
         if (!petBuild) continue
         // Priced like the Pet page's All tab after pressing the PvM / PvP preset,
@@ -464,7 +602,7 @@ export default function EquipmentBoard({ horizontal = false }) {
               type="button"
               aria-label={slot.id}
               title={equip?.name}
-              onClick={() => (slot.subcategory || slot.mount || slot.pet) && setOpenSlot(slot.id)}
+              onClick={() => (slot.subcategory || slot.mount || slot.pet || slot.sash || slot.alchemy) && setOpenSlot(slot.id)}
               className="group absolute cursor-pointer focus:outline-none"
               style={{
                 left: `${(slot.x / BG_W) * 100}%`,
@@ -476,6 +614,7 @@ export default function EquipmentBoard({ horizontal = false }) {
               {equip && <SlotIcon slot={slot} equip={equip} onSize={cells => setCells(slot, cells)} />}
               {slot.mount && mountIcon && mountParts.length > 0 && <SlotOverlayIcon slot={slot} icon={mountIcon} />}
               {slot.pet && petBuild && petSub?.image_url && <SlotOverlayIcon slot={slot} icon={petSub.image_url} />}
+              {slot.sash && materialsById[sashId]?.image_url && <SlotOverlayIcon slot={slot} icon={materialsById[sashId].image_url} />}
               <svg viewBox={`0 0 ${slot.w} ${slot.h}`} className="absolute inset-0 w-full h-full overflow-visible">
                 <polygon
                   points={outline(slot)}
@@ -492,6 +631,34 @@ export default function EquipmentBoard({ horizontal = false }) {
         })}
       </div>
       {/* Portalled: the vertical page's backdrop-blur card would otherwise trap the fixed modal. */}
+      {pickerSlot?.sash && createPortal(
+        <SashPicker
+          selected={sashId}
+          onSelect={chooseSash}
+          onClose={() => setOpenSlot(null)}
+          materialsById={materialsById}
+          priceFn={pricing ? makeMaterialPriceFn(mode, { rawInputs, globalPrices: pricing.globalPrices, recipes: pricing.recipes, yangCosts: pricing.yangCosts, manualOverrides, noPriceIds: pricing.noPriceIds }) : () => 0}
+          rawInputs={rawInputs}
+          setPrice={setPrice}
+          mode={mode}
+          onIconChange={changeMaterialIcon}
+          horizontal={horizontal}
+        />,
+        document.body,
+      )}
+      {pickerSlot?.alchemy && createPortal(
+        <AlchemyPicker
+          stonesByName={stonesByName}
+          chosen={alchemyChoice}
+          onChoose={chooseAlchemy}
+          iconOf={alchemyIconOf}
+          onIconChange={changeAlchemyIcon}
+          priceOf={alchemyPriceOf}
+          onClose={() => setOpenSlot(null)}
+          horizontal={horizontal}
+        />,
+        document.body,
+      )}
       {pickerSlot?.pet && createPortal(
         <PetPicker selected={petBuild} onSelect={choosePet} onClose={() => setOpenSlot(null)} icon={petSub?.image_url} horizontal={horizontal} />,
         document.body,

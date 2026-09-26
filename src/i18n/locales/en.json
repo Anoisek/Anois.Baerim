@@ -223,11 +223,12 @@
   "buildCalculator": {
     "title": "Build Calculator",
     "mountIconHint": "Icon shown in the mount slot when at least one part is ticked (admin only).",
+    "alchemyHint": "Click a stone to choose its grade.",
     "equippedItems": "Equipped items",
     "pickerSearch": "Search...",
     "clearSlot": "Remove",
     "noItems": "No items for this slot yet.",
-    "slots": { "weapon": "Weapon", "armor": "Armor", "shield": "Shield", "bracelet": "Bracelet", "necklace": "Necklace", "belt": "Belt", "boots": "Shoes", "earrings": "Earrings", "mount": "Mount", "pet": "Pet", "helmet": "Helmet" },
+    "slots": { "weapon": "Weapon", "armor": "Armor", "shield": "Shield", "bracelet": "Bracelet", "necklace": "Necklace", "belt": "Belt", "boots": "Shoes", "earrings": "Earrings", "mount": "Mount", "pet": "Pet", "helmet": "Helmet", "sash": "Sash", "alchemy": "Alchemy" },
     "searchPlaceholder": "Search item to add...",
     "addItem": "+ Add",
     "resetPityAll": "🔄 Reset pity to 1 (all items)",
