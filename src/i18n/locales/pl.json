@@ -222,6 +222,12 @@
   },
   "buildCalculator": {
     "title": "Kalkulator buildów",
+    "mountIconHint": "Ikonka w slocie mounta, gdy zaznaczona jest choć jedna część (tylko admin).",
+    "equippedItems": "Założone przedmioty",
+    "pickerSearch": "Szukaj...",
+    "clearSlot": "Usuń",
+    "noItems": "Brak przedmiotów dla tego slotu.",
+    "slots": { "weapon": "Broń", "armor": "Zbroja", "shield": "Tarcza", "bracelet": "Bransoleta", "necklace": "Naszyjnik", "belt": "Pas", "boots": "Buty", "earrings": "Kolczyki", "mount": "Mount" },
     "searchPlaceholder": "Szukaj przedmiotu do dodania...",
     "addItem": "+ Dodaj",
     "resetPityAll": "🔄 Zresetuj pity do 1 (wszystkie przedmioty)",
@@ -755,5 +761,37 @@
     "pityHint": "Nieudane próby przed sukcesem na tym kroku (max {{max}}). Każda kosztuje cały krok od nowa.",
     "alreadyOwned": "Już osiągnięte",
     "upgradeFees": "Opłaty za ulepszenia"
+  },
+  "pet": {
+    "tab": {
+      "all": "Wszystko",
+      "evolution": "Ewolucja",
+      "type": "Typ",
+      "potions": "Mikstury",
+      "skills": "Umiejętności"
+    },
+    "comingSoon": "Wkrótce.",
+    "editIcons": "Edytuj ikonki",
+    "clear": "Wyczyść",
+    "pvmPet": "Pet PvM",
+    "pvpPet": "Pet PvP",
+    "evolutionHint": "Ewolucja nie może się nie udać — każda jest płacona raz. Odznacz te, które już masz.",
+    "evolution": "Ewolucja",
+    "levelRange": "Poziom {{range}}",
+    "currentType": "Obecny typ",
+    "typeN": "Typ {{n}}",
+    "potionsHint": "Każda mikstura daje +0,2% przy sukcesie, więc każdy rozmiar wymaga co najmniej {{n}} udanych mikstur. Domyślnie liczone jest {{avg}} (średnio co trzecia wchodzi).",
+    "minimalPrice": "Minimalna cena (×1)",
+    "averagePrice": "Średnio (×3)",
+    "potionPrices": "Ceny mikstur",
+    "bookPrices": "Ceny książek",
+    "unlockerHint": "Jeden na skill — maksymalnie {{n}}. Craftowany z 300 Pet Emblem, 3 Symbol of Power+, 5 Jungle Grimoire i 250kk yang.",
+    "emptySlot": "Pusty slot na skill",
+    "booksHint": "Nauka skilla może się nie udać — wpisz, ile książek przewidujesz zużyć (minimum {{min}}).",
+    "books": "Książki",
+    "chooseSkill": "Wybierz skill",
+    "alreadyUsed": "już w innym slocie",
+    "removeSkill": "Usuń skill",
+    "yangFees": "Opłaty w yang"
   }
 }

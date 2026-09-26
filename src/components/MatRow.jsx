@@ -34,7 +34,10 @@ export default function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChan
           />
         )}
       </div>
-      <span className="text-gray-500 text-xs w-9 text-right shrink-0">×{quantity}</span>
+      <span className="text-gray-500 text-xs w-12 text-right shrink-0 whitespace-nowrap">×{quantity}</span>
+      {/* Fixed-width column: computed prices size to their text, which would
+          otherwise push the checkbox and quantity out of line row to row. */}
+      <div className="w-40 shrink-0 flex justify-end">
       <MaterialPriceCell
         material={mat}
         rawValue={rawValue}
@@ -44,7 +47,8 @@ export default function MatRow({ mat, quantity, unitPrice, rawValue, onPriceChan
         manualOverride={manualOverride}
         allowGlobalSubmit={kind !== 'item'}
       />
-      <span className="text-yellow-400 text-sm w-24 text-right font-mono shrink-0">{formatYang(lineTotal)}</span>
+      </div>
+      <span className="text-yellow-400 text-sm w-28 text-right font-mono shrink-0 whitespace-nowrap">{formatYang(lineTotal)}</span>
     </div>
   )
 }

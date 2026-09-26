@@ -222,6 +222,12 @@
   },
   "buildCalculator": {
     "title": "Build Calculator",
+    "mountIconHint": "Icon shown in the mount slot when at least one part is ticked (admin only).",
+    "equippedItems": "Equipped items",
+    "pickerSearch": "Search...",
+    "clearSlot": "Remove",
+    "noItems": "No items for this slot yet.",
+    "slots": { "weapon": "Weapon", "armor": "Armor", "shield": "Shield", "bracelet": "Bracelet", "necklace": "Necklace", "belt": "Belt", "boots": "Shoes", "earrings": "Earrings", "mount": "Mount" },
     "searchPlaceholder": "Search item to add...",
     "addItem": "+ Add",
     "resetPityAll": "🔄 Reset pity to 1 (all items)",
@@ -746,5 +752,37 @@
     "pityHint": "Failed attempts before this step succeeds (max {{max}}). Each one costs the full step again.",
     "alreadyOwned": "Already reached",
     "upgradeFees": "Upgrade fees"
+  },
+  "pet": {
+    "tab": {
+      "all": "All",
+      "evolution": "Evolution",
+      "type": "Type",
+      "potions": "Potions",
+      "skills": "Skills"
+    },
+    "comingSoon": "Coming soon.",
+    "editIcons": "Edit icons",
+    "clear": "Clear",
+    "pvmPet": "PvM Pet",
+    "pvpPet": "PvP Pet",
+    "evolutionHint": "Evolutions can't fail — each one is paid once. Untick the ones you've already done.",
+    "evolution": "Evolution",
+    "levelRange": "Level {{range}}",
+    "currentType": "Current type",
+    "typeN": "Type {{n}}",
+    "potionsHint": "Each potion adds +0.2% when it succeeds, so every size needs at least {{n}} successful potions. By default {{avg}} are counted (about one in three succeeds).",
+    "minimalPrice": "Minimal price (×1)",
+    "averagePrice": "Average (×3)",
+    "potionPrices": "Potion prices",
+    "bookPrices": "Skill book prices",
+    "unlockerHint": "One per skill — up to {{n}}. Crafted from 300 Pet Emblem, 3 Symbol of Power+, 5 Jungle Grimoire and 250kk yang.",
+    "emptySlot": "Empty skill slot",
+    "booksHint": "Learning a skill can fail — enter how many books you expect to use (at least {{min}}).",
+    "books": "Books",
+    "chooseSkill": "Choose a skill",
+    "alreadyUsed": "already in another slot",
+    "removeSkill": "Remove skill",
+    "yangFees": "Yang fees"
   }
 }

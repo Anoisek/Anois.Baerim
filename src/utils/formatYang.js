@@ -1,11 +1,12 @@
 export function parseYang(str) {
   if (str === '' || str == null) return ''
   const s = str.toString().trim().toLowerCase()
-  const match = s.match(/^(\d+(?:[.,]\d+)?)(k{1,3})?$/)
+  const match = s.match(/^(\d+(?:[.,]\d+)?)(k{1,4})?$/)
   if (!match) return ''
   const num = parseFloat(match[1].replace(',', '.'))
   const suffix = match[2] ?? ''
   switch (suffix) {
+    case 'kkkk': return Math.round(num * 1_000_000_000_000)
     case 'kkk': return Math.round(num * 1_000_000_000)
     case 'kk':  return Math.round(num * 1_000_000)
     case 'k':   return Math.round(num * 1_000)
@@ -30,8 +31,15 @@ export function formatYang(value) {
     return `${intPart}.${String(kRemainder).padStart(3, '0')}kk yang`
   }
 
-  const intPart = Math.floor(v / 1_000_000_000)
-  const kkRemainder = Math.floor((v % 1_000_000_000) / 1_000_000)
-  if (kkRemainder === 0) return `${intPart}kkk yang`
-  return `${intPart}.${String(kkRemainder).padStart(3, '0')}kkk yang`
+  if (v < 1_000_000_000_000) {
+    const intPart = Math.floor(v / 1_000_000_000)
+    const kkRemainder = Math.floor((v % 1_000_000_000) / 1_000_000)
+    if (kkRemainder === 0) return `${intPart}kkk yang`
+    return `${intPart}.${String(kkRemainder).padStart(3, '0')}kkk yang`
+  }
+
+  const intPart = Math.floor(v / 1_000_000_000_000)
+  const kkkRemainder = Math.floor((v % 1_000_000_000_000) / 1_000_000_000)
+  if (kkkRemainder === 0) return `${intPart}kkkk yang`
+  return `${intPart}.${String(kkkRemainder).padStart(3, '0')}kkkk yang`
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Modal from './Modal'
 import { getToken } from '../authClient'
 
@@ -11,7 +12,7 @@ const WORKER_URL = import.meta.env.VITE_IMAGES_WORKER_URL
 const officialQueryCache = new Map() // query -> codes[]
 let unofficialCache = null
 
-export default function IconDbPicker({ onUploaded }) {
+export default function IconDbPicker({ onUploaded, buttonLabel = 'Choose from icon database', buttonClassName }) {
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState('official') // 'official' | 'unofficial'
   const [query, setQuery] = useState('')
@@ -108,12 +109,13 @@ export default function IconDbPicker({ onUploaded }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="bg-gray-800 border border-dashed border-gray-500 hover:border-gray-300 rounded-lg px-4 py-3 text-sm text-gray-400 hover:text-white text-center transition-colors"
+        className={buttonClassName ?? 'bg-gray-800 border border-dashed border-gray-500 hover:border-gray-300 rounded-lg px-4 py-3 text-sm text-gray-400 hover:text-white text-center transition-colors'}
       >
-        Choose from icon database
+        {buttonLabel}
       </button>
 
-      {open && (
+      {/* Portalled so a backdrop-blur ancestor can't trap the fixed modal. */}
+      {open && createPortal(
         <Modal title="Icon database (m2icondb.com)" onClose={() => setOpen(false)} maxWidthClass="max-w-6xl">
           <div className="flex flex-col gap-3">
             <div className="flex gap-2">
@@ -176,7 +178,8 @@ export default function IconDbPicker({ onUploaded }) {
               {shownCodes.length} icon{shownCodes.length === 1 ? '' : 's'} shown &middot; from m2icondb.com &middot; picked icons are copied to our own storage.
             </p>
           </div>
-        </Modal>
+        </Modal>,
+        document.body,
       )}
     </>
   )

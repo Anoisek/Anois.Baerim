@@ -14,8 +14,10 @@ import { itemImages } from '../utils/itemImages'
 import { formatItemName } from '../utils/itemName'
 import { slugify, findBySlugOrId } from '../utils/slug'
 import { isMountSubcategory } from '../utils/mountSystem'
+import { isPetSubcategory } from '../utils/petSystem'
 import { directItemFor } from '../utils/directSubItem'
 import MountSystem from '../components/MountSystem'
+import PetSystem from '../components/PetSystem'
 
 export default function Subcategory() {
   const { categoryId, subcategoryId } = useParams()
@@ -88,7 +90,8 @@ export default function Subcategory() {
     await db.from('items').update({ maintenance_hidden: next }).eq('id', item.id)
   }
 
-  const isMount = isMountSubcategory(subcategory)
+  const isPet = isPetSubcategory(subcategory)
+  const isMount = isMountSubcategory(subcategory) || isPet // both are calculators, not item lists
   const shownItems = isAdmin ? items : items.filter(i => !(i.maintenance && i.maintenance_hidden))
 
   async function toggleMaintenance(item) {
@@ -133,7 +136,7 @@ export default function Subcategory() {
         </div>
 
         {loading ? <Spinner /> : isMount ? (
-          <MountSystem categoryId={category.id} />
+          isPet ? <PetSystem /> : <MountSystem categoryId={category.id} />
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center py-20 text-gray-500 gap-3">
             <span className="text-5xl">📭</span>

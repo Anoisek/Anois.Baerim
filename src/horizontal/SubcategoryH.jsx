@@ -12,8 +12,10 @@ import { itemImages } from '../utils/itemImages'
 import { formatItemName } from '../utils/itemName'
 import { slugify, findBySlugOrId } from '../utils/slug'
 import { isMountSubcategory } from '../utils/mountSystem'
+import { isPetSubcategory } from '../utils/petSystem'
 import { directItemFor } from '../utils/directSubItem'
 import MountSystem from '../components/MountSystem'
+import PetSystem from '../components/PetSystem'
 import { PageHeader, RowList, Row, GridWrap, GridTile, ViewToggle, useViewMode, EmptyState, PillButton } from './ui'
 
 export default function SubcategoryH() {
@@ -88,7 +90,8 @@ export default function SubcategoryH() {
     await db.from('items').update({ maintenance_hidden: next }).eq('id', item.id)
   }
 
-  const isMount = isMountSubcategory(subcategory)
+  const isPet = isPetSubcategory(subcategory)
+  const isMount = isMountSubcategory(subcategory) || isPet // both are calculators, not item lists
   const shownItems = isAdmin ? items : items.filter(i => !(i.maintenance && i.maintenance_hidden))
 
   async function toggleMaintenance(item) {
@@ -124,7 +127,7 @@ export default function SubcategoryH() {
         {loading ? (
           <div className="py-16 flex justify-center"><Spinner /></div>
         ) : isMount ? (
-          <MountSystem categoryId={category.id} horizontal />
+          isPet ? <PetSystem horizontal /> : <MountSystem categoryId={category.id} horizontal />
         ) : items.length === 0 ? (
           <EmptyState emoji="📭" text={t('subcategory.noItemsYet')} />
         ) : view === 'grid' ? (
