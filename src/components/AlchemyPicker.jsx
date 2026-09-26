@@ -4,12 +4,11 @@ import { useAuth } from '../context/AuthContext'
 import Modal from './Modal'
 import IconDbPicker from './IconDbPicker'
 import PasteImageButton from './PasteImageButton'
-import { formatYang } from '../utils/formatYang'
 
 // Dragon-stone alchemy window for the build calculator, drawn over
 // public/alchemy_bg.webp (1254×1254). One stone per colour; each can be set to
-// one grade. Stones/prices come from the Alchemy system (alchemy_stones,
-// '<stone_id>:<grade>' price keys); per-grade icons are picked by an admin.
+// one grade. Stones come from the Alchemy system (alchemy_stones); per-grade
+// icons are picked by an admin. Prices are typed in by hand in the build list.
 const BG = 1254
 const SLOT = 152
 export const ALCHEMY_POSITIONS = [
@@ -32,7 +31,7 @@ export const gradeLabel = grade => ALCHEMY_GRADES.find(g => g.key === grade)?.la
 
 const ICON_EDIT_BTN = 'text-[10px] leading-none px-1.5 py-0.5 rounded border border-dashed border-yellow-400/50 text-yellow-300 hover:bg-yellow-400/10 disabled:opacity-50'
 
-export default function AlchemyPicker({ stonesByName, chosen, onChoose, iconOf, onIconChange, priceOf, onClose, horizontal }) {
+export default function AlchemyPicker({ stonesByName, chosen, onChoose, iconOf, onIconChange, onClose, horizontal }) {
   const { t } = useTranslation()
   const { isAdmin } = useAuth()
   const [activeStone, setActiveStone] = useState(null)
@@ -41,7 +40,7 @@ export default function AlchemyPicker({ stonesByName, chosen, onChoose, iconOf, 
   const stone = activeStone ? stonesByName[activeStone] : null
 
   return (
-    <Modal title={t('buildCalculator.slots.alchemy')} onClose={onClose} maxWidthClass="max-w-2xl" horizontal={horizontal}>
+    <Modal title={t('buildCalculator.slots.alchemy')} onClose={onClose} maxWidthClass="max-w-5xl" horizontal={horizontal}>
       {isAdmin && (
         <div className="flex justify-end mb-3">
           <button
@@ -54,7 +53,7 @@ export default function AlchemyPicker({ stonesByName, chosen, onChoose, iconOf, 
         </div>
       )}
       <div className="flex flex-col md:flex-row gap-5 items-start">
-        <div className="relative w-full md:w-80 shrink-0 aspect-square select-none">
+        <div className="relative w-full md:w-[34rem] shrink-0 aspect-square select-none">
           <img src="/alchemy_bg.webp" alt="" draggable={false} className="absolute inset-0 w-full h-full rounded-lg" />
           {ALCHEMY_POSITIONS.map(pos => {
             const s = stonesByName[pos.name]
@@ -90,7 +89,6 @@ export default function AlchemyPicker({ stonesByName, chosen, onChoose, iconOf, 
                         <img src={iconOf(stone, g.key)} alt="" className="max-w-full max-h-full object-contain" />
                       </span>
                       <span className="flex-1 min-w-0 truncate text-sm text-gray-100">{stone.name} ({g.label})</span>
-                      <span className="text-yellow-400 text-xs font-mono shrink-0">{formatYang(priceOf(alchemyKey(stone.id, g.key)))}</span>
                     </button>
                     {editIcons && (
                       <span className="flex gap-1 shrink-0">

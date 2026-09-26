@@ -5,15 +5,13 @@ import { db } from '../dbClient'
 import Modal from './Modal'
 import IconDbPicker from './IconDbPicker'
 import PasteImageButton from './PasteImageButton'
-import MaterialPriceCell from './MaterialPriceCell'
 import AlchemyPicker, { ALCHEMY_POSITIONS, alchemyKey, gradeLabel } from './AlchemyPicker'
-import { useAlchemyPriceBook, fetchAlchemyGlobalPrices, resolvePrice } from '../utils/alchemyPriceBook'
 import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
 import PriceModeToggle from './PriceModeToggle'
 import { itemImages } from '../utils/itemImages'
 import { PVP_CATEGORY_ID } from '../utils/itemName'
-import { formatYang } from '../utils/formatYang'
+import { formatYang, parseYang } from '../utils/formatYang'
 import { slugify } from '../utils/slug'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
@@ -72,6 +70,7 @@ const SASH_IDS = [
   'd4a5d85c-1049-4aa8-8d18-eb8fa4fe8e94', // Custom 30% abs Sash
 ]
 const ALCHEMY_KEY = 'build_planner_alchemy' // { stoneId: grade }
+const MANUAL_PRICES_KEY = 'build_planner_manual_prices' // { rowKey: raw yang text } — sash / alchemy rows are priced by hand
 const ALCHEMY_ICONS_SETTING = 'alchemy_grade_icons' // { '<stoneId>:<grade>': url }, chosen by an admin
 
 function loadJson(key, fallback) {
@@ -175,7 +174,7 @@ function SlotOverlayIcon({ slot, icon }) {
   )
 }
 
-function SashPicker({ selected, onSelect, onClose, materialsById, priceFn, rawInputs, setPrice, mode, onIconChange, horizontal }) {
+function SashPicker({ selected, onSelect, onClose, materialsById, onIconChange, horizontal }) {
   const { t } = useTranslation()
   const { isAdmin } = useAuth()
   const tile = horizontal ? 'bg-black/30 border-white/10' : 'bg-gray-800 border-gray-700'
@@ -202,15 +201,6 @@ function SashPicker({ selected, onSelect, onClose, materialsById, priceFn, rawIn
                   <PasteImageButton onUploaded={url => onIconChange(id, url)} className={editBtn} />
                 </span>
               )}
-              <div className="w-32 shrink-0">
-                <MaterialPriceCell
-                  material={mat}
-                  rawValue={rawInputs[id]}
-                  computedValue={priceFn(id)}
-                  onPriceChange={setPrice}
-                  computed={mode === 'global' && priceFn(id) > 0 ? true : undefined} // no global price yet → let the user type one
-                />
-              </div>
             </div>
           )
         })}
@@ -365,13 +355,12 @@ export default function EquipmentBoard({ horizontal = false }) {
     try { return PET_BUILDS.find(b => b === localStorage.getItem(PET_KEY)) ?? null } catch { return null }
   })
   const [petSub, setPetSub] = useState(null) // the Pet subcategory: its icon + link target
-  const { rawInputs, setPrice, mode, setMode, manualOverrides } = usePriceBook()
-  const { rawInputs: alchemyRaw } = useAlchemyPriceBook()
+  const { rawInputs, mode, setMode, manualOverrides } = usePriceBook()
   const [sashId, setSashId] = useState(() => SASH_IDS.find(id => id === loadJson(SASH_KEY, null)) ?? null)
   const [alchemyChoice, setAlchemyChoice] = useState(() => loadJson(ALCHEMY_KEY, {}))
   const [alchemyStones, setAlchemyStones] = useState([])
-  const [alchemyGlobal, setAlchemyGlobal] = useState({})
   const [alchemyIcons, setAlchemyIcons] = useState({})
+  const [manualPrices, setManualPrices] = useState(() => loadJson(MANUAL_PRICES_KEY, {}))
 
   useEffect(() => {
     Promise.all([
@@ -387,12 +376,10 @@ export default function EquipmentBoard({ horizontal = false }) {
       fetchGlobalPrices(),
       db.from('settings').select('value').eq('key', MOUNT_ICON_SETTING).maybeSingle(),
       db.from('alchemy_stones').select('id, name, image_url').order('sort_order'),
-      fetchAlchemyGlobalPrices(),
       db.from('settings').select('value').eq('key', ALCHEMY_ICONS_SETTING).maybeSingle(),
-    ]).then(([catRes, subRes, itemRes, recipeRes, matsRes, itemMatsRes, itemItemsRes, itemYangRes, scrollsRes, globalPrices, mountIconRes, stonesRes, alchemyGlobalMap, alchemyIconsRes]) => {
+    ]).then(([catRes, subRes, itemRes, recipeRes, matsRes, itemMatsRes, itemItemsRes, itemYangRes, scrollsRes, globalPrices, mountIconRes, stonesRes, alchemyIconsRes]) => {
       setMountIcon(mountIconRes.data?.value || null)
       setAlchemyStones(stonesRes.data ?? [])
-      setAlchemyGlobal(alchemyGlobalMap)
       try { setAlchemyIcons(JSON.parse(alchemyIconsRes.data?.value || '{}')) } catch { setAlchemyIcons({}) }
       setItemsById(Object.fromEntries((itemRes.data ?? []).map(i => [i.id, i])))
       setChapterNames(Object.fromEntries((catRes.data ?? []).map(c => [c.id, c.name])))
@@ -456,6 +443,13 @@ export default function EquipmentBoard({ horizontal = false }) {
     })
   }
 
+  function setManualPrice(key, raw) {
+    const next = { ...manualPrices, [key]: raw }
+    setManualPrices(next)
+    saveJson(MANUAL_PRICES_KEY, next)
+  }
+  const manualPriceOf = key => Number(parseYang(manualPrices[key] ?? '')) || 0
+
   function chooseSash(id) {
     setSashId(id)
     saveJson(SASH_KEY, id)
@@ -488,7 +482,6 @@ export default function EquipmentBoard({ horizontal = false }) {
   }
 
   const alchemyIconOf = (stone, grade) => alchemyIcons[alchemyKey(stone.id, grade)] || stone.image_url
-  const alchemyPriceOf = key => resolvePrice(key, mode, alchemyRaw, alchemyGlobal)
   const stonesByName = Object.fromEntries(alchemyStones.map(st => [st.name, st]))
 
   async function changeMountIcon(url) {
@@ -527,7 +520,7 @@ export default function EquipmentBoard({ horizontal = false }) {
     for (const slot of SLOTS) {
       if (slot.sash) {
         const mat = materialsById[sashId]
-        if (mat) rows.push({ key: 'sash', image: mat.image_url, label: mat.name, to: `/materials/${slugify(mat.name)}`, price: priceFn(sashId) })
+        if (mat) rows.push({ key: `sash:${sashId}`, manual: true, image: mat.image_url, label: mat.name, to: `/materials/${slugify(mat.name)}`, price: manualPriceOf(`sash:${sashId}`) })
         continue
       }
       if (slot.alchemy) {
@@ -536,11 +529,12 @@ export default function EquipmentBoard({ horizontal = false }) {
           const grade = stone && alchemyChoice[stone.id]
           if (!grade) continue
           rows.push({
-            key: `alchemy-${stone.id}`,
+            key: `alchemy:${alchemyKey(stone.id, grade)}`,
+            manual: true,
             image: alchemyIconOf(stone, grade),
             label: `${stone.name} (${gradeLabel(grade)})`,
             to: '/systems/alchemy',
-            price: alchemyPriceOf(alchemyKey(stone.id, grade)),
+            price: manualPriceOf(`alchemy:${alchemyKey(stone.id, grade)}`),
           })
         }
         continue
@@ -637,10 +631,6 @@ export default function EquipmentBoard({ horizontal = false }) {
           onSelect={chooseSash}
           onClose={() => setOpenSlot(null)}
           materialsById={materialsById}
-          priceFn={pricing ? makeMaterialPriceFn(mode, { rawInputs, globalPrices: pricing.globalPrices, recipes: pricing.recipes, yangCosts: pricing.yangCosts, manualOverrides, noPriceIds: pricing.noPriceIds }) : () => 0}
-          rawInputs={rawInputs}
-          setPrice={setPrice}
-          mode={mode}
           onIconChange={changeMaterialIcon}
           horizontal={horizontal}
         />,
@@ -653,7 +643,6 @@ export default function EquipmentBoard({ horizontal = false }) {
           onChoose={chooseAlchemy}
           iconOf={alchemyIconOf}
           onIconChange={changeAlchemyIcon}
-          priceOf={alchemyPriceOf}
           onClose={() => setOpenSlot(null)}
           horizontal={horizontal}
         />,
@@ -695,7 +684,7 @@ export default function EquipmentBoard({ horizontal = false }) {
             <PriceModeToggle mode={mode} setMode={setMode} horizontal={horizontal} />
           </div>
           <div className={`rounded-xl border divide-y divide-white/5 ${panel}`}>
-            {rows.map(({ key, image, label, to, price }) => (
+            {rows.map(({ key, image, label, to, price, manual }) => (
               <div key={key} className="flex items-center gap-3 px-4 py-2.5">
                 <div className="w-8 h-8 shrink-0 flex items-center justify-center">
                   {image && <img src={image} alt="" className="max-w-full max-h-full object-contain" />}
@@ -703,7 +692,18 @@ export default function EquipmentBoard({ horizontal = false }) {
                 <Link to={to} className="flex-1 min-w-0 truncate text-sm text-gray-200 hover:text-yellow-400 transition-colors">
                   {label}
                 </Link>
-                <span className="text-yellow-400 text-sm font-mono shrink-0">{formatYang(price)}</span>
+                {manual ? (
+                  <input
+                    type="text"
+                    value={manualPrices[key] ?? ''}
+                    onChange={e => setManualPrice(key, e.target.value)}
+                    placeholder={t('buildCalculator.enterPrice')}
+                    title={price ? formatYang(price) : ''}
+                    className={`w-28 shrink-0 rounded-lg px-3 py-1 text-right text-sm font-mono text-yellow-400 placeholder:text-gray-600 focus:outline-none border ${horizontal ? 'bg-black/25 border-white/10 focus:border-yellow-400' : 'bg-gray-800 border-gray-700 focus:border-yellow-400'}`}
+                  />
+                ) : (
+                  <span className="text-yellow-400 text-sm font-mono shrink-0">{formatYang(price)}</span>
+                )}
               </div>
             ))}
           </div>

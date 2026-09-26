@@ -224,6 +224,7 @@
     "title": "Build Calculator",
     "mountIconHint": "Icon shown in the mount slot when at least one part is ticked (admin only).",
     "alchemyHint": "Click a stone to choose its grade.",
+    "enterPrice": "enter price",
     "equippedItems": "Equipped items",
     "pickerSearch": "Search...",
     "clearSlot": "Remove",
