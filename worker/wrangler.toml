@@ -12,10 +12,12 @@ bucket_name = "baerim-images"
 binding = "SELF"
 service = "baerim-images-worker"
 
-# Ore Finder channel reader: every minute of xx:58-xx:10 and xx:29-xx:40 (UTC
-# minutes are the same in every whole-hour timezone).
+# Ore Finder channel reader: runs every minute; outside test mode the code
+# itself only reads during xx:58-xx:10 and xx:29-xx:40 (UTC minutes are the
+# same in every whole-hour timezone). After testing this can go back to
+# "58,59,0-10,29-40 * * * *" to skip the idle invocations.
 [triggers]
-crons = ["58,59,0-10,29-40 * * * *"]
+crons = ["* * * * *"]
 
 [[d1_databases]]
 binding = "DB"
@@ -53,3 +55,5 @@ ORE_FINDER_DISCORD_APPLICATION_ID = "1549119137903812729"
 ORE_FINDER_DISCORD_PUBLIC_KEY = "76afdd66e3b76a5039fc318168ba5fea7fe358a149a49a49cee77fe3e8d918a3"
 # Ore Finder channel reader (src/oreFinderReader.js): "1" = on, anything else = off.
 ORE_FINDER_READER_ENABLED = "1"
+# Test mode: only this channel, every 30 s around the clock. Remove to go live.
+ORE_FINDER_READER_TEST_CHANNEL_ID = "1256227856904618094"

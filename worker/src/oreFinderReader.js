@@ -15,6 +15,8 @@
 // (~400 channels) fit before this needs to change.
 //
 // Turned on/off with ORE_FINDER_READER_ENABLED ("1" = on) in wrangler.toml.
+// Test mode: with ORE_FINDER_READER_TEST_CHANNEL_ID set, only that channel is
+// read, every 30 s around the clock (time windows ignored).
 
 const BATCH_SIZE = 25 // leaves ~half the 50-subrequest budget for acting on what was read
 const MAX_BATCHES_PER_ROUND = 16
@@ -47,6 +49,7 @@ export function inReadWindow(date) {
 
 // Same destinations as the ore alerts: legacy channel + every configured server.
 async function readerChannels(env) {
+  if (env.ORE_FINDER_READER_TEST_CHANNEL_ID) return [{ channelId: env.ORE_FINDER_READER_TEST_CHANNEL_ID, guildId: null }]
   const channels = []
   if (env.ORE_FINDER_DISCORD_CHANNEL_ID) channels.push({ channelId: env.ORE_FINDER_DISCORD_CHANNEL_ID, guildId: null })
   const configured = await env.DB.prepare('SELECT guild_id, channel_id FROM ore_finder_discord_configs').all()
@@ -73,7 +76,7 @@ async function dispatchRound(env) {
 // Cron entry point.
 export async function runOreFinderReader(env) {
   if (env.ORE_FINDER_READER_ENABLED !== '1' || !env.ORE_FINDER_DISCORD_BOT_TOKEN) return
-  if (!inReadWindow(new Date())) return
+  if (!env.ORE_FINDER_READER_TEST_CHANNEL_ID && !inReadWindow(new Date())) return
   await dispatchRound(env)
   await sleep(SECOND_ROUND_DELAY_MS)
   await dispatchRound(env)
@@ -135,5 +138,8 @@ async function readChannel(env, channel, lastId) {
 // feature is defined - for now reading only advances each channel's cursor.
 // Message text needs the "Message Content Intent" enabled in the Discord
 // Developer Portal; without it `content` comes back empty.
-async function processChannelMessages(env, channel, messages) { // eslint-disable-line no-unused-vars
+async function processChannelMessages(env, channel, messages) {
+  for (const m of messages) {
+    console.log('ore finder reader:', channel.channelId, m.author?.username, JSON.stringify(m.content ?? ''))
+  }
 }
