@@ -9,8 +9,8 @@ export function isMountSubcategory(sub) {
   return MOUNT_SUBCATEGORY_NAMES.includes(sub?.name?.trim().toLowerCase())
 }
 
-const CHAPTER_1_ID = '221f24b8-3105-4dc3-9d22-cd8312821156'
-const CHAPTER_2_ID = '2750662d-2ca4-4c7c-9101-2683dd313e0e'
+export const CHAPTER_1_ID = '221f24b8-3105-4dc3-9d22-cd8312821156'
+export const CHAPTER_2_ID = '2750662d-2ca4-4c7c-9101-2683dd313e0e'
 
 export const MOUNT_TABS_BY_CATEGORY = {
   [CHAPTER_1_ID]: ['level', 'bonus', 'skills'],
@@ -146,4 +146,96 @@ export const RUNES = [
 // [[matKey, qty], ...] for one rune step (1-based).
 export function runeStepMats(rune, step) {
   return rune.rows.filter(([, qtys]) => qtys[step - 1] != null).map(([key, qtys]) => [key, qtys[step - 1]])
+}
+
+// ---- Cost calculation (shared by the Mount calculator and the Build Calculator) ----
+
+export const MOUNT_CHOICES_KEY = 'mount_calc_choices'
+
+export function defaultMountChoices() {
+  return {
+    stages: Object.fromEntries(LEVEL_STAGES.map(s => [s.key, true])),
+    enchantQty: Object.fromEntries(BONUS_ENCHANTS.map(k => [k, String(DEFAULT_ENCHANT_QTY)])),
+    skills: Object.fromEntries(MOUNT_SKILLS.map(s => [s.key, { enabled: true, books: String(DEFAULT_BOOKS_PER_LEVEL), reading: false }])),
+    runes: Object.fromEntries(RUNES.map(r => [r.key, { owned: 0, pity: {}, excluded: {} }])),
+  }
+}
+
+// The user's choices from the Mount calculator (localStorage), merged over the defaults.
+export function loadMountChoices() {
+  const base = defaultMountChoices()
+  try {
+    const saved = JSON.parse(localStorage.getItem(MOUNT_CHOICES_KEY))
+    if (!saved) return base
+    return {
+      stages: { ...base.stages, ...saved.stages },
+      enchantQty: { ...base.enchantQty, ...saved.enchantQty },
+      skills: Object.fromEntries(MOUNT_SKILLS.map(s => [s.key, { ...base.skills[s.key], ...saved.skills?.[s.key] }])),
+      runes: Object.fromEntries(RUNES.map(r => [r.key, { ...base.runes[r.key], ...saved.runes?.[r.key] }])),
+    }
+  } catch {
+    return base
+  }
+}
+
+const toQty = raw => Math.max(0, parseInt(raw) || 0)
+
+// Adds [matKey, qty] pairs into an { materialId: qty } accumulator.
+export function addMats(acc, pairs, factor = 1) {
+  for (const [key, qty] of pairs) {
+    const id = MAT[key]
+    acc[id] = (acc[id] ?? 0) + qty * factor
+  }
+}
+
+// Steps a rune still needs (above the owned level, not excluded), with the
+// pity multiplier applied: pity N = the step is paid N+1 times.
+function runeActiveSteps(rune, c) {
+  const steps = []
+  for (let step = c.owned + 1; step <= RUNE_STEPS; step++) {
+    if (c.excluded[step]) continue
+    const mult = Math.min(RUNE_MAX_PITY, Math.max(0, c.pity[step] ?? 0)) + 1
+    steps.push({ step, mult })
+  }
+  return steps
+}
+
+// Adds a rune's remaining materials to `acc`, returns its yang fees.
+export function addRune(acc, rune, c) {
+  let fee = 0
+  for (const { step, mult } of runeActiveSteps(rune, c)) {
+    addMats(acc, runeStepMats(rune, step), mult)
+    fee += rune.yang[step - 1] * mult
+  }
+  return fee
+}
+
+// Materials + flat yang fees for one part of the mount system: 'level', 'bonus',
+// 'skills', 'all' (every rune) or a single rune key.
+export function mountPartCost(part, choices) {
+  const acc = {}
+  let fee = 0
+  if (part === 'level') {
+    for (const stage of LEVEL_STAGES) {
+      if (!choices.stages[stage.key]) continue
+      addMats(acc, stage.mats)
+      fee += stage.yang
+    }
+  } else if (part === 'bonus') {
+    for (const key of BONUS_ENCHANTS) addMats(acc, [[key, toQty(choices.enchantQty[key])]])
+  } else if (part === 'all') {
+    for (const rune of RUNES) fee += addRune(acc, rune, choices.runes[rune.key])
+  } else if (RUNES.some(r => r.key === part)) {
+    const rune = RUNES.find(r => r.key === part)
+    fee += addRune(acc, rune, choices.runes[rune.key])
+  } else if (part === 'skills') {
+    for (const skill of MOUNT_SKILLS) {
+      const c = choices.skills[skill.key]
+      if (!c.enabled) continue
+      const books = toQty(c.books) * SKILL_LEVELS
+      addMats(acc, [['skillUnlocker', 1], ['skillBook', books]])
+      if (c.reading) addMats(acc, [['focusedReading', books]])
+    }
+  }
+  return { mats: Object.entries(acc).filter(([, q]) => q > 0), yang: fee }
 }

@@ -14,7 +14,9 @@ import SystemsH from './horizontal/SystemsH'
 import BonusesH from './horizontal/BonusesH'
 import AlchemyH from './horizontal/AlchemyH'
 import MetinCalculatorH from './horizontal/MetinCalculatorH'
-import BuildCalculatorH from './horizontal/BuildCalculatorH'
+// Old list-based build calculator (src/horizontal/BuildCalculatorH.jsx, src/pages/BuildCalculator.jsx)
+// is unlinked for now but kept — re-import it here to bring it back.
+import BuildPlannerH from './horizontal/BuildPlannerH'
 import CategoryH from './horizontal/CategoryH'
 import SubcategoryH from './horizontal/SubcategoryH'
 import ItemUsageH from './horizontal/ItemUsageH'
@@ -51,7 +53,7 @@ import ExplorationLevel from './pages/ExplorationLevel'
 import Maps from './pages/Maps'
 import MetinCalculator from './pages/MetinCalculator'
 import MetinDetail from './pages/MetinDetail'
-import BuildCalculator from './pages/BuildCalculator'
+import BuildPlanner from './pages/BuildPlanner'
 import Category from './pages/Category'
 import Subcategory from './pages/Subcategory'
 import ItemDetail from './pages/ItemDetail'
@@ -134,7 +136,7 @@ export default function App() {
                   <Routed vertical={ColorSystem} horizontal={ColorSystemH} />
                 </Suspense>
               } />
-              <Route path="/buildcalculator" element={<Routed vertical={BuildCalculator} horizontal={BuildCalculatorH} />} />
+              <Route path="/buildcalculator" element={<Routed vertical={BuildPlanner} horizontal={BuildPlannerH} />} />
               <Route path="/chapter/:categoryId" element={<Routed vertical={Category} horizontal={CategoryH} />} />
               <Route path="/chapter/:categoryId/sub/:subcategoryId" element={<Routed vertical={Subcategory} horizontal={SubcategoryH} />} />
               <Route path="/chapter/:categoryId/item/:itemId" element={<Routed vertical={ItemDetail} horizontal={ItemDetailH} />} />

@@ -9,9 +9,10 @@ import {
   usePriceBook, buildRecipeMap, buildYangCostMap, fetchGlobalPrices, makeMaterialPriceFn, FIXED_MATERIAL_PRICES,
 } from '../utils/priceBook'
 import {
-  MAT, MOUNT_TABS_BY_CATEGORY, LEVEL_STAGES, BONUS_ENCHANTS, DEFAULT_ENCHANT_QTY,
-  MOUNT_SKILLS, SKILL_LEVELS, DEFAULT_BOOKS_PER_LEVEL,
+  MAT, MOUNT_TABS_BY_CATEGORY, LEVEL_STAGES, BONUS_ENCHANTS,
+  MOUNT_SKILLS, SKILL_LEVELS,
   RUNES, RUNE_STEPS, RUNE_MAX_PITY, runeStepMats,
+  MOUNT_CHOICES_KEY, loadMountChoices, addRune, mountPartCost,
 } from '../utils/mountSystem'
 import MatRow from './MatRow'
 import MaterialTile from './MaterialTile'
@@ -23,63 +24,7 @@ import PriceModeToggle from './PriceModeToggle'
 import StickyTotalBar, { useStickyTotal } from './StickyTotalBar'
 import Spinner from './Spinner'
 
-const STORAGE_KEY = 'mount_calc_choices'
-
-function defaultChoices() {
-  return {
-    stages: Object.fromEntries(LEVEL_STAGES.map(s => [s.key, true])),
-    enchantQty: Object.fromEntries(BONUS_ENCHANTS.map(k => [k, String(DEFAULT_ENCHANT_QTY)])),
-    skills: Object.fromEntries(MOUNT_SKILLS.map(s => [s.key, { enabled: true, books: String(DEFAULT_BOOKS_PER_LEVEL), reading: false }])),
-    runes: Object.fromEntries(RUNES.map(r => [r.key, { owned: 0, pity: {}, excluded: {} }])),
-  }
-}
-
-function loadChoices() {
-  const base = defaultChoices()
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
-    if (!saved) return base
-    return {
-      stages: { ...base.stages, ...saved.stages },
-      enchantQty: { ...base.enchantQty, ...saved.enchantQty },
-      skills: Object.fromEntries(MOUNT_SKILLS.map(s => [s.key, { ...base.skills[s.key], ...saved.skills?.[s.key] }])),
-      runes: Object.fromEntries(RUNES.map(r => [r.key, { ...base.runes[r.key], ...saved.runes?.[r.key] }])),
-    }
-  } catch {
-    return base
-  }
-}
-
 const toQty = raw => Math.max(0, parseInt(raw) || 0)
-
-// Steps a rune still needs (above the owned level, not excluded), with the
-// pity multiplier applied: pity N = the step is paid N+1 times.
-function runeActiveSteps(rune, c) {
-  const steps = []
-  for (let step = c.owned + 1; step <= RUNE_STEPS; step++) {
-    if (c.excluded[step]) continue
-    const mult = Math.min(RUNE_MAX_PITY, Math.max(0, c.pity[step] ?? 0)) + 1
-    steps.push({ step, mult })
-  }
-  return steps
-}
-
-function addRune(acc, rune, c) {
-  let fee = 0
-  for (const { step, mult } of runeActiveSteps(rune, c)) {
-    addMats(acc, runeStepMats(rune, step), mult)
-    fee += rune.yang[step - 1] * mult
-  }
-  return fee
-}
-
-// Adds [matKey, qty] pairs into an { materialId: qty } accumulator.
-function addMats(acc, pairs, factor = 1) {
-  for (const [key, qty] of pairs) {
-    const id = MAT[key]
-    acc[id] = (acc[id] ?? 0) + qty * factor
-  }
-}
 
 export default function MountSystem({ categoryId, horizontal = false }) {
   const { t } = useTranslation()
@@ -95,7 +40,7 @@ export default function MountSystem({ categoryId, horizontal = false }) {
   const [noPriceIds, setNoPriceIds] = useState(new Set())
   const { rawInputs, setPrice, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
   const [stickyTotal, setStickyTotal] = useStickyTotal()
-  const [choices, setChoices] = useState(loadChoices)
+  const [choices, setChoices] = useState(loadMountChoices)
   const [showSummary, setShowSummary] = useState(false)
   const [showPriceAdjust, setShowPriceAdjust] = useState(false)
   const isRuneTab = RUNES.some(r => r.key === tab)
@@ -119,7 +64,7 @@ export default function MountSystem({ categoryId, horizontal = false }) {
   function updateChoices(fn) {
     setChoices(prev => {
       const next = fn(prev)
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)) } catch { /* storage unavailable */ }
+      try { localStorage.setItem(MOUNT_CHOICES_KEY, JSON.stringify(next)) } catch { /* storage unavailable */ }
       return next
     })
   }
@@ -127,33 +72,7 @@ export default function MountSystem({ categoryId, horizontal = false }) {
   const priceFn = makeMaterialPriceFn(mode, { rawInputs, globalPrices, recipes, yangCosts: craftYangCosts, manualOverrides, noPriceIds })
 
   // Per-tab materials + flat yang fees, driven by the user's choices.
-  const { mats, yang } = useMemo(() => {
-    const acc = {}
-    let fee = 0
-    if (tab === 'level') {
-      for (const stage of LEVEL_STAGES) {
-        if (!choices.stages[stage.key]) continue
-        addMats(acc, stage.mats)
-        fee += stage.yang
-      }
-    } else if (tab === 'bonus') {
-      for (const key of BONUS_ENCHANTS) addMats(acc, [[key, toQty(choices.enchantQty[key])]])
-    } else if (tab === 'all') {
-      for (const rune of RUNES) fee += addRune(acc, rune, choices.runes[rune.key])
-    } else if (RUNES.some(r => r.key === tab)) {
-      const rune = RUNES.find(r => r.key === tab)
-      fee += addRune(acc, rune, choices.runes[rune.key])
-    } else if (tab === 'skills') {
-      for (const skill of MOUNT_SKILLS) {
-        const c = choices.skills[skill.key]
-        if (!c.enabled) continue
-        const books = toQty(c.books) * SKILL_LEVELS
-        addMats(acc, [['skillUnlocker', 1], ['skillBook', books]])
-        if (c.reading) addMats(acc, [['focusedReading', books]])
-      }
-    }
-    return { mats: Object.entries(acc).filter(([, q]) => q > 0), yang: fee }
-  }, [tab, choices])
+  const { mats, yang } = useMemo(() => mountPartCost(tab, choices), [tab, choices])
 
   const materialsTotal = mats.reduce((sum, [id, qty]) => sum + priceFn(id) * qty, 0)
   const total = materialsTotal + yang
