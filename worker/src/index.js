@@ -3,6 +3,7 @@ import { handleRpcRequest } from './rpc.js'
 import { handleAuthRequest, verifyToken, roleFlags } from './auth.js'
 import { handleIconDbSearch, handleIconDbIcon, handleIconDbImport } from './icondb.js'
 import { handleDiscordInteractions, registerOreFinderCommands } from './discordInteractions.js'
+import { runOreFinderReader, handleReadBatch } from './oreFinderReader.js'
 
 const BUCKETS = new Set(['images', 'map-notes'])
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
@@ -130,6 +131,7 @@ export default {
       if (request.method === 'POST' && url.pathname.indexOf('/rpc/') === 0) return await handleRpcRequest(request, env, url, headers)
       if (url.pathname.indexOf('/auth/') === 0) return await handleAuthRequest(request, env, url, headers)
       if (request.method === 'POST' && url.pathname === '/discord/interactions') return await handleDiscordInteractions(request, env, headers)
+      if (request.method === 'POST' && url.pathname === '/discord/read-batch') return await handleReadBatch(request, env, headers)
       if (request.method === 'POST' && url.pathname === '/discord/register-commands') {
         if (!(await isAdmin(request, env))) return json({ error: 'forbidden' }, 403, headers)
         const result = await registerOreFinderCommands(env)
@@ -140,5 +142,10 @@ export default {
     }
 
     return json({ error: 'not found' }, 404, headers)
+  },
+
+  // Cron Trigger (see wrangler.toml [triggers]) - Ore Finder channel reader.
+  async scheduled(controller, env, ctx) {
+    ctx.waitUntil(runOreFinderReader(env))
   },
 }

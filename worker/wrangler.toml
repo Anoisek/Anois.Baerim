@@ -6,6 +6,17 @@ compatibility_date = "2026-08-15"
 binding = "IMAGES_BUCKET"
 bucket_name = "baerim-images"
 
+# Lets the Ore Finder channel reader hand each batch of channels to a separate
+# invocation of this same Worker (own 50-subrequest budget) - src/oreFinderReader.js.
+[[services]]
+binding = "SELF"
+service = "baerim-images-worker"
+
+# Ore Finder channel reader: every minute of xx:58-xx:10 and xx:29-xx:40 (UTC
+# minutes are the same in every whole-hour timezone).
+[triggers]
+crons = ["58,59,0-10,29-40 * * * *"]
+
 [[d1_databases]]
 binding = "DB"
 database_name = "baerim-db"
@@ -40,3 +51,5 @@ ORE_FINDER_DISCORD_APPLICATION_ID = "1549119137903812729"
 # used to verify that /discord/interactions requests really come from Discord.
 # Not a secret (it's the public half of the signing key), but not filled in yet.
 ORE_FINDER_DISCORD_PUBLIC_KEY = "76afdd66e3b76a5039fc318168ba5fea7fe358a149a49a49cee77fe3e8d918a3"
+# Ore Finder channel reader (src/oreFinderReader.js): "1" = on, anything else = off.
+ORE_FINDER_READER_ENABLED = "1"
