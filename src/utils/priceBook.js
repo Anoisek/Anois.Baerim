@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { parseYang } from './formatYang'
 import { db } from '../dbClient'
+import { defaultScrollsForItem, sanitizeScrollChoices, sanitizeSealChoices } from './itemUpgradeRules'
 
 const KEY = 'material_prices'
 const MODE_KEY = 'price_mode'
@@ -299,10 +300,10 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
     stepCost += yangSteps[step]?.[variant] ?? 0
 
     if (step !== 0) {
-      const scrollId = choices ? (choices.selectedScroll?.[step] ?? '') : ctx.defaultScrollByStep[step]
+      const scrollId = choices ? (sanitizeScrollChoices(itemId, choices.selectedScroll, ctx.defaultScrollByStep)[step] ?? '') : defaultScrollsForItem(itemId, ctx.defaultScrollByStep)[step]
       if (scrollId) stepCost += ctx.materialPriceFn(scrollId)
 
-      const sealIds = choices?.selectedSeals?.[step] ?? []
+      const sealIds = sanitizeSealChoices(itemId, choices?.selectedSeals)[step] ?? []
       for (const sealId of sealIds) stepCost += ctx.materialPriceFn(sealId)
     }
 

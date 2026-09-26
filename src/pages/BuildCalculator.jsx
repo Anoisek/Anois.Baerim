@@ -18,6 +18,7 @@ import {
   computeItemPrice, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
   fetchGlobalPrices, makeMaterialPriceFn,
 } from '../utils/priceBook'
+import { scrollsForItem, defaultScrollsForItem, sanitizeScrollChoices, sanitizeSealChoices } from '../utils/itemUpgradeRules'
 
 const LIST_KEY = 'build_calculator_list'
 
@@ -83,7 +84,7 @@ export default function BuildCalculator() {
       setAllItemItems(buildItemStepMap(allItemItemsRes.data))
       setAllItemYang(buildItemYangMap(allItemYangRes.data))
       setAllItemMaxPity(buildItemMaxPityMap(allItemYangRes.data))
-      setDefaultScrollByStep(buildDefaultScrollMap(scrollsRes.data))
+      setDefaultScrollByStep(buildDefaultScrollMap(scrollsForItem(null, scrollsRes.data ?? [])))
       const byId = {}
       for (const m of allMaterialsRes.data ?? []) byId[m.id] = m
       setMaterialsById(byId)
@@ -158,11 +159,11 @@ export default function BuildCalculator() {
         }
 
         if (step !== 0) {
-          const scrollId = choices ? (choices.selectedScroll?.[step] ?? '') : defaultScrollByStep[step]
+          const scrollId = choices ? (sanitizeScrollChoices(item.id, choices.selectedScroll, defaultScrollByStep)[step] ?? '') : defaultScrollsForItem(item.id, defaultScrollByStep)[step]
           const scrollMat = scrollId ? materialsById[scrollId] : null
           if (scrollMat) addRow(scrollMat, 'material', pity)
 
-          for (const sealId of choices?.selectedSeals?.[step] ?? []) {
+          for (const sealId of sanitizeSealChoices(item.id, choices?.selectedSeals)[step] ?? []) {
             const sealMat = materialsById[sealId]
             if (sealMat) addRow(sealMat, 'material', pity)
           }

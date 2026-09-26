@@ -15,6 +15,7 @@ import CraftOverviewPanel from '../components/CraftOverviewPanel'
 import PriceModeToggle from '../components/PriceModeToggle'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import { formatItemName, PVP_CATEGORY_ID, ENIGMA_POTION_ID, NO_DEFAULT_SCROLL_ITEM_IDS } from '../utils/itemName'
+import { scrollsForItem, sealsForItem, defaultScrollsForItem, sanitizeScrollChoices, sanitizeSealChoices } from '../utils/itemUpgradeRules'
 import { slugify, findBySlugOrId } from '../utils/slug'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
@@ -144,20 +145,22 @@ export default function ItemDetailH() {
       setYangByVariant(yc)
       setMaxPityByVariant(mp)
 
-      const sorted = (scrollsRes.data ?? []).sort((a, b) => {
+      const allScrolls = (scrollsRes.data ?? []).sort((a, b) => {
         const ai = SCROLL_ORDER.findIndex(n => a.name.toLowerCase().includes(n.toLowerCase()))
         const bi = SCROLL_ORDER.findIndex(n => b.name.toLowerCase().includes(n.toLowerCase()))
         return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi)
       })
+      const sorted = scrollsForItem(itemId, allScrolls)
+      const globalDefaultScrolls = buildDefaultScrollMap(scrollsForItem(null, allScrolls))
       setScrolls(sorted)
-      setSeals(sealsRes.data ?? [])
+      setSeals(sealsForItem(itemId, sealsRes.data ?? []))
       setRecipes(buildRecipeMap(recipeRes.data))
       setCraftYangCosts(buildYangCostMap(allMatsRes.data))
       setAllItemMaterials(buildItemStepMap(allItemMatsRes.data))
       setAllItemItems(buildItemStepMap(allItemItemsRes.data))
       setAllItemYang(buildItemYangMap(allItemYangRes.data))
       setAllItemMaxPity(buildItemMaxPityMap(allItemYangRes.data))
-      setDefaultScrollByStep(buildDefaultScrollMap(sorted))
+      setDefaultScrollByStep(globalDefaultScrolls)
       setGlobalPrices(globalPricesMap)
       setNoPriceIds(new Set((allMatsRes.data ?? []).filter(m => m.no_price).map(m => m.id)))
 
@@ -168,21 +171,17 @@ export default function ItemDetailH() {
       const savedChoices = saved ? JSON.parse(saved) : null
 
       if (savedChoices) {
-        setSelectedScroll(NO_DEFAULT_SCROLL_ITEM_IDS.has(itemId) ? {} : (savedChoices.selectedScroll ?? {}))
-        setSelectedSeals(savedChoices.selectedSeals ?? {})
+        setSelectedScroll(NO_DEFAULT_SCROLL_ITEM_IDS.has(itemId) ? {} : sanitizeScrollChoices(itemId, savedChoices.selectedScroll, globalDefaultScrolls))
+        setSelectedSeals(sanitizeSealChoices(itemId, savedChoices.selectedSeals))
         setPity(savedChoices.pity ?? {})
         setOwnedLevel(savedChoices.ownedLevel ?? (savedChoices.includeCraft === false ? '0' : '-'))
         setSelectedVariant(savedChoices.variantByStep ?? {})
       } else {
         setSelectedVariant({})
         if (!NO_DEFAULT_SCROLL_ITEM_IDS.has(itemId)) {
-          const war = sorted.find(s => s.name.toLowerCase().includes('scroll of war'))
-          const magic = sorted.find(s => s.name.toLowerCase().includes('magic stone'))
-          if (war || magic) {
-            setSelectedScroll({
-              1: war?.id ?? '', 2: war?.id ?? '', 3: war?.id ?? '', 4: war?.id ?? '',
-              5: magic?.id ?? '', 6: magic?.id ?? '', 7: magic?.id ?? '', 8: magic?.id ?? '', 9: magic?.id ?? '',
-            })
+          const defaults = defaultScrollsForItem(itemId, globalDefaultScrolls)
+          if (Object.values(defaults).some(Boolean)) {
+            setSelectedScroll(Object.fromEntries(Object.entries(defaults).map(([step, id]) => [step, id ?? ''])))
           }
         }
       }
