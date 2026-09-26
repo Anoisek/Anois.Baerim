@@ -1,7 +1,7 @@
 // Ore Finder zone alerts - part of the channel reader feature (separate from
 // the regular ore alerts in oreFinderDiscord.js, which are untouched).
 //
-// In a /orefinder-reportmap channel, "@Ore Finder bio" (a zone name instead of
+// In a /of-reportmap channel, "@Ore Finder bio" (a zone name instead of
 // coordinates) is matched against the admin's circles for that map
 // (ore_finder_zones) and a map image with that circle highlighted is sent to
 // every alert channel listening to the map (same destinations as ore alerts).
@@ -110,7 +110,7 @@ async function buildZoneMapImage(env, map, zone) {
 }
 
 // Same destinations as the regular ore alerts: legacy channel + every server
-// that set up /orefinder-here and didn't opt out of this map.
+// that set up /of-here and didn't opt out of this map.
 async function alertDestinations(env, mapName) {
   const destinations = []
   if (env.ORE_FINDER_DISCORD_CHANNEL_ID) {

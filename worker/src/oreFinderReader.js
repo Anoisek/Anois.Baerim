@@ -9,7 +9,7 @@ import { matchZone, zoneHelp } from './oreFinderZoneAlert.js'
 // next report window (paused_until). Mentions older than the current window
 // (or than the pause) are ignored, so nothing stale is picked up later.
 //
-// Channels are set up with /orefinder-reportmap <map>: each takes reports for
+// Channels are set up with /of-reportmap <map>: each takes reports for
 // one map, made by mentioning the bot with the coordinates ("@Ore Finder 512
 // 734") or with the name of one of the admin's circles ("@Ore Finder bio" ->
 // zone alert with that circle, see oreFinderZoneAlert.js). A Cron Trigger fires every minute; inside the same windows in which
@@ -69,7 +69,7 @@ function windowStart(now) {
   return null
 }
 
-// Channels set up with /orefinder-reportmap that should be read right now
+// Channels set up with /of-reportmap that should be read right now
 // (test mode: just the test channel).
 async function readerChannels(env) {
   const now = new Date()
@@ -212,7 +212,7 @@ async function reply(env, message, content) {
 
 async function handleReport(env, channel, message) {
   if (!channel.map) {
-    return reply(env, message, '⚠️ This channel has no report map yet - set one with `/orefinder-reportmap`.')
+    return reply(env, message, '⚠️ This channel has no report map yet - set one with `/of-reportmap`.')
   }
   const coords = parseCoords(message.content)
   if (!coords) return handleZoneReport(env, channel, message)

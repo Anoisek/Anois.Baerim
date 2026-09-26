@@ -20,13 +20,19 @@ export default function OreFinderBotGuideModal({ maps = [], onClose, t }) {
           <li>
             {t('oreFinder.guideStep2')}
             <code className="block mt-1.5 bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-yellow-300 font-mono text-xs w-fit">
-              /orefinder-here
+              /of-here
             </code>
           </li>
           <li>
             {t('oreFinder.guideStep3')}
             <code className="block mt-1.5 bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-yellow-300 font-mono text-xs w-fit">
-              /orefinder-role @rola
+              /of-role @rola
+            </code>
+          </li>
+          <li>
+            {t('oreFinder.guideStep4')}
+            <code className="block mt-1.5 bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-yellow-300 font-mono text-xs w-fit">
+              /of-removemap Joan (yellow)
             </code>
           </li>
         </ol>
@@ -46,7 +52,7 @@ export default function OreFinderBotGuideModal({ maps = [], onClose, t }) {
             <li>
               {t('oreFinder.guideReportStep1')}
               <code className="block mt-1.5 bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-yellow-300 font-mono text-xs w-fit">
-                /orefinder-reportmap Yongan (red)
+                /of-reportmap Yongan (red)
               </code>
             </li>
             <li>

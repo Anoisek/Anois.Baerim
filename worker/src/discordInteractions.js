@@ -3,14 +3,14 @@
 // here directly, no Gateway/WebSocket connection needed, so it fits the
 // Worker's request/response model with no extra infrastructure.
 //
-// /orefinder-here sets the invoking channel as an alert destination for that
-// guild; /orefinder-role sets which role gets pinged there; /orefinder-addmap
-// and /orefinder-removemap toggle per-map opt-out (every map is included by
+// /of-here sets the invoking channel as an alert destination for that
+// guild; /of-role sets which role gets pinged there; /of-addmap
+// and /of-removemap toggle per-map opt-out (every map is included by
 // default). All four require the "Manage Server" permission (enforced by
 // Discord itself via each command's default_member_permissions at
 // registration time - see registerOreFinderCommands).
 //
-// /orefinder-reportmap (separate feature): makes the invoking channel a report
+// /of-reportmap (separate feature): makes the invoking channel a report
 // channel for one map - the channel reader (oreFinderReader.js) then takes
 // "@Ore Finder <x> <y>" messages there as reports for that map.
 
@@ -19,7 +19,7 @@ const ROLE_OPTION_TYPE = 8
 const STRING_OPTION_TYPE = 3
 const ORE_MAP_NAMES = ['Yongan', 'Joan', 'Pyungmoo']
 // Each map also goes by its color name in-game - accepted as an equivalent
-// input for /orefinder-addmap and /orefinder-removemap alongside the map name.
+// input for /of-addmap and /of-removemap alongside the map name.
 const MAP_COLORS = { Yongan: 'red', Joan: 'yellow', Pyungmoo: 'blue' }
 const REPORT_MAP_OFF = 'off'
 const MAP_CHOICES = ORE_MAP_NAMES.flatMap(name => [
@@ -93,7 +93,7 @@ async function handleDiscordInteractions(request, env, headers) {
   const name = interaction.data?.name
   const nowIso = new Date().toISOString()
 
-  if (name === 'orefinder-here') {
+  if (name === 'of-here') {
     const channelId = interaction.channel_id
     await env.DB.prepare(
       'INSERT INTO ore_finder_discord_configs (guild_id, channel_id, updated_at) VALUES (?, ?, ?) ' +
@@ -102,26 +102,26 @@ async function handleDiscordInteractions(request, env, headers) {
     return ephemeral(`✅ Ore Finder alerts will be sent to <#${channelId}>.`, headers)
   }
 
-  if (name === 'orefinder-role') {
+  if (name === 'of-role') {
     const roleId = interaction.data?.options?.find(o => o.name === 'role')?.value
     if (!roleId) return ephemeral('No role provided.', headers)
     const existing = await env.DB.prepare('SELECT guild_id FROM ore_finder_discord_configs WHERE guild_id = ?').bind(guildId).first()
-    if (!existing) return ephemeral('Set a channel first with /orefinder-here.', headers)
+    if (!existing) return ephemeral('Set a channel first with /of-here.', headers)
     await env.DB.prepare('UPDATE ore_finder_discord_configs SET role_id = ?, updated_at = ? WHERE guild_id = ?')
       .bind(roleId, nowIso, guildId).run()
     return ephemeral(`✅ Ore Finder alerts will mention <@&${roleId}>.`, headers)
   }
 
-  if (name === 'orefinder-addmap' || name === 'orefinder-removemap') {
+  if (name === 'of-addmap' || name === 'of-removemap') {
     const mapName = interaction.data?.options?.find(o => o.name === 'map')?.value
     if (!ORE_MAP_NAMES.includes(mapName)) return ephemeral('Unknown map.', headers)
 
     const row = await env.DB.prepare('SELECT excluded_maps FROM ore_finder_discord_configs WHERE guild_id = ?').bind(guildId).first()
-    if (!row) return ephemeral('Set a channel first with /orefinder-here.', headers)
+    if (!row) return ephemeral('Set a channel first with /of-here.', headers)
 
     const excluded = parseExcludedMaps(row.excluded_maps)
 
-    if (name === 'orefinder-removemap') {
+    if (name === 'of-removemap') {
       if (excluded.includes(mapName)) return ephemeral(`You are already not receiving alerts for **${mapLabel(mapName)}**.`, headers)
       excluded.push(mapName)
       await env.DB.prepare('UPDATE ore_finder_discord_configs SET excluded_maps = ?, updated_at = ? WHERE guild_id = ?')
@@ -136,7 +136,7 @@ async function handleDiscordInteractions(request, env, headers) {
     return ephemeral(`✅ You will now receive alerts for **${mapLabel(mapName)}**.`, headers)
   }
 
-  if (name === 'orefinder-reportmap') {
+  if (name === 'of-reportmap') {
     const channelId = interaction.channel_id
     const mapName = interaction.data?.options?.find(o => o.name === 'map')?.value
     if (mapName === REPORT_MAP_OFF) {
@@ -169,13 +169,13 @@ async function registerOreFinderCommands(env) {
 
   const commands = [
     {
-      name: 'orefinder-here',
+      name: 'of-here',
       description: 'Set this channel as the Ore Finder alert destination',
       default_member_permissions: String(MANAGE_GUILD),
       dm_permission: false,
     },
     {
-      name: 'orefinder-role',
+      name: 'of-role',
       description: 'Set which role gets pinged on Ore Finder alerts',
       default_member_permissions: String(MANAGE_GUILD),
       dm_permission: false,
@@ -184,7 +184,7 @@ async function registerOreFinderCommands(env) {
       ],
     },
     {
-      name: 'orefinder-addmap',
+      name: 'of-addmap',
       description: 'Resume Ore Finder alerts for a map you previously removed',
       default_member_permissions: String(MANAGE_GUILD),
       dm_permission: false,
@@ -193,7 +193,7 @@ async function registerOreFinderCommands(env) {
       ],
     },
     {
-      name: 'orefinder-removemap',
+      name: 'of-removemap',
       description: 'Stop Ore Finder alerts for one map (every map is included by default)',
       default_member_permissions: String(MANAGE_GUILD),
       dm_permission: false,
@@ -202,7 +202,7 @@ async function registerOreFinderCommands(env) {
       ],
     },
     {
-      name: 'orefinder-reportmap',
+      name: 'of-reportmap',
       description: 'Take ore reports for one map in this channel (@Ore Finder <x> <y>)',
       default_member_permissions: String(MANAGE_GUILD),
       dm_permission: false,

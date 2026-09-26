@@ -1,5 +1,5 @@
 // Ore Finder reports made on Discord with exact coordinates ("@Ore Finder
-// 512 734" in a /orefinder-reportmap channel) - part of the channel reader
+// 512 734" in a /of-reportmap channel) - part of the channel reader
 // feature. Adds the ore exactly like a report from the website would (same
 // window, one ore per map per cycle, spawn history, report log, the regular
 // Discord alert to every server). Runs in its own invocation (POST

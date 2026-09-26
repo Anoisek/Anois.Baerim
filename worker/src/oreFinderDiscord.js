@@ -91,7 +91,7 @@ async function postOreAlert(env, channelId, roleId, description, png, createdAt)
 
 // Sends to every configured destination: the single legacy channel/role from
 // wrangler.toml vars (kept working as-is, no migration needed) plus every
-// server that has set itself up via /orefinder-here + /orefinder-role.
+// server that has set itself up via /of-here + /of-role.
 async function sendDiscordOreAlert(env, ore) {
   if (!env.ORE_FINDER_DISCORD_BOT_TOKEN) return
 
