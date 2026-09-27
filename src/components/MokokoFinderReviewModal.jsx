@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import { deleteImages } from '../utils/imageStorage'
 import { createMarkerForSpot, deleteMarkerForSpot } from '../utils/mokokoFinderMarkers'
+import { gameToPct, pctToGame } from '../utils/mokokoFinderCoords'
 
 function formatTime(iso) {
   return new Date(iso).toLocaleString()
@@ -46,8 +47,8 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
     const avgY = selectedReports.reduce((sum, r) => sum + r.y, 0) / selectedReports.length
     setMerging({
       reports: selectedReports,
-      xInput: String(Math.round((avgX / 100) * map.width)),
-      yInput: String(Math.round((avgY / 100) * map.height)),
+      xInput: String(Math.round(pctToGame(map, avgX, avgY).x)),
+      yInput: String(Math.round(pctToGame(map, avgX, avgY).y)),
     })
   }
 
@@ -60,11 +61,10 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
 
     setMergeSending(true)
     const [primary, ...rest] = merging.reports
-    const x = (xNum / map.width) * 100
-    const y = (yNum / map.height) * 100
+    const { x, y } = gameToPct(map, xNum, yNum)
     let markerId = null
     try {
-      markerId = await createMarkerForSpot(map.name, x, y, merging.reports.map(r => r.screenshot_url))
+      markerId = await createMarkerForSpot(map.name, x, y, xNum, yNum, merging.reports.map(r => r.screenshot_url))
     } catch (err) {
       alert(t('mokokoFinder.approveError', { message: err.message }))
       setMergeSending(false)
@@ -138,8 +138,8 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
           <>
             <div className="overflow-y-auto flex-1 -mx-2 px-2 flex flex-col gap-2">
               {reports.map(report => {
-                const px = Math.round((report.x / 100) * map.width)
-                const py = Math.round((report.y / 100) * map.height)
+                const px = Math.round(pctToGame(map, report.x, report.y).x)
+                const py = Math.round(pctToGame(map, report.x, report.y).y)
                 const busy = busyId === report.id
                 return (
                   <div

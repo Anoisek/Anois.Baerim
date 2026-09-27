@@ -19,9 +19,10 @@ function nextMokokoNumber(markers) {
   return n
 }
 
-// x/y are the spot's percentages (0-100). Returns the new marker id, or null
+// x/y are the spot's image percentages (0-100), gameX/gameY the in-game
+// coordinates shown in the title. Returns the new marker id, or null
 // when the map isn't on the interactive map (nothing to mirror to).
-export async function createMarkerForSpot(mapName, x, y, screenshotUrls) {
+export async function createMarkerForSpot(mapName, x, y, gameX, gameY, screenshotUrls) {
   const { data: map } = await db.from('maps').select('id, width, height').eq('name', mapName).maybeSingle()
   if (!map) return null
   const { data: markers } = await db.from('map_markers').select('title').eq('map_id', map.id)
@@ -34,8 +35,8 @@ export async function createMarkerForSpot(mapName, x, y, screenshotUrls) {
       x: px,
       y: py,
       icon: MARKER_ICON,
-      // Same "Mokoko #N (x, y)" convention as the hand-named markers on other maps.
-      title: `Mokoko #${nextMokokoNumber(markers ?? [])} (${px}, ${py})`,
+      // Same "Mokoko #N (x, y)" convention (in-game X/Y) as the hand-named markers on other maps.
+      title: `Mokoko #${nextMokokoNumber(markers ?? [])} (${Math.round(gameX)}, ${Math.round(gameY)})`,
     })
     .select()
     .single()
