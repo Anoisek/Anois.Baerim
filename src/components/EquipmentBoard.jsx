@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
 import PriceModeToggle from './PriceModeToggle'
 import { itemImages } from '../utils/itemImages'
-import { PVP_CATEGORY_ID } from '../utils/itemName'
+import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
 import { formatYang, parseYang } from '../utils/formatYang'
 import { slugify } from '../utils/slug'
 import {
@@ -397,7 +397,12 @@ export default function EquipmentBoard({ horizontal = false }) {
         globalPrices,
       })
 
-      const categories = (catRes.data ?? []).filter(c => c.id !== PVP_CATEGORY_ID)
+      // PvP items share the chapters' subcategory names (Weapons, Armor...), so they
+      // land in the same slots — listed after every chapter's items.
+      const categories = [
+        ...(catRes.data ?? []).filter(c => c.id === PVP_CATEGORY_ID),
+        ...(catRes.data ?? []).filter(c => c.id !== PVP_CATEGORY_ID),
+      ]
       const chapterOrder = Object.fromEntries(categories.map((c, i) => [c.id, i]))
       const chapterName = Object.fromEntries(categories.map(c => [c.id, c.name]))
       const subName = Object.fromEntries((subRes.data ?? []).map(s => [s.id, s.name]))
@@ -407,7 +412,7 @@ export default function EquipmentBoard({ horizontal = false }) {
         if (!(item.category_id in chapterOrder) || itemImages(item).length === 0) continue
         const name = subName[item.subcategory_id]
         if (!name) continue
-        ;(grouped[name] ??= []).push({ ...item, chapterName: chapterName[item.category_id] })
+        ;(grouped[name] ??= []).push({ ...item, name: formatItemName(item), chapterName: chapterName[item.category_id] })
       }
       for (const list of Object.values(grouped)) {
         list.sort((a, b) => chapterOrder[b.category_id] - chapterOrder[a.category_id]) // newest chapter first
@@ -587,7 +592,7 @@ export default function EquipmentBoard({ horizontal = false }) {
       rows.push({
         key: slot.id,
         image: equipped[slot.id].image,
-        label: maxStep > 0 ? `${item.name} +${maxStep}` : item.name,
+        label: maxStep > 0 ? `${formatItemName(item)} +${maxStep}` : formatItemName(item),
         to: `/chapter/${item.category_id}/item/${slugify(item.name)}`,
         price: computeItemPrice(item.id, ctx),
       })
