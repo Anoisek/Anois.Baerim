@@ -16,7 +16,8 @@ function range(map, axis) {
   return game?.[axis] ?? [0, axis === 'x' ? map.width : map.height]
 }
 
-const clampPct = v => Math.min(100, Math.max(0, v))
+// Kept 1% inside the edge - a marker at exactly 0/100% gets clipped by the map frame.
+const clampPct = v => Math.min(99, Math.max(1, v))
 
 // Clamped to the image, so a typed X/Y just past its edge lands on the edge.
 export function gameToPct(map, gx, gy) {
