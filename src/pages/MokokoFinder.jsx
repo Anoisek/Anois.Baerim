@@ -13,16 +13,13 @@ import { pctToGame } from '../utils/mokokoFinderCoords'
 // map's `maps` table (the finder must never touch that data). Names must match
 // MOKOKO_FINDER_MAPS in worker/src/db.js, which validates reports against them.
 // width/height = the image's aspect ratio (and the interactive map's size);
-// game = the in-game X/Y at the image's edges, so the X/Y shown to users match
-// what the game shows (see utils/mokokoFinderCoords). Positions are stored as
-// image percentages, so changing game shifts which spot a typed X/Y lands on,
-// not where existing spots are drawn.
+// the in-game X/Y at the image's edges come from MAP_GAME_COORDS
+// (utils/mokokoFinderCoords), so the X/Y shown to users match the game.
+// Positions are stored as image percentages.
 // A map with image_url null is listed but disabled until its image is added.
 const FINDER_MAPS = [
-  // Calibrated from 3 in-game points matched by hand to the image: (482, 1534),
-  // (1102, 1395) (Mokoko #20/#21) and (982, 1385) - the image covers 1920
-  // in-game units (X 8.4-1928.4, Y 19.6-1939.6), not 0-2048.
-  { id: 'thunder-mountains', name: 'Thunder Mountains', image_url: '/mokoko-finder/thunder-mountains.png', width: 2048, height: 2048, game: { x: [8.4, 1928.4], y: [19.6, 1939.6] } },
+  // In-game X/Y calibration: MAP_GAME_COORDS in utils/mokokoFinderCoords.
+  { id: 'thunder-mountains', name: 'Thunder Mountains', image_url: '/mokoko-finder/thunder-mountains.png', width: 2048, height: 2048 },
   { id: 'enchanted-forest', name: 'Enchanted Forest', image_url: null, width: 1254, height: 1254 },
 ]
 // Same shape as OreFinder's poll: paused on a hidden tab so this doesn't add

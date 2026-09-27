@@ -8,6 +8,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import AddMarkerModal from '../components/AddMarkerModal'
 import EditMarkerModal from '../components/EditMarkerModal'
+import { mapPixelToGame } from '../utils/mokokoFinderCoords'
 import MarkerPanel from '../components/MarkerPanel'
 import HallOfFameModal from '../components/HallOfFameModal'
 import AddMapModal from '../components/AddMapModal'
@@ -655,13 +656,13 @@ export default function Maps() {
         </div>
       </div>
 
-      {hoverMarker && (
+      {hoverMarker && selectedMap && (
         <div
           className="fixed z-40 pointer-events-none rounded-md border border-gray-600 bg-gray-900/90 px-2 py-1 text-[11px] font-mono text-gray-100 shadow-lg whitespace-nowrap"
           style={{ left: hoverMarker.clientX + 14, top: hoverMarker.clientY + 14 }}
         >
           <div className="font-sans font-semibold text-yellow-400">{hoverMarker.marker.title}</div>
-          <div>X: {hoverMarker.marker.x} Y: {hoverMarker.marker.y}</div>
+          <div>X: {Math.round(mapPixelToGame(selectedMap, hoverMarker.marker.x, hoverMarker.marker.y).x)} Y: {Math.round(mapPixelToGame(selectedMap, hoverMarker.marker.x, hoverMarker.marker.y).y)}</div>
         </div>
       )}
 
