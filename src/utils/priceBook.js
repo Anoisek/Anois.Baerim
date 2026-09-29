@@ -309,13 +309,60 @@ export function computeItemPrice(itemId, ctx, visited = new Set()) {
       for (const sealId of sealIds) stepCost += ctx.materialPriceFn(sealId)
     }
 
-    let pityInput = choices ? Math.max(0, parseInt(choices.pity?.[step]) || 0) : 0
-    const maxPity = ctx.itemMaxPity?.[itemId]?.[step]?.[variant]
-    if (maxPity != null) pityInput = Math.min(pityInput, maxPity)
-    stepCost *= pityInput + 1
+    stepCost *= stepPity(itemId, step, variant, choices, ctx) + 1
 
     total += stepCost
   }
   for (const id of selectedUnlockers(itemId, choices?.unlockers)) total += ctx.materialPriceFn(id)
   return total
+}
+
+// Pity for one step: the saved choice, capped at the step's max pity.
+// ctx.pityOverride ('zero' | 'max') replaces the saved value without touching
+// it — the Build Calculator's "Pity 0" / "Max pity" buttons use this.
+function stepPity(itemId, step, variant, choices, ctx) {
+  const maxPity = ctx.itemMaxPity?.[itemId]?.[step]?.[variant]
+  if (ctx.pityOverride === 'zero') return 0
+  if (ctx.pityOverride === 'max' && maxPity != null) return maxPity
+  const pity = choices ? Math.max(0, parseInt(choices.pity?.[step]) || 0) : 0
+  return maxPity != null ? Math.min(pity, maxPity) : pity
+}
+
+// Same walk as computeItemPrice, but collects what has to be gathered instead of
+// a price: acc.mats { materialId: qty }, acc.items { componentItemId: qty } (not
+// expanded — they're priced as whole items), acc.yang (step fees).
+export function collectItemMaterials(itemId, ctx, acc, factor = 1) {
+  const add = (map, id, qty) => { map[id] = (map[id] ?? 0) + qty * factor }
+  const matSteps = ctx.itemMaterials[itemId] ?? {}
+  const itemSteps = ctx.itemItems[itemId] ?? {}
+  const yangSteps = ctx.itemYang[itemId] ?? {}
+  const steps = new Set([
+    ...Object.keys(matSteps).map(Number),
+    ...Object.keys(itemSteps).map(Number),
+    ...Object.keys(yangSteps).map(Number),
+  ])
+
+  const choices = loadItemChoices(itemId)
+  const includeCraft = choices?.includeCraft ?? true
+  const excludedSteps = choices?.excludedSteps ?? {}
+  const ruleItem = { id: itemId, category_id: ctx.itemCategoryById?.[itemId] }
+
+  for (const step of steps) {
+    if (step === 0 && !includeCraft) continue
+    if (excludedSteps[step]) continue
+    const variant = choices?.variantByStep?.[step] ?? 1
+    const mult = stepPity(itemId, step, variant, choices, ctx) + 1
+
+    for (const row of (matSteps[step] ?? []).filter(r => (r.variant ?? 1) === variant)) add(acc.mats, row.material_id, row.quantity * mult)
+    for (const row of (itemSteps[step] ?? []).filter(r => (r.variant ?? 1) === variant)) add(acc.items, row.component_item_id, row.quantity * mult)
+    acc.yang += (yangSteps[step]?.[variant] ?? 0) * mult * factor
+
+    if (step !== 0) {
+      const scrollId = choices ? (sanitizeScrollChoices(ruleItem, choices.selectedScroll, ctx.defaultScrollByStep)[step] ?? '') : defaultScrollsForItem(ruleItem, ctx.defaultScrollByStep)[step]
+      if (scrollId) add(acc.mats, scrollId, mult)
+      for (const sealId of sanitizeSealChoices(ruleItem, choices?.selectedSeals)[step] ?? []) add(acc.mats, sealId, mult)
+    }
+  }
+  for (const id of selectedUnlockers(itemId, choices?.unlockers)) add(acc.mats, id, 1)
+  return acc
 }

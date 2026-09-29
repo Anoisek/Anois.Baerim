@@ -15,12 +15,12 @@ import { formatYang, parseYang } from '../utils/formatYang'
 import { slugify } from '../utils/slug'
 import {
   usePriceBook, buildRecipeMap, buildYangCostMap,
-  computeItemPrice, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
+  computeItemPrice, collectItemMaterials, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
   fetchGlobalPrices, makeMaterialPriceFn,
 } from '../utils/priceBook'
 import { scrollsForItem } from '../utils/itemUpgradeRules'
-import { MAT, RUNES, CHAPTER_1_ID, CHAPTER_2_ID, loadMountChoices, mountPartCost } from '../utils/mountSystem'
-import { isPetSubcategory, loadPetChoices, applyPetPreset, petPartCost, withPetDefaults } from '../utils/petSystem'
+import { MAT, RUNES, RUNE_STEPS, RUNE_MAX_PITY, CHAPTER_1_ID, CHAPTER_2_ID, loadMountChoices, mountPartCost } from '../utils/mountSystem'
+import { isPetSubcategory, loadPetChoices, applyPetPreset, petPartCost, withPetDefaults, TYPE_STEPS, TYPE_MAX_PITY } from '../utils/petSystem'
 
 // Equipment window for the build calculator, drawn over public/equipment_bg.webp.
 // Slot rectangles are in the background image's own pixels (724×1093) and get
@@ -72,6 +72,10 @@ const SASH_IDS = [
 const ALCHEMY_KEY = 'build_planner_alchemy' // { stoneId: grade }
 const MANUAL_PRICES_KEY = 'build_planner_manual_prices' // { rowKey: raw yang text } — sash / alchemy rows are priced by hand
 const ALCHEMY_ICONS_SETTING = 'alchemy_grade_icons' // { '<stoneId>:<grade>': url }, chosen by an admin
+// 'zero' | 'max' | absent — pity used for everything on the board. Kept apart from
+// the pity saved on item / mount / pet pages, which these buttons never change.
+const PITY_KEY = 'build_planner_pity'
+const PITY_MODES = ['zero', 'max']
 
 function loadJson(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback } catch { return fallback }
@@ -333,6 +337,103 @@ function ItemPicker({ slot, items, current, onPick, onClear, onClose, horizontal
   )
 }
 
+// Mount / pet choices with every pity replaced by 0 or its cap (pityMode), or as saved.
+function mountChoicesWithPity(choices, pityMode) {
+  if (!pityMode) return choices
+  const pity = pityMode === 'max' ? Object.fromEntries(Array.from({ length: RUNE_STEPS }, (_, i) => [i + 1, RUNE_MAX_PITY])) : {}
+  return { ...choices, runes: Object.fromEntries(Object.entries(choices.runes).map(([k, c]) => [k, { ...c, pity }])) }
+}
+
+function petChoicesWithPity(choices, pityMode) {
+  if (!pityMode) return choices
+  const pity = pityMode === 'max' ? Object.fromEntries(TYPE_STEPS.map(s => [s.type, TYPE_MAX_PITY])) : {}
+  return { ...choices, type: { ...choices.type, pity } }
+}
+
+function PityButtons({ pityMode, onChange, horizontal }) {
+  const { t } = useTranslation()
+  const idle = horizontal ? 'bg-white/5 border-white/10' : 'bg-gray-800 border-gray-600'
+  return (
+    <div className="flex gap-2" title={t('buildCalculator.pityOverrideHint')}>
+      {PITY_MODES.map(m => (
+        <button
+          key={m}
+          type="button"
+          onClick={() => onChange(pityMode === m ? null : m)}
+          className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${pityMode === m ? 'border-yellow-400 bg-yellow-400/15 text-yellow-300' : `${idle} text-gray-300 hover:text-yellow-400`}`}
+        >
+          {t(m === 'zero' ? 'buildCalculator.pityZero' : 'buildCalculator.pityMax')}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function SummaryTile({ tile, horizontal }) {
+  const box = horizontal ? 'bg-black/30 border-white/10 hover:bg-white/5' : 'bg-gray-800/60 border-gray-700 hover:bg-gray-800'
+  return (
+    <Link to={tile.to} className={`flex flex-col items-center gap-1.5 p-3 border rounded-xl hover:border-yellow-400/50 transition-colors ${box}`}>
+      <div className="w-12 h-12 shrink-0 flex items-center justify-center">
+        {tile.image
+          ? <img src={tile.image} alt={tile.name} className="max-w-full max-h-full object-contain" />
+          : <span className="text-2xl">{tile.kind === 'item' ? '⚔️' : '🧪'}</span>}
+      </div>
+      <span className="text-xs text-gray-300 text-center leading-tight">{tile.name}</span>
+      <span className="text-yellow-400 text-sm font-bold font-mono">×{tile.quantity.toLocaleString('en-US')}</span>
+      {tile.price != null && <span className="text-[11px] text-gray-400 font-mono">{formatYang(tile.price)}</span>}
+    </Link>
+  )
+}
+
+function MaterialsSummary({ summary, pityMode, onPityChange, onClose, horizontal }) {
+  const { t } = useTranslation()
+  const [tab, setTab] = useState('main')
+  const tiles = tab === 'main' ? summary.main : summary.crafting
+  const yang = tab === 'main' ? summary.mainYang : summary.craftingYang
+  const panel = horizontal ? 'bg-black/30 border-white/10' : 'bg-gray-800/60 border-gray-700'
+  return (
+    <Modal title={t('buildCalculator.materialsSummaryTitle')} onClose={onClose} maxWidthClass="max-w-3xl" horizontal={horizontal}>
+      <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+        <div className={`flex rounded-lg border p-0.5 ${panel}`}>
+          {['main', 'crafting'].map(key => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setTab(key)}
+              className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-colors ${tab === key ? 'bg-yellow-400/15 text-yellow-300' : 'text-gray-400 hover:text-gray-200'}`}
+            >
+              {t(key === 'main' ? 'buildCalculator.mainMaterials' : 'buildCalculator.craftingMaterials')}
+            </button>
+          ))}
+        </div>
+        <PityButtons pityMode={pityMode} onChange={onPityChange} horizontal={horizontal} />
+      </div>
+      {tab === 'crafting' && <p className="text-xs text-gray-400 mb-3">{t('buildCalculator.craftingNote')}</p>}
+      {tiles.length === 0 && !yang ? (
+        <p className="text-sm text-gray-500 text-center py-6">
+          {t(tab === 'main' ? 'buildCalculator.summaryEmpty' : 'buildCalculator.nothingToCraft')}
+        </p>
+      ) : (
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+          {tiles.map(tile => <SummaryTile key={tile.key} tile={tile} horizontal={horizontal} />)}
+        </div>
+      )}
+      {yang > 0 && (
+        <div className={`mt-3 rounded-xl border px-4 py-2.5 flex items-center justify-between gap-3 ${panel}`}>
+          <span className="text-sm text-gray-300">{t('buildCalculator.yangFees')}</span>
+          <span className="text-sm font-mono text-yellow-400">{formatYang(yang)}</span>
+        </div>
+      )}
+      {tab === 'main' && (
+        <div className={`mt-3 rounded-xl border px-4 py-3 flex items-center justify-between gap-3 ${panel}`}>
+          <span className="text-gray-300 font-semibold">{t('buildCalculator.grandTotal')}</span>
+          <span className="text-xl font-bold text-yellow-400 font-mono">{formatYang(summary.total)}</span>
+        </div>
+      )}
+    </Modal>
+  )
+}
+
 // Highest upgrade step an item has data for (9 for regular +0→+9 gear, 0 when craft-only).
 function maxStepOf(itemId, pricing) {
   const steps = [pricing.itemMaterials, pricing.itemItems, pricing.itemYang]
@@ -361,6 +462,8 @@ export default function EquipmentBoard({ horizontal = false }) {
   const [alchemyStones, setAlchemyStones] = useState([])
   const [alchemyIcons, setAlchemyIcons] = useState({})
   const [manualPrices, setManualPrices] = useState(() => loadJson(MANUAL_PRICES_KEY, {}))
+  const [pityMode, setPityMode] = useState(() => PITY_MODES.find(m => m === loadJson(PITY_KEY, null)) ?? null)
+  const [showSummary, setShowSummary] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -455,6 +558,11 @@ export default function EquipmentBoard({ horizontal = false }) {
   }
   const manualPriceOf = key => Number(parseYang(manualPrices[key] ?? '')) || 0
 
+  function changePityMode(next) {
+    setPityMode(next)
+    saveJson(PITY_KEY, next)
+  }
+
   function chooseSash(id) {
     setSashId(id)
     saveJson(SASH_KEY, id)
@@ -527,18 +635,30 @@ export default function EquipmentBoard({ horizontal = false }) {
   const pickerSlot = SLOTS.find(s => s.id === openSlot)
 
   // Equipped items in board order, each priced like on its own item page
-  // (saved scroll/seal/pity choices, or the defaults if never configured).
+  // (saved scroll/seal/pity choices, or the defaults if never configured) —
+  // except pity when a Pity 0 / Max pity button is on.
+  // `gather` collects the same costs as materials for the Materials Summary.
   let rows = []
+  const gather = { mats: {}, items: {}, yang: 0, custom: [] }
+  const addGather = (mats, yang) => {
+    for (const [id, qty] of mats) gather.mats[id] = (gather.mats[id] ?? 0) + qty
+    gather.yang += yang
+  }
+  let summary = null
   if (pricing) {
     const priceFn = makeMaterialPriceFn(mode, {
       rawInputs, globalPrices: pricing.globalPrices, recipes: pricing.recipes,
       yangCosts: pricing.yangCosts, manualOverrides, noPriceIds: pricing.noPriceIds,
     })
-    const ctx = { ...pricing, materialPriceFn: priceFn, manualOverrides, rawInputs }
+    const ctx = { ...pricing, materialPriceFn: priceFn, manualOverrides, rawInputs, pityOverride: pityMode }
     for (const slot of SLOTS) {
       if (slot.sash) {
         const mat = materialsById[sashId]
-        if (mat) rows.push({ key: `sash:${sashId}`, manual: true, image: mat.image_url, label: mat.name, to: `/materials/${slugify(mat.name)}`, price: manualPriceOf(`sash:${sashId}`) })
+        if (mat) {
+          const row = { key: `sash:${sashId}`, manual: true, image: mat.image_url, label: mat.name, to: `/materials/${slugify(mat.name)}`, price: manualPriceOf(`sash:${sashId}`) }
+          rows.push(row)
+          gather.custom.push(row)
+        }
         continue
       }
       if (slot.alchemy) {
@@ -546,7 +666,7 @@ export default function EquipmentBoard({ horizontal = false }) {
           const stone = stonesByName[pos.name]
           const grade = stone && alchemyChoice[stone.id]
           if (!grade) continue
-          rows.push({
+          gather.custom.push({
             key: `alchemy:${alchemyKey(stone.id, grade)}`,
             manual: true,
             image: alchemyIconOf(stone, grade),
@@ -554,6 +674,7 @@ export default function EquipmentBoard({ horizontal = false }) {
             to: '/systems/alchemy',
             price: manualPriceOf(`alchemy:${alchemyKey(stone.id, grade)}`),
           })
+          rows.push(gather.custom.at(-1))
         }
         continue
       }
@@ -561,8 +682,9 @@ export default function EquipmentBoard({ horizontal = false }) {
         if (!petBuild) continue
         // Priced like the Pet page's All tab after pressing the PvM / PvP preset,
         // on top of the user's own pet choices (evolutions, type, books...).
-        const { mats, yang } = petPartCost('all', applyPetPreset(loadPetChoices(), petBuild))
+        const { mats, yang } = petPartCost('all', petChoicesWithPity(applyPetPreset(loadPetChoices(), petBuild), pityMode))
         const petPriceFn = withPetDefaults(priceFn)
+        addGather(mats, yang)
         rows.push({
           key: 'pet',
           image: petSub?.image_url,
@@ -573,9 +695,10 @@ export default function EquipmentBoard({ horizontal = false }) {
         continue
       }
       if (slot.mount) {
-        const mountChoices = loadMountChoices()
+        const mountChoices = mountChoicesWithPity(loadMountChoices(), pityMode)
         for (const part of MOUNT_PARTS.filter(p => mountParts.includes(p.key))) {
           const { mats, yang } = mountPartCost(part.part, mountChoices)
+          addGather(mats, yang)
           rows.push({
             key: `mount-${part.key}`,
             image: part.icon ?? materialsById[part.iconMat]?.image_url,
@@ -589,6 +712,8 @@ export default function EquipmentBoard({ horizontal = false }) {
       const item = itemsById[equipped[slot.id]?.itemId]
       if (!item) continue
       const maxStep = maxStepOf(item.id, pricing)
+      if (manualOverrides?.has(item.id)) gather.items[item.id] = (gather.items[item.id] ?? 0) + 1 // price typed by hand
+      else collectItemMaterials(item.id, ctx, gather)
       rows.push({
         key: slot.id,
         image: equipped[slot.id].image,
@@ -597,8 +722,46 @@ export default function EquipmentBoard({ horizontal = false }) {
         price: computeItemPrice(item.id, ctx),
       })
     }
+    summary = buildSummary(gather, ctx, withPetDefaults(priceFn))
   }
   const total = rows.reduce((sum, r) => sum + r.price, 0)
+  if (summary) summary.total = total
+
+  // Main Materials = everything the build consumes directly, priced (sums to the
+  // grand total). Crafting Materials = what those are crafted from, one level
+  // down — shown for gathering only, never priced again.
+  function buildSummary({ mats, items, yang, custom }, ctx, priceOf) {
+    const matTile = (id, qty, price) => {
+      const mat = materialsById[id]
+      return mat && { key: `m-${id}`, kind: 'material', name: mat.name, image: mat.image_url, to: `/materials/${slugify(mat.name)}`, quantity: qty, price }
+    }
+    const itemTile = (id, qty, price) => {
+      const item = itemsById[id]
+      return item && { key: `i-${id}`, kind: 'item', name: formatItemName(item), image: itemImages(item)[0], to: `/chapter/${item.category_id}/item/${slugify(item.name)}`, quantity: qty, price }
+    }
+    const byName = (a, b) => a.name.localeCompare(b.name)
+
+    const main = [
+      ...Object.entries(mats).map(([id, qty]) => matTile(id, qty, priceOf(id) * qty)),
+      ...Object.entries(items).map(([id, qty]) => itemTile(id, qty, computeItemPrice(id, ctx) * qty)),
+    ].filter(Boolean).sort(byName)
+    main.push(...custom.map(c => ({ key: c.key, kind: 'material', name: c.label, image: c.image, to: c.to, quantity: 1, price: c.price })))
+
+    const craft = { mats: {}, items: {}, yang: 0 }
+    for (const [id, qty] of Object.entries(mats)) {
+      const recipe = pricing.recipes[id]
+      if (!recipe?.length) continue
+      for (const row of recipe) craft.mats[row.component_id] = (craft.mats[row.component_id] ?? 0) + row.quantity * qty
+      craft.yang += (pricing.yangCosts[id] ?? 0) * qty
+    }
+    for (const [id, qty] of Object.entries(items)) collectItemMaterials(id, ctx, craft, qty)
+    const crafting = [
+      ...Object.entries(craft.mats).map(([id, qty]) => matTile(id, qty)),
+      ...Object.entries(craft.items).map(([id, qty]) => itemTile(id, qty)),
+    ].filter(Boolean).sort(byName)
+
+    return { main, mainYang: yang, crafting, craftingYang: craft.yang }
+  }
   const panel = horizontal ? 'bg-black/30 border-white/10' : 'bg-gray-900 border-gray-700'
 
   return (
@@ -704,11 +867,25 @@ export default function EquipmentBoard({ horizontal = false }) {
         />,
         document.body,
       )}
+      {showSummary && summary && createPortal(
+        <MaterialsSummary summary={summary} pityMode={pityMode} onPityChange={changePityMode} onClose={() => setShowSummary(false)} horizontal={horizontal} />,
+        document.body,
+      )}
       {rows.length > 0 && (
         <div className="mt-6">
           <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
             <h2 className="text-lg font-bold text-gray-100">{t('buildCalculator.equippedItems')}</h2>
             <PriceModeToggle mode={mode} setMode={setMode} horizontal={horizontal} />
+          </div>
+          <div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+            <button
+              type="button"
+              onClick={() => setShowSummary(true)}
+              className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 hover:text-yellow-200 text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
+            >
+              {t('buildCalculator.materialsSummary')}
+            </button>
+            <PityButtons pityMode={pityMode} onChange={changePityMode} horizontal={horizontal} />
           </div>
           <div className={`rounded-xl border divide-y divide-white/5 ${panel}`}>
             {rows.map(({ key, image, label, to, price, manual }) => (
