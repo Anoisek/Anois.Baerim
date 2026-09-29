@@ -222,6 +222,9 @@
   },
   "buildCalculator": {
     "title": "Calcolatore build",
+    "fromScratch": "🔨 Crafta da zero",
+    "fromScratchHint": "Crafta anche gli oggetti usati come ingrediente (es. il livello precedente), invece di presumere che tu li abbia già.",
+    "ownedItemsNote": "Già posseduti — usati come ingrediente, non conteggiati:",
     "materialsSummary": "📋 Riepilogo materiali",
     "materialsSummaryTitle": "Riepilogo materiali",
     "mainMaterials": "Materiali principali",

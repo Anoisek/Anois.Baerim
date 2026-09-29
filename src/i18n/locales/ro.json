@@ -222,6 +222,9 @@
   },
   "buildCalculator": {
     "title": "Calculator de build-uri",
+    "fromScratch": "🔨 Craft de la zero",
+    "fromScratchHint": "Craftează și itemele folosite ca ingredient (ex. tier-ul anterior), în loc să presupună că le ai deja.",
+    "ownedItemsNote": "Deja deținute — folosite ca ingredient, neincluse:",
     "materialsSummary": "📋 Rezumat materiale",
     "materialsSummaryTitle": "Rezumat materiale",
     "mainMaterials": "Materiale principale",

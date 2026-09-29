@@ -222,6 +222,9 @@
   },
   "buildCalculator": {
     "title": "Calculateur de build",
+    "fromScratch": "🔨 Fabriquer de zéro",
+    "fromScratchHint": "Fabrique aussi les objets utilisés comme ingrédient (ex. le palier précédent) au lieu de supposer que tu les as déjà.",
+    "ownedItemsNote": "Déjà possédés — utilisés comme ingrédient, non comptés :",
     "materialsSummary": "📋 Récapitulatif des matériaux",
     "materialsSummaryTitle": "Récapitulatif des matériaux",
     "mainMaterials": "Matériaux principaux",

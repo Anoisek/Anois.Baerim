@@ -222,6 +222,9 @@
   },
   "buildCalculator": {
     "title": "Build-Rechner",
+    "fromScratch": "🔨 Von Grund auf herstellen",
+    "fromScratchHint": "Stellt auch Gegenstände her, die als Zutat dienen (z. B. die vorherige Stufe), statt anzunehmen, dass du sie schon hast.",
+    "ownedItemsNote": "Bereits vorhanden — als Zutat verwendet, nicht mitgezählt:",
     "materialsSummary": "📋 Materialübersicht",
     "materialsSummaryTitle": "Materialübersicht",
     "mainMaterials": "Hauptmaterialien",

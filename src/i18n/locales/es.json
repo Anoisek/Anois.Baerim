@@ -222,6 +222,9 @@
   },
   "buildCalculator": {
     "title": "Calculadora de builds",
+    "fromScratch": "🔨 Craftear desde cero",
+    "fromScratchHint": "También craftea los objetos usados como ingrediente (p. ej. el nivel anterior), en lugar de suponer que ya los tienes.",
+    "ownedItemsNote": "Ya los tienes — usados como ingrediente, no se cuentan:",
     "materialsSummary": "📋 Resumen de materiales",
     "materialsSummaryTitle": "Resumen de materiales",
     "mainMaterials": "Materiales principales",

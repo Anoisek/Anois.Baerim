@@ -222,6 +222,9 @@
   },
   "buildCalculator": {
     "title": "Kalkulačka buildov",
+    "fromScratch": "🔨 Craft od nuly",
+    "fromScratchHint": "Craftí aj predmety použité ako surovina (napr. predchádzajúci tier), namiesto predpokladu, že ich už máš.",
+    "ownedItemsNote": "Už vlastnené — použité ako surovina, nezapočítané:",
     "materialsSummary": "📋 Prehľad materiálov",
     "materialsSummaryTitle": "Prehľad materiálov",
     "mainMaterials": "Hlavné materiály",

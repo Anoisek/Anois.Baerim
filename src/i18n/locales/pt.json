@@ -222,6 +222,9 @@
   },
   "buildCalculator": {
     "title": "Calculadora de builds",
+    "fromScratch": "🔨 Fabricar do zero",
+    "fromScratchHint": "Fabrica também os itens usados como ingrediente (ex. o nível anterior), em vez de assumir que já os tens.",
+    "ownedItemsNote": "Já possuídos — usados como ingrediente, não contados:",
     "materialsSummary": "📋 Resumo de materiais",
     "materialsSummaryTitle": "Resumo de materiais",
     "mainMaterials": "Materiais principais",

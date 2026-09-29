@@ -222,6 +222,9 @@
   },
   "buildCalculator": {
     "title": "Kalkulator buildów",
+    "fromScratch": "🔨 Craft od zera",
+    "fromScratchHint": "Craftuje też przedmioty używane jako składnik (np. poprzedni tier), zamiast zakładać, że już je masz.",
+    "ownedItemsNote": "Już posiadane — używane jako składnik, nie wliczone:",
     "materialsSummary": "📋 Podsumowanie materiałów",
     "materialsSummaryTitle": "Podsumowanie materiałów",
     "mainMaterials": "Główne materiały",

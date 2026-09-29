@@ -385,7 +385,7 @@ function SummaryTile({ tile, horizontal }) {
   )
 }
 
-function MaterialsSummary({ summary, pityMode, onPityChange, onClose, horizontal }) {
+function MaterialsSummary({ summary, pityMode, onPityChange, fromScratch, onFromScratchChange, onClose, horizontal }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState('main')
   const tiles = tab === 'main' ? summary.main : summary.crafting
@@ -406,7 +406,17 @@ function MaterialsSummary({ summary, pityMode, onPityChange, onClose, horizontal
             </button>
           ))}
         </div>
-        <PityButtons pityMode={pityMode} onChange={onPityChange} horizontal={horizontal} />
+        <div className="flex gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => onFromScratchChange(!fromScratch)}
+            title={t('buildCalculator.fromScratchHint')}
+            className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${fromScratch ? 'border-yellow-400 bg-yellow-400/15 text-yellow-300' : `${horizontal ? 'bg-white/5 border-white/10' : 'bg-gray-800 border-gray-600'} text-gray-300 hover:text-yellow-400`}`}
+          >
+            {t('buildCalculator.fromScratch')}
+          </button>
+          <PityButtons pityMode={pityMode} onChange={onPityChange} horizontal={horizontal} />
+        </div>
       </div>
       {tab === 'crafting' && <p className="text-xs text-gray-400 mb-3">{t('buildCalculator.craftingNote')}</p>}
       {tiles.length === 0 && !yang ? (
@@ -422,6 +432,14 @@ function MaterialsSummary({ summary, pityMode, onPityChange, onClose, horizontal
         <div className={`mt-3 rounded-xl border px-4 py-2.5 flex items-center justify-between gap-3 ${panel}`}>
           <span className="text-sm text-gray-300">{t('buildCalculator.yangFees')}</span>
           <span className="text-sm font-mono text-yellow-400">{formatYang(yang)}</span>
+        </div>
+      )}
+      {tab === 'main' && summary.owned.length > 0 && (
+        <div className="mt-4">
+          <p className="text-xs text-gray-400 mb-2">{t('buildCalculator.ownedItemsNote')}</p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 opacity-60">
+            {summary.owned.map(tile => <SummaryTile key={tile.key} tile={tile} horizontal={horizontal} />)}
+          </div>
         </div>
       )}
       {tab === 'main' && (
@@ -464,6 +482,7 @@ export default function EquipmentBoard({ horizontal = false }) {
   const [manualPrices, setManualPrices] = useState(() => loadJson(MANUAL_PRICES_KEY, {}))
   const [pityMode, setPityMode] = useState(() => PITY_MODES.find(m => m === loadJson(PITY_KEY, null)) ?? null)
   const [showSummary, setShowSummary] = useState(false)
+  const [fromScratch, setFromScratch] = useState(false) // Materials Summary: also craft the items used as ingredients
 
   useEffect(() => {
     Promise.all([
@@ -639,7 +658,7 @@ export default function EquipmentBoard({ horizontal = false }) {
   // except pity when a Pity 0 / Max pity button is on.
   // `gather` collects the same costs as materials for the Materials Summary.
   let rows = []
-  const gather = { mats: {}, items: {}, yang: 0, custom: [] }
+  const gather = { mats: {}, items: {}, pricedItems: {}, yang: 0, custom: [] }
   const addGather = (mats, yang) => {
     for (const [id, qty] of mats) gather.mats[id] = (gather.mats[id] ?? 0) + qty
     gather.yang += yang
@@ -712,7 +731,7 @@ export default function EquipmentBoard({ horizontal = false }) {
       const item = itemsById[equipped[slot.id]?.itemId]
       if (!item) continue
       const maxStep = maxStepOf(item.id, pricing)
-      if (manualOverrides?.has(item.id)) gather.items[item.id] = (gather.items[item.id] ?? 0) + 1 // price typed by hand
+      if (manualOverrides?.has(item.id)) gather.pricedItems[item.id] = (gather.pricedItems[item.id] ?? 0) + 1 // price typed by hand
       else collectItemMaterials(item.id, ctx, gather)
       rows.push({
         key: slot.id,
@@ -722,15 +741,36 @@ export default function EquipmentBoard({ horizontal = false }) {
         price: computeItemPrice(item.id, ctx),
       })
     }
-    summary = buildSummary(gather, ctx, withPetDefaults(priceFn))
+    if (showSummary) summary = buildSummary(gather, ctx, withPetDefaults(priceFn))
   }
   const total = rows.reduce((sum, r) => sum + r.price, 0)
-  if (summary) summary.total = total
 
-  // Main Materials = everything the build consumes directly, priced (sums to the
-  // grand total). Crafting Materials = what those are crafted from, one level
-  // down — shown for gathering only, never priced again.
-  function buildSummary({ mats, items, yang, custom }, ctx, priceOf) {
+  // Main Materials = everything the build consumes directly, priced. Crafting
+  // Materials = what those materials are crafted from (material recipes only, one
+  // level down) — shown for gathering, never priced again. Items used as an ingredient (e.g. the previous belt
+  // for the next one) are assumed owned, unless "from scratch" is on — then they
+  // are crafted too, down to materials, and the total matches the grand total.
+  function buildSummary({ mats: directMats, items: ingredientItems, pricedItems: directPriced, yang: directYang, custom }, ctx, priceOf) {
+    const mats = { ...directMats }
+    const items = { ...directPriced }
+    let yang = directYang
+    let owned = {}
+    if (fromScratch) {
+      let pending = ingredientItems
+      for (let depth = 0; depth < 10 && Object.keys(pending).length > 0; depth++) {
+        const acc = { mats, items: {}, yang: 0 }
+        for (const [id, qty] of Object.entries(pending)) {
+          if (manualOverrides?.has(id)) items[id] = (items[id] ?? 0) + qty
+          else collectItemMaterials(id, ctx, acc, qty)
+        }
+        yang += acc.yang
+        pending = acc.items
+      }
+      for (const [id, qty] of Object.entries(pending)) items[id] = (items[id] ?? 0) + qty
+    } else {
+      owned = ingredientItems
+    }
+
     const matTile = (id, qty, price) => {
       const mat = materialsById[id]
       return mat && { key: `m-${id}`, kind: 'material', name: mat.name, image: mat.image_url, to: `/materials/${slugify(mat.name)}`, quantity: qty, price }
@@ -747,20 +787,18 @@ export default function EquipmentBoard({ horizontal = false }) {
     ].filter(Boolean).sort(byName)
     main.push(...custom.map(c => ({ key: c.key, kind: 'material', name: c.label, image: c.image, to: c.to, quantity: 1, price: c.price })))
 
-    const craft = { mats: {}, items: {}, yang: 0 }
+    const craft = { mats: {}, yang: 0 }
     for (const [id, qty] of Object.entries(mats)) {
       const recipe = pricing.recipes[id]
       if (!recipe?.length) continue
       for (const row of recipe) craft.mats[row.component_id] = (craft.mats[row.component_id] ?? 0) + row.quantity * qty
       craft.yang += (pricing.yangCosts[id] ?? 0) * qty
     }
-    for (const [id, qty] of Object.entries(items)) collectItemMaterials(id, ctx, craft, qty)
-    const crafting = [
-      ...Object.entries(craft.mats).map(([id, qty]) => matTile(id, qty)),
-      ...Object.entries(craft.items).map(([id, qty]) => itemTile(id, qty)),
-    ].filter(Boolean).sort(byName)
+    const crafting = Object.entries(craft.mats).map(([id, qty]) => matTile(id, qty)).filter(Boolean).sort(byName)
 
-    return { main, mainYang: yang, crafting, craftingYang: craft.yang }
+    const ownedTiles = Object.entries(owned).map(([id, qty]) => itemTile(id, qty)).filter(Boolean).sort(byName)
+    const total = main.reduce((sum, tile) => sum + tile.price, 0) + yang
+    return { main, mainYang: yang, crafting, craftingYang: craft.yang, owned: ownedTiles, total }
   }
   const panel = horizontal ? 'bg-black/30 border-white/10' : 'bg-gray-900 border-gray-700'
 
@@ -868,7 +906,7 @@ export default function EquipmentBoard({ horizontal = false }) {
         document.body,
       )}
       {showSummary && summary && createPortal(
-        <MaterialsSummary summary={summary} pityMode={pityMode} onPityChange={changePityMode} onClose={() => setShowSummary(false)} horizontal={horizontal} />,
+        <MaterialsSummary summary={summary} pityMode={pityMode} onPityChange={changePityMode} fromScratch={fromScratch} onFromScratchChange={setFromScratch} onClose={() => setShowSummary(false)} horizontal={horizontal} />,
         document.body,
       )}
       {rows.length > 0 && (

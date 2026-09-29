@@ -222,6 +222,9 @@
   },
   "buildCalculator": {
     "title": "Build Calculator",
+    "fromScratch": "🔨 Craft from scratch",
+    "fromScratchHint": "Also craft the items used as ingredients (e.g. the previous tier), instead of assuming you already have them.",
+    "ownedItemsNote": "Already owned — used as ingredients, not counted:",
     "materialsSummary": "📋 Materials Summary",
     "materialsSummaryTitle": "Materials Summary",
     "mainMaterials": "Main Materials",
