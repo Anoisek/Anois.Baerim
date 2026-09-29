@@ -15,7 +15,7 @@ import CraftOverviewPanel from '../components/CraftOverviewPanel'
 import PriceModeToggle from '../components/PriceModeToggle'
 import MaterialPriceCell from '../components/MaterialPriceCell'
 import { formatItemName, PVP_CATEGORY_ID, ENIGMA_POTION_ID, NO_DEFAULT_SCROLL_ITEM_IDS } from '../utils/itemName'
-import { scrollsForItem, sealsForItem, defaultScrollsForItem, sanitizeScrollChoices, sanitizeSealChoices, unlockersForItem, selectedUnlockers } from '../utils/itemUpgradeRules'
+import { scrollsForItem, sealsForItem, defaultScrollsForItem, sanitizeScrollChoices, persistableScrollChoices, isUnlimitedPityScroll, sanitizeSealChoices, unlockersForItem, selectedUnlockers } from '../utils/itemUpgradeRules'
 import UnlockerPicker from '../components/UnlockerPicker'
 import { slugify, findBySlugOrId } from '../utils/slug'
 import {
@@ -219,7 +219,7 @@ export default function ItemDetailH() {
     if (loading) return
     const includeCraft = ownedLevel === '-'
     const excludedSteps = excludedStepsForOwnedLevel(ownedLevel)
-    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll, selectedSeals, pity, includeCraft, excludedSteps, ownedLevel, variantByStep: selectedVariant, unlockers: chosenUnlockers }))
+    localStorage.setItem(`item_choices_${itemId}`, JSON.stringify({ selectedScroll: persistableScrollChoices(item, selectedScroll, defaultScrollByStep), selectedSeals, pity, includeCraft, excludedSteps, ownedLevel, variantByStep: selectedVariant, unlockers: chosenUnlockers }))
   }, [itemId, loading, selectedScroll, selectedSeals, pity, ownedLevel, selectedVariant, chosenUnlockers])
 
   function clearAllScrolls() {
@@ -285,7 +285,8 @@ export default function ItemDetailH() {
     const v = getStepVariant(step)
     grouped[step] = groupedByVariant[step]?.[v] ?? []
     yangCosts[step] = yangByVariant[step]?.[v] ?? 0
-    if (maxPityByVariant[step]?.[v] != null) maxPityByStep[step] = maxPityByVariant[step][v]
+    // Blessing Scroll lifts the pity cap for its step.
+    if (maxPityByVariant[step]?.[v] != null && !isUnlimitedPityScroll(item, selectedScroll[step])) maxPityByStep[step] = maxPityByVariant[step][v]
   }
 
   function itemIngredientCtx() {

@@ -2,8 +2,9 @@
 // whether seals apply). Every rule function takes the item as { id, category_id }.
 //  - Energy Crystal: only the two "Energy" scrolls, no seals.
 //  - Chapter 2 items: only the Chapter II scrolls/seals (except the Energy ones
-//    and Sash Awakening Scroll, which belong to specific items).
-//  - Everything else: the regular scrolls, never the Energy ones.
+//    and Sash Awakening Scroll, which belong to specific items), plus Blessing
+//    Scroll, which lifts the step's pity cap and is never saved.
+//  - Everything else: the regular scrolls, never the Energy or Chapter II ones.
 
 const ENERGY_CRYSTAL_ITEM_IDS = new Set([
   '6bdb36f4-c937-451b-8fd3-54cccb680771', // Energy Crystal (Chapter 2)
@@ -17,7 +18,10 @@ const ENERGY_SCROLL_IDS = new Set([ENERGY_BLESSING_SCROLL_ID, ENERGY_MAGIC_STONE
 
 const SCROLL_OF_ASCENSION_ID = '578a1bf5-499c-4f7d-8f3b-b310b3b5f0f7'
 const RITUAL_STONE_ID = 'a6d2300f-54f9-4b6f-b054-98e02f16fbc9'
-const CHAPTER_2_SCROLL_IDS = new Set([SCROLL_OF_ASCENSION_ID, RITUAL_STONE_ID])
+// Chapter 2 only: guarantees the upgrade, so the step has no pity cap. Picking it
+// is a what-if for the current visit — never saved (see persistableScrollChoices).
+const BLESSING_SCROLL_ID = 'df23e51b-c87e-498c-91ad-f93f752f8ff3'
+const CHAPTER_2_SCROLL_IDS = new Set([SCROLL_OF_ASCENSION_ID, RITUAL_STONE_ID, BLESSING_SCROLL_ID])
 const CHAPTER_2_SEAL_IDS = new Set([
   '69524b9b-6736-4ee4-8c30-3f6311710e88', // Advanced Seal of Gods
   '56b8b1e8-3f3d-42b5-9b8d-30723aec6b3e', // Advanced Seal of Gods+
@@ -31,6 +35,10 @@ function isChapter2Item(item) {
   return item?.category_id === CHAPTER_2_CATEGORY_ID
 }
 
+export function isUnlimitedPityScroll(item, materialId) {
+  return materialId === BLESSING_SCROLL_ID && isChapter2Item(item)
+}
+
 export function isEnergyScroll(materialId) {
   return ENERGY_SCROLL_IDS.has(materialId)
 }
@@ -38,7 +46,7 @@ export function isEnergyScroll(materialId) {
 function scrollAllowed(item, scrollId) {
   if (isEnergyItem(item)) return isEnergyScroll(scrollId)
   if (isChapter2Item(item)) return CHAPTER_2_SCROLL_IDS.has(scrollId)
-  return !isEnergyScroll(scrollId)
+  return !isEnergyScroll(scrollId) && scrollId !== SCROLL_OF_ASCENSION_ID && scrollId !== RITUAL_STONE_ID
 }
 
 function sealAllowed(item, sealId) {
@@ -72,9 +80,16 @@ export function sanitizeScrollChoices(item, selected, globalDefaults) {
   const defaults = defaultScrollsForItem(item, globalDefaults)
   const next = {}
   for (const [step, id] of Object.entries(selected ?? {})) {
-    next[step] = !id || scrollAllowed(item, id) ? id : (defaults[step] ?? '')
+    next[step] = !id || (scrollAllowed(item, id) && !isUnlimitedPityScroll(item, id)) ? id : (defaults[step] ?? '')
   }
   return next
+}
+
+// What gets written to localStorage: a Blessing Scroll pick is swapped back to
+// the step's default scroll, so after a refresh the step is Ascension / Ritual again.
+export function persistableScrollChoices(item, selected, globalDefaults) {
+  const defaults = defaultScrollsForItem(item, globalDefaults)
+  return Object.fromEntries(Object.entries(selected ?? {}).map(([step, id]) => [step, isUnlimitedPityScroll(item, id) ? (defaults[step] ?? '') : id]))
 }
 
 export function sanitizeSealChoices(item, selected) {
