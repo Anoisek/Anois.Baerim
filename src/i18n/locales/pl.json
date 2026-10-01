@@ -232,14 +232,12 @@
     "pityZero": "Pity 0",
     "pityMax": "Max pity",
     "pityOverrideHint": "Działa tylko w Kalkulatorze buildów — pity zapisane na stronach przedmiotów, mounta i peta się nie zmienia.",
-
     "quickCalc": "Szybki kalkulator",
-
     "openFullCalc": "Otwórz pełny kalkulator →",
-
     "pityOverrideActive": "Włączone jest „{{mode}}” — suma buildu używa tego zamiast pity ustawionego tutaj.",
-
     "turnOff": "Wyłącz",
+    "addToBuild": "Dodaj do buildu",
+    "removeFromBuild": "Usuń z buildu",
     "craftingNote": "Z czego craftuje się główne materiały. Nie wlicza się do sumy — liczyłoby się podwójnie.",
     "yangFees": "Opłaty yang",
     "summaryEmpty": "Nic jeszcze nie założono.",
@@ -253,7 +251,7 @@
     "pickerSearch": "Szukaj...",
     "clearSlot": "Usuń",
     "noItems": "Brak przedmiotów dla tego slotu.",
-    "slots": { "weapon": "Broń", "armor": "Zbroja", "shield": "Tarcza", "bracelet": "Bransoleta", "necklace": "Naszyjnik", "belt": "Pas", "boots": "Buty", "earrings": "Kolczyki", "mount": "Mount", "pet": "Pet", "helmet": "Hełm", "sash": "Szarfa", "alchemy": "Alchemia" },
+    "slots": { "energy": "Kryształ Energii", "weapon": "Broń", "armor": "Zbroja", "shield": "Tarcza", "bracelet": "Bransoleta", "necklace": "Naszyjnik", "belt": "Pas", "boots": "Buty", "earrings": "Kolczyki", "mount": "Mount", "pet": "Pet", "helmet": "Hełm", "sash": "Szarfa", "alchemy": "Alchemia" },
     "searchPlaceholder": "Szukaj przedmiotu do dodania...",
     "addItem": "+ Dodaj",
     "resetPityAll": "🔄 Zresetuj pity do 1 (wszystkie przedmioty)",

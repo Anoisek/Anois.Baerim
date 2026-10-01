@@ -232,14 +232,12 @@
     "pityZero": "Pity 0",
     "pityMax": "Max pity",
     "pityOverrideHint": "Applies only to the Build Calculator — pity saved on item, mount and pet pages stays unchanged.",
-
     "quickCalc": "Quick calculator",
-
     "openFullCalc": "Open full calculator →",
-
     "pityOverrideActive": "\"{{mode}}\" is on — the build total uses it instead of the pity set here.",
-
     "turnOff": "Turn off",
+    "addToBuild": "Add to build",
+    "removeFromBuild": "Remove from build",
     "craftingNote": "What the main materials are crafted from. Not included in the total — it would be counted twice.",
     "yangFees": "Yang fees",
     "summaryEmpty": "Nothing equipped yet.",
@@ -253,7 +251,7 @@
     "pickerSearch": "Search...",
     "clearSlot": "Remove",
     "noItems": "No items for this slot yet.",
-    "slots": { "weapon": "Weapon", "armor": "Armor", "shield": "Shield", "bracelet": "Bracelet", "necklace": "Necklace", "belt": "Belt", "boots": "Shoes", "earrings": "Earrings", "mount": "Mount", "pet": "Pet", "helmet": "Helmet", "sash": "Sash", "alchemy": "Alchemy" },
+    "slots": { "energy": "Energy Crystal", "weapon": "Weapon", "armor": "Armor", "shield": "Shield", "bracelet": "Bracelet", "necklace": "Necklace", "belt": "Belt", "boots": "Shoes", "earrings": "Earrings", "mount": "Mount", "pet": "Pet", "helmet": "Helmet", "sash": "Sash", "alchemy": "Alchemy" },
     "searchPlaceholder": "Search item to add...",
     "addItem": "+ Add",
     "resetPityAll": "🔄 Reset pity to 1 (all items)",

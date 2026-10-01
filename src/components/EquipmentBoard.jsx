@@ -20,7 +20,7 @@ import {
   computeItemPrice, collectItemMaterials, buildItemStepMap, buildItemYangMap, buildItemMaxPityMap, buildDefaultScrollMap,
   fetchGlobalPrices, makeMaterialPriceFn,
 } from '../utils/priceBook'
-import { scrollsForItem } from '../utils/itemUpgradeRules'
+import { scrollsForItem, ENERGY_CRYSTAL_ID } from '../utils/itemUpgradeRules'
 import { MAT, RUNES, RUNE_STEPS, RUNE_MAX_PITY, CHAPTER_1_ID, CHAPTER_2_ID, loadMountChoices, mountPartCost } from '../utils/mountSystem'
 import { isPetSubcategory, loadPetChoices, applyPetPreset, petPartCost, withPetDefaults, TYPE_STEPS, TYPE_MAX_PITY } from '../utils/petSystem'
 
@@ -52,6 +52,9 @@ const SLOTS = [
   { id: 'ring2', x: 22, y: 673, w: 148, h: 147 },
   { id: 'boots', x: 191, y: 673, w: 148, h: 147, subcategory: 'Shoes' },
   { id: 'talisman', x: 361, y: 673, w: 146, h: 147 },
+  // Free space under the alchemy stone — no frame in the background art; always
+  // shows the Energy Crystal icon, dimmed until it's added to the build.
+  { id: 'energy', x: 548, y: 673, w: 147, h: 147, energy: true },
   // Bottom row
   { id: 'pet', x: 32, y: 913, w: 148, h: 150, pet: true },
   { id: 'extra2', x: 202, y: 913, w: 148, h: 150 },
@@ -678,6 +681,17 @@ export default function EquipmentBoard({ horizontal = false }) {
   }
 
   const pickerSlot = SLOTS.find(s => s.id === openSlot)
+  const energyItem = itemsById[ENERGY_CRYSTAL_ID]
+
+  function toggleEnergy() {
+    if (equipped.energy) {
+      const next = { ...equipped }
+      delete next.energy
+      update(next)
+    } else if (energyItem) {
+      update({ ...equipped, energy: { itemId: energyItem.id, name: energyItem.name, image: itemImages(energyItem)[0] } })
+    }
+  }
 
   // Equipped items in board order, each priced like on its own item page
   // (saved scroll/seal/pity choices, or the defaults if never configured) —
@@ -867,11 +881,26 @@ export default function EquipmentBoard({ horizontal = false }) {
             <button
               type="button"
               aria-label={slot.id}
-              title={equip?.name}
-              onClick={() => (slot.subcategory || slot.mount || slot.pet || slot.sash || slot.alchemy) && setOpenSlot(slot.id)}
+              title={slot.energy ? energyItem?.name : equip?.name}
+              onClick={() => {
+                if (slot.energy) { if (energyItem && pricing) setQuickItemId(energyItem.id) }
+                else if (slot.subcategory || slot.mount || slot.pet || slot.sash || slot.alchemy) setOpenSlot(slot.id)
+              }}
               className="absolute inset-0 cursor-pointer focus:outline-none"
             >
-              {equip && <SlotIcon slot={slot} equip={equip} onSize={cells => setCells(slot, cells)} />}
+              {equip && !slot.energy && <SlotIcon slot={slot} equip={equip} onSize={cells => setCells(slot, cells)} />}
+              {slot.energy && energyItem && itemImages(energyItem)[0] && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ padding: '14%' }}>
+                  <img
+                    src={itemImages(energyItem)[0]}
+                    alt={energyItem.name}
+                    draggable={false}
+                    className={`w-full h-full object-contain transition-all ${equip
+                      ? 'drop-shadow-[0_0_8px_rgba(56,189,248,0.7)]'
+                      : 'opacity-40 grayscale group-hover:opacity-80 group-hover:grayscale-0'}`}
+                  />
+                </div>
+              )}
               {slot.mount && mountIcon && mountParts.length > 0 && <SlotOverlayIcon slot={slot} icon={mountIcon} />}
               {slot.pet && petBuild && petSub?.image_url && <SlotOverlayIcon slot={slot} icon={petSub.image_url} />}
               {slot.sash && materialsById[sashId]?.image_url && <SlotOverlayIcon slot={slot} icon={materialsById[sashId].image_url} />}
@@ -954,6 +983,8 @@ export default function EquipmentBoard({ horizontal = false }) {
         <QuickItemCalc
           key={quickItemId}
           item={itemsById[quickItemId]}
+          inBuild={quickItemId === ENERGY_CRYSTAL_ID ? !!equipped.energy : undefined}
+          onToggleInBuild={quickItemId === ENERGY_CRYSTAL_ID ? toggleEnergy : undefined}
           ctx={ctx}
           materialsById={materialsById}
           pityMode={pityMode}

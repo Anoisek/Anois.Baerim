@@ -6,9 +6,8 @@
 //    Scroll, which lifts the step's pity cap and is never saved.
 //  - Everything else: the regular scrolls, never the Energy or Chapter II ones.
 
-const ENERGY_CRYSTAL_ITEM_IDS = new Set([
-  '6bdb36f4-c937-451b-8fd3-54cccb680771', // Energy Crystal (Chapter 2)
-])
+export const ENERGY_CRYSTAL_ID = '6bdb36f4-c937-451b-8fd3-54cccb680771' // Energy Crystal (Chapter 2)
+const ENERGY_CRYSTAL_ITEM_IDS = new Set([ENERGY_CRYSTAL_ID])
 
 const CHAPTER_2_CATEGORY_ID = '2750662d-2ca4-4c7c-9101-2683dd313e0e'
 
