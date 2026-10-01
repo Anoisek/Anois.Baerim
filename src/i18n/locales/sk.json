@@ -236,8 +236,6 @@
     "openFullCalc": "Otvoriť celú kalkulačku →",
     "pityOverrideActive": "Je zapnuté „{{mode}}“ — súčet buildu ho používa namiesto tu nastaveného pity.",
     "turnOff": "Vypnúť",
-    "addToBuild": "Pridať do buildu",
-    "removeFromBuild": "Odobrať z buildu",
     "craftingNote": "Z čoho sa craftia hlavné materiály. Nezapočítava sa do súčtu — počítalo by sa dvakrát.",
     "yangFees": "Poplatky v yangoch",
     "summaryEmpty": "Zatiaľ nič nasadené.",

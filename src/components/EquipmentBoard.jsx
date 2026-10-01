@@ -250,6 +250,28 @@ function PetPicker({ selected, onSelect, onClose, icon, horizontal }) {
   )
 }
 
+function EnergyPicker({ item, selected, onSelect, onClose, horizontal }) {
+  const { t } = useTranslation()
+  const tile = horizontal ? 'bg-black/30 border-white/10' : 'bg-gray-800 border-gray-700'
+  return (
+    <Modal title={t('buildCalculator.slots.energy')} onClose={onClose} horizontal={horizontal}>
+      <button
+        type="button"
+        onClick={() => onSelect(true)}
+        className={`w-full flex flex-col items-center gap-2 rounded-xl border px-4 py-5 transition-colors hover:border-yellow-300 ${selected ? '!border-yellow-400 bg-yellow-400/10' : tile}`}
+      >
+        {itemImages(item)[0] && <img src={itemImages(item)[0]} alt="" className="w-10 h-10 object-contain" />}
+        <span className="text-sm font-bold text-gray-100">{formatItemName(item)}</span>
+      </button>
+      {selected && (
+        <button type="button" onClick={() => onSelect(false)} className="mt-4 w-full px-3 py-2 rounded-lg text-sm font-semibold text-red-300 border border-red-400/40 hover:bg-red-500/10">
+          {t('buildCalculator.clearSlot')}
+        </button>
+      )}
+    </Modal>
+  )
+}
+
 function MountPicker({ selected, onToggle, onClose, chapterNames, materialsById, icon, onIconChange, horizontal }) {
   const { t } = useTranslation()
   const { isAdmin } = useAuth()
@@ -683,14 +705,12 @@ export default function EquipmentBoard({ horizontal = false }) {
   const pickerSlot = SLOTS.find(s => s.id === openSlot)
   const energyItem = itemsById[ENERGY_CRYSTAL_ID]
 
-  function toggleEnergy() {
-    if (equipped.energy) {
-      const next = { ...equipped }
-      delete next.energy
-      update(next)
-    } else if (energyItem) {
-      update({ ...equipped, energy: { itemId: energyItem.id, name: energyItem.name, image: itemImages(energyItem)[0] } })
-    }
+  function chooseEnergy(on) {
+    const next = { ...equipped }
+    if (on && energyItem) next.energy = { itemId: energyItem.id, name: energyItem.name, image: itemImages(energyItem)[0] }
+    else delete next.energy
+    update(next)
+    setOpenSlot(null)
   }
 
   // Equipped items in board order, each priced like on its own item page
@@ -862,7 +882,7 @@ export default function EquipmentBoard({ horizontal = false }) {
         {SLOTS.map(slot => {
           const equip = equipped[slot.id]
           const isOpen = openSlot === slot.id
-          const quickItem = slot.subcategory && itemsById[equip?.itemId]
+          const quickItem = (slot.subcategory || slot.energy) && itemsById[equip?.itemId]
           const quickOpen = quickItem ? () => setQuickItemId(quickItem.id)
             : slot.mount && mountParts.length > 0 ? () => setQuickSystem('mount')
               : slot.pet && petBuild ? () => setQuickSystem('pet')
@@ -882,10 +902,7 @@ export default function EquipmentBoard({ horizontal = false }) {
               type="button"
               aria-label={slot.id}
               title={slot.energy ? energyItem?.name : equip?.name}
-              onClick={() => {
-                if (slot.energy) { if (energyItem && pricing) setQuickItemId(energyItem.id) }
-                else if (slot.subcategory || slot.mount || slot.pet || slot.sash || slot.alchemy) setOpenSlot(slot.id)
-              }}
+              onClick={() => (slot.subcategory || slot.mount || slot.pet || slot.sash || slot.alchemy || (slot.energy && energyItem)) && setOpenSlot(slot.id)}
               className="absolute inset-0 cursor-pointer focus:outline-none"
             >
               {equip && !slot.energy && <SlotIcon slot={slot} equip={equip} onSize={cells => setCells(slot, cells)} />}
@@ -950,6 +967,10 @@ export default function EquipmentBoard({ horizontal = false }) {
         />,
         document.body,
       )}
+      {pickerSlot?.energy && energyItem && createPortal(
+        <EnergyPicker item={energyItem} selected={!!equipped.energy} onSelect={chooseEnergy} onClose={() => setOpenSlot(null)} horizontal={horizontal} />,
+        document.body,
+      )}
       {pickerSlot?.pet && createPortal(
         <PetPicker selected={petBuild} onSelect={choosePet} onClose={() => setOpenSlot(null)} icon={petSub?.image_url} horizontal={horizontal} />,
         document.body,
@@ -983,8 +1004,6 @@ export default function EquipmentBoard({ horizontal = false }) {
         <QuickItemCalc
           key={quickItemId}
           item={itemsById[quickItemId]}
-          inBuild={quickItemId === ENERGY_CRYSTAL_ID ? !!equipped.energy : undefined}
-          onToggleInBuild={quickItemId === ENERGY_CRYSTAL_ID ? toggleEnergy : undefined}
           ctx={ctx}
           materialsById={materialsById}
           pityMode={pityMode}

@@ -59,9 +59,7 @@ function loadChoices(item, defaultScrollByStep) {
 // Compact version of the item calculator (+0 → +9) shown over the Build Calculator:
 // owned level, scroll / seals / pity per step. Saves to the same localStorage entry
 // as the item page, so both stay in sync.
-// inBuild / onToggleInBuild: for items with their own board spot (Energy Crystal) —
-// shows an "Add to build" / "Remove from build" switch.
-export default function QuickItemCalc({ item, ctx, materialsById, pityMode, onPityModeChange, onChange, onClose, horizontal, inBuild, onToggleInBuild }) {
+export default function QuickItemCalc({ item, ctx, materialsById, pityMode, onPityModeChange, onChange, onClose, horizontal }) {
   const { t } = useTranslation()
   const [choices, setChoices] = useState(() => loadChoices(item, ctx.defaultScrollByStep))
 
@@ -160,17 +158,6 @@ export default function QuickItemCalc({ item, ctx, materialsById, pityMode, onPi
             className="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/40 text-yellow-300 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
           >
             {t('itemDetail.variant', { current: currentVariant, count: variantCount })}
-          </button>
-        )}
-        {onToggleInBuild && (
-          <button
-            type="button"
-            onClick={onToggleInBuild}
-            className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${inBuild
-              ? 'text-red-300 border-red-400/40 hover:bg-red-500/10'
-              : 'bg-yellow-400 border-yellow-400 text-gray-950 hover:bg-yellow-300'}`}
-          >
-            {t(inBuild ? 'buildCalculator.removeFromBuild' : 'buildCalculator.addToBuild')}
           </button>
         )}
         <Link

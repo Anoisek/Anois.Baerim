@@ -236,8 +236,6 @@
     "openFullCalc": "Deschide calculatorul complet →",
     "pityOverrideActive": "„{{mode}}” este activ — totalul build-ului îl folosește în locul pity-ului setat aici.",
     "turnOff": "Dezactivează",
-    "addToBuild": "Adaugă în build",
-    "removeFromBuild": "Elimină din build",
     "craftingNote": "Din ce se craftează materialele principale. Nu intră în total — s-ar număra de două ori.",
     "yangFees": "Taxe yang",
     "summaryEmpty": "Nimic echipat încă.",

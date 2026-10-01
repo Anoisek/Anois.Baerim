@@ -236,8 +236,6 @@
     "openFullCalc": "Vollständigen Rechner öffnen →",
     "pityOverrideActive": "„{{mode}}“ ist aktiv — die Build-Summe nutzt das statt des hier eingestellten Pity.",
     "turnOff": "Ausschalten",
-    "addToBuild": "Zum Build hinzufügen",
-    "removeFromBuild": "Aus Build entfernen",
     "craftingNote": "Woraus die Hauptmaterialien hergestellt werden. Nicht in der Summe enthalten — sonst würde es doppelt gezählt.",
     "yangFees": "Yang-Gebühren",
     "summaryEmpty": "Noch nichts ausgerüstet.",

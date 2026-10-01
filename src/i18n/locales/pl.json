@@ -236,8 +236,6 @@
     "openFullCalc": "Otwórz pełny kalkulator →",
     "pityOverrideActive": "Włączone jest „{{mode}}” — suma buildu używa tego zamiast pity ustawionego tutaj.",
     "turnOff": "Wyłącz",
-    "addToBuild": "Dodaj do buildu",
-    "removeFromBuild": "Usuń z buildu",
     "craftingNote": "Z czego craftuje się główne materiały. Nie wlicza się do sumy — liczyłoby się podwójnie.",
     "yangFees": "Opłaty yang",
     "summaryEmpty": "Nic jeszcze nie założono.",

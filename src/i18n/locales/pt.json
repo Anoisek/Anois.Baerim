@@ -236,8 +236,6 @@
     "openFullCalc": "Abrir calculadora completa →",
     "pityOverrideActive": "\"{{mode}}\" está ativo — o total da build usa isso em vez do pity definido aqui.",
     "turnOff": "Desativar",
-    "addToBuild": "Adicionar à build",
-    "removeFromBuild": "Remover da build",
     "craftingNote": "Do que são fabricados os materiais principais. Não incluído no total — seria contado duas vezes.",
     "yangFees": "Taxas de yang",
     "summaryEmpty": "Ainda nada equipado.",
