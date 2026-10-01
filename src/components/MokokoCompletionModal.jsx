@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useModalSlot } from '../context/ModalQueueContext'
+import useEscapeKey from '../utils/useEscapeKey'
 
 const COMPLETION_KEY = 'mokoko_all_collected_seen'
 
@@ -13,6 +14,7 @@ export default function MokokoCompletionModal({ show }) {
     localStorage.setItem(COMPLETION_KEY, 'true')
     setDismissed(true)
   }
+  useEscapeKey(handleClose, isOpen)
 
   if (!isOpen) return null
 

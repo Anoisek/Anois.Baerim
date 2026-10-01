@@ -4,6 +4,7 @@ import { db } from '../dbClient'
 import { deleteImages } from '../utils/imageStorage'
 import { createMarkerForSpot, deleteMarkerForSpot } from '../utils/mokokoFinderMarkers'
 import { gameToPct, pctToGame } from '../utils/mokokoFinderCoords'
+import useEscapeKey from '../utils/useEscapeKey'
 
 function formatTime(iso) {
   return new Date(iso).toLocaleString()
@@ -27,6 +28,9 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
   const [selected, setSelected] = useState({})
   const [merging, setMerging] = useState(null) // { reports, xInput, yInput } | null
   const [mergeSending, setMergeSending] = useState(false)
+  useEscapeKey(onClose)
+  useEscapeKey(() => setZoomUrl(null), !!zoomUrl)
+  useEscapeKey(() => !mergeSending && setMerging(null), !!merging)
 
   useEffect(() => {
     db.from('mokoko_finder_reports').select('*').eq('map', map.name).order('created_at').then(({ data }) => {

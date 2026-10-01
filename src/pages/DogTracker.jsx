@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar'
 import Spinner from '../components/Spinner'
 import { useAuth } from '../context/AuthContext'
 import { db } from '../dbClient'
+import useEscapeKey from '../utils/useEscapeKey'
 
 const WORKER_URL = import.meta.env.VITE_IMAGES_WORKER_URL
 // Public half of the dogtracker Web Push key pair - safe to ship to the
@@ -252,6 +253,8 @@ export default function DogTracker() {
   const [selectedChannel, setSelectedChannel] = useState(null)
   const [sending, setSending] = useState(false)
   const [confirmDog, setConfirmDog] = useState(null)
+  useEscapeKey(() => handleCancelDog(), !!pendingClick)
+  useEscapeKey(() => setConfirmDog(null), !!confirmDog)
   const [geo, setGeo] = useState('checking')
   const [paths, setPaths] = useState([])
   const [walls, setWalls] = useState([])

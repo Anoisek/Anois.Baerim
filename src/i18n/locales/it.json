@@ -232,6 +232,14 @@
     "pityZero": "Pity 0",
     "pityMax": "Pity max",
     "pityOverrideHint": "Vale solo nel Calcolatore build — il pity salvato nelle pagine di oggetti, cavalcatura e pet non cambia.",
+
+    "quickCalc": "Calcolatore rapido",
+
+    "openFullCalc": "Apri calcolatore completo →",
+
+    "pityOverrideActive": "\"{{mode}}\" è attivo — il totale della build usa quello invece del pity impostato qui.",
+
+    "turnOff": "Disattiva",
     "craftingNote": "Da cosa si craftano i materiali principali. Non incluso nel totale — verrebbe contato due volte.",
     "yangFees": "Costi in yang",
     "summaryEmpty": "Ancora nulla equipaggiato.",

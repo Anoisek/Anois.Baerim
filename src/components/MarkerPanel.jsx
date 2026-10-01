@@ -9,6 +9,7 @@ import ImageUpload from './ImageUpload'
 import Spinner from './Spinner'
 import { censorText, containsBannedWord, getCooldownUntil, startCooldown } from '../utils/profanityFilter'
 import { deleteImages } from '../utils/imageStorage'
+import useEscapeKey from '../utils/useEscapeKey'
 
 function formatRemaining(ms) {
   const totalMinutes = Math.max(1, Math.ceil(ms / 60000))
@@ -45,15 +46,8 @@ export default function MarkerPanel({ marker, onClose }) {
     return () => clearTimeout(timer)
   }, [])
 
-  useEffect(() => {
-    function handleKeyDown(e) {
-      if (e.key !== 'Escape') return
-      if (lightboxUrl) setLightboxUrl(null)
-      else onClose()
-    }
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [lightboxUrl, onClose])
+  useEscapeKey(onClose)
+  useEscapeKey(() => setLightboxUrl(null), !!lightboxUrl)
 
   useEffect(() => {
     if (cooldownUntil <= Date.now()) return

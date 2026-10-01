@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import TurnstileWidget from './TurnstileWidget'
 import { isOreAddWindowOpen, nextOreAddWindowOpensAt } from '../utils/oreFinderWindow'
+import useEscapeKey from '../utils/useEscapeKey'
 
 // In-game screenshots show a "Coordinates: X, Y" line under the minimap -
 // same pixel space as our stored ore positions (see the mococko-project
@@ -28,6 +29,7 @@ export default function OreManualAddModal({ map, isAdmin, onClose, onSubmit, sen
   const [ocrStatus, setOcrStatus] = useState('idle') // idle | reading | done | error
   const [windowOpen, setWindowOpen] = useState(() => isOreAddWindowOpen())
   const fileInputRef = useRef(null)
+  useEscapeKey(onClose)
 
   useEffect(() => {
     const id = setInterval(() => setWindowOpen(isOreAddWindowOpen()), 1000)

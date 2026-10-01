@@ -1,4 +1,7 @@
+import useEscapeKey from '../utils/useEscapeKey'
+
 export default function Modal({ title, onClose, children, maxWidthClass = 'max-w-lg', horizontal }) {
+  useEscapeKey(onClose)
   const box = horizontal ? 'bg-[#1c1712] border-white/10' : 'bg-gray-900 border-gray-700'
   const headerBorder = horizontal ? 'border-white/10' : 'border-gray-700'
   return (

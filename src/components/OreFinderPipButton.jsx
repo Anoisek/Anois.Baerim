@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import useEscapeKey from '../utils/useEscapeKey'
 
 export function isPipSupported() {
   return typeof window !== 'undefined' && 'documentPictureInPicture' in window
@@ -46,6 +47,8 @@ export default function OreFinderPipButton({ map, ore, windowOpen, isAdmin, onSe
   const [sending, setSending] = useState(false)
   const [hoverPos, setHoverPos] = useState(null)
   const supported = isPipSupported()
+  useEscapeKey(() => setPendingClick(null), !!pipWindow && !!pendingClick, pipWindow?.document)
+  useEscapeKey(() => setConfirmRemove(false), !!pipWindow && confirmRemove, pipWindow?.document)
 
   useEffect(() => {
     if (!pipWindow) return

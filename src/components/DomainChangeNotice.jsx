@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useModalSlot } from '../context/ModalQueueContext'
+import useEscapeKey from '../utils/useEscapeKey'
 
 const NOTICE_KEY = 'domain_change_notice_v2_seen'
 
@@ -13,6 +14,7 @@ export default function DomainChangeNotice() {
     localStorage.setItem(NOTICE_KEY, 'true')
     setDismissed(true)
   }
+  useEscapeKey(handleClose, isOpen)
 
   if (!isOpen) return null
 

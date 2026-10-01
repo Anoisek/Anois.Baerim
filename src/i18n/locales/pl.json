@@ -232,6 +232,14 @@
     "pityZero": "Pity 0",
     "pityMax": "Max pity",
     "pityOverrideHint": "Działa tylko w Kalkulatorze buildów — pity zapisane na stronach przedmiotów, mounta i peta się nie zmienia.",
+
+    "quickCalc": "Szybki kalkulator",
+
+    "openFullCalc": "Otwórz pełny kalkulator →",
+
+    "pityOverrideActive": "Włączone jest „{{mode}}” — suma buildu używa tego zamiast pity ustawionego tutaj.",
+
+    "turnOff": "Wyłącz",
     "craftingNote": "Z czego craftuje się główne materiały. Nie wlicza się do sumy — liczyłoby się podwójnie.",
     "yangFees": "Opłaty yang",
     "summaryEmpty": "Nic jeszcze nie założono.",

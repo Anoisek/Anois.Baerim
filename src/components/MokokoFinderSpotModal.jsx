@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import { deleteImages } from '../utils/imageStorage'
 import { deleteMarkerForSpot } from '../utils/mokokoFinderMarkers'
+import useEscapeKey from '../utils/useEscapeKey'
 
 // Public view of an approved mokoko spot (delete is admin-only): its own screenshot plus any
 // extra photos merged in from other reports of the same sighting (see
@@ -15,6 +16,8 @@ export default function MokokoFinderSpotModal({ spot, isAdmin, onClose, onDelete
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
   const [zoomUrl, setZoomUrl] = useState(null)
+  useEscapeKey(onClose)
+  useEscapeKey(() => setZoomUrl(null), !!zoomUrl)
 
   useEffect(() => {
     db.from('mokoko_finder_spot_notes').select('*').eq('spot_id', spot.id).order('created_at').then(({ data }) => {

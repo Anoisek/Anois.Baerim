@@ -232,6 +232,14 @@
     "pityZero": "Pity 0",
     "pityMax": "Maks. pity",
     "pityOverrideHint": "Yalnızca Build Hesaplayıcı'da geçerlidir — eşya, binek ve pet sayfalarında kayıtlı pity değişmez.",
+
+    "quickCalc": "Hızlı hesaplayıcı",
+
+    "openFullCalc": "Tam hesaplayıcıyı aç →",
+
+    "pityOverrideActive": "\"{{mode}}\" açık — build toplamı burada ayarlanan pity yerine bunu kullanır.",
+
+    "turnOff": "Kapat",
     "craftingNote": "Ana malzemelerin neyden üretildiği. Toplama dahil değildir — iki kez sayılırdı.",
     "yangFees": "Yang ücretleri",
     "summaryEmpty": "Henüz bir şey kuşanılmadı.",

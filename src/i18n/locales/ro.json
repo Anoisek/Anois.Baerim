@@ -232,6 +232,14 @@
     "pityZero": "Pity 0",
     "pityMax": "Pity max",
     "pityOverrideHint": "Se aplică doar în Calculatorul de build — pity-ul salvat pe paginile de iteme, mount și pet nu se schimbă.",
+
+    "quickCalc": "Calculator rapid",
+
+    "openFullCalc": "Deschide calculatorul complet →",
+
+    "pityOverrideActive": "„{{mode}}” este activ — totalul build-ului îl folosește în locul pity-ului setat aici.",
+
+    "turnOff": "Dezactivează",
     "craftingNote": "Din ce se craftează materialele principale. Nu intră în total — s-ar număra de două ori.",
     "yangFees": "Taxe yang",
     "summaryEmpty": "Nimic echipat încă.",

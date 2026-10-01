@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import ImageUpload from './ImageUpload'
 import TurnstileWidget from './TurnstileWidget'
 import { gameToPct } from '../utils/mokokoFinderCoords'
+import useEscapeKey from '../utils/useEscapeKey'
 
 // Report form for /mokoko-finder: exact pixel coordinates (pre-filled from
 // the map click, same convention as OreManualAddModal) plus a screenshot as
@@ -14,6 +15,7 @@ export default function MokokoFinderReportModal({ map, initialX, initialY, onClo
   const [yInput, setYInput] = useState(String(Math.round(initialY)))
   const [screenshotUrl, setScreenshotUrl] = useState(null)
   const [turnstileToken, setTurnstileToken] = useState('')
+  useEscapeKey(onClose)
 
   const xNum = Number(xInput)
   const yNum = Number(yInput)

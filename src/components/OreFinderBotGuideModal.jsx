@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import OreFinderReportPlacesModal from './OreFinderReportPlacesModal'
+import useEscapeKey from '../utils/useEscapeKey'
 
 export default function OreFinderBotGuideModal({ maps = [], onClose, t }) {
   const [showPlaces, setShowPlaces] = useState(false)
+  useEscapeKey(onClose)
   return (
     <>
     <div

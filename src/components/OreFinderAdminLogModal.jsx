@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { db } from '../dbClient'
+import useEscapeKey from '../utils/useEscapeKey'
 
 function formatTime(iso) {
   return new Date(iso).toLocaleString()
@@ -13,6 +14,7 @@ export default function OreFinderAdminLogModal({ maps, onClose }) {
   const [logs, setLogs] = useState([])
   const [blockedIps, setBlockedIps] = useState({})
   const [loading, setLoading] = useState(true)
+  useEscapeKey(onClose)
 
   useEffect(() => {
     Promise.all([

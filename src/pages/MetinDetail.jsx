@@ -20,6 +20,7 @@ import {
 } from '../utils/priceBook'
 import { ocrImage, parseFarmSessionText, mergeFarmSessions } from '../utils/farmSessionOcr'
 import { slugify, findBySlugOrId } from '../utils/slug'
+import useEscapeKey from '../utils/useEscapeKey'
 
 function loadLoot(metinId) {
   try {
@@ -70,6 +71,7 @@ export default function MetinDetail() {
   const [ocrProgress, setOcrProgress] = useState(null) // { fileIndex, fileCount, pct }
   const [parsedSessions, setParsedSessions] = useState([]) // accumulates across every screenshot processed so far
   const [buffModalOpen, setBuffModalOpen] = useState(true)
+  useEscapeKey(() => setBuffModalOpen(false), buffModalOpen)
   const [sessionBuffs, setSessionBuffs] = useState(NO_BUFFS)
   const [globalFilterBuffs, setGlobalFilterBuffs] = useState(NO_BUFFS)
   const { rawInputs, setPrice, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()

@@ -1,7 +1,9 @@
 import { useTranslation } from 'react-i18next'
+import useEscapeKey from '../utils/useEscapeKey'
 
 export default function ConfirmBulkMarkModal({ mode, onConfirm, onCancel }) {
   const { t } = useTranslation()
+  useEscapeKey(onCancel)
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">

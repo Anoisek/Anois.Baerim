@@ -14,6 +14,7 @@ import OreFinderAdminLogModal from '../components/OreFinderAdminLogModal'
 import TurnstileWidget from '../components/TurnstileWidget'
 import { OreFinderZonesLayer, OreFinderZonePanel, DEFAULT_ZONE_RADIUS } from '../components/OreFinderZones'
 import { db } from '../dbClient'
+import useEscapeKey from '../utils/useEscapeKey'
 import { isOreAddWindowOpen } from '../utils/oreFinderWindow'
 
 const ORE_MAP_NAMES = ['Yongan', 'Joan', 'Pyungmoo']
@@ -45,6 +46,8 @@ export default function OreFinder() {
   const [turnstileToken, setTurnstileToken] = useState('')
   const [sending, setSending] = useState(false)
   const [confirmOre, setConfirmOre] = useState(null)
+  useEscapeKey(() => handleCancel(), !!pendingClick)
+  useEscapeKey(() => setConfirmOre(null), !!confirmOre)
   const [manualModalOpen, setManualModalOpen] = useState(false)
   const [guideModalOpen, setGuideModalOpen] = useState(false)
   const [adminLogModalOpen, setAdminLogModalOpen] = useState(false)

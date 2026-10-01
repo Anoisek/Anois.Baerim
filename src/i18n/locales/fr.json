@@ -232,6 +232,14 @@
     "pityZero": "Pity 0",
     "pityMax": "Pity max",
     "pityOverrideHint": "S'applique uniquement au Calculateur de build — le pity enregistré sur les pages d'objets, de monture et de familier reste inchangé.",
+
+    "quickCalc": "Calculateur rapide",
+
+    "openFullCalc": "Ouvrir le calculateur complet →",
+
+    "pityOverrideActive": "« {{mode}} » est activé — le total du build l'utilise à la place du pity défini ici.",
+
+    "turnOff": "Désactiver",
     "craftingNote": "Ce dont sont fabriqués les matériaux principaux. Non inclus dans le total — il serait compté deux fois.",
     "yangFees": "Frais en yang",
     "summaryEmpty": "Rien d'équipé pour l'instant.",

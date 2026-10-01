@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { db } from '../dbClient'
+import useEscapeKey from '../utils/useEscapeKey'
 
 const MAP_COLORS = { Yongan: 'red', Joan: 'yellow', Pyungmoo: 'blue' }
 
@@ -8,6 +9,7 @@ const MAP_COLORS = { Yongan: 'red', Joan: 'yellow', Pyungmoo: 'blue' }
 export default function OreFinderReportPlacesModal({ maps, onClose, t }) {
   const [zones, setZones] = useState([])
   const [selected, setSelected] = useState(maps[0]?.name ?? null)
+  useEscapeKey(onClose)
   const map = maps.find(m => m.name === selected)
   const zonesOnMap = zones.filter(z => z.map === selected)
 

@@ -9,6 +9,7 @@ import AlchemyPicker, { ALCHEMY_POSITIONS, alchemyKey, gradeLabel } from './Alch
 import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
 import PriceModeToggle from './PriceModeToggle'
+import QuickItemCalc from './QuickItemCalc'
 import { itemImages } from '../utils/itemImages'
 import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
 import { formatYang, parseYang } from '../utils/formatYang'
@@ -337,6 +338,27 @@ function ItemPicker({ slot, items, current, onPick, onClear, onClose, horizontal
   )
 }
 
+// Opens the quick +0→+9 calculator (QuickItemCalc) for an equipped item.
+function QuickCalcButton({ onClick, className = '' }) {
+  const { t } = useTranslation()
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={t('buildCalculator.quickCalc')}
+      aria-label={t('buildCalculator.quickCalc')}
+      className={`w-6 h-6 flex items-center justify-center rounded-md border border-yellow-400/60 bg-black/75 text-yellow-300 hover:bg-yellow-400 hover:text-gray-950 transition-all shadow-md shadow-black/60 ${className}`}
+    >
+      <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+        <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" />
+        <circle cx="16" cy="6" r="2" />
+        <circle cx="10" cy="12" r="2" />
+        <circle cx="18" cy="18" r="2" />
+      </svg>
+    </button>
+  )
+}
+
 // Mount / pet choices with every pity replaced by 0 or its cap (pityMode), or as saved.
 function mountChoicesWithPity(choices, pityMode) {
   if (!pityMode) return choices
@@ -483,6 +505,8 @@ export default function EquipmentBoard({ horizontal = false }) {
   const [pityMode, setPityMode] = useState(() => PITY_MODES.find(m => m === loadJson(PITY_KEY, null)) ?? null)
   const [showSummary, setShowSummary] = useState(false)
   const [fromScratch, setFromScratch] = useState(false) // Materials Summary: also craft the items used as ingredients
+  const [quickItemId, setQuickItemId] = useState(null) // item open in the quick +0→+9 calculator
+  const [, setChoicesTick] = useState(0) // re-render after the quick calculator saves item choices
 
   useEffect(() => {
     Promise.all([
@@ -490,7 +514,7 @@ export default function EquipmentBoard({ horizontal = false }) {
       db.from('subcategories').select('id, name, image_url, category_id'),
       db.from('items').select('id, name, image_url, image_urls, category_id, subcategory_id, sort_order').order('sort_order'),
       db.from('material_materials').select('material_id, component_id, quantity').eq('variant', 1),
-      db.from('materials').select('id, name, image_url, craft_yang_cost, no_price'),
+      db.from('materials').select('id, name, image_url, craft_yang_cost, no_price, is_upgrade_scroll, is_seal'),
       db.from('item_materials').select('item_id, material_id, quantity, step, variant'),
       db.from('item_items').select('item_id, component_item_id, quantity, step, variant'),
       db.from('item_step_yang').select('item_id, step, yang_cost, max_pity, variant'),
@@ -664,12 +688,13 @@ export default function EquipmentBoard({ horizontal = false }) {
     gather.yang += yang
   }
   let summary = null
+  let ctx = null
   if (pricing) {
     const priceFn = makeMaterialPriceFn(mode, {
       rawInputs, globalPrices: pricing.globalPrices, recipes: pricing.recipes,
       yangCosts: pricing.yangCosts, manualOverrides, noPriceIds: pricing.noPriceIds,
     })
-    const ctx = { ...pricing, materialPriceFn: priceFn, manualOverrides, rawInputs, pityOverride: pityMode }
+    ctx = { ...pricing, materialPriceFn: priceFn, manualOverrides, rawInputs, pityOverride: pityMode }
     for (const slot of SLOTS) {
       if (slot.sash) {
         const mat = materialsById[sashId]
@@ -735,6 +760,7 @@ export default function EquipmentBoard({ horizontal = false }) {
       else collectItemMaterials(item.id, ctx, gather)
       rows.push({
         key: slot.id,
+        itemId: item.id,
         image: equipped[slot.id].image,
         label: maxStep > 0 ? `${formatItemName(item)} +${maxStep}` : formatItemName(item),
         to: `/chapter/${item.category_id}/item/${slugify(item.name)}`,
@@ -818,20 +844,24 @@ export default function EquipmentBoard({ horizontal = false }) {
         {SLOTS.map(slot => {
           const equip = equipped[slot.id]
           const isOpen = openSlot === slot.id
+          const quickItem = slot.subcategory && itemsById[equip?.itemId]
           return (
-            <button
+            <div
               key={slot.id}
-              type="button"
-              aria-label={slot.id}
-              title={equip?.name}
-              onClick={() => (slot.subcategory || slot.mount || slot.pet || slot.sash || slot.alchemy) && setOpenSlot(slot.id)}
-              className="group absolute cursor-pointer focus:outline-none"
+              className="group absolute"
               style={{
                 left: `${(slot.x / BG_W) * 100}%`,
                 top: `${(slot.y / BG_H) * 100}%`,
                 width: `${(slot.w / BG_W) * 100}%`,
                 height: `${(slot.h / BG_H) * 100}%`,
               }}
+            >
+            <button
+              type="button"
+              aria-label={slot.id}
+              title={equip?.name}
+              onClick={() => (slot.subcategory || slot.mount || slot.pet || slot.sash || slot.alchemy) && setOpenSlot(slot.id)}
+              className="absolute inset-0 cursor-pointer focus:outline-none"
             >
               {equip && <SlotIcon slot={slot} equip={equip} onSize={cells => setCells(slot, cells)} />}
               {slot.mount && mountIcon && mountParts.length > 0 && <SlotOverlayIcon slot={slot} icon={mountIcon} />}
@@ -845,10 +875,17 @@ export default function EquipmentBoard({ horizontal = false }) {
                   vectorEffect="non-scaling-stroke"
                   className={`transition-all duration-150 ${isOpen
                     ? 'stroke-yellow-400 [filter:drop-shadow(0_0_6px_rgba(250,204,21,0.9))]'
-                    : 'stroke-transparent group-hover:stroke-yellow-300 group-hover:[filter:drop-shadow(0_0_5px_rgba(250,204,21,0.7))] group-focus-visible:stroke-yellow-300'}`}
+                    : 'stroke-transparent group-hover:stroke-yellow-300 group-hover:[filter:drop-shadow(0_0_5px_rgba(250,204,21,0.7))] group-has-[:focus-visible]:stroke-yellow-300'}`}
                 />
               </svg>
             </button>
+            {quickItem && pricing && (
+              <QuickCalcButton
+                onClick={() => setQuickItemId(quickItem.id)}
+                className="absolute top-[4%] right-[4%] opacity-0 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
+              />
+            )}
+            </div>
           )
         })}
       </div>
@@ -905,6 +942,20 @@ export default function EquipmentBoard({ horizontal = false }) {
         />,
         document.body,
       )}
+      {quickItemId && itemsById[quickItemId] && ctx && createPortal(
+        <QuickItemCalc
+          key={quickItemId}
+          item={itemsById[quickItemId]}
+          ctx={ctx}
+          materialsById={materialsById}
+          pityMode={pityMode}
+          onPityModeChange={changePityMode}
+          onChange={() => setChoicesTick(n => n + 1)}
+          onClose={() => setQuickItemId(null)}
+          horizontal={horizontal}
+        />,
+        document.body,
+      )}
       {showSummary && summary && createPortal(
         <MaterialsSummary summary={summary} pityMode={pityMode} onPityChange={changePityMode} fromScratch={fromScratch} onFromScratchChange={setFromScratch} onClose={() => setShowSummary(false)} horizontal={horizontal} />,
         document.body,
@@ -926,14 +977,20 @@ export default function EquipmentBoard({ horizontal = false }) {
             <PityButtons pityMode={pityMode} onChange={changePityMode} horizontal={horizontal} />
           </div>
           <div className={`rounded-xl border divide-y divide-white/5 ${panel}`}>
-            {rows.map(({ key, image, label, to, price, manual }) => (
-              <div key={key} className="flex items-center gap-3 px-4 py-2.5">
+            {rows.map(({ key, itemId, image, label, to, price, manual }) => (
+              <div key={key} className="group flex items-center gap-3 px-4 py-2.5">
                 <div className="w-8 h-8 shrink-0 flex items-center justify-center">
                   {image && <img src={image} alt="" className="max-w-full max-h-full object-contain" />}
                 </div>
                 <Link to={to} className="flex-1 min-w-0 truncate text-sm text-gray-200 hover:text-yellow-400 transition-colors">
                   {label}
                 </Link>
+                {itemId && (
+                  <QuickCalcButton
+                    onClick={() => setQuickItemId(itemId)}
+                    className="shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
+                  />
+                )}
                 {manual ? (
                   <input
                     type="text"

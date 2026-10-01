@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import useEscapeKey from '../utils/useEscapeKey'
 
 export default function SealPicker({ seals, selected, onChange, horizontal }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [openUp, setOpenUp] = useState(false)
   const ref = useRef(null)
+  useEscapeKey(() => setOpen(false), open)
   const wrap = horizontal ? 'bg-black/30 border-white/10 w-full h-9' : 'bg-gray-800 border-gray-600 w-32 shrink-0'
   const panel = horizontal ? 'bg-[#1c1712] border-white/10' : 'bg-gray-800 border-gray-600'
   const rowHover = horizontal ? 'hover:bg-white/5' : 'hover:bg-gray-700'

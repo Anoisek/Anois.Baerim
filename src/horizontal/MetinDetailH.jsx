@@ -17,6 +17,7 @@ import { itemImages } from '../utils/itemImages'
 import { usePriceBook, buildRecipeMap, buildYangCostMap, fetchGlobalPrices, makeMaterialPriceFn } from '../utils/priceBook'
 import { ocrImage, parseFarmSessionText, mergeFarmSessions } from '../utils/farmSessionOcr'
 import { slugify, findBySlugOrId } from '../utils/slug'
+import useEscapeKey from '../utils/useEscapeKey'
 import { EmptyState, PillButton } from './ui'
 
 function loadLoot(metinId) {
@@ -62,6 +63,7 @@ export default function MetinDetailH() {
   const [ocrProgress, setOcrProgress] = useState(null)
   const [parsedSessions, setParsedSessions] = useState([])
   const [buffModalOpen, setBuffModalOpen] = useState(true)
+  useEscapeKey(() => setBuffModalOpen(false), buffModalOpen)
   const [sessionBuffs, setSessionBuffs] = useState(NO_BUFFS)
   const [globalFilterBuffs, setGlobalFilterBuffs] = useState(NO_BUFFS)
   const { rawInputs, setPrice, mode, setMode, manualOverrides, toggleManualOverride } = usePriceBook()
