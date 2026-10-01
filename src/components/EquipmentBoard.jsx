@@ -10,6 +10,7 @@ import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
 import PriceModeToggle from './PriceModeToggle'
 import QuickItemCalc from './QuickItemCalc'
+import { QuickMountCalc, QuickPetCalc } from './QuickMountPetCalc'
 import { itemImages } from '../utils/itemImages'
 import { formatItemName, PVP_CATEGORY_ID } from '../utils/itemName'
 import { formatYang, parseYang } from '../utils/formatYang'
@@ -506,6 +507,7 @@ export default function EquipmentBoard({ horizontal = false }) {
   const [showSummary, setShowSummary] = useState(false)
   const [fromScratch, setFromScratch] = useState(false) // Materials Summary: also craft the items used as ingredients
   const [quickItemId, setQuickItemId] = useState(null) // item open in the quick +0→+9 calculator
+  const [quickSystem, setQuickSystem] = useState(null) // 'mount' | 'pet' open in its quick calculator
   const [, setChoicesTick] = useState(0) // re-render after the quick calculator saves item choices
 
   useEffect(() => {
@@ -734,7 +736,8 @@ export default function EquipmentBoard({ horizontal = false }) {
           image: petSub?.image_url,
           label: t(`pet.${petBuild}Pet`),
           to: petSub ? `/chapter/${petSub.category_id}/sub/${slugify(petSub.name)}?tab=all` : '#',
-          price: yang + mats.reduce((sum, [id, qty]) => sum + petPriceFn(id) * qty, 0),
+          quick: 'pet',
+          price:yang + mats.reduce((sum, [id, qty]) => sum + petPriceFn(id) * qty, 0),
         })
         continue
       }
@@ -748,7 +751,8 @@ export default function EquipmentBoard({ horizontal = false }) {
             image: part.icon ?? materialsById[part.iconMat]?.image_url,
             label: part.label,
             to: `/chapter/${part.chapterId}/sub/${slugify(part.sub)}?tab=${part.part}`,
-            price: yang + mats.reduce((sum, [id, qty]) => sum + priceFn(id) * qty, 0),
+            quick: 'mount',
+            price:yang + mats.reduce((sum, [id, qty]) => sum + priceFn(id) * qty, 0),
           })
         }
         continue
@@ -845,6 +849,10 @@ export default function EquipmentBoard({ horizontal = false }) {
           const equip = equipped[slot.id]
           const isOpen = openSlot === slot.id
           const quickItem = slot.subcategory && itemsById[equip?.itemId]
+          const quickOpen = quickItem ? () => setQuickItemId(quickItem.id)
+            : slot.mount && mountParts.length > 0 ? () => setQuickSystem('mount')
+              : slot.pet && petBuild ? () => setQuickSystem('pet')
+                : null
           return (
             <div
               key={slot.id}
@@ -879,9 +887,9 @@ export default function EquipmentBoard({ horizontal = false }) {
                 />
               </svg>
             </button>
-            {quickItem && pricing && (
+            {quickOpen && pricing && (
               <QuickCalcButton
-                onClick={() => setQuickItemId(quickItem.id)}
+                onClick={quickOpen}
                 className="absolute top-[4%] right-[4%] opacity-0 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
               />
             )}
@@ -956,6 +964,32 @@ export default function EquipmentBoard({ horizontal = false }) {
         />,
         document.body,
       )}
+      {quickSystem === 'mount' && mountParts.length > 0 && ctx && createPortal(
+        <QuickMountCalc
+          parts={MOUNT_PARTS.filter(p => mountParts.includes(p.key)).map(p => ({ ...p, to: `/chapter/${p.chapterId}/sub/${slugify(p.sub)}?tab=${p.part}` }))}
+          priceFn={ctx.materialPriceFn}
+          materialsById={materialsById}
+          pityMode={pityMode}
+          onPityModeChange={changePityMode}
+          onChange={() => setChoicesTick(n => n + 1)}
+          onClose={() => setQuickSystem(null)}
+          horizontal={horizontal}
+        />,
+        document.body,
+      )}
+      {quickSystem === 'pet' && petBuild && ctx && createPortal(
+        <QuickPetCalc
+          build={petBuild}
+          to={petSub ? `/chapter/${petSub.category_id}/sub/${slugify(petSub.name)}?tab=all` : '#'}
+          priceFn={ctx.materialPriceFn}
+          pityMode={pityMode}
+          onPityModeChange={changePityMode}
+          onChange={() => setChoicesTick(n => n + 1)}
+          onClose={() => setQuickSystem(null)}
+          horizontal={horizontal}
+        />,
+        document.body,
+      )}
       {showSummary && summary && createPortal(
         <MaterialsSummary summary={summary} pityMode={pityMode} onPityChange={changePityMode} fromScratch={fromScratch} onFromScratchChange={setFromScratch} onClose={() => setShowSummary(false)} horizontal={horizontal} />,
         document.body,
@@ -977,7 +1011,7 @@ export default function EquipmentBoard({ horizontal = false }) {
             <PityButtons pityMode={pityMode} onChange={changePityMode} horizontal={horizontal} />
           </div>
           <div className={`rounded-xl border divide-y divide-white/5 ${panel}`}>
-            {rows.map(({ key, itemId, image, label, to, price, manual }) => (
+            {rows.map(({ key, itemId, quick, image, label, to, price, manual }) => (
               <div key={key} className="group flex items-center gap-3 px-4 py-2.5">
                 <div className="w-8 h-8 shrink-0 flex items-center justify-center">
                   {image && <img src={image} alt="" className="max-w-full max-h-full object-contain" />}
@@ -985,9 +1019,9 @@ export default function EquipmentBoard({ horizontal = false }) {
                 <Link to={to} className="flex-1 min-w-0 truncate text-sm text-gray-200 hover:text-yellow-400 transition-colors">
                   {label}
                 </Link>
-                {itemId && (
+                {(itemId || quick) && (
                   <QuickCalcButton
-                    onClick={() => setQuickItemId(itemId)}
+                    onClick={() => (itemId ? setQuickItemId(itemId) : setQuickSystem(quick))}
                     className="shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
                   />
                 )}
