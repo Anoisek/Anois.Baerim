@@ -461,7 +461,10 @@ export default function MapsH() {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                <h2 className="text-lg font-bold text-gray-100">{selectedMap?.name}</h2>
+                <div className="flex items-center gap-x-4 gap-y-1 flex-wrap min-w-0">
+                  <h2 className="text-lg font-bold text-gray-100">{selectedMap?.name}</h2>
+                  {selectedMap && <MapVideoLink map={selectedMap} isAdmin={isAdmin} onUpdated={updated => setMaps(prev => prev.map(m => m.id === updated.id ? updated : m))} t={t} />}
+                </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm text-gray-400">
                     <strong className="text-gray-200">{markers.filter(m => isMarkerCollected(m, collected)).length}</strong>/{selectedMap ? (markerCounts[selectedMap.id] ?? markers.length) : markers.length} {t('maps.collected')}
@@ -493,7 +496,6 @@ export default function MapsH() {
                 <div className="py-16 flex justify-center"><Spinner /></div>
               ) : (
                 <>
-                  <MapVideoLink map={selectedMap} isAdmin={isAdmin} onUpdated={updated => setMaps(prev => prev.map(m => m.id === updated.id ? updated : m))} t={t} />
                   <div
                     ref={mapViewportRef}
                     className={`relative w-full touch-none rounded-xl border border-white/10 bg-black/40 ${
