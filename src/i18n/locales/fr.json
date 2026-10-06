@@ -282,7 +282,9 @@
     "confirmBulkMarkTitle": "Es-tu sûr ?",
     "confirmSelectAllWarning": "Cela marquera tous les mokoko de cette carte comme récupérés. Cette action est irréversible.",
     "confirmDeselectAllWarning": "Cela retirera le marquage « récupéré » de tous les mokoko de cette carte. Cette action est irréversible.",
-    "confirmBulkMarkYes": "Oui, fais-le"
+    "confirmBulkMarkYes": "Oui, fais-le",
+    "checkVideo": "Regarde la vidéo de cette carte !",
+    "videoLinkPrompt": "Video link for this map (leave empty to remove):"
   },
   "oreFinder": {
     "activeLabel": "Minerai actif",

@@ -292,7 +292,9 @@
     "confirmBulkMarkTitle": "Na pewno?",
     "confirmSelectAllWarning": "To oznaczy wszystkie mokoko na tej mapie jako zebrane. Tego nie da się cofnąć.",
     "confirmDeselectAllWarning": "To oznaczy wszystkie mokoko na tej mapie jako niezebrane. Tego nie da się cofnąć.",
-    "confirmBulkMarkYes": "Tak, zrób to"
+    "confirmBulkMarkYes": "Tak, zrób to",
+    "checkVideo": "Zobacz film z tej mapy!",
+    "videoLinkPrompt": "Video link for this map (leave empty to remove):"
   },
   "oreFinder": {
     "activeLabel": "Aktywna ruda",

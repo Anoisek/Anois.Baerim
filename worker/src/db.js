@@ -101,7 +101,7 @@ const TABLES = {
     publicRead: false,
   },
   maps: {
-    columns: ['id', 'name', 'region', 'mark', 'image_url', 'width', 'height', 'sort_order', 'created_at', 'max_mokoko', 'admin_only', 'chapter'],
+    columns: ['id', 'name', 'region', 'mark', 'image_url', 'width', 'height', 'sort_order', 'created_at', 'max_mokoko', 'admin_only', 'chapter', 'video_url'],
     booleans: ['admin_only'],
     pk: ['id'],
   },

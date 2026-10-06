@@ -16,6 +16,7 @@ import MapSidebar from '../components/MapSidebar'
 import { mapChapterOf } from '../utils/mapChapters'
 import EditMapModal from '../components/EditMapModal'
 import MapPipButton from '../components/MapPipButton'
+import MapVideoLink from '../components/MapVideoLink'
 import MokokoRevealCountdown from '../components/MokokoRevealCountdown'
 import MokokoCompletionModal from '../components/MokokoCompletionModal'
 import ConfirmBulkMarkModal from '../components/ConfirmBulkMarkModal'
@@ -531,6 +532,12 @@ export default function Maps() {
 
                 {markersLoading || !selectedMap ? <Spinner /> : (
                   <>
+                    <MapVideoLink
+                      map={selectedMap}
+                      isAdmin={isAdmin}
+                      onUpdated={updated => setMaps(prev => prev.map(m => m.id === updated.id ? updated : m))}
+                      t={t}
+                    />
                     <div
                       ref={mapViewportRef}
                       className={`relative w-full touch-none rounded-xl border border-gray-700 bg-gray-950 ${

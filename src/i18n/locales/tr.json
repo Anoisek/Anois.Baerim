@@ -282,7 +282,9 @@
     "confirmBulkMarkTitle": "Emin misin?",
     "confirmSelectAllWarning": "Bu, haritadaki tüm mokokoları toplanmış olarak işaretleyecek. Bu işlem geri alınamaz.",
     "confirmDeselectAllWarning": "Bu, haritadaki tüm mokokoların işaretini kaldıracak. Bu işlem geri alınamaz.",
-    "confirmBulkMarkYes": "Evet, yap"
+    "confirmBulkMarkYes": "Evet, yap",
+    "checkVideo": "Bu haritanın videosunu izle!",
+    "videoLinkPrompt": "Video link for this map (leave empty to remove):"
   },
   "oreFinder": {
     "activeLabel": "Aktif cevher",

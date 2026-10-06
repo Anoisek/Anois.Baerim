@@ -282,7 +282,9 @@
     "confirmBulkMarkTitle": "Sei sicuro?",
     "confirmSelectAllWarning": "Questo segnerà tutti i mokoko di questa mappa come raccolti. Non può essere annullato.",
     "confirmDeselectAllWarning": "Questo rimuoverà il segno di raccolta da tutti i mokoko di questa mappa. Non può essere annullato.",
-    "confirmBulkMarkYes": "Sì, fallo"
+    "confirmBulkMarkYes": "Sì, fallo",
+    "checkVideo": "Guarda il video di questa mappa!",
+    "videoLinkPrompt": "Video link for this map (leave empty to remove):"
   },
   "oreFinder": {
     "activeLabel": "Minerale attivo",

@@ -292,7 +292,9 @@
     "confirmBulkMarkTitle": "Are you sure?",
     "confirmSelectAllWarning": "This will mark every mokoko on this map as collected. This cannot be undone.",
     "confirmDeselectAllWarning": "This will mark every mokoko on this map as not collected. This cannot be undone.",
-    "confirmBulkMarkYes": "Yes, do it"
+    "confirmBulkMarkYes": "Yes, do it",
+    "checkVideo": "Check the video of this map!",
+    "videoLinkPrompt": "Video link for this map (leave empty to remove):"
   },
   "oreFinder": {
     "activeLabel": "Active ore",

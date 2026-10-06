@@ -282,7 +282,9 @@
     "confirmBulkMarkTitle": "Si si istý?",
     "confirmSelectAllWarning": "Týmto označíš všetky mokoko na tejto mape ako nazbierané. Nedá sa to vrátiť späť.",
     "confirmDeselectAllWarning": "Týmto zrušíš označenie všetkých mokoko na tejto mape ako nazbieraných. Nedá sa to vrátiť späť.",
-    "confirmBulkMarkYes": "Áno, urob to"
+    "confirmBulkMarkYes": "Áno, urob to",
+    "checkVideo": "Pozri si video k tejto mape!",
+    "videoLinkPrompt": "Video link for this map (leave empty to remove):"
   },
   "oreFinder": {
     "activeLabel": "Aktívna ruda",

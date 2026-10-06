@@ -282,7 +282,9 @@
     "confirmBulkMarkTitle": "Ești sigur?",
     "confirmSelectAllWarning": "Aceasta va marca toate mokoko de pe această hartă ca fiind colectate. Nu poate fi anulat.",
     "confirmDeselectAllWarning": "Aceasta va debifa toate mokoko de pe această hartă ca fiind colectate. Nu poate fi anulat.",
-    "confirmBulkMarkYes": "Da, fă-o"
+    "confirmBulkMarkYes": "Da, fă-o",
+    "checkVideo": "Vezi videoclipul acestei hărți!",
+    "videoLinkPrompt": "Video link for this map (leave empty to remove):"
   },
   "oreFinder": {
     "activeLabel": "Minereu activ",

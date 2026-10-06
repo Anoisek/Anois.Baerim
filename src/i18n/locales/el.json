@@ -282,7 +282,9 @@
     "confirmBulkMarkTitle": "Είσαι σίγουρος/η;",
     "confirmSelectAllWarning": "Αυτό θα σημειώσει όλα τα mokoko σε αυτόν τον χάρτη ως συλλεγμένα. Δεν μπορεί να αναιρεθεί.",
     "confirmDeselectAllWarning": "Αυτό θα αναιρέσει τη σήμανση όλων των mokoko σε αυτόν τον χάρτη ως συλλεγμένα. Δεν μπορεί να αναιρεθεί.",
-    "confirmBulkMarkYes": "Ναι, κάν' το"
+    "confirmBulkMarkYes": "Ναι, κάν' το",
+    "checkVideo": "Δες το βίντεο αυτού του χάρτη!",
+    "videoLinkPrompt": "Video link for this map (leave empty to remove):"
   },
   "oreFinder": {
     "activeLabel": "Ενεργό μετάλλευμα",

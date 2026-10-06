@@ -282,7 +282,9 @@
     "confirmBulkMarkTitle": "Bist du sicher?",
     "confirmSelectAllWarning": "Dadurch werden alle Mokoko auf dieser Karte als gesammelt markiert. Das kann nicht rückgängig gemacht werden.",
     "confirmDeselectAllWarning": "Dadurch wird die Markierung aller Mokoko auf dieser Karte als gesammelt entfernt. Das kann nicht rückgängig gemacht werden.",
-    "confirmBulkMarkYes": "Ja, tun"
+    "confirmBulkMarkYes": "Ja, tun",
+    "checkVideo": "Sieh dir das Video zu dieser Karte an!",
+    "videoLinkPrompt": "Video link for this map (leave empty to remove):"
   },
   "oreFinder": {
     "activeLabel": "Aktives Erz",

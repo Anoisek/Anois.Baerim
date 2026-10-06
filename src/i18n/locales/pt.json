@@ -282,7 +282,9 @@
     "confirmBulkMarkTitle": "Tens a certeza?",
     "confirmSelectAllWarning": "Isto vai marcar todos os mokoko deste mapa como recolhidos. Não pode ser desfeito.",
     "confirmDeselectAllWarning": "Isto vai desmarcar todos os mokoko deste mapa como recolhidos. Não pode ser desfeito.",
-    "confirmBulkMarkYes": "Sim, fazer"
+    "confirmBulkMarkYes": "Sim, fazer",
+    "checkVideo": "Vê o vídeo deste mapa!",
+    "videoLinkPrompt": "Video link for this map (leave empty to remove):"
   },
   "oreFinder": {
     "activeLabel": "Minério ativo",
