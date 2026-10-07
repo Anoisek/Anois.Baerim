@@ -36,7 +36,8 @@ export default function MokokoFinderSpotModal({ spot, isAdmin, onClose, onDelete
     onDeleted(spot)
   }
 
-  const photos = [spot.screenshot_url, ...notes.map(n => n.image_url)]
+  // Spots approved from an admin ghost have no screenshot (empty screenshot_url).
+  const photos = [spot.screenshot_url, ...notes.map(n => n.image_url)].filter(Boolean)
 
   return (
     <div

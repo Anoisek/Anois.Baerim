@@ -409,6 +409,13 @@ const TABLES = {
     columns: ['id', 'map', 'x', 'y', 'game_x', 'game_y', 'created_at'],
     pk: ['id'],
   },
+  // Unverified sightings the admin parks on the map ("ghosts", red mokoko)
+  // until they check them - admin-only read and write, never public.
+  mokoko_finder_ghosts: {
+    columns: ['id', 'map', 'x', 'y', 'note', 'created_at'],
+    pk: ['id'],
+    publicRead: false,
+  },
 }
 
 const ORE_FINDER_MAPS = new Set(['Yongan', 'Joan', 'Pyungmoo'])

@@ -6,6 +6,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import MokokoFinderReportModal from '../components/MokokoFinderReportModal'
 import MokokoFinderReviewModal from '../components/MokokoFinderReviewModal'
 import MokokoFinderSpotModal from '../components/MokokoFinderSpotModal'
+import MokokoFinderGhostModal from '../components/MokokoFinderGhostModal'
 import LockedMapNotice from '../components/LockedMapNotice'
 import { db } from '../dbClient'
 import { pctToGame, fitGameCoords } from '../utils/mokokoFinderCoords'
@@ -51,6 +52,13 @@ export default function MokokoFinder() {
   const [calibrating, setCalibrating] = useState(false)
   const [calPending, setCalPending] = useState(null)
   const [calSaving, setCalSaving] = useState(false)
+  // Ghost mokoko (admin-only, mokoko_finder_ghosts): unverified sightings
+  // parked on the map as red mokoko until approved/deleted (MokokoFinderGhostModal).
+  const [ghosts, setGhosts] = useState([])
+  const [ghostMode, setGhostMode] = useState(false)
+  const [ghostPending, setGhostPending] = useState(null) // { x, y, note } | null
+  const [ghostSaving, setGhostSaving] = useState(false)
+  const [openGhost, setOpenGhost] = useState(null)
   const mapWrapRef = useRef(null)
 
   const baseMap = FINDER_MAPS.find(m => m.name === selectedName) || null
@@ -78,6 +86,33 @@ export default function MokokoFinder() {
       setCalPoints(data ?? [])
     })
   }, [selectedName, supported])
+
+  // Not polled - only the admin adds/removes ghosts.
+  useEffect(() => {
+    setGhosts([])
+    setGhostPending(null)
+    if (!isAdmin || !supported) return
+    db.from('mokoko_finder_ghosts').select('*').eq('map', selectedName).then(({ data }) => {
+      setGhosts(data ?? [])
+    })
+  }, [isAdmin, selectedName, supported])
+
+  async function saveGhost() {
+    setGhostSaving(true)
+    const note = ghostPending.note.trim()
+    const { data, error } = await db
+      .from('mokoko_finder_ghosts')
+      .insert({ map: selectedName, x: ghostPending.x, y: ghostPending.y, note: note || null })
+      .select()
+      .single()
+    setGhostSaving(false)
+    if (error) {
+      alert(`Could not save the ghost mokoko: ${error.message}`)
+      return
+    }
+    setGhosts(prev => [...prev, data])
+    setGhostPending(null)
+  }
 
   async function saveCalPoint() {
     const gx = Number(calPending.xInput)
@@ -145,6 +180,10 @@ export default function MokokoFinder() {
     const x = ((e.clientX - rect.left) / rect.width) * 100
     const y = ((e.clientY - rect.top) / rect.height) * 100
     setHoverPos(null)
+    if (ghostMode) {
+      setGhostPending(prev => ({ x, y, note: prev?.note ?? '' }))
+      return
+    }
     if (calibrating) {
       const g = pctToGame(selectedMap, x, y)
       setCalPending({ x, y, xInput: String(Math.round(g.x)), yInput: String(Math.round(g.y)) })
@@ -196,7 +235,17 @@ export default function MokokoFinder() {
             <div className="flex gap-2 flex-wrap">
             {supported && (
               <button
-                onClick={() => { setCalibrating(v => !v); setCalPending(null) }}
+                onClick={() => { setGhostMode(v => !v); setGhostPending(null); setCalibrating(false); setCalPending(null) }}
+                className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                  ghostMode ? 'bg-red-500 hover:bg-red-400 border-red-500 text-white' : 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200'
+                }`}
+              >
+                👻 {ghostMode ? 'Finish adding ghosts' : `Ghosts (${ghosts.length})`}
+              </button>
+            )}
+            {supported && (
+              <button
+                onClick={() => { setCalibrating(v => !v); setCalPending(null); setGhostMode(false); setGhostPending(null) }}
                 className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${
                   calibrating ? 'bg-red-500 hover:bg-red-400 border-red-500 text-white' : 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200'
                 }`}
@@ -292,6 +341,29 @@ export default function MokokoFinder() {
                             <img src="/mokoko.png" alt="" draggable="false" className="w-8 h-8 object-contain drop-shadow select-none" />
                           </button>
                         ))}
+                        {isAdmin && ghosts.map(ghost => (
+                          <button
+                            key={ghost.id}
+                            onClick={e => { e.stopPropagation(); setOpenGhost(ghost) }}
+                            title={ghost.note ? `Ghost mokoko: ${ghost.note}` : 'Ghost mokoko (unverified)'}
+                            className="absolute z-10 -translate-x-1/2 -translate-y-1/2 hover:scale-125 transition-transform"
+                            style={{ left: `${ghost.x}%`, top: `${ghost.y}%` }}
+                          >
+                            <img
+                              src="/mokoko.png"
+                              alt=""
+                              draggable="false"
+                              className="w-8 h-8 object-contain drop-shadow select-none opacity-90"
+                              style={{ filter: 'hue-rotate(-110deg) saturate(2.5)' }}
+                            />
+                          </button>
+                        ))}
+                        {ghostMode && ghostPending && (
+                          <span
+                            className="absolute z-20 pointer-events-none -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow animate-pulse"
+                            style={{ left: `${ghostPending.x}%`, top: `${ghostPending.y}%` }}
+                          />
+                        )}
                         {calibrating && calPoints.map(p => (
                           <button
                             key={p.id}
@@ -322,7 +394,46 @@ export default function MokokoFinder() {
                     </div>
                     )}
 
-                    {calibrating ? (
+                    {ghostMode ? (
+                      <div className="mt-3 rounded-xl border border-red-500/50 bg-red-950/30 p-3 text-xs text-gray-200 flex flex-col gap-2">
+                        <p className="text-red-300">
+                          Ghost mode: click where someone reported a mokoko and (optionally) note who told you. Only you see
+                          ghosts (red mokoko) - nothing goes to the interactive map until you click one and approve it.
+                        </p>
+                        {ghostPending && (
+                          <div className="flex items-end gap-2 flex-wrap">
+                            <span className="font-mono text-gray-300 pb-1.5">
+                              X: {Math.round(pctToGame(selectedMap, ghostPending.x, ghostPending.y).x)} Y: {Math.round(pctToGame(selectedMap, ghostPending.x, ghostPending.y).y)}
+                            </span>
+                            <label className="flex flex-col gap-1 text-gray-400 flex-1 min-w-[12rem]">
+                              Note (e.g. who reported it)
+                              <input
+                                type="text"
+                                autoFocus
+                                maxLength={300}
+                                value={ghostPending.note}
+                                onChange={e => setGhostPending(prev => ({ ...prev, note: e.target.value }))}
+                                onKeyDown={e => { if (e.key === 'Enter') saveGhost() }}
+                                className="bg-gray-800 border border-gray-600 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-yellow-400"
+                              />
+                            </label>
+                            <button
+                              onClick={saveGhost}
+                              disabled={ghostSaving}
+                              className="px-3 py-1.5 rounded-lg font-semibold bg-yellow-400 hover:bg-yellow-300 disabled:opacity-40 text-gray-950"
+                            >
+                              Add ghost
+                            </button>
+                            <button
+                              onClick={() => setGhostPending(null)}
+                              className="px-3 py-1.5 rounded-lg font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : calibrating ? (
                       <div className="mt-3 rounded-xl border border-red-500/50 bg-red-950/30 p-3 text-xs text-gray-200 flex flex-col gap-2">
                         <p className="text-red-300">
                           Calibration: click a spot on the map whose in-game X/Y you know and type them in. 2+ points far apart
@@ -408,6 +519,23 @@ export default function MokokoFinder() {
           map={selectedMap}
           onClose={() => { setReviewOpen(false); loadReportCount() }}
           onApproved={handleApproved}
+        />
+      )}
+
+      {isAdmin && openGhost && selectedMap && (
+        <MokokoFinderGhostModal
+          map={selectedMap}
+          ghost={openGhost}
+          onClose={() => setOpenGhost(null)}
+          onApproved={(ghost, spot) => {
+            setGhosts(prev => prev.filter(g => g.id !== ghost.id))
+            setSpots(prev => [...prev, spot])
+            setOpenGhost(null)
+          }}
+          onDeleted={ghost => {
+            setGhosts(prev => prev.filter(g => g.id !== ghost.id))
+            setOpenGhost(null)
+          }}
         />
       )}
 

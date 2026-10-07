@@ -442,6 +442,17 @@ CREATE TABLE mokoko_finder_spot_notes (
 );
 CREATE INDEX idx_mokoko_finder_spot_notes_spot_id ON mokoko_finder_spot_notes(spot_id);
 
+-- Admin-only unverified mokoko ("ghosts", see migrations/0030_mokoko_finder_ghosts.sql).
+CREATE TABLE mokoko_finder_ghosts (
+  id TEXT PRIMARY KEY,
+  map TEXT NOT NULL,
+  x REAL NOT NULL,
+  y REAL NOT NULL,
+  note TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX idx_mokoko_finder_ghosts_map ON mokoko_finder_ghosts(map);
+
 -- Chapter tabs on /materials (see migrations/0014_material_chapters.sql).
 CREATE TABLE material_chapters (
   id TEXT PRIMARY KEY,
