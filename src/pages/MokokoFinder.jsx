@@ -20,7 +20,7 @@ import { pctToGame } from '../utils/mokokoFinderCoords'
 const FINDER_MAPS = [
   // In-game X/Y calibration: MAP_GAME_COORDS in utils/mokokoFinderCoords.
   { id: 'thunder-mountains', name: 'Thunder Mountains', image_url: '/mokoko-finder/thunder-mountains.png', width: 2048, height: 2048 },
-  { id: 'enchanted-forest', name: 'Enchanted Forest', image_url: null, width: 1254, height: 1254 },
+  { id: 'enchanted-forest', name: 'Enchanted Forest', image_url: '/mokoko-finder/enchanted-forest.png', width: 1254, height: 1254 },
 ]
 // Same shape as OreFinder's poll: paused on a hidden tab so this doesn't add
 // to the worker's shared daily request budget.
