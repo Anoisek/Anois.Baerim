@@ -16,6 +16,32 @@ function range(map, axis) {
   return game?.[axis] ?? [0, axis === 'x' ? map.width : map.height]
 }
 
+// In-game X/Y range the map covers on one axis, low..high - for validating typed coordinates.
+export function gameRange(map, axis) {
+  const [a, b] = range(map, axis)
+  return [Math.min(a, b), Math.max(a, b)]
+}
+
+// Admin calibration points (mokoko_finder_calibration rows: x/y = image %,
+// game_x/game_y = in-game X/Y read off at that spot) -> map.game edges.
+// Per axis a least-squares line game = a + b * pct; with a single point (or
+// all points at the same %) only the offset is shifted and the scale is
+// kept from `fallback` (the current edges). Returns null with no points.
+export function fitGameCoords(map, points) {
+  if (!points?.length) return null
+  const fit = (axis, pctKey, gameKey) => {
+    const [f0, f1] = range(map, axis)
+    const n = points.length
+    const mp = points.reduce((s, p) => s + p[pctKey], 0) / n
+    const mg = points.reduce((s, p) => s + p[gameKey], 0) / n
+    const spp = points.reduce((s, p) => s + (p[pctKey] - mp) ** 2, 0)
+    const b = spp > 1 ? points.reduce((s, p) => s + (p[pctKey] - mp) * (p[gameKey] - mg), 0) / spp : (f1 - f0) / 100
+    const a = mg - b * mp
+    return [a, a + 100 * b]
+  }
+  return { x: fit('x', 'x', 'game_x'), y: fit('y', 'y', 'game_y') }
+}
+
 // Kept 1% inside the edge - a marker at exactly 0/100% gets clipped by the map frame.
 const clampPct = v => Math.min(99, Math.max(1, v))
 

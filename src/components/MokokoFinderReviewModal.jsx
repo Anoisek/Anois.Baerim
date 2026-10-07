@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import { deleteImages } from '../utils/imageStorage'
 import { createMarkerForSpot, deleteMarkerForSpot } from '../utils/mokokoFinderMarkers'
-import { gameToPct, pctToGame } from '../utils/mokokoFinderCoords'
+import { gameToPct, pctToGame, gameRange } from '../utils/mokokoFinderCoords'
 import useEscapeKey from '../utils/useEscapeKey'
 
 function formatTime(iso) {
@@ -60,8 +60,10 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
     if (!merging) return
     const xNum = Number(merging.xInput)
     const yNum = Number(merging.yInput)
-    if (!Number.isFinite(xNum) || xNum < 0 || xNum > map.width) return
-    if (!Number.isFinite(yNum) || yNum < 0 || yNum > map.height) return
+    const [minX, maxX] = gameRange(map, 'x')
+    const [minY, maxY] = gameRange(map, 'y')
+    if (!Number.isFinite(xNum) || xNum < Math.floor(minX) || xNum > Math.ceil(maxX)) return
+    if (!Number.isFinite(yNum) || yNum < Math.floor(minY) || yNum > Math.ceil(maxY)) return
 
     setMergeSending(true)
     const [primary, ...rest] = merging.reports
@@ -235,8 +237,6 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
                   type="number"
                   value={merging.xInput}
                   onChange={e => setMerging(prev => ({ ...prev, xInput: e.target.value }))}
-                  min={0}
-                  max={map.width}
                   className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
                 />
               </label>
@@ -246,8 +246,6 @@ export default function MokokoFinderReviewModal({ map, onClose, onApproved }) {
                   type="number"
                   value={merging.yInput}
                   onChange={e => setMerging(prev => ({ ...prev, yInput: e.target.value }))}
-                  min={0}
-                  max={map.height}
                   className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
                 />
               </label>

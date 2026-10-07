@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ImageUpload from './ImageUpload'
 import TurnstileWidget from './TurnstileWidget'
-import { gameToPct } from '../utils/mokokoFinderCoords'
+import { gameToPct, gameRange } from '../utils/mokokoFinderCoords'
 import useEscapeKey from '../utils/useEscapeKey'
 
 // Report form for /mokoko-finder: exact pixel coordinates (pre-filled from
@@ -19,8 +19,10 @@ export default function MokokoFinderReportModal({ map, initialX, initialY, onClo
 
   const xNum = Number(xInput)
   const yNum = Number(yInput)
-  const validX = xInput !== '' && Number.isFinite(xNum) && xNum >= 0 && xNum <= map.width
-  const validY = yInput !== '' && Number.isFinite(yNum) && yNum >= 0 && yNum <= map.height
+  const [minX, maxX] = gameRange(map, 'x')
+  const [minY, maxY] = gameRange(map, 'y')
+  const validX = xInput !== '' && Number.isFinite(xNum) && xNum >= Math.floor(minX) && xNum <= Math.ceil(maxX)
+  const validY = yInput !== '' && Number.isFinite(yNum) && yNum >= Math.floor(minY) && yNum <= Math.ceil(maxY)
   const canSubmit = validX && validY && !!screenshotUrl && !!turnstileToken && !sending
 
   function handleSubmit() {
@@ -47,8 +49,8 @@ export default function MokokoFinderReportModal({ map, initialX, initialY, onClo
               type="number"
               value={xInput}
               onChange={e => setXInput(e.target.value)}
-              min={0}
-              max={map.width}
+              min={Math.floor(minX)}
+              max={Math.ceil(maxX)}
               className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
             />
           </label>
@@ -58,8 +60,8 @@ export default function MokokoFinderReportModal({ map, initialX, initialY, onClo
               type="number"
               value={yInput}
               onChange={e => setYInput(e.target.value)}
-              min={0}
-              max={map.height}
+              min={Math.floor(minY)}
+              max={Math.ceil(maxY)}
               className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-yellow-400"
             />
           </label>

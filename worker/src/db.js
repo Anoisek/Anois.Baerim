@@ -391,6 +391,13 @@ const TABLES = {
     columns: ['id', 'spot_id', 'image_url', 'created_at'],
     pk: ['id'],
   },
+  // Admin calibration points (image % -> in-game X/Y) the page fits the
+  // map's coordinate mapping from - admin-only write, public read (every
+  // visitor needs them to see/enter correct in-game coordinates).
+  mokoko_finder_calibration: {
+    columns: ['id', 'map', 'x', 'y', 'game_x', 'game_y', 'created_at'],
+    pk: ['id'],
+  },
 }
 
 const ORE_FINDER_MAPS = new Set(['Yongan', 'Joan', 'Pyungmoo'])

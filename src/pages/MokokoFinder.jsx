@@ -7,14 +7,16 @@ import MokokoFinderReportModal from '../components/MokokoFinderReportModal'
 import MokokoFinderReviewModal from '../components/MokokoFinderReviewModal'
 import MokokoFinderSpotModal from '../components/MokokoFinderSpotModal'
 import { db } from '../dbClient'
-import { pctToGame } from '../utils/mokokoFinderCoords'
+import { pctToGame, fitGameCoords } from '../utils/mokokoFinderCoords'
 
 // Mokoko Finder's own map list - deliberately separate from the interactive
 // map's `maps` table (the finder must never touch that data). Names must match
 // MOKOKO_FINDER_MAPS in worker/src/db.js, which validates reports against them.
 // width/height = the image's aspect ratio (and the interactive map's size);
 // the in-game X/Y at the image's edges come from MAP_GAME_COORDS
-// (utils/mokokoFinderCoords), so the X/Y shown to users match the game.
+// (utils/mokokoFinderCoords), so the X/Y shown to users match the game -
+// or, once the admin has placed calibration points on a map (calibration
+// mode, mokoko_finder_calibration), from a fit through those points.
 // Positions are stored as image percentages.
 // A map with image_url null is listed but disabled until its image is added.
 const FINDER_MAPS = [
@@ -44,10 +46,55 @@ export default function MokokoFinder() {
   const [openSpot, setOpenSpot] = useState(null)
   const [reviewOpen, setReviewOpen] = useState(false)
   const [reportCount, setReportCount] = useState(0)
+  const [calPoints, setCalPoints] = useState([])
+  const [calibrating, setCalibrating] = useState(false)
+  const [calPending, setCalPending] = useState(null)
+  const [calSaving, setCalSaving] = useState(false)
   const mapWrapRef = useRef(null)
 
-  const selectedMap = FINDER_MAPS.find(m => m.name === selectedName) || null
+  const baseMap = FINDER_MAPS.find(m => m.name === selectedName) || null
+  const fittedGame = baseMap ? fitGameCoords(baseMap, calPoints) : null
+  const selectedMap = baseMap && fittedGame ? { ...baseMap, game: fittedGame } : baseMap
   const supported = !!selectedMap?.image_url
+
+  // Not polled - only the admin changes these, and their own edits update state directly.
+  useEffect(() => {
+    setCalPoints([])
+    setCalPending(null)
+    if (!supported) return
+    db.from('mokoko_finder_calibration').select('*').eq('map', selectedName).then(({ data }) => {
+      setCalPoints(data ?? [])
+    })
+  }, [selectedName, supported])
+
+  async function saveCalPoint() {
+    const gx = Number(calPending.xInput)
+    const gy = Number(calPending.yInput)
+    if (calPending.xInput === '' || calPending.yInput === '' || !Number.isFinite(gx) || !Number.isFinite(gy)) return
+    setCalSaving(true)
+    const { data, error } = await db
+      .from('mokoko_finder_calibration')
+      .insert({ map: selectedName, x: calPending.x, y: calPending.y, game_x: gx, game_y: gy })
+      .select()
+      .single()
+    setCalSaving(false)
+    if (error) {
+      alert(`Could not save the calibration point: ${error.message}`)
+      return
+    }
+    setCalPoints(prev => [...prev, data])
+    setCalPending(null)
+  }
+
+  async function deleteCalPoint(point) {
+    if (!window.confirm(`Delete calibration point (${point.game_x}, ${point.game_y})?`)) return
+    const { error } = await db.from('mokoko_finder_calibration').delete().eq('id', point.id)
+    if (error) {
+      alert(`Could not delete the calibration point: ${error.message}`)
+      return
+    }
+    setCalPoints(prev => prev.filter(p => p.id !== point.id))
+  }
 
   function loadSpots() {
     if (!supported) { setSpots([]); return }
@@ -86,6 +133,11 @@ export default function MokokoFinder() {
     const x = ((e.clientX - rect.left) / rect.width) * 100
     const y = ((e.clientY - rect.top) / rect.height) * 100
     setHoverPos(null)
+    if (calibrating) {
+      const g = pctToGame(selectedMap, x, y)
+      setCalPending({ x, y, xInput: String(Math.round(g.x)), yInput: String(Math.round(g.y)) })
+      return
+    }
     setPendingClick({ x, y })
   }
 
@@ -129,12 +181,24 @@ export default function MokokoFinder() {
           <div className="flex items-center justify-between mb-6 gap-2 flex-wrap">
             <h1 className="text-2xl font-bold text-gray-100">🍀 {t('mokokoFinder.title')}</h1>
             {isAdmin && (
+            <div className="flex gap-2 flex-wrap">
+            {supported && (
+              <button
+                onClick={() => { setCalibrating(v => !v); setCalPending(null) }}
+                className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                  calibrating ? 'bg-red-500 hover:bg-red-400 border-red-500 text-white' : 'bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200'
+                }`}
+              >
+                📐 {calibrating ? 'Finish calibration' : `Calibrate (${calPoints.length})`}
+              </button>
+            )}
             <button
               onClick={() => setReviewOpen(true)}
               className="px-3 py-2 rounded-xl text-sm font-semibold border transition-colors bg-gray-800 hover:bg-gray-700 border-gray-600 text-gray-200"
             >
               🛡️ {t('mokokoFinder.reviewButton')}{reportCount > 0 ? ` (${reportCount})` : ''}
             </button>
+            </div>
             )}
           </div>
 
@@ -211,13 +275,90 @@ export default function MokokoFinder() {
                             <img src="/mokoko.png" alt="" draggable="false" className="w-8 h-8 object-contain drop-shadow select-none" />
                           </button>
                         ))}
+                        {calibrating && calPoints.map(p => (
+                          <button
+                            key={p.id}
+                            onClick={e => { e.stopPropagation(); deleteCalPoint(p) }}
+                            title="Click to delete this calibration point"
+                            className="absolute z-20 -translate-x-1/2 -translate-y-1/2 p-1"
+                            style={{ left: `${p.x}%`, top: `${p.y}%` }}
+                          >
+                            <span className="block w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow" />
+                          </button>
+                        ))}
+                        {calibrating && calPoints.map(p => (
+                          <span
+                            key={`label-${p.id}`}
+                            className="absolute z-20 pointer-events-none translate-x-2 -translate-y-1/2 rounded bg-black/80 px-1 text-[10px] font-mono text-red-300 whitespace-nowrap"
+                            style={{ left: `${p.x}%`, top: `${p.y}%` }}
+                          >
+                            {p.game_x}, {p.game_y}
+                          </span>
+                        ))}
+                        {calibrating && calPending && (
+                          <span
+                            className="absolute z-20 pointer-events-none -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-yellow-400 border-2 border-white shadow animate-pulse"
+                            style={{ left: `${calPending.x}%`, top: `${calPending.y}%` }}
+                          />
+                        )}
                       </div>
                     </div>
                     )}
 
+                    {calibrating ? (
+                      <div className="mt-3 rounded-xl border border-red-500/50 bg-red-950/30 p-3 text-xs text-gray-200 flex flex-col gap-2">
+                        <p className="text-red-300">
+                          Calibration: click a spot on the map whose in-game X/Y you know and type them in. 2+ points far apart
+                          (ideally opposite corners) give accurate coordinates; 1 point only shifts them. Click a red dot to delete it.
+                        </p>
+                        {calPending && (
+                          <div className="flex items-end gap-2 flex-wrap">
+                            {['xInput', 'yInput'].map(k => (
+                              <label key={k} className="flex flex-col gap-1 text-gray-400">
+                                {k === 'xInput' ? 'In-game X' : 'In-game Y'}
+                                <input
+                                  type="number"
+                                  value={calPending[k]}
+                                  onChange={e => setCalPending(prev => ({ ...prev, [k]: e.target.value }))}
+                                  onKeyDown={e => { if (e.key === 'Enter') saveCalPoint() }}
+                                  className="w-24 bg-gray-800 border border-gray-600 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-yellow-400"
+                                />
+                              </label>
+                            ))}
+                            <button
+                              onClick={saveCalPoint}
+                              disabled={calSaving}
+                              className="px-3 py-1.5 rounded-lg font-semibold bg-yellow-400 hover:bg-yellow-300 disabled:opacity-40 text-gray-950"
+                            >
+                              Save point
+                            </button>
+                            <button
+                              onClick={() => setCalPending(null)}
+                              className="px-3 py-1.5 rounded-lg font-semibold bg-gray-800 hover:bg-gray-700 border border-gray-600"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        )}
+                        {calPoints.length > 0 && (
+                          <ul className="font-mono text-[11px] text-gray-400">
+                            {calPoints.map(p => {
+                              const g = pctToGame(selectedMap, p.x, p.y)
+                              const err = Math.round(Math.hypot(g.x - p.game_x, g.y - p.game_y))
+                              return (
+                                <li key={p.id}>
+                                  ({p.game_x}, {p.game_y}) → map shows ({Math.round(g.x)}, {Math.round(g.y)}){err > 0 ? `, off by ${err}` : ''}
+                                </li>
+                              )
+                            })}
+                          </ul>
+                        )}
+                      </div>
+                    ) : (
                     <p className="mt-3 text-xs text-yellow-400">
                       {supported ? t('mokokoFinder.clickToMark') : t('mokokoFinder.addDisabled')}
                     </p>
+                    )}
                   </>
                 )}
               </div>
