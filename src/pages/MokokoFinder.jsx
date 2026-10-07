@@ -6,6 +6,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import MokokoFinderReportModal from '../components/MokokoFinderReportModal'
 import MokokoFinderReviewModal from '../components/MokokoFinderReviewModal'
 import MokokoFinderSpotModal from '../components/MokokoFinderSpotModal'
+import LockedMapNotice from '../components/LockedMapNotice'
 import { db } from '../dbClient'
 import { pctToGame, fitGameCoords } from '../utils/mokokoFinderCoords'
 
@@ -56,6 +57,17 @@ export default function MokokoFinder() {
   const fittedGame = baseMap ? fitGameCoords(baseMap, calPoints) : null
   const selectedMap = baseMap && fittedGame ? { ...baseMap, game: fittedGame } : baseMap
   const supported = !!selectedMap?.image_url
+  // Locked = maps.locked on the interactive map's row with the same name (one
+  // switch for both pages, EditMapModal): non-admins get LockedMapNotice
+  // instead of the map, and the worker withholds the spots too.
+  const [lockedNames, setLockedNames] = useState(() => new Set())
+  const lockedForUser = !isAdmin && lockedNames.has(selectedName)
+
+  useEffect(() => {
+    db.from('maps').select('name, locked').then(({ data }) => {
+      setLockedNames(new Set((data ?? []).filter(m => m.locked).map(m => m.name)))
+    })
+  }, [])
 
   // Not polled - only the admin changes these, and their own edits update state directly.
   useEffect(() => {
@@ -219,6 +231,9 @@ export default function MokokoFinder() {
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="flex items-center gap-1 min-w-0">
+                          {lockedNames.has(m.name) && (
+                            <span className={active ? 'text-gray-700' : 'text-gray-500'} title={t('maps.mapUnavailable')}>🔒</span>
+                          )}
                           {!isSupported && (
                             <span className={active ? 'text-gray-700' : 'text-gray-600'} title={t('mokokoFinder.notSupportedTooltip')}>⏳</span>
                           )}
@@ -243,7 +258,9 @@ export default function MokokoFinder() {
                       </p>
                     )}
 
-                    {!supported ? (
+                    {lockedForUser ? (
+                      <LockedMapNotice imageUrl={selectedMap.image_url} width={selectedMap.width} height={selectedMap.height} name={selectedMap.name} />
+                    ) : !supported ? (
                       <div className="w-full aspect-square max-h-[70vh] rounded-xl border border-dashed border-gray-700 bg-gray-950 flex items-center justify-center text-5xl">⏳</div>
                     ) : (
                     <div
@@ -354,7 +371,7 @@ export default function MokokoFinder() {
                           </ul>
                         )}
                       </div>
-                    ) : (
+                    ) : lockedForUser ? null : (
                     <p className="mt-3 text-xs text-yellow-400">
                       {supported ? t('mokokoFinder.clickToMark') : t('mokokoFinder.addDisabled')}
                     </p>

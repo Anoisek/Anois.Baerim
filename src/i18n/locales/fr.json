@@ -277,6 +277,7 @@
     "importError": "Impossible de lire ce fichier — assure-toi qu'il s'agit d'un fichier de progression exporté depuis ce site.",
     "repositionHint": "Clique n'importe où sur la carte pour déplacer ce mokoko à cet endroit. Échap pour annuler.",
     "adminOnlyTooltip": "Visible uniquement par l'admin",
+    "mapUnavailable": "Cette carte n'est actuellement pas disponible",
     "selectAll": "☑ Tout sélectionner",
     "deselectAll": "☐ Tout désélectionner",
     "confirmBulkMarkTitle": "Es-tu sûr ?",

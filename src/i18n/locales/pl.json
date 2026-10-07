@@ -287,6 +287,7 @@
     "importError": "Nie udało się odczytać tego pliku — upewnij się, że to plik postępu wyeksportowany z tej strony.",
     "repositionHint": "Kliknij nowe miejsce na mapie, aby przenieść tam to mokoko. Esc, aby anulować.",
     "adminOnlyTooltip": "Widoczne tylko dla admina",
+    "mapUnavailable": "Ta mapa jest obecnie niedostępna",
     "selectAll": "☑ Zaznacz wszystkie",
     "deselectAll": "☐ Odznacz wszystkie",
     "confirmBulkMarkTitle": "Na pewno?",

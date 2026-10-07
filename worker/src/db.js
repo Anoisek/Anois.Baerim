@@ -25,6 +25,13 @@ import { sendDiscordOreAlert } from './oreFinderDiscord.js'
 // "In progress" category/subcategory, nor materials in a hidden material chapter
 // (e.g. Chapter II before launch), so search, usage pages and the build
 // calculator can't leak them - not even through devtools.
+// Locked maps (maps.locked): non-admins see the map greyed out with no
+// markers, so neither the interactive map's markers/notes nor the matching
+// /mokoko-finder spots (by map name) are ever sent to them.
+const LOCKED_MAP_IDS_SQL = 'SELECT id FROM maps WHERE locked = 1'
+const LOCKED_MARKERS_SQL = 'SELECT id FROM map_markers WHERE map_id IN (' + LOCKED_MAP_IDS_SQL + ')'
+const LOCKED_FINDER_SPOTS_SQL = 'SELECT id FROM mokoko_finder_spots WHERE map IN (SELECT name FROM maps WHERE locked = 1)'
+
 const HIDDEN_ITEMS_SQL =
   'SELECT id FROM items WHERE category_id IN (SELECT id FROM categories WHERE maintenance = 1)' +
   ' OR subcategory_id IN (SELECT id FROM subcategories WHERE maintenance = 1)'
@@ -101,8 +108,8 @@ const TABLES = {
     publicRead: false,
   },
   maps: {
-    columns: ['id', 'name', 'region', 'mark', 'image_url', 'width', 'height', 'sort_order', 'created_at', 'max_mokoko', 'admin_only', 'chapter', 'video_url'],
-    booleans: ['admin_only'],
+    columns: ['id', 'name', 'region', 'mark', 'image_url', 'width', 'height', 'sort_order', 'created_at', 'max_mokoko', 'admin_only', 'chapter', 'video_url', 'locked'],
+    booleans: ['admin_only', 'locked'],
     pk: ['id'],
   },
   // Admin-only Item storage (see migrations/0017_item_storage.sql): reads are
@@ -127,10 +134,12 @@ const TABLES = {
     pk: ['id'],
     insertAuth: 'editor',
     visibilityFilter: true,
+    hiddenWhere: 'map_id NOT IN (' + LOCKED_MAP_IDS_SQL + ')',
   },
   map_marker_notes: {
     columns: ['id', 'marker_id', 'comment', 'image_url', 'created_at', 'likes'],
     pk: ['id'],
+    hiddenWhere: 'marker_id NOT IN (' + LOCKED_MARKERS_SQL + ')',
     insertAuth: 'public',
     beforeInsert: function (row) {
       const comment = typeof row.comment === 'string' ? row.comment.trim() : null
@@ -383,6 +392,7 @@ const TABLES = {
   mokoko_finder_spots: {
     columns: ['id', 'map', 'x', 'y', 'screenshot_url', 'created_at', 'marker_id'],
     pk: ['id'],
+    hiddenWhere: 'id NOT IN (' + LOCKED_FINDER_SPOTS_SQL + ')',
   },
   // Extra photos on an approved spot from merging several reports of the same
   // sighting (see MokokoFinderReviewModal) - admin-only write, public read
@@ -390,6 +400,7 @@ const TABLES = {
   mokoko_finder_spot_notes: {
     columns: ['id', 'spot_id', 'image_url', 'created_at'],
     pk: ['id'],
+    hiddenWhere: 'spot_id NOT IN (' + LOCKED_FINDER_SPOTS_SQL + ')',
   },
   // Admin calibration points (image % -> in-game X/Y) the page fits the
   // map's coordinate mapping from - admin-only write, public read (every

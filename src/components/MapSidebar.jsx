@@ -116,9 +116,14 @@ export default function MapSidebar({ maps, selectedMap, mapStats, isAdmin, onSel
                             {m.admin_only && (
                               <span className={active ? 'text-gray-900' : 'text-gray-500'} title={t('maps.adminOnlyTooltip')}>🔒</span>
                             )}
+                            {m.locked && !m.admin_only && (
+                              <span className={active ? 'text-gray-900' : 'text-gray-500'} title={t('maps.mapUnavailable')}>🔒</span>
+                            )}
                             <span className="font-semibold truncate">{m.name}</span>
                           </span>
-                          <span className={`text-[10px] font-mono font-bold shrink-0 ${statColor}`}>{mDone}/{mTotal}</span>
+                          {!(m.locked && !isAdmin) && (
+                            <span className={`text-[10px] font-mono font-bold shrink-0 ${statColor}`}>{mDone}/{mTotal}</span>
+                          )}
                         </div>
                         <div className={`text-xs ${active ? 'text-gray-800' : 'text-gray-500'} ${isAdmin ? 'pl-6' : ''}`}>{m.region}</div>
                       </button>

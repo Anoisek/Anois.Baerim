@@ -13,6 +13,7 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
   const [dimensions, setDimensions] = useState({ width: map.width, height: map.height })
   const [maxMokoko, setMaxMokoko] = useState(map.max_mokoko != null ? String(map.max_mokoko) : '')
   const [adminOnly, setAdminOnly] = useState(!!map.admin_only)
+  const [locked, setLocked] = useState(!!map.locked)
   const [chapter, setChapter] = useState(mapChapterOf(map))
   const [saving, setSaving] = useState(false)
 
@@ -41,6 +42,7 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
         height: dimensions.height,
         max_mokoko: maxMokoko.trim() === '' ? null : Number(maxMokoko),
         admin_only: adminOnly,
+        locked,
         chapter,
       })
       .eq('id', map.id)
@@ -137,6 +139,15 @@ export default function EditMapModal({ map, onClose, onUpdated }) {
             className="accent-yellow-400"
           />
           Only visible to admin
+        </label>
+        <label className="flex items-center gap-2 text-sm text-gray-400">
+          <input
+            type="checkbox"
+            checked={locked}
+            onChange={e => setLocked(e.target.checked)}
+            className="accent-yellow-400"
+          />
+          Locked (users see a greyed-out map: "not available", no mokoko)
         </label>
         <button
           type="submit"

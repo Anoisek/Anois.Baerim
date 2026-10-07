@@ -105,8 +105,12 @@ async function submitAlchemyPrice(env, params, headers) {
 
 // Deliberately does NOT filter by visible_at — mirrors the Postgres function exactly.
 // Maps.jsx shows the total marker count per map including not-yet-revealed ones (⏳).
+// Locked maps (maps.locked) are left out entirely - they don't count towards
+// anyone's totals until unlocked (the admin's page falls back to the loaded markers).
 async function mapMarkerCounts(env, headers) {
-  const res = await env.DB.prepare('SELECT map_id, COUNT(*) as total FROM map_markers GROUP BY map_id').all()
+  const res = await env.DB.prepare(
+    'SELECT map_id, COUNT(*) as total FROM map_markers WHERE map_id NOT IN (SELECT id FROM maps WHERE locked = 1) GROUP BY map_id'
+  ).all()
   return json({ data: res.results, error: null }, 200, headers)
 }
 

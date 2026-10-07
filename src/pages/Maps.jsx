@@ -22,6 +22,7 @@ import MokokoCompletionModal from '../components/MokokoCompletionModal'
 import ConfirmBulkMarkModal from '../components/ConfirmBulkMarkModal'
 import { isMarkerCollected } from '../utils/markerCollected'
 import { slugify, findBySlugOrId } from '../utils/slug'
+import LockedMapNotice from '../components/LockedMapNotice'
 
 const COLLECTED_KEY = 'map_collected_markers'
 const MIN_ZOOM = 1
@@ -145,6 +146,8 @@ export default function Maps() {
   }, [mapsLoading, visibleMaps, mapId, navigate])
 
   const selectedMap = findBySlugOrId(visibleMaps, mapId)
+  // Locked maps stay listed, but non-admins get LockedMapNotice instead of the map.
+  const lockedForUser = !!selectedMap?.locked && !isAdmin
 
   useEffect(() => {
     if (!selectedMap) return
@@ -493,6 +496,7 @@ export default function Maps() {
                     <h2 className="text-lg font-bold text-gray-100">{selectedMap?.name}</h2>
                     {selectedMap && <MapVideoLink map={selectedMap} isAdmin={isAdmin} onUpdated={updated => setMaps(prev => prev.map(m => m.id === updated.id ? updated : m))} t={t} />}
                   </div>
+                  {!lockedForUser && (
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-400">
                       <strong className="text-gray-200">{markers.filter(m => isMarkerCollected(m, collected)).length}</strong>/{selectedMap ? (markerCounts[selectedMap.id] ?? markers.length) : markers.length} {t('maps.collected')}
@@ -531,9 +535,12 @@ export default function Maps() {
                       </button>
                     )}
                   </div>
+                  )}
                 </div>
 
-                {markersLoading || !selectedMap ? <Spinner /> : (
+                {lockedForUser ? (
+                  <LockedMapNotice imageUrl={selectedMap.image_url} width={selectedMap.width} height={selectedMap.height} name={selectedMap.name} />
+                ) : markersLoading || !selectedMap ? <Spinner /> : (
                   <>
                     <div
                       ref={mapViewportRef}

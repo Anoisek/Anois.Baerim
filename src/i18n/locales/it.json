@@ -277,6 +277,7 @@
     "importError": "Impossibile leggere questo file — assicurati che sia un file di progressi esportato da questo sito.",
     "repositionHint": "Clicca in un punto qualsiasi della mappa per spostare qui questo mokoko. Esc per annullare.",
     "adminOnlyTooltip": "Visibile solo all'admin",
+    "mapUnavailable": "Questa mappa al momento non è disponibile",
     "selectAll": "☑ Seleziona tutti",
     "deselectAll": "☐ Deseleziona tutti",
     "confirmBulkMarkTitle": "Sei sicuro?",

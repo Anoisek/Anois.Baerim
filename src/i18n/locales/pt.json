@@ -277,6 +277,7 @@
     "importError": "Não foi possível ler este ficheiro — certifica-te de que é um ficheiro de progresso exportado deste site.",
     "repositionHint": "Clica em qualquer parte do mapa para mover este mokoko para lá. Esc para cancelar.",
     "adminOnlyTooltip": "Visível apenas para o admin",
+    "mapUnavailable": "Este mapa não está disponível de momento",
     "selectAll": "☑ Selecionar tudo",
     "deselectAll": "☐ Desselecionar tudo",
     "confirmBulkMarkTitle": "Tens a certeza?",

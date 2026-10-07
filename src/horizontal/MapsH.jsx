@@ -21,6 +21,7 @@ import MokokoCompletionModal from '../components/MokokoCompletionModal'
 import ConfirmBulkMarkModal from '../components/ConfirmBulkMarkModal'
 import { isMarkerCollected } from '../utils/markerCollected'
 import { slugify, findBySlugOrId } from '../utils/slug'
+import LockedMapNotice from '../components/LockedMapNotice'
 import { EmptyState, PillButton } from './ui'
 
 // Every piece of interaction logic here (pan/zoom math, gesture tracking,
@@ -149,6 +150,8 @@ export default function MapsH() {
   }, [mapsLoading, visibleMaps, mapId, navigate])
 
   const selectedMap = findBySlugOrId(visibleMaps, mapId)
+  // Locked maps stay listed, but non-admins get LockedMapNotice instead of the map.
+  const lockedForUser = !!selectedMap?.locked && !isAdmin
 
   useEffect(() => {
     if (!selectedMap) return
@@ -465,6 +468,7 @@ export default function MapsH() {
                   <h2 className="text-lg font-bold text-gray-100">{selectedMap?.name}</h2>
                   {selectedMap && <MapVideoLink map={selectedMap} isAdmin={isAdmin} onUpdated={updated => setMaps(prev => prev.map(m => m.id === updated.id ? updated : m))} t={t} />}
                 </div>
+                {!lockedForUser && (
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm text-gray-400">
                     <strong className="text-gray-200">{markers.filter(m => isMarkerCollected(m, collected)).length}</strong>/{selectedMap ? (markerCounts[selectedMap.id] ?? markers.length) : markers.length} {t('maps.collected')}
@@ -490,9 +494,12 @@ export default function MapsH() {
                     <PillButton active={editMode} onClick={() => setEditMode(v => !v)}>{editMode ? t('maps.done') : t('maps.editPanel')}</PillButton>
                   )}
                 </div>
+                )}
               </div>
 
-              {markersLoading || !selectedMap ? (
+              {lockedForUser ? (
+                <LockedMapNotice imageUrl={selectedMap.image_url} width={selectedMap.width} height={selectedMap.height} name={selectedMap.name} />
+              ) : markersLoading || !selectedMap ? (
                 <div className="py-16 flex justify-center"><Spinner /></div>
               ) : (
                 <>

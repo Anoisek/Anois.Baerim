@@ -277,6 +277,7 @@
     "importError": "Tento soubor se nepodařilo přečíst — ujisti se, že jde o soubor s postupem exportovaný z tohoto webu.",
     "repositionHint": "Klikni kamkoli na mapu, abys tam přesunul toto mokoko. Zrušíš klávesou Esc.",
     "adminOnlyTooltip": "Viditelné pouze pro admina",
+    "mapUnavailable": "Tato mapa momentálně není dostupná",
     "selectAll": "☑ Vybrat vše",
     "deselectAll": "☐ Zrušit výběr všech",
     "confirmBulkMarkTitle": "Jsi si jistý?",

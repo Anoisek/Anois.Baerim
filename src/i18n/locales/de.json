@@ -277,6 +277,7 @@
     "importError": "Diese Datei konnte nicht gelesen werden — stelle sicher, dass es sich um eine von dieser Seite exportierte Fortschrittsdatei handelt.",
     "repositionHint": "Klicke irgendwo auf die Karte, um dieses Mokoko dorthin zu verschieben. Esc zum Abbrechen.",
     "adminOnlyTooltip": "Nur für Admin sichtbar",
+    "mapUnavailable": "Diese Karte ist derzeit nicht verfügbar",
     "selectAll": "☑ Alle auswählen",
     "deselectAll": "☐ Alle abwählen",
     "confirmBulkMarkTitle": "Bist du sicher?",
