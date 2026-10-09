@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
+import SupportCodeNote from '../components/SupportCodeNote'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import AddMarkerModal from '../components/AddMarkerModal'
@@ -470,6 +471,8 @@ export default function Maps() {
               </button>
             </div>
           </div>
+
+          <SupportCodeNote />
 
           {mapsLoading ? <Spinner /> : visibleMaps.length === 0 ? (
             <div className="flex flex-col items-center py-20 text-gray-500 gap-3">

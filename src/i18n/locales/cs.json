@@ -251,6 +251,8 @@
   },
   "maps": {
     "title": "Interaktivní mapa Mokoko",
+    "supportCodeBefore": "Líbí se ti mapa? Pokud mě chceš podpořit, klidně použij můj kód",
+    "supportCodeAfter": "na Baerimu",
     "hallOfFame": "🏆 Hall of Fame",
     "noMapsYet": "Zatím žádné mapy.",
     "hideCollected": "🙈 Skrýt sebrané",

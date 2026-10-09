@@ -251,6 +251,8 @@
   },
   "maps": {
     "title": "Διαδραστικός χάρτης Mokoko",
+    "supportCodeBefore": "Σου αρέσει ο χάρτης; Αν θέλεις να με στηρίξεις, χρησιμοποίησε τον κωδικό μου",
+    "supportCodeAfter": "στο Baerim",
     "hallOfFame": "🏆 Hall of Fame",
     "noMapsYet": "Δεν υπάρχουν ακόμη χάρτες.",
     "hideCollected": "🙈 Απόκρυψη συλλεγμένων",

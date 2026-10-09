@@ -251,6 +251,8 @@
   },
   "maps": {
     "title": "Harta interactivă Mokoko",
+    "supportCodeBefore": "Îți place harta? Dacă vrei să mă susții, folosește codul meu",
+    "supportCodeAfter": "pe Baerim",
     "hallOfFame": "🏆 Hall of Fame",
     "noMapsYet": "Încă nu există hărți.",
     "hideCollected": "🙈 Ascunde colectate",

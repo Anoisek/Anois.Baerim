@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { db } from '../dbClient'
 import { useAuth } from '../context/AuthContext'
 import NavbarH from './NavbarH'
+import SupportCodeNote from '../components/SupportCodeNote'
 import Breadcrumbs from '../components/Breadcrumbs'
 import Spinner from '../components/Spinner'
 import AddMarkerModal from '../components/AddMarkerModal'
@@ -443,6 +444,8 @@ export default function MapsH() {
             <PillButton onClick={() => setShowHelpers(true)}>{t('maps.hallOfFame')}</PillButton>
           </div>
         </div>
+
+        <SupportCodeNote />
 
         {mapsLoading ? (
           <div className="py-16 flex justify-center"><Spinner /></div>

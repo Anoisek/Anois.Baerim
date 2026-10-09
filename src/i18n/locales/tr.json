@@ -251,6 +251,8 @@
   },
   "maps": {
     "title": "Mokoko İnteraktif Haritası",
+    "supportCodeBefore": "Haritayı beğendin mi? Beni desteklemek istersen kodumu kullanabilirsin:",
+    "supportCodeAfter": "(Baerim)",
     "hallOfFame": "🏆 Hall of Fame",
     "noMapsYet": "Henüz harita yok.",
     "hideCollected": "🙈 Toplananları gizle",

@@ -261,6 +261,8 @@
   },
   "maps": {
     "title": "Mokoko Interactive Map",
+    "supportCodeBefore": "Enjoying the map? If you'd like to support me, feel free to use my code",
+    "supportCodeAfter": "on Baerim",
     "hallOfFame": "🏆 Hall of Fame",
     "noMapsYet": "No maps yet.",
     "hideCollected": "🙈 Hide collected",

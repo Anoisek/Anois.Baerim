@@ -261,6 +261,8 @@
   },
   "maps": {
     "title": "Interaktywna mapa Mokoko",
+    "supportCodeBefore": "Podoba ci się mapa? Jeśli chcesz mnie wesprzeć, użyj mojego kodu",
+    "supportCodeAfter": "na Baerim",
     "hallOfFame": "🏆 Hall of Fame",
     "noMapsYet": "Brak map.",
     "hideCollected": "🙈 Ukryj zebrane",
